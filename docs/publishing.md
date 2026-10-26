@@ -2,6 +2,8 @@
 
 仓库：[kejie-tang/pararead-android](https://github.com/kejie-tang/pararead-android)。显示名称 ParaRead Android，说明为独立、非官方 Android 平板适配。
 
+仓库默认首页为英文 [README.md](../README.md)，中文入口为 [README.zh-CN.md](../README.zh-CN.md)，两份 README 顶部互相链接。更新下载版本、功能状态和许可说明时同步维护两种语言。
+
 ## 仓库说明与许可
 
 About：`Unofficial Android tablet adaptation of ParaRead, with sentence-aligned bilingual PDF reading and offline translation via llama.cpp.`
@@ -60,7 +62,7 @@ base64 -i "$HOME/.android/keystores/pararead-release.jks" | gh secret set ANDROI
 
 建议首个对外版本为 **`0.2.0-alpha.1`**，按开发预览标记。当前代码仍为 `0.2.0-dev`，本次上传不冒充稳定版，也未自动创建公开 Release。
 
-1. 在 [app/build.gradle.kts](../app/build.gradle.kts) 更新 `versionName`（例如 `0.2.0-alpha.1`）并递增 `versionCode`（当前为 1，首次发布可改为 2）。同步 README 当前状态和 [release-notes.md](release-notes.md)，提交并推送 main。
+1. 在 [app/build.gradle.kts](../app/build.gradle.kts) 更新 `versionName`（例如 `0.2.0-alpha.1`）并递增 `versionCode`（当前为 1，首次发布可改为 2）。同步中英文 README 当前状态与下载链接和 [release-notes.md](release-notes.md)，提交并推送 main。
 2. 等 Android CI 通过。在已验证的 main 提交上创建 tag；tag 必须等于 `v` 加 `versionName`：
 
    ```sh
