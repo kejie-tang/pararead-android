@@ -1,0 +1,11 @@
+llama.cpp and ggml, MIT License. Copyright (c) 2023-2026 The ggml authors.
+Pinned source: ggml-org/llama.cpp@2280f0fd163b03d4331d49e08460f66502e35854
+405 CPU build source blobs are verified by upstream/llama.lock.json.
+The Android JNI wrapper in engine/llama is original project code.
+CPU-only; common, examples, server, mtmd, Vulkan and KleidiAI are disabled.
+llamafile CPU multiplication: Copyright 2024 Mozilla Foundation, MIT (included).
+Hash support vendor sources: xxHash BSD-2-Clause; rotate-bits MIT;
+SHA-1 by Steve Reid and SHA-256 by Igor Pavlov are public domain.
+Other vendor interface targets are configured but not linked into this APK.
+Their original source notices remain in the verified source snapshot.
+No GGUF model is distributed with the APK.

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.pararead.core.WholeDocumentJobTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-10-26T07:15:50.647Z" hostname="ip-192-168-2-123.ap-east-1.compute.internal" time="0.003">
+  <properties/>
+  <testcase name="partialCancelledOrOutOfOrderPagesCannotAdvanceTheCursor" classname="org.pararead.core.WholeDocumentJobTest" time="0.001"/>
+  <testcase name="durableCursorRoundTripsWithSeparateSuccessAndFailureCounts" classname="org.pararead.core.WholeDocumentJobTest" time="0.001"/>
+  <testcase name="obsoleteOrCorruptRecordsAreRejected" classname="org.pararead.core.WholeDocumentJobTest" time="0.0"/>
+  <testcase name="resumeRequiresTheSameDocumentAndTranslationIdentity" classname="org.pararead.core.WholeDocumentJobTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

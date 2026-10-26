@@ -1,0 +1,8 @@
+
+org.pararead.android.ModelManagerTest:....
+org.pararead.android.ReaderIntegrationTest:..
+org.pararead.android.CpuThreadsSettingsTest:.
+
+Time: 13.593
+
+OK (7 tests)

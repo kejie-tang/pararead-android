@@ -1,0 +1,16 @@
+ParaRead Reading Guide
+Copyright 2026 ParaRead Android contributors
+
+The six-page reading sample, its original prose, tables and vector artwork
+are licensed under the Apache License, Version 2.0. See ../LICENSE or
+https://www.apache.org/licenses/LICENSE-2.0 .
+
+This is an original instructional demonstration, not a research paper,
+published experiment, translation-quality benchmark or performance report.
+The PDF uses standard PDF base fonts and embeds no external font program.
+Generation source: scripts/generate_sample_pdf.py (ReportLab 4.4.9).
+No published paper, third-party figure or model output is reproduced.
+
+Attention Is All You Need (Vaswani et al., 2017) is recommended by external
+link only. It is not included in this sample, the repository or the APK.
+Imported documents remain subject to their own copyright and terms.

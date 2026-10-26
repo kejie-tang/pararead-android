@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.pararead.core.CpuThreadsTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-26T03:38:47.978Z" hostname="ip-192-168-2-123.ap-east-1.compute.internal" time="0.023">
+  <properties/>
+  <testcase name="automaticSizingReservesCapacityOnLargerCpus" classname="org.pararead.core.CpuThreadsTest" time="0.01"/>
+  <testcase name="invalidCountsCannotReachTheNativeEngine" classname="org.pararead.core.CpuThreadsTest" time="0.011"/>
+  <testcase name="manualSettingSurvivesAChangeInAvailableCpuCount" classname="org.pararead.core.CpuThreadsTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

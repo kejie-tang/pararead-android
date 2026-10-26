@@ -1,0 +1,2032 @@
+{
+  "repository": "https://github.com/ggml-org/llama.cpp",
+  "commit": "2280f0fd163b03d4331d49e08460f66502e35854",
+  "license": "MIT",
+  "files": [
+    {
+      "path": "AUTHORS",
+      "sha": "ea17fb76e5fce07c995bddbc70bfc715ca2eff16",
+      "size": 89268
+    },
+    {
+      "path": "CMakeLists.txt",
+      "sha": "d091a1411bf7091bbf821e2cfcfa7c9bec310575",
+      "size": 11036
+    },
+    {
+      "path": "LICENSE",
+      "sha": "e7dca554bcb802f98408383a864404e3aa4eacca",
+      "size": 1078
+    },
+    {
+      "path": "README.md",
+      "sha": "a524b3d6a8dafe1b913e8aef2e41b3bed5ae2c02",
+      "size": 7470
+    },
+    {
+      "path": "cmake/arm64-apple-clang.cmake",
+      "sha": "5fcd2882afc9d96ccc1c28396b91e5e46c93f66c",
+      "size": 555
+    },
+    {
+      "path": "cmake/arm64-linux-clang.cmake",
+      "sha": "f16e280ec6609c13ad1546b7a0cd97ee07e37776",
+      "size": 587
+    },
+    {
+      "path": "cmake/arm64-windows-llvm.cmake",
+      "sha": "cdba4e749479fe410a83569da290a292f910979b",
+      "size": 635
+    },
+    {
+      "path": "cmake/arm64-windows-msvc-cuda.cmake",
+      "sha": "370f2b3d212797255bc64ef38542e92a572c0e7d",
+      "size": 1308
+    },
+    {
+      "path": "cmake/build-info.cmake",
+      "sha": "c7005950c5612d1d93ca728386b10806b0043106",
+      "size": 1319
+    },
+    {
+      "path": "cmake/common.cmake",
+      "sha": "ee8d5bf7b1f2a115e48895b28f25ce06b74b1d6a",
+      "size": 2089
+    },
+    {
+      "path": "cmake/download-models.cmake",
+      "sha": "de252906a01fbcf2d2a3cf538d2f683c48420dbd",
+      "size": 505
+    },
+    {
+      "path": "cmake/git-vars.cmake",
+      "sha": "1a4c24ebf6adeb1126e626f56de601621179353d",
+      "size": 717
+    },
+    {
+      "path": "cmake/license.cmake",
+      "sha": "de066603ba5e99d0ae4633647e69ef435f6824fd",
+      "size": 1445
+    },
+    {
+      "path": "cmake/llama-config.cmake.in",
+      "sha": "6500203b145f994041f89553604a565db72f2268",
+      "size": 1022
+    },
+    {
+      "path": "cmake/llama.pc.in",
+      "sha": "31b043c0e399078dbc4c99db232881587a81d273",
+      "size": 303
+    },
+    {
+      "path": "cmake/riscv64-spacemit-linux-gnu-gcc.cmake",
+      "sha": "faed7fb7831a48d76202ab83ad44f8eccdc23f25",
+      "size": 1463
+    },
+    {
+      "path": "cmake/x64-windows-llvm.cmake",
+      "sha": "77e79140798b2fcee2d84a3abdeab315c08b7a03",
+      "size": 139
+    },
+    {
+      "path": "ggml/CMakeLists.txt",
+      "sha": "35252a83a5eaa585d36b1adc4ec16833ab8b9a31",
+      "size": 21801
+    },
+    {
+      "path": "ggml/cmake/FindNCCL.cmake",
+      "sha": "67511e2d56a6cf2e3bbcd000e6c7ad5d0535a2bd",
+      "size": 964
+    },
+    {
+      "path": "ggml/cmake/GitVars.cmake",
+      "sha": "1a4c24ebf6adeb1126e626f56de601621179353d",
+      "size": 717
+    },
+    {
+      "path": "ggml/cmake/common.cmake",
+      "sha": "42b65a58051c83927a24f64329e8967b19730756",
+      "size": 5418
+    },
+    {
+      "path": "ggml/cmake/ggml-config.cmake.in",
+      "sha": "a28e49e8342012ed680be18b0fd2baa393fa6c70",
+      "size": 8018
+    },
+    {
+      "path": "ggml/include/ggml-alloc.h",
+      "sha": "81cce2e2a60778f5fe6d923a74b38f7fa47d7dcc",
+      "size": 3689
+    },
+    {
+      "path": "ggml/include/ggml-backend.h",
+      "sha": "7a65d8121b1c1f135bef3586058b83c07ce0cb73",
+      "size": 27570
+    },
+    {
+      "path": "ggml/include/ggml-blas.h",
+      "sha": "87a81b36348b8eec067427216c1988277ec3b8f7",
+      "size": 586
+    },
+    {
+      "path": "ggml/include/ggml-cann.h",
+      "sha": "74af465337a53101d583177254faa9c6147e8445",
+      "size": 4553
+    },
+    {
+      "path": "ggml/include/ggml-cpp.h",
+      "sha": "48aa79682b65d9a0ec12f7d937ebc7f0840dc6b8",
+      "size": 1652
+    },
+    {
+      "path": "ggml/include/ggml-cpu.h",
+      "sha": "dc6453c6eaa16667f720f987659ad42d03a403a2",
+      "size": 7753
+    },
+    {
+      "path": "ggml/include/ggml-cuda.h",
+      "sha": "1cd81eeaebcdf4abcd46c87ba1a9a46e275aa12b",
+      "size": 1565
+    },
+    {
+      "path": "ggml/include/ggml-et.h",
+      "sha": "8b78f39aabce2be2271b735ba2d1cbf2e239df76",
+      "size": 887
+    },
+    {
+      "path": "ggml/include/ggml-hexagon.h",
+      "sha": "6e079004103933a284e4292adfd24b4564026e78",
+      "size": 351
+    },
+    {
+      "path": "ggml/include/ggml-metal.h",
+      "sha": "433838f0d6d68d1fffabbe18a23e3c2bca3ee2fc",
+      "size": 2141
+    },
+    {
+      "path": "ggml/include/ggml-opencl.h",
+      "sha": "6b61771358f875be2f1b5ce584d4e30b7c2450b4",
+      "size": 581
+    },
+    {
+      "path": "ggml/include/ggml-openvino.h",
+      "sha": "c43beb07b6a6e384b58cd91b5a4a97c6f194c0e1",
+      "size": 1034
+    },
+    {
+      "path": "ggml/include/ggml-opt.h",
+      "sha": "1c2ed79b77420e74fd3b81b83367109164380853",
+      "size": 14040
+    },
+    {
+      "path": "ggml/include/ggml-rpc.h",
+      "sha": "ecf0a3a6dc2552db250b8ae36be345f6b658704a",
+      "size": 1184
+    },
+    {
+      "path": "ggml/include/ggml-sycl.h",
+      "sha": "1e353ffa31c7cdc5d261ed9591e860c09a223ef9",
+      "size": 2492
+    },
+    {
+      "path": "ggml/include/ggml-virtgpu.h",
+      "sha": "faaba8f246d1f97237f45378982ad46c96796a77",
+      "size": 194
+    },
+    {
+      "path": "ggml/include/ggml-vulkan.h",
+      "sha": "ed5ea5f798cb5b0ce6801689d43fc2ef15e5fa35",
+      "size": 952
+    },
+    {
+      "path": "ggml/include/ggml-webgpu.h",
+      "sha": "65b8ed9bb66443573fad7cdc1ebec41f20faf981",
+      "size": 328
+    },
+    {
+      "path": "ggml/include/ggml-zdnn.h",
+      "sha": "e6970ad2f7e41b178e2f55749405c31957febc6f",
+      "size": 361
+    },
+    {
+      "path": "ggml/include/ggml-zendnn.h",
+      "sha": "a30a3a980883524be05e884a7d67f8d9f5f8b528",
+      "size": 498
+    },
+    {
+      "path": "ggml/include/ggml.h",
+      "sha": "d62a631043a3745882dba3333004cb92cb75a7c6",
+      "size": 118304
+    },
+    {
+      "path": "ggml/include/gguf.h",
+      "sha": "b3a1e1230a06110a0a5f04469d849ac2000b467c",
+      "size": 11355
+    },
+    {
+      "path": "ggml/src/CMakeLists.txt",
+      "sha": "fe001a042a6a811b570e46f304a5585558fbea1b",
+      "size": 27496
+    },
+    {
+      "path": "ggml/src/ggml-alloc.c",
+      "sha": "b0c067b491350275ffab568a23a16c95b88c2c7b",
+      "size": 45068
+    },
+    {
+      "path": "ggml/src/ggml-backend-dl.cpp",
+      "sha": "a65cf009055283d8b0b583326452d66c62908aed",
+      "size": 1051
+    },
+    {
+      "path": "ggml/src/ggml-backend-dl.h",
+      "sha": "f74b7c948946995d3360be99329df8c7bc987e6b",
+      "size": 791
+    },
+    {
+      "path": "ggml/src/ggml-backend-impl.h",
+      "sha": "dc7367dec4fe3246eb255332c45c23af34fcb959",
+      "size": 15095
+    },
+    {
+      "path": "ggml/src/ggml-backend-meta.cpp",
+      "sha": "fb35be352aed3f1cd330b92bd5c48de0def7ca37",
+      "size": 120566
+    },
+    {
+      "path": "ggml/src/ggml-backend-reg.cpp",
+      "sha": "4e9681c9f5c3ef1b1c7e849af7d070dc2833e96c",
+      "size": 18091
+    },
+    {
+      "path": "ggml/src/ggml-backend.cpp",
+      "sha": "22e5fd9c7d998fe93fd9e04b5dae6806d58c60af",
+      "size": 102696
+    },
+    {
+      "path": "ggml/src/ggml-common.h",
+      "sha": "1dbbe326d0fc6a5ce8a86d237cb94901340443af",
+      "size": 135161
+    },
+    {
+      "path": "ggml/src/ggml-cpu/CMakeLists.txt",
+      "sha": "8327c52e6daec622fc4462ba4eb12f270e4af621",
+      "size": 33159
+    },
+    {
+      "path": "ggml/src/ggml-cpu/amx/amx.cpp",
+      "sha": "e90c2797ffdd2877a3fdd216f95e9e27003e4bf1",
+      "size": 8404
+    },
+    {
+      "path": "ggml/src/ggml-cpu/amx/amx.h",
+      "sha": "5b65d76bdc89cb6217bbbe6fcbf11dff36e22d23",
+      "size": 202
+    },
+    {
+      "path": "ggml/src/ggml-cpu/amx/common.h",
+      "sha": "26a6ec1a2d0092fa24ca8b9d937ebf1fed183976",
+      "size": 2675
+    },
+    {
+      "path": "ggml/src/ggml-cpu/amx/mmq.cpp",
+      "sha": "9f3a744b5de32658c5f0cb1b100d2fc9e9c0e38a",
+      "size": 108216
+    },
+    {
+      "path": "ggml/src/ggml-cpu/amx/mmq.h",
+      "sha": "baf7684773453b98d825ad2b48029da83789932f",
+      "size": 397
+    },
+    {
+      "path": "ggml/src/ggml-cpu/arch-fallback.h",
+      "sha": "4e59d0ae0a1c783ab701dfc4a243ad03f22ee8c7",
+      "size": 23135
+    },
+    {
+      "path": "ggml/src/ggml-cpu/arch/arm/cpu-feats.cpp",
+      "sha": "84a11eabd4e110ea7186e4105d5940994161ec01",
+      "size": 926
+    },
+    {
+      "path": "ggml/src/ggml-cpu/arch/arm/quants.c",
+      "sha": "cfbbf66178cfcbb220f4fe7bdd30e0badbe6b343",
+      "size": 217556
+    },
+    {
+      "path": "ggml/src/ggml-cpu/arch/arm/repack.cpp",
+      "sha": "ad0e5ccaf7b7ed185c69dfb7731de2ee22c1f785",
+      "size": 269785
+    },
+    {
+      "path": "ggml/src/ggml-cpu/arch/loongarch/quants.c",
+      "sha": "9c43da6cf89ac5d8fc8b24608b44ada5aca60c57",
+      "size": 94730
+    },
+    {
+      "path": "ggml/src/ggml-cpu/arch/powerpc/cpu-feats.cpp",
+      "sha": "fedd6430278c2b1cf9cba626ec6347b2177763e0",
+      "size": 2074
+    },
+    {
+      "path": "ggml/src/ggml-cpu/arch/powerpc/quants.c",
+      "sha": "644c380c7381e78c7488e735806d2d0beb9c23e3",
+      "size": 97985
+    },
+    {
+      "path": "ggml/src/ggml-cpu/arch/riscv/cpu-feats.cpp",
+      "sha": "43c757bd014a0e227f0876a91b47e169a837f753",
+      "size": 807
+    },
+    {
+      "path": "ggml/src/ggml-cpu/arch/riscv/quants.c",
+      "sha": "47e9180bf9bb4aa9efc59541b72f6246208c4936",
+      "size": 294126
+    },
+    {
+      "path": "ggml/src/ggml-cpu/arch/riscv/repack.cpp",
+      "sha": "c37488cae5456b29818676541f6b4916a1a2a046",
+      "size": 97889
+    },
+    {
+      "path": "ggml/src/ggml-cpu/arch/s390/cpu-feats.cpp",
+      "sha": "5f4405a7f308bd1bf2cb4f065ad5227eb0f61fc4",
+      "size": 1017
+    },
+    {
+      "path": "ggml/src/ggml-cpu/arch/s390/quants.c",
+      "sha": "22b8b83109c9adc43e79ce12e6bce4445a258266",
+      "size": 57284
+    },
+    {
+      "path": "ggml/src/ggml-cpu/arch/s390/repack.cpp",
+      "sha": "c12fe215e80ea0cc246999b06fc0ea6bcc849802",
+      "size": 8533
+    },
+    {
+      "path": "ggml/src/ggml-cpu/arch/wasm/quants.c",
+      "sha": "0a7119b4e1fbd3a13664e2aa0cee9dc26cf754bb",
+      "size": 46731
+    },
+    {
+      "path": "ggml/src/ggml-cpu/arch/x86/cpu-feats.cpp",
+      "sha": "d775a0363858de273f273d2f0e9a318600ae52fa",
+      "size": 10727
+    },
+    {
+      "path": "ggml/src/ggml-cpu/arch/x86/quants.c",
+      "sha": "21cd6312a1bd8c095c4ddf8fd116199a558b5cde",
+      "size": 200035
+    },
+    {
+      "path": "ggml/src/ggml-cpu/arch/x86/repack.cpp",
+      "sha": "af1cebad131d17118c26634faccb9a6e0c08a6f9",
+      "size": 665038
+    },
+    {
+      "path": "ggml/src/ggml-cpu/binary-ops.cpp",
+      "sha": "75e38290015a6fd6137fa09142585051cf27179b",
+      "size": 6709
+    },
+    {
+      "path": "ggml/src/ggml-cpu/binary-ops.h",
+      "sha": "aca1d89be7e538239598610bd8a809ccb3dcdcf5",
+      "size": 518
+    },
+    {
+      "path": "ggml/src/ggml-cpu/cmake/FindSIMD.cmake",
+      "sha": "5533668ec4ab18ff7261865e43be0100de65e5bf",
+      "size": 2651
+    },
+    {
+      "path": "ggml/src/ggml-cpu/cmake/FindSMTIME.cmake",
+      "sha": "c8a4d4b4ec9335164617f3f35529d405371c9205",
+      "size": 2075
+    },
+    {
+      "path": "ggml/src/ggml-cpu/common.h",
+      "sha": "abbadc359c5addac941f8add92674061c8b790bf",
+      "size": 2333
+    },
+    {
+      "path": "ggml/src/ggml-cpu/ggml-cpu-impl.h",
+      "sha": "0d48c9a22e3da7c59d2679cac6575061dc24df43",
+      "size": 14292
+    },
+    {
+      "path": "ggml/src/ggml-cpu/ggml-cpu.c",
+      "sha": "53d39d2491edca865a149b250c96c7970e0feeb0",
+      "size": 133088
+    },
+    {
+      "path": "ggml/src/ggml-cpu/ggml-cpu.cpp",
+      "sha": "81ff5d79fa98dbfeb9c149e58883d922fe001743",
+      "size": 25005
+    },
+    {
+      "path": "ggml/src/ggml-cpu/hbm.cpp",
+      "sha": "0ca5c8647b133f804078867ce92ee24aa8c1a4e3",
+      "size": 2156
+    },
+    {
+      "path": "ggml/src/ggml-cpu/hbm.h",
+      "sha": "09a1f09d72be294f6866e58d69105c5db28ffddd",
+      "size": 155
+    },
+    {
+      "path": "ggml/src/ggml-cpu/kleidiai/CMakeLists.txt",
+      "sha": "b36cb6d3a9d9d157064b7348c24ba0875b812320",
+      "size": 417
+    },
+    {
+      "path": "ggml/src/ggml-cpu/kleidiai/kernels.cpp",
+      "sha": "24aa2824493f5605467646fbae2c60254045258d",
+      "size": 83183
+    },
+    {
+      "path": "ggml/src/ggml-cpu/kleidiai/kernels.h",
+      "sha": "ac5d5d302e885fb9ec05a70377438c09f92917c6",
+      "size": 3080
+    },
+    {
+      "path": "ggml/src/ggml-cpu/kleidiai/kleidiai.cpp",
+      "sha": "57a4a5662e89c25a8d325a4376ad0b47a90e94ea",
+      "size": 78638
+    },
+    {
+      "path": "ggml/src/ggml-cpu/kleidiai/kleidiai.h",
+      "sha": "38eac58f7c207ded2a74db705c75f92e6e6eb66c",
+      "size": 323
+    },
+    {
+      "path": "ggml/src/ggml-cpu/llamafile/sgemm.cpp",
+      "sha": "d28840a91504a4c0ce14ec2e384ba759dc4c0797",
+      "size": 166263
+    },
+    {
+      "path": "ggml/src/ggml-cpu/llamafile/sgemm.h",
+      "sha": "867b0c04aee846915938802be8fb5fcfea1ff2cb",
+      "size": 524
+    },
+    {
+      "path": "ggml/src/ggml-cpu/ops.cpp",
+      "sha": "5735f96f8e8b992c7fd66b2e63b3611a791c4920",
+      "size": 431972
+    },
+    {
+      "path": "ggml/src/ggml-cpu/ops.h",
+      "sha": "00a2ea7dc2de960849f9f05079cd9fd1eaccdee5",
+      "size": 10356
+    },
+    {
+      "path": "ggml/src/ggml-cpu/quants.c",
+      "sha": "5e36459f8cbc5900b375d2189414307393471a6b",
+      "size": 45124
+    },
+    {
+      "path": "ggml/src/ggml-cpu/quants.h",
+      "sha": "93ea7eeffe5b00ad2c612aac49b7983c12949525",
+      "size": 10862
+    },
+    {
+      "path": "ggml/src/ggml-cpu/repack.cpp",
+      "sha": "9282ca299b60a93ab60840fad2823bc6a47396ea",
+      "size": 213807
+    },
+    {
+      "path": "ggml/src/ggml-cpu/repack.h",
+      "sha": "fc6715c39ce93fd012591de1ab652b27414ae887",
+      "size": 21341
+    },
+    {
+      "path": "ggml/src/ggml-cpu/simd-gemm.h",
+      "sha": "4b9396d540664e5925c7ea46eb707e83ce60d900",
+      "size": 8816
+    },
+    {
+      "path": "ggml/src/ggml-cpu/simd-mappings.h",
+      "sha": "b7b390db42a0765f3f4a6830e3b488c7eac1217b",
+      "size": 57672
+    },
+    {
+      "path": "ggml/src/ggml-cpu/spacemit/ime.cpp",
+      "sha": "7b801275554e829fa72f71a691084975a6629d85",
+      "size": 78119
+    },
+    {
+      "path": "ggml/src/ggml-cpu/spacemit/ime.h",
+      "sha": "6849dd95e058ed0810ac72a97762220a57cb6788",
+      "size": 511
+    },
+    {
+      "path": "ggml/src/ggml-cpu/spacemit/ime1_kernels.cpp",
+      "sha": "6c974f6eb3a4ccd5e8325c8668999ccc33e3eafe",
+      "size": 63629
+    },
+    {
+      "path": "ggml/src/ggml-cpu/spacemit/ime2_kernels.cpp",
+      "sha": "0c7a036a92af34ebf91a49f1eb7391f7ff43959e",
+      "size": 291755
+    },
+    {
+      "path": "ggml/src/ggml-cpu/spacemit/ime_env.cpp",
+      "sha": "a13ba391da2fe686299330356fb4276898c6700b",
+      "size": 12208
+    },
+    {
+      "path": "ggml/src/ggml-cpu/spacemit/ime_env.h",
+      "sha": "a6ca06d26a4b6fe6e742a994f9b26e86d6d79772",
+      "size": 1810
+    },
+    {
+      "path": "ggml/src/ggml-cpu/spacemit/ime_kernels.h",
+      "sha": "476a0e74be1303e49014c184a57fe4962bde29e5",
+      "size": 8410
+    },
+    {
+      "path": "ggml/src/ggml-cpu/spacemit/repack.cpp",
+      "sha": "2039056e0a5afe70937b15c08fb1e240410465b1",
+      "size": 77894
+    },
+    {
+      "path": "ggml/src/ggml-cpu/spacemit/repack.h",
+      "sha": "950cbde759349015b8ab185c0784d90fa621198d",
+      "size": 316
+    },
+    {
+      "path": "ggml/src/ggml-cpu/spacemit/rvv_kernels.cpp",
+      "sha": "13b84dcbe72b5052c57bb6136c58bd053555479f",
+      "size": 154759
+    },
+    {
+      "path": "ggml/src/ggml-cpu/spacemit/rvv_kernels.h",
+      "sha": "edddf957c21de0dc8d26774d65bb286c788c269e",
+      "size": 4380
+    },
+    {
+      "path": "ggml/src/ggml-cpu/spacemit/spine_barrier.h",
+      "sha": "f897dad4b8a755a5f08322731227a4d05ff56fd0",
+      "size": 1007
+    },
+    {
+      "path": "ggml/src/ggml-cpu/spacemit/spine_mem_pool.cpp",
+      "sha": "1409423b14547c28c26b9dfc766a2d12f0cd5af9",
+      "size": 27104
+    },
+    {
+      "path": "ggml/src/ggml-cpu/spacemit/spine_mem_pool.h",
+      "sha": "8740d2c99ef0d781fa66aa7ba8f0c1c149c01377",
+      "size": 920
+    },
+    {
+      "path": "ggml/src/ggml-cpu/spacemit/spine_tcm.h",
+      "sha": "f300d7d5c0413fe3dcc2d071421884a6b7ba8ad9",
+      "size": 13965
+    },
+    {
+      "path": "ggml/src/ggml-cpu/tiled/tiled-kernel.cpp",
+      "sha": "5819ac07ca31932c68b5117354817598a8e08009",
+      "size": 36765
+    },
+    {
+      "path": "ggml/src/ggml-cpu/tiled/tiled-kernel.h",
+      "sha": "1a97f406a62f096554b408c8c8b1bebacc64158f",
+      "size": 9547
+    },
+    {
+      "path": "ggml/src/ggml-cpu/tiled/tiled.cpp",
+      "sha": "77e1a99450ffd6b03e2f2547fb3e7f2bbdcdee42",
+      "size": 58049
+    },
+    {
+      "path": "ggml/src/ggml-cpu/tiled/tiled.h",
+      "sha": "6f3e8dc13ef358be9ea45752ba418417ca8dc46b",
+      "size": 1387
+    },
+    {
+      "path": "ggml/src/ggml-cpu/traits.cpp",
+      "sha": "4f32f10255aa4620484244e98f132a1bb0089d8e",
+      "size": 1231
+    },
+    {
+      "path": "ggml/src/ggml-cpu/traits.h",
+      "sha": "f4e0990ddfc95b61c2e38f224aac0fd76475c9c1",
+      "size": 1157
+    },
+    {
+      "path": "ggml/src/ggml-cpu/unary-ops.cpp",
+      "sha": "f5d57d6f941a62439f8690f254aa764eead3f130",
+      "size": 11550
+    },
+    {
+      "path": "ggml/src/ggml-cpu/unary-ops.h",
+      "sha": "bcad5a3af1a9879718c56ef8e4d9438c0797544f",
+      "size": 2442
+    },
+    {
+      "path": "ggml/src/ggml-cpu/vec.cpp",
+      "sha": "8f0bf4999cfb30bfb826f3253e1ccd8062729516",
+      "size": 29280
+    },
+    {
+      "path": "ggml/src/ggml-cpu/vec.h",
+      "sha": "f24fa00f2b0d8343ed1630cb1a8f49be42ab6da6",
+      "size": 72790
+    },
+    {
+      "path": "ggml/src/ggml-feats.h",
+      "sha": "c45e4ad082fc4c5f13d2633bf96e4f5773d9b9e9",
+      "size": 5253
+    },
+    {
+      "path": "ggml/src/ggml-impl.h",
+      "sha": "ae26e0c23b461b716ed5f91977a419e10556087b",
+      "size": 25821
+    },
+    {
+      "path": "ggml/src/ggml-opt.cpp",
+      "sha": "53903defa8f419069f3046b960f2f057e06e6263",
+      "size": 42081
+    },
+    {
+      "path": "ggml/src/ggml-quants.c",
+      "sha": "7750a72ce61b9ddf4aa6b63f60b07e5283147e9f",
+      "size": 226847
+    },
+    {
+      "path": "ggml/src/ggml-quants.h",
+      "sha": "75188f1af180e3592f3c94bc4077989fb817c359",
+      "size": 9803
+    },
+    {
+      "path": "ggml/src/ggml-threading.cpp",
+      "sha": "25a19eedb90535daccd640056175dbbbc58c1ca7",
+      "size": 250
+    },
+    {
+      "path": "ggml/src/ggml-threading.h",
+      "sha": "dec2c8840aa3669c2f813ba940d192f803e1da5e",
+      "size": 198
+    },
+    {
+      "path": "ggml/src/ggml-version.h.in",
+      "sha": "37de362977b7818c2bf8f9e9af814b95f45451fa",
+      "size": 95
+    },
+    {
+      "path": "ggml/src/ggml.c",
+      "sha": "ed8554b14173c6141261d79e7d3353e37e5af963",
+      "size": 263953
+    },
+    {
+      "path": "ggml/src/ggml.cpp",
+      "sha": "0d388d45536d1fb6fd39ee35a5b8e0583e212b54",
+      "size": 738
+    },
+    {
+      "path": "ggml/src/gguf.cpp",
+      "sha": "75ceade7d5fb9155f30e01d0cfa45d2f92814fb3",
+      "size": 58995
+    },
+    {
+      "path": "include/llama-cpp.h",
+      "sha": "880a6a5fae8f539352ac2cc7e0920e9057d2ac62",
+      "size": 1102
+    },
+    {
+      "path": "include/llama.h",
+      "sha": "ae54e661bea6b305c0d3684670bc444c53d795bd",
+      "size": 90962
+    },
+    {
+      "path": "src/CMakeLists.txt",
+      "sha": "97250c2e885645386702f516d1f00ff2c9b121f2",
+      "size": 2004
+    },
+    {
+      "path": "src/llama-adapter.cpp",
+      "sha": "824601ed6f6a0b6f75d7ca429090fd17bc58c65a",
+      "size": 19497
+    },
+    {
+      "path": "src/llama-adapter.h",
+      "sha": "f0b1e50f81695e9b1ef11bbd2db277fc1a921add",
+      "size": 2240
+    },
+    {
+      "path": "src/llama-arch.cpp",
+      "sha": "ea13e9c3fceabf9c592cfafe8e0acba8949450c9",
+      "size": 97807
+    },
+    {
+      "path": "src/llama-arch.h",
+      "sha": "7996bdc309b772908473c1a12e27c9eee9bb56f6",
+      "size": 27787
+    },
+    {
+      "path": "src/llama-batch.cpp",
+      "sha": "321aa9d2364791f81c3349403b0cf22225dba91d",
+      "size": 47705
+    },
+    {
+      "path": "src/llama-batch.h",
+      "sha": "e1e43979b54018ab2a3a482d0986a7fd9b7153c4",
+      "size": 11599
+    },
+    {
+      "path": "src/llama-chat.cpp",
+      "sha": "6d822ec62d6bac7576bc537fbca55721dccaf293",
+      "size": 41872
+    },
+    {
+      "path": "src/llama-chat.h",
+      "sha": "dc37f919a9680b0887b3aaedef528a6f24ad7237",
+      "size": 2275
+    },
+    {
+      "path": "src/llama-context.cpp",
+      "sha": "d5a66a49990b6ea12bbfb887e19399ad8944c4c4",
+      "size": 169929
+    },
+    {
+      "path": "src/llama-context.h",
+      "sha": "6938fb103cdefc5f742c5672bb2627e48fd11740",
+      "size": 15179
+    },
+    {
+      "path": "src/llama-cparams.cpp",
+      "sha": "a3e7a37ee36d78fd6af7d5e3aba8762ecbb636b6",
+      "size": 100
+    },
+    {
+      "path": "src/llama-cparams.h",
+      "sha": "0c260f7b6285cec7539df927b30d3dc49ef92572",
+      "size": 2331
+    },
+    {
+      "path": "src/llama-ext.h",
+      "sha": "933cb801342efab93f34f3b837de36ae9dc31de8",
+      "size": 7240
+    },
+    {
+      "path": "src/llama-grammar.cpp",
+      "sha": "ffc7cf27ce55ab57f3cb54055c326a605d27251f",
+      "size": 56912
+    },
+    {
+      "path": "src/llama-grammar.h",
+      "sha": "2885f770597f0102b330a7db658f50aa3c4ca2d0",
+      "size": 7046
+    },
+    {
+      "path": "src/llama-graph.cpp",
+      "sha": "a22dfba9657b7805557482a02f012823e54f659d",
+      "size": 157504
+    },
+    {
+      "path": "src/llama-graph.h",
+      "sha": "f56a305e93b215d263bad40a95542171cf44bca1",
+      "size": 53438
+    },
+    {
+      "path": "src/llama-hparams.cpp",
+      "sha": "b83f45ba9efe50a6f9e8d9187eb3df33385db866",
+      "size": 9461
+    },
+    {
+      "path": "src/llama-hparams.h",
+      "sha": "a3bf9e6881f57231ea6f394f7ca62713f212a685",
+      "size": 20918
+    },
+    {
+      "path": "src/llama-impl.cpp",
+      "sha": "4ca836ca66c349b656629011b37d2074fb4cc344",
+      "size": 7817
+    },
+    {
+      "path": "src/llama-impl.h",
+      "sha": "884dca647995c91508f64ecca2c72bf4bb1c59dd",
+      "size": 3395
+    },
+    {
+      "path": "src/llama-io.cpp",
+      "sha": "5ec4634943f69b64914e2892cb89efc6fd786bd6",
+      "size": 447
+    },
+    {
+      "path": "src/llama-io.h",
+      "sha": "0aca7331074d4a4a6d8ed99dc8901b02790d77a0",
+      "size": 934
+    },
+    {
+      "path": "src/llama-kv-cache-dsa-iswa.cpp",
+      "sha": "784c78aa7839a207fa3dcb6fbc048a641263003c",
+      "size": 10558
+    },
+    {
+      "path": "src/llama-kv-cache-dsa-iswa.h",
+      "sha": "28cf95bf05182174fe27e312ab146d8123f79ca0",
+      "size": 4188
+    },
+    {
+      "path": "src/llama-kv-cache-dsa.cpp",
+      "sha": "6e5f7d484021a361ef807b10c9ac4c0b23b46429",
+      "size": 8536
+    },
+    {
+      "path": "src/llama-kv-cache-dsa.h",
+      "sha": "e74fc4d9100fd5799178d813adf74ec3a61953a4",
+      "size": 4271
+    },
+    {
+      "path": "src/llama-kv-cache-dsv4.cpp",
+      "sha": "c18d913da5a1997f611efbcfea49f7602c03b4bf",
+      "size": 86855
+    },
+    {
+      "path": "src/llama-kv-cache-dsv4.h",
+      "sha": "99ac73ddb3ff8f1e1faedcd584c5c97a94e40253",
+      "size": 15373
+    },
+    {
+      "path": "src/llama-kv-cache-iswa.cpp",
+      "sha": "da440f6a2dca1cf1b7c997449608a07c0cbdd16a",
+      "size": 11361
+    },
+    {
+      "path": "src/llama-kv-cache-iswa.h",
+      "sha": "7dab6eaa82c8f631f44e87956f5be95d86d3713f",
+      "size": 4842
+    },
+    {
+      "path": "src/llama-kv-cache-msa.cpp",
+      "sha": "55ef286cafa75f6e9e055ba609c4f3f4ef4e4d29",
+      "size": 12540
+    },
+    {
+      "path": "src/llama-kv-cache-msa.h",
+      "sha": "f09b6d32b044010faa3b6752be5da77f4a7886f2",
+      "size": 5714
+    },
+    {
+      "path": "src/llama-kv-cache.cpp",
+      "sha": "4ab280a6196c9dbac0716475eafb53cbbeb35ce4",
+      "size": 98668
+    },
+    {
+      "path": "src/llama-kv-cache.h",
+      "sha": "9bfb8f231fe6626df5053208b119ce525c3a7b66",
+      "size": 16594
+    },
+    {
+      "path": "src/llama-kv-cells.h",
+      "sha": "9c0d51e4e066f277d7523f03d56e85b4d1e50c2a",
+      "size": 14445
+    },
+    {
+      "path": "src/llama-memory-hybrid-idx.cpp",
+      "sha": "8113f5c21dde5dfbac2250e0a528d372fdf4e344",
+      "size": 39311
+    },
+    {
+      "path": "src/llama-memory-hybrid-idx.h",
+      "sha": "0ac4265dfc4cb9d2a6f319fd6e81a19901577442",
+      "size": 9529
+    },
+    {
+      "path": "src/llama-memory-hybrid-iswa.cpp",
+      "sha": "06f7fd5428c4e92c445b5c0170e92e557b2f62df",
+      "size": 10166
+    },
+    {
+      "path": "src/llama-memory-hybrid-iswa.h",
+      "sha": "c9d3f9f57c50489202052f170f30a1a2a6f60c0b",
+      "size": 4565
+    },
+    {
+      "path": "src/llama-memory-hybrid.cpp",
+      "sha": "bbd4bee0b5a2f27c301ed1855b6d1fb695d4438e",
+      "size": 9562
+    },
+    {
+      "path": "src/llama-memory-hybrid.h",
+      "sha": "484eafb749910567b8c50ec36d46bdb678c75426",
+      "size": 4382
+    },
+    {
+      "path": "src/llama-memory-recurrent.cpp",
+      "sha": "d00630d4c5c3737b64816cf31cd1aa59b75a0b26",
+      "size": 47864
+    },
+    {
+      "path": "src/llama-memory-recurrent.h",
+      "sha": "08489a4bee4c660589e1b84a195547e4329e4250",
+      "size": 6463
+    },
+    {
+      "path": "src/llama-memory.cpp",
+      "sha": "961dd74ef5f19451a40e5e84fd5432923e37e5af",
+      "size": 2369
+    },
+    {
+      "path": "src/llama-memory.h",
+      "sha": "b33c7aee4128fda7f602db72903ac8115d6bcf0c",
+      "size": 4790
+    },
+    {
+      "path": "src/llama-mmap.cpp",
+      "sha": "4d1cd31e9863f4d315d1df5d430f1bfa8df42f06",
+      "size": 30403
+    },
+    {
+      "path": "src/llama-mmap.h",
+      "sha": "6c6393d5734da646fed120064f05168fb46d7a30",
+      "size": 2215
+    },
+    {
+      "path": "src/llama-model-loader.cpp",
+      "sha": "a963f24801214f9a2d8de3e48ac7af27b6aa4a12",
+      "size": 81390
+    },
+    {
+      "path": "src/llama-model-loader.h",
+      "sha": "ed59079a4eadd8a310c013de20a87d782d490377",
+      "size": 9885
+    },
+    {
+      "path": "src/llama-model-saver.cpp",
+      "sha": "752e6361fedadfcdf9cbdc84e263eed00a58aa7f",
+      "size": 31304
+    },
+    {
+      "path": "src/llama-model-saver.h",
+      "sha": "95e19e666e7f3adf52567b96b038b03492f7c111",
+      "size": 1366
+    },
+    {
+      "path": "src/llama-model.cpp",
+      "sha": "1de65c728df25b2bce2b051ae48fec78282eb0ce",
+      "size": 188093
+    },
+    {
+      "path": "src/llama-model.h",
+      "sha": "01fbda31928ef45c30e3082dd0e8bb2f3b019971",
+      "size": 40376
+    },
+    {
+      "path": "src/llama-moe-cache.cpp",
+      "sha": "4d3596b244cb46e429b7bda8f7369c528c02dd1c",
+      "size": 26727
+    },
+    {
+      "path": "src/llama-moe-cache.h",
+      "sha": "9baf063909bc0bc059cf4c7d64977fe4a184432e",
+      "size": 1827
+    },
+    {
+      "path": "src/llama-quant.cpp",
+      "sha": "bdc4f653f004a12fe1bded592dcc4b578ad10e9f",
+      "size": 67685
+    },
+    {
+      "path": "src/llama-quant.h",
+      "sha": "6f70f09beec2219624baeca92e2cd7deaa104fb4",
+      "size": 13
+    },
+    {
+      "path": "src/llama-sampler.cpp",
+      "sha": "9004efa20df704e17e92f96df6c6b27fda4b8f2f",
+      "size": 153277
+    },
+    {
+      "path": "src/llama-sampler.h",
+      "sha": "e5db2982bd3e01d6823b09e9c3d3e059911526fe",
+      "size": 982
+    },
+    {
+      "path": "src/llama-version.h.in",
+      "sha": "0e081762cf074a833beb3ccf6a51c31b440b3534",
+      "size": 99
+    },
+    {
+      "path": "src/llama-vocab.cpp",
+      "sha": "05334e1fcee8425fd3e336882755cdb5829a3f88",
+      "size": 207254
+    },
+    {
+      "path": "src/llama-vocab.h",
+      "sha": "14a90fbdb69f62ba62dfc09df9d863647f0ad058",
+      "size": 8030
+    },
+    {
+      "path": "src/llama.cpp",
+      "sha": "9beb14841f9867f771c484a1a90882ee06481649",
+      "size": 22103
+    },
+    {
+      "path": "src/models/afmoe.cpp",
+      "sha": "266597a3553a51fa1778fe671b28638047d6823f",
+      "size": 12047
+    },
+    {
+      "path": "src/models/apertus.cpp",
+      "sha": "130980e32a70aa5e764bab7c289d493dd1efde29",
+      "size": 6964
+    },
+    {
+      "path": "src/models/arcee.cpp",
+      "sha": "81e3b828f7e26090eb5a00d5324ea9fd82dc6a9d",
+      "size": 5402
+    },
+    {
+      "path": "src/models/arctic.cpp",
+      "sha": "1a170f085612251b66bd099ab86dafc3b6a583b8",
+      "size": 6330
+    },
+    {
+      "path": "src/models/arwkv7.cpp",
+      "sha": "5f1ca4384d72184672d5ddc4df4a07c77159efa0",
+      "size": 9281
+    },
+    {
+      "path": "src/models/baichuan.cpp",
+      "sha": "b7f5b05f8b623d1a894eca966810f2b0b3b5b556",
+      "size": 5222
+    },
+    {
+      "path": "src/models/bailingmoe.cpp",
+      "sha": "2da47f09fd752f6fb00da35b8601bbd977219848",
+      "size": 6895
+    },
+    {
+      "path": "src/models/bailingmoe2.cpp",
+      "sha": "d7003ef7e5194828907416191db85892cebedf0b",
+      "size": 9646
+    },
+    {
+      "path": "src/models/bailingmoe3.cpp",
+      "sha": "49c0f7feaccf58cfba864b17288796ad496ebff0",
+      "size": 30980
+    },
+    {
+      "path": "src/models/beam.cpp",
+      "sha": "55817dd4839a85aa60e054ea487e0711a06b4db6",
+      "size": 11585
+    },
+    {
+      "path": "src/models/bert.cpp",
+      "sha": "8f3aa316c73abd83be25ccb92cbb5de2bb011d66",
+      "size": 9563
+    },
+    {
+      "path": "src/models/bitnet.cpp",
+      "sha": "a08881b9f6b71dcaa72a5b2b81953595ae532229",
+      "size": 6442
+    },
+    {
+      "path": "src/models/bloom.cpp",
+      "sha": "54ef3a03759f349bc2577440d56d1be5394cd8a7",
+      "size": 5467
+    },
+    {
+      "path": "src/models/chameleon.cpp",
+      "sha": "bb597afef20ff8a3360fd5fb3e4e149ae7abbe0a",
+      "size": 7499
+    },
+    {
+      "path": "src/models/chatglm.cpp",
+      "sha": "54e3913c4a2d5cbb92f691cfed6de08a3875725a",
+      "size": 5255
+    },
+    {
+      "path": "src/models/clef.cpp",
+      "sha": "6f872091380351a76a79abe4f56466c4562c170f",
+      "size": 30330
+    },
+    {
+      "path": "src/models/clip.cpp",
+      "sha": "537766aeb15b29b0644dacfc1a812bddb5a3584b",
+      "size": 636
+    },
+    {
+      "path": "src/models/codeshell.cpp",
+      "sha": "be1e576197bc27fd296f38a8707cbbe934ec9dee",
+      "size": 5427
+    },
+    {
+      "path": "src/models/cogvlm.cpp",
+      "sha": "2e1416be89875eac1f67ef219a43c83e8b0d18bf",
+      "size": 6335
+    },
+    {
+      "path": "src/models/cohere2.cpp",
+      "sha": "969b4ef05a8ed033d16016fd1ac6b14a5af31d87",
+      "size": 5650
+    },
+    {
+      "path": "src/models/cohere2moe.cpp",
+      "sha": "649682610eaaa3746c87526e32b8a2671c521591",
+      "size": 18645
+    },
+    {
+      "path": "src/models/command-r.cpp",
+      "sha": "edf74c57b3fcc4291c351627ebd59db048bc4f6f",
+      "size": 5284
+    },
+    {
+      "path": "src/models/dbrx.cpp",
+      "sha": "8d4f783fbdb01dd1ae3f1e6f9d0fd65365866ebc",
+      "size": 5209
+    },
+    {
+      "path": "src/models/deci.cpp",
+      "sha": "ce5de887c70b062e01a4c63dbd5f23178ed2ad88",
+      "size": 7879
+    },
+    {
+      "path": "src/models/deepseek.cpp",
+      "sha": "a066d4fb6081286ca257b37b97bab48e966a4f22",
+      "size": 7975
+    },
+    {
+      "path": "src/models/deepseek2.cpp",
+      "sha": "5fd24d105f22d8f4f21ff8686619987a2769d649",
+      "size": 31313
+    },
+    {
+      "path": "src/models/deepseek2ocr.cpp",
+      "sha": "3d630699ef2d04891e3cc79b27316b49f7510866",
+      "size": 3982
+    },
+    {
+      "path": "src/models/deepseek32.cpp",
+      "sha": "083b32ecf4304a8b08f10d89106210a6d7a15969",
+      "size": 34914
+    },
+    {
+      "path": "src/models/deepseek4.cpp",
+      "sha": "7dc5ee3a523afe1be921eed707ada80303b9f8f9",
+      "size": 65275
+    },
+    {
+      "path": "src/models/deepseek41.cpp",
+      "sha": "49e95f54c5aaa4e67b754a0f150c1bd722a0d378",
+      "size": 51119
+    },
+    {
+      "path": "src/models/delta-net-base.cpp",
+      "sha": "2e15777ee1566032e1eb421b2b036eacc413fcd4",
+      "size": 23599
+    },
+    {
+      "path": "src/models/dflash.cpp",
+      "sha": "8b6d6abdbab563f924336cee0eb6d0dff79826f7",
+      "size": 80826
+    },
+    {
+      "path": "src/models/dots1.cpp",
+      "sha": "f29f669c21f0add4015240ad521e2ebcd971cb65",
+      "size": 8242
+    },
+    {
+      "path": "src/models/dots3note.cpp",
+      "sha": "237a9237141ec5b2b94e1e0f35f2b0c15fca676f",
+      "size": 24504
+    },
+    {
+      "path": "src/models/dream.cpp",
+      "sha": "7d5ffa56a59ac471650f1bfa53ac7a1a50127e0c",
+      "size": 4910
+    },
+    {
+      "path": "src/models/eagle3.cpp",
+      "sha": "d47340759009068c721fa624a3783bd431352f48",
+      "size": 13925
+    },
+    {
+      "path": "src/models/ernie4-5-moe.cpp",
+      "sha": "6bf539d2133186aa8be629f45efe69eea45cb89d",
+      "size": 5050
+    },
+    {
+      "path": "src/models/ernie4-5.cpp",
+      "sha": "b7a6e9629c6cc3d25f6b3e13df8a054883fdfdb1",
+      "size": 6919
+    },
+    {
+      "path": "src/models/eurobert.cpp",
+      "sha": "13bae8b716088043350c12a093d4825ae66fda4b",
+      "size": 4126
+    },
+    {
+      "path": "src/models/exaone-moe.cpp",
+      "sha": "1a09d544d539f5bf4567f7677fb5877a7c4c484d",
+      "size": 10922
+    },
+    {
+      "path": "src/models/exaone.cpp",
+      "sha": "070bfd568eea727e999f62080240c6dc4a8c7c28",
+      "size": 5082
+    },
+    {
+      "path": "src/models/exaone4.cpp",
+      "sha": "80447908e142e4e1dfb380a3c39e3362a84f01b6",
+      "size": 7547
+    },
+    {
+      "path": "src/models/falcon-h1.cpp",
+      "sha": "a7f9e55765f21f2aeb3450b27a1b39853c51ab1f",
+      "size": 8976
+    },
+    {
+      "path": "src/models/falcon.cpp",
+      "sha": "555468a47532f29a4cd5e3e0d48e7b1e1f53e02e",
+      "size": 5566
+    },
+    {
+      "path": "src/models/flint.cpp",
+      "sha": "e7e6f6b792df45b079434de06e1b372e829de13a",
+      "size": 8795
+    },
+    {
+      "path": "src/models/gemma-embedding.cpp",
+      "sha": "bb4e964e81ec20a9a6e6508ad5832d41b036c7a2",
+      "size": 7261
+    },
+    {
+      "path": "src/models/gemma-embedding2.cpp",
+      "sha": "2c7fa6750941582a9c7974a19c38e6cb6648e821",
+      "size": 10830
+    },
+    {
+      "path": "src/models/gemma.cpp",
+      "sha": "1da4ad81503316459f615b050b7e1f26186e6785",
+      "size": 4817
+    },
+    {
+      "path": "src/models/gemma2.cpp",
+      "sha": "c405e6400f3ac0bc010afd79cbfe02feac597c67",
+      "size": 6676
+    },
+    {
+      "path": "src/models/gemma3.cpp",
+      "sha": "4c8183cce9049af62f1dcc10fafaf811be4797d3",
+      "size": 8553
+    },
+    {
+      "path": "src/models/gemma3n.cpp",
+      "sha": "f2e5ae6c85b6cfd3a6474df1fe01306b4912bae8",
+      "size": 23874
+    },
+    {
+      "path": "src/models/gemma4-assistant.cpp",
+      "sha": "6ebc3c3e8e35a04a83d31aa55ce51ac9ad54c908",
+      "size": 8768
+    },
+    {
+      "path": "src/models/gemma4.cpp",
+      "sha": "f4f80d39602ffeb5b6e7c04b89caefbf85f20e9c",
+      "size": 24538
+    },
+    {
+      "path": "src/models/glm-dsa.cpp",
+      "sha": "a9d62c0768f571bfe4e2031b2a5d013836a08e25",
+      "size": 36603
+    },
+    {
+      "path": "src/models/glm4-moe.cpp",
+      "sha": "d19eb553f84100a45895f350b92e96897eac34c3",
+      "size": 18609
+    },
+    {
+      "path": "src/models/glm4.cpp",
+      "sha": "a6cb0889b66b960fbf7675c2f37d4644b8f3bd99",
+      "size": 7760
+    },
+    {
+      "path": "src/models/glm5-next.cpp",
+      "sha": "3955609907a53a6c7c1f6b2c6f217523bc9a9bf3",
+      "size": 52291
+    },
+    {
+      "path": "src/models/gpt2.cpp",
+      "sha": "d6ca64744f492733612d3854e869e42ce1d52774",
+      "size": 5327
+    },
+    {
+      "path": "src/models/gptneox.cpp",
+      "sha": "bc8a9fd4a993f26c8d5b501340918e47b4b8b2c9",
+      "size": 7968
+    },
+    {
+      "path": "src/models/granite-hybrid.cpp",
+      "sha": "a752a365cfd188b3386e171db02503f9306fcb17",
+      "size": 13613
+    },
+    {
+      "path": "src/models/granite-moe.cpp",
+      "sha": "febe1bfa7aa4962b69667bc47643183174770190",
+      "size": 4595
+    },
+    {
+      "path": "src/models/granite-swa.cpp",
+      "sha": "60c1eb8ba821d282e3a95d86122b6b46e77b7d31",
+      "size": 12550
+    },
+    {
+      "path": "src/models/granite-switch.cpp",
+      "sha": "f67bf6055f7606518267298a5ed765cedaea6e30",
+      "size": 18934
+    },
+    {
+      "path": "src/models/granite.cpp",
+      "sha": "aa4d01095675809f3fb31765d68ef8ce521d5d99",
+      "size": 12585
+    },
+    {
+      "path": "src/models/grok.cpp",
+      "sha": "1a125d94e3c734e74e54c78e80c0c690c8fdcad7",
+      "size": 8955
+    },
+    {
+      "path": "src/models/grovemoe.cpp",
+      "sha": "b2648a13a81ce0a4ff9fa2e75e1834f5ca4e7d3b",
+      "size": 7942
+    },
+    {
+      "path": "src/models/hrm-text.cpp",
+      "sha": "912a430f40478b5787e65792496c0a3025052664",
+      "size": 8337
+    },
+    {
+      "path": "src/models/hunyuan-dense.cpp",
+      "sha": "c137bd37c0272465c667563d406e5d6009e000a1",
+      "size": 195
+    },
+    {
+      "path": "src/models/hunyuan-moe.cpp",
+      "sha": "779575eee0614f6b26c621a9866cbc354588da75",
+      "size": 7258
+    },
+    {
+      "path": "src/models/hunyuan-vl.cpp",
+      "sha": "fa7183190e47c734d8b28492703cfea35ebda0ce",
+      "size": 7303
+    },
+    {
+      "path": "src/models/hy-v3.cpp",
+      "sha": "080b30c1a5d11528a3558812c00282bc8583cb05",
+      "size": 17750
+    },
+    {
+      "path": "src/models/hy-v4.cpp",
+      "sha": "25e40abf7bef16ba692a96b75c8a6c460c6a90bf",
+      "size": 28926
+    },
+    {
+      "path": "src/models/internlm2.cpp",
+      "sha": "8fc99856a28d3655faf53c013a0087d07cbb500e",
+      "size": 4823
+    },
+    {
+      "path": "src/models/jais.cpp",
+      "sha": "446b56617555bb41fcc3cd4c79f32c86da4efcf7",
+      "size": 4961
+    },
+    {
+      "path": "src/models/jais2.cpp",
+      "sha": "4b24e697f5c622b9a32810960d81e6031c7abd18",
+      "size": 5723
+    },
+    {
+      "path": "src/models/jamba.cpp",
+      "sha": "ed4c9f13e594c68ed9889ca9d9a5ec7cb4050372",
+      "size": 7812
+    },
+    {
+      "path": "src/models/jina-bert-v2.cpp",
+      "sha": "86ff1c84d1a66b51a3e6638acb17089ff20ffe94",
+      "size": 3645
+    },
+    {
+      "path": "src/models/jina-bert-v3.cpp",
+      "sha": "78cf9d835976b1d8339da5b068fbe15f8d95ffd4",
+      "size": 2300
+    },
+    {
+      "path": "src/models/k2-horizon.cpp",
+      "sha": "845940913f621ee9b62fc98429927d82f02312ba",
+      "size": 16836
+    },
+    {
+      "path": "src/models/kimi-k3.cpp",
+      "sha": "27ceffe923d016aad87ef415d2383ca94e2f839f",
+      "size": 30453
+    },
+    {
+      "path": "src/models/kimi-linear.cpp",
+      "sha": "7ce088ef698b3ad0894d1a4ca1391ff9ff927a88",
+      "size": 31394
+    },
+    {
+      "path": "src/models/kolibri1.cpp",
+      "sha": "2301ef272acf9bba352c68a6e173c6151d2926b2",
+      "size": 8350
+    },
+    {
+      "path": "src/models/laguna.cpp",
+      "sha": "cbc7b26d7cec653e8b4e1a270f18936b32599817",
+      "size": 17255
+    },
+    {
+      "path": "src/models/lfm-base.cpp",
+      "sha": "5e722eca8c033d5efa5b459ba0f1296ad14af183",
+      "size": 5620
+    },
+    {
+      "path": "src/models/lfm2.cpp",
+      "sha": "dd61f509a6a5703a30be53e95a4b8d1b37cb8812",
+      "size": 22772
+    },
+    {
+      "path": "src/models/lfm2moe.cpp",
+      "sha": "f8d47f9b85ae8c9ad8bb51f8a73f3dba9061f1df",
+      "size": 4485
+    },
+    {
+      "path": "src/models/llada-moe.cpp",
+      "sha": "0930cfb3cf78a55e4bb9c19dc72d86f249826dd4",
+      "size": 5943
+    },
+    {
+      "path": "src/models/llada.cpp",
+      "sha": "1277e9dd7cbe77651115a4d51044af466577b58f",
+      "size": 5751
+    },
+    {
+      "path": "src/models/llama-embed.cpp",
+      "sha": "0699e744461b8839f289e3425fbfedc6a3adf930",
+      "size": 199
+    },
+    {
+      "path": "src/models/llama.cpp",
+      "sha": "f9c1251131a39b79ed519a95b16c3026b4c3af68",
+      "size": 10513
+    },
+    {
+      "path": "src/models/llama4.cpp",
+      "sha": "9a365394ce45fdd6744d96718c9cda73f1d0a30a",
+      "size": 11187
+    },
+    {
+      "path": "src/models/maincoder.cpp",
+      "sha": "1eeab45a156e9ff6f05fddc370401bb47e61bff2",
+      "size": 5386
+    },
+    {
+      "path": "src/models/maion-coder.cpp",
+      "sha": "bb3ebabc7ed3b0205bbd5f025f30f3d570615cad",
+      "size": 8015
+    },
+    {
+      "path": "src/models/mamba-base.cpp",
+      "sha": "370de0f0141dbed7453d153e1c3ed8b94a73d8cc",
+      "size": 15489
+    },
+    {
+      "path": "src/models/mamba.cpp",
+      "sha": "d47e8e5e12523c7171f5ea91f194a5badd5a6f70",
+      "size": 4877
+    },
+    {
+      "path": "src/models/mamba2.cpp",
+      "sha": "d5c167cf05604b7444905c872762f99694a9f084",
+      "size": 3517
+    },
+    {
+      "path": "src/models/maple.cpp",
+      "sha": "9568c647589c555a33f2f1214f0fe9ca90b64f02",
+      "size": 6292
+    },
+    {
+      "path": "src/models/mellum.cpp",
+      "sha": "eaa540310c7fe55e59f43b570e030639bc704c8b",
+      "size": 15328
+    },
+    {
+      "path": "src/models/mimo2.cpp",
+      "sha": "fdf5d00af19ed02b6e7a21daa2d1fef252aeedc6",
+      "size": 17134
+    },
+    {
+      "path": "src/models/minicpm.cpp",
+      "sha": "fc3e5b171d524ef9504894a17cd8c9147f4f99e4",
+      "size": 4737
+    },
+    {
+      "path": "src/models/minicpm3.cpp",
+      "sha": "7136921dc3922f9a9d71abe0b8135a24dfc126ac",
+      "size": 10791
+    },
+    {
+      "path": "src/models/minimax-01.cpp",
+      "sha": "27fe5291b0697323e650cb4ea5305c130875cda1",
+      "size": 19584
+    },
+    {
+      "path": "src/models/minimax-m2.cpp",
+      "sha": "8b80eab2da1979b16629d4ef66c4eca0282390f8",
+      "size": 6321
+    },
+    {
+      "path": "src/models/minimax-m3.cpp",
+      "sha": "73d145daeff39e3d59a2f35aaf5e24978b0e7665",
+      "size": 31947
+    },
+    {
+      "path": "src/models/mistral3.cpp",
+      "sha": "af058d558d937e5bd0c1a0b352231ccca5a21213",
+      "size": 12339
+    },
+    {
+      "path": "src/models/mistral4.cpp",
+      "sha": "3d9190650e37aabf7c286df01f5ff720a14443ca",
+      "size": 190
+    },
+    {
+      "path": "src/models/models.h",
+      "sha": "59a4e57036256002b6cf9589ae98362d9ce692d2",
+      "size": 123449
+    },
+    {
+      "path": "src/models/modern-bert.cpp",
+      "sha": "84c85f86995936f5154111b325c7c6f3b68c382c",
+      "size": 12426
+    },
+    {
+      "path": "src/models/mpt.cpp",
+      "sha": "69d8b8c66bca1c391a26125fa586a75479190487",
+      "size": 6950
+    },
+    {
+      "path": "src/models/muse-glimmer.cpp",
+      "sha": "2f84d6f98013a0482f53927c1e00f9580efe64bb",
+      "size": 8497
+    },
+    {
+      "path": "src/models/muse-spark.cpp",
+      "sha": "5842ecb98110925f1ab99a64d4706c2ce551a5b9",
+      "size": 11165
+    },
+    {
+      "path": "src/models/nanbeige.cpp",
+      "sha": "e2d0a7b133499a72232bb4a304aeb539ec42b7d6",
+      "size": 7014
+    },
+    {
+      "path": "src/models/nemotron-h-moe.cpp",
+      "sha": "c6ce58a7a6719fe54217fc188401416af94fa72b",
+      "size": 5995
+    },
+    {
+      "path": "src/models/nemotron-h.cpp",
+      "sha": "e9c61308feb11f192926b41c180894ad82672648",
+      "size": 18577
+    },
+    {
+      "path": "src/models/nemotron.cpp",
+      "sha": "6b5b771074b77b82babb78a9897fd53d65cee2ae",
+      "size": 5597
+    },
+    {
+      "path": "src/models/neo-bert.cpp",
+      "sha": "9b141c3b70ae0ea2718462a56d8951dc6882d7b4",
+      "size": 4689
+    },
+    {
+      "path": "src/models/nomic-bert-moe.cpp",
+      "sha": "924af5e0bc40788ad08601a08e418bd2d3d12692",
+      "size": 2881
+    },
+    {
+      "path": "src/models/nomic-bert.cpp",
+      "sha": "509787286efa8bb9631b6c7b3c985b0afe87bb26",
+      "size": 2389
+    },
+    {
+      "path": "src/models/olmo.cpp",
+      "sha": "261aa98f7c23d7d33b57b623017a27ee2df7560f",
+      "size": 4687
+    },
+    {
+      "path": "src/models/olmo2.cpp",
+      "sha": "db2de3afd72a1d41df80b73b76f3bcfe05a69ffe",
+      "size": 7723
+    },
+    {
+      "path": "src/models/olmoe.cpp",
+      "sha": "f447838216d000e0e597170dd522a06137204547",
+      "size": 6127
+    },
+    {
+      "path": "src/models/openai-moe.cpp",
+      "sha": "8e42278039f975b06de0a9cd17cce411b3a63a3f",
+      "size": 6763
+    },
+    {
+      "path": "src/models/openelm.cpp",
+      "sha": "1d7d4e5ec6b4065471eba8eeda5133104fb371ee",
+      "size": 6293
+    },
+    {
+      "path": "src/models/orion.cpp",
+      "sha": "06ed3bd31c3f39f92f318e075a04e5f396b59689",
+      "size": 4945
+    },
+    {
+      "path": "src/models/paddleocr.cpp",
+      "sha": "68030b9af0d0c25ed54cfe4425520da4da1f82ca",
+      "size": 3454
+    },
+    {
+      "path": "src/models/pangu-embed.cpp",
+      "sha": "cf34cd16a75f82053adfd2fa3063ce5e9a32b2fa",
+      "size": 5897
+    },
+    {
+      "path": "src/models/phi2.cpp",
+      "sha": "de14cfe37b8486ddd6ec10dcdaacc36571e12db4",
+      "size": 5420
+    },
+    {
+      "path": "src/models/phi3.cpp",
+      "sha": "fc808484097d27a2220bc79ee2f52135f87714f7",
+      "size": 7327
+    },
+    {
+      "path": "src/models/phimoe.cpp",
+      "sha": "c332553bc7d124b926a37dd8d327fdfc5b1b177e",
+      "size": 2764
+    },
+    {
+      "path": "src/models/plamo.cpp",
+      "sha": "401ffe48af4e8252ea0d41824e8d3ad8e79ce5a4",
+      "size": 4519
+    },
+    {
+      "path": "src/models/plamo2.cpp",
+      "sha": "9ce229b19416dbb6f74eaf49cbc4c336ed390c4d",
+      "size": 19806
+    },
+    {
+      "path": "src/models/plamo3.cpp",
+      "sha": "4dcbcad81a712b942ed2cc40cda30744f1c37d37",
+      "size": 7813
+    },
+    {
+      "path": "src/models/plm.cpp",
+      "sha": "64528c3727fa98c0137f12c4fbbcf18bb3273374",
+      "size": 8590
+    },
+    {
+      "path": "src/models/pockettts.cpp",
+      "sha": "ad1835893aad673c7324799a69df61129f6f2cb7",
+      "size": 5136
+    },
+    {
+      "path": "src/models/qwen.cpp",
+      "sha": "3c42cad3cbe0be2f3c843a022a2c031d193ab3df",
+      "size": 4790
+    },
+    {
+      "path": "src/models/qwen2.cpp",
+      "sha": "d2cd8e22dd81d5e697a71fea598006ca0172153d",
+      "size": 5494
+    },
+    {
+      "path": "src/models/qwen2moe.cpp",
+      "sha": "5f9222f1ce424b2b4afbb91406043ce649e25378",
+      "size": 7288
+    },
+    {
+      "path": "src/models/qwen2vl.cpp",
+      "sha": "778d1c80a3bf90bd19dcc8d962ce5e5e5061d0ce",
+      "size": 5021
+    },
+    {
+      "path": "src/models/qwen3.cpp",
+      "sha": "c01f8382921bd9df59583314872180031ef4dc37",
+      "size": 6284
+    },
+    {
+      "path": "src/models/qwen35.cpp",
+      "sha": "8a4e434117faf2dbb819b874b682f764d9dd7f34",
+      "size": 28851
+    },
+    {
+      "path": "src/models/qwen35moe.cpp",
+      "sha": "939f10f7f061680336619f43907ab7c20bfbcc9b",
+      "size": 32406
+    },
+    {
+      "path": "src/models/qwen3moe.cpp",
+      "sha": "2198fcfb5a5546699d00b72c436018eaba9f2499",
+      "size": 6597
+    },
+    {
+      "path": "src/models/qwen3next.cpp",
+      "sha": "98fafd917b443516ff68c316100641266e2d8fa4",
+      "size": 36644
+    },
+    {
+      "path": "src/models/qwen3tts.cpp",
+      "sha": "3604f844c39318ccdd6b9821b9a9f6039cb0196b",
+      "size": 102
+    },
+    {
+      "path": "src/models/qwen3vl.cpp",
+      "sha": "8c06dcccaec97173691b0f605e1cf4d4d55e357a",
+      "size": 7258
+    },
+    {
+      "path": "src/models/qwen3vlmoe.cpp",
+      "sha": "94974d8e84bde10bc5f94ed1e3d70979c70dae45",
+      "size": 7085
+    },
+    {
+      "path": "src/models/qwen4exp.cpp",
+      "sha": "1f3b1cdefd1b9be6ddc01cc640a129d049fc9d4c",
+      "size": 74790
+    },
+    {
+      "path": "src/models/refact.cpp",
+      "sha": "5336608a745757c05e82130e1075149d1fcee0fd",
+      "size": 6505
+    },
+    {
+      "path": "src/models/rnd1.cpp",
+      "sha": "2b0b3e97ef0c155d06cf994f346537054cf1af15",
+      "size": 6490
+    },
+    {
+      "path": "src/models/rwkv6-base.cpp",
+      "sha": "83aeab7280b1cd5cdc3b13dca9723e67b1c9f8bd",
+      "size": 8064
+    },
+    {
+      "path": "src/models/rwkv6.cpp",
+      "sha": "84a18180b717132c06f3587c248858f72e4bfa18",
+      "size": 9759
+    },
+    {
+      "path": "src/models/rwkv6qwen2.cpp",
+      "sha": "0e5561c1957ab73dd41d6eb2856fab61e124489f",
+      "size": 7650
+    },
+    {
+      "path": "src/models/rwkv7-base.cpp",
+      "sha": "7fcab77745c75a887824ac6266e50536eb845ea2",
+      "size": 6913
+    },
+    {
+      "path": "src/models/rwkv7.cpp",
+      "sha": "6577a25f9216d95b1d1aac43ac0e6b211824f807",
+      "size": 10377
+    },
+    {
+      "path": "src/models/seed-oss.cpp",
+      "sha": "871f06cc5ed7193151c1015d77854df61c4e4c93",
+      "size": 5265
+    },
+    {
+      "path": "src/models/sensenova-u1.cpp",
+      "sha": "c42c604e8ecd37cbef5274e48a730e62552a3364",
+      "size": 7439
+    },
+    {
+      "path": "src/models/smallthinker.cpp",
+      "sha": "60803cb4fdb4dd2bc4408586827768936ecfa0e2",
+      "size": 7537
+    },
+    {
+      "path": "src/models/smollm3.cpp",
+      "sha": "474093b68b9a65d11fea9200e6653c1a76098485",
+      "size": 5407
+    },
+    {
+      "path": "src/models/spark2-5.cpp",
+      "sha": "970b32ba603ce5977875cf326a0971b9b6cafa0c",
+      "size": 6176
+    },
+    {
+      "path": "src/models/stablelm.cpp",
+      "sha": "5189a460687cb3a50d2f503b3c48467334b7ec0c",
+      "size": 6337
+    },
+    {
+      "path": "src/models/starcoder.cpp",
+      "sha": "e68e24ffb81863a777a8acd387841ed2bfee5764",
+      "size": 5320
+    },
+    {
+      "path": "src/models/starcoder2.cpp",
+      "sha": "dcf6ed371408b804732c9838c61e29ea133b3ec7",
+      "size": 5704
+    },
+    {
+      "path": "src/models/step35.cpp",
+      "sha": "3e225a11efa3fba7229dc127ea5818c931a2d4ba",
+      "size": 26600
+    },
+    {
+      "path": "src/models/t5.cpp",
+      "sha": "a5ddbebf907bd2c1b8816b0c044820ec0d85a526",
+      "size": 14971
+    },
+    {
+      "path": "src/models/t5encoder.cpp",
+      "sha": "23c5f9b6a1cad2e822b6cc3c0561dc077dbde361",
+      "size": 2292
+    },
+    {
+      "path": "src/models/talkie.cpp",
+      "sha": "c6a6b5abe8cbc42a4cffa7ddc61125c977b835cd",
+      "size": 5202
+    },
+    {
+      "path": "src/models/vllm-decision2.cpp",
+      "sha": "bbac808de1320e80785d4844b2a0fee6a4140ce0",
+      "size": 7536
+    },
+    {
+      "path": "src/models/wavtokenizer-dec.cpp",
+      "sha": "881d2c3833e398e8451b4d02bbb78851c54bd30a",
+      "size": 10517
+    },
+    {
+      "path": "src/models/xverse.cpp",
+      "sha": "bfc539e8da1e1cc19cb1b21129f85cfafc61d58a",
+      "size": 4691
+    },
+    {
+      "path": "src/unicode-data.cpp",
+      "sha": "f65d7be27daef0af3a50951b9ed2c14352419663",
+      "size": 288635
+    },
+    {
+      "path": "src/unicode-data.h",
+      "sha": "27220b17f5f0f7fb9838da14e28660ad5adc7fe8",
+      "size": 895
+    },
+    {
+      "path": "src/unicode.cpp",
+      "sha": "796f8e8fb6a912a97aaf06dc812e45044c16d595",
+      "size": 65529
+    },
+    {
+      "path": "src/unicode.h",
+      "sha": "29dbfc70993b03e19a4d5b25ca37a8c0769b3b9a",
+      "size": 4101
+    },
+    {
+      "path": "vendor/CMakeLists.txt",
+      "sha": "4479dafcad0c1ccd59061b42c8bcbaa2c3ca72c7",
+      "size": 265
+    },
+    {
+      "path": "vendor/cpp-httplib/CMakeLists.txt",
+      "sha": "f3933adbe0403cce6301c0098b9288e89f0383e7",
+      "size": 6813
+    },
+    {
+      "path": "vendor/cpp-httplib/LICENSE",
+      "sha": "3e5ed359a2bb16f52c383745c25f14bb7a81c9e4",
+      "size": 1075
+    },
+    {
+      "path": "vendor/cpp-httplib/httplib.cpp",
+      "sha": "934d9905498dbee70db6a9cbc14e70b91c836fec",
+      "size": 660144
+    },
+    {
+      "path": "vendor/cpp-httplib/httplib.h",
+      "sha": "4ab2b5ad4d16ab08e1f1a1831af673855b472f47",
+      "size": 178470
+    },
+    {
+      "path": "vendor/hash/CMakeLists.txt",
+      "sha": "1654eb1850a63b742e72b2d81bf40c442c29571c",
+      "size": 1010
+    },
+    {
+      "path": "vendor/hash/hash.cpp",
+      "sha": "6493716bf766cc94594e6bb7facf1f1fcf1195fb",
+      "size": 581
+    },
+    {
+      "path": "vendor/hash/hash.h",
+      "sha": "1298b4196b4c0fe45c428329bfd8c4084577bd28",
+      "size": 216
+    },
+    {
+      "path": "vendor/hash/rotate-bits/LICENSE.md",
+      "sha": "4a07c57f26755bfe13453ad4a23f8ebb8b3d3d92",
+      "size": 1088
+    },
+    {
+      "path": "vendor/hash/rotate-bits/rotate-bits.h",
+      "sha": "75c4881fc322f2e6a6ee9d809e696852531abb8c",
+      "size": 1017
+    },
+    {
+      "path": "vendor/hash/sha1/sha1.c",
+      "sha": "4d84340d43e625f90011c39d7694a48aa539d80a",
+      "size": 7676
+    },
+    {
+      "path": "vendor/hash/sha1/sha1.h",
+      "sha": "4ec5df0f4fe6a8bfb455f434c2649d761e968d29",
+      "size": 689
+    },
+    {
+      "path": "vendor/hash/sha256/LICENSE",
+      "sha": "950b19483ab03709fc810c59a76c24666b99dab2",
+      "size": 41
+    },
+    {
+      "path": "vendor/hash/sha256/sha256.c",
+      "sha": "a7a87aeb20032c7f9e87491af927b9074037202a",
+      "size": 5282
+    },
+    {
+      "path": "vendor/hash/sha256/sha256.h",
+      "sha": "21657e66b602d5e74e90fbd23af64d58d94598de",
+      "size": 549
+    },
+    {
+      "path": "vendor/hash/xxhash/LICENSE",
+      "sha": "e4c5da7234eca7baad9a46f0b144e49ccad2e500",
+      "size": 1389
+    },
+    {
+      "path": "vendor/hash/xxhash/xxhash.c",
+      "sha": "e60cc37f13c27ff0668ec2535937df3f4c097ec2",
+      "size": 1855
+    },
+    {
+      "path": "vendor/hash/xxhash/xxhash.h",
+      "sha": "c0fafe20d54ad017425e636c2f3e754494648053",
+      "size": 264750
+    },
+    {
+      "path": "vendor/miniaudio/CMakeLists.txt",
+      "sha": "8c706b62fa3cec7b7a43c7986dfbab3054e8ae5c",
+      "size": 245
+    },
+    {
+      "path": "vendor/miniaudio/miniaudio.h",
+      "sha": "c6d493ee81f553b8dd584e402453f130c20e0546",
+      "size": 4108168
+    },
+    {
+      "path": "vendor/nlohmann/CMakeLists.txt",
+      "sha": "630b3748ac02b9950f2ecb5a41ffc375c0fbc743",
+      "size": 237
+    },
+    {
+      "path": "vendor/nlohmann/json-deep-nesting.patch",
+      "sha": "f239b3300b07483c1f974ab17935d58ce009b8ac",
+      "size": 48037
+    },
+    {
+      "path": "vendor/nlohmann/json.hpp",
+      "sha": "8547911c08984414c680fc2b775b87de63cc9499",
+      "size": 987455
+    },
+    {
+      "path": "vendor/nlohmann/json_fwd.hpp",
+      "sha": "9429171390a41654a73b1fd63d6048712a4893a2",
+      "size": 6656
+    },
+    {
+      "path": "vendor/sheredom/CMakeLists.txt",
+      "sha": "f0c148500da2d4a4bd1afa9a24ec55cc5de46657",
+      "size": 241
+    },
+    {
+      "path": "vendor/sheredom/subprocess.h",
+      "sha": "67420c10356bcdad03b89d04700a598ac0c768df",
+      "size": 68500
+    },
+    {
+      "path": "vendor/stb/CMakeLists.txt",
+      "sha": "7eeb972d2db051f204ec8715872341274c2692f7",
+      "size": 333
+    },
+    {
+      "path": "vendor/stb/stb_image.h",
+      "sha": "9eedabedc45b3e6fd88fae6f14a160b4d53272ec",
+      "size": 283010
+    }
+  ]
+}

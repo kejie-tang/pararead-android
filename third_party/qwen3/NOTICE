@@ -1,0 +1,19 @@
+Qwen3 model license disclosure
+
+Default download: Ollama library/qwen3:1.7b, Q4_K_M.
+Model layer SHA-256: 3d0b790534fe4b79525fc3692950408dca41171676ed7e21db57af5c65ef6ab6
+Model size: 1,359,279,776 bytes.
+Manifest SHA-256 observed 2026-10-26:
+8f68893c685c3ddff2aa3fffce2aa60a30bb2da65ca488b61fff134a4d1730e7
+
+LICENSE is copied verbatim from that manifest's license layer:
+https://registry.ollama.ai/v2/library/qwen3/blobs/sha256:d18a5cc71b84bc4af394a31116bd3932b42241de70c77d2b76d69a314ec8aa12
+License layer SHA-256: d18a5cc71b84bc4af394a31116bd3932b42241de70c77d2b76d69a314ec8aa12
+Copyright 2024 Alibaba Cloud, as stated in the supplied license.
+The original year is retained; it is not replaced with another repository's attribution.
+
+Model weights are not included in this source repository or APK. A user may
+explicitly download the pinned model or import a compatible model. This license
+copy documents the default downloadable model; it does not relicense arbitrary
+user-imported weights, PDFs, or generated translations. The Ollama layer has not
+been claimed to be byte-identical to a Hugging Face Qwen or community GGUF file.

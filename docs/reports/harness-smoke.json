@@ -1,0 +1,31 @@
+{
+  "status": "passed",
+  "scope": "upstream harness HTML and resource HTTP responses only; no browser rendering",
+  "resources": [
+    {
+      "path": "dist/webview/main.mjs",
+      "status": 200,
+      "contentType": "text/javascript"
+    },
+    {
+      "path": "assets/pdf.js/build/pdf.mjs",
+      "status": 200,
+      "contentType": "text/javascript"
+    },
+    {
+      "path": "assets/pdf.js/build/pdf.worker.mjs",
+      "status": 200,
+      "contentType": "text/javascript"
+    },
+    {
+      "path": "assets/panel.css",
+      "status": 200,
+      "contentType": "text/css"
+    },
+    {
+      "path": "assets/pdf.js/web/compressed.tracemonkey-pldi-09.pdf",
+      "status": 200,
+      "contentType": "application/pdf"
+    }
+  ]
+}

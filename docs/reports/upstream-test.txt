@@ -1,0 +1,13 @@
+$ vitest run -- --reporter=json
+
+ RUN  v5.0.2 /Users/kjtang/Documents/app/pararead-android/.references/pararead
+
+Warning: Cannot load "@napi-rs/canvas" package: "Error: Cannot find module '@napi-rs/canvas'
+Require stack:
+- /Users/kjtang/Documents/app/pararead-android/.references/pararead/assets/pdf.js/build/pdf.mjs".
+Could not download https://arxiv.org/pdf/1706.03762v7 (TimeoutError: The operation was aborted due to timeout); its tests are skipped.
+
+ Test Files  7 passed (7)
+      Tests  87 passed | 3 skipped (90)
+   Start at  22:57:59
+   Duration  61.93s (transform 45%, tests 44%, import 9%, worker 2%)

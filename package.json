@@ -1,0 +1,23 @@
+{
+  "name": "pararead-android",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "test": "node --import ./scripts/upstream-loader.mjs --test test/source-contracts.test.mjs",
+    "smoke:reader": "node scripts/smoke_reader.mjs",
+    "verify:upstream": "python3 scripts/fetch_upstream.py --verify-only",
+    "build:reader": "node scripts/build_reader.mjs",
+    "test:android-web": "node --import ./scripts/upstream-loader.mjs --test test/android-*.test.mjs",
+    "check:reader": "tsc -p web/reader/src/upstream/tsconfig.json",
+    "test:reader": "npm run build:reader && node scripts/test_reader.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "typescript": "5.9.3",
+    "@playwright/test": "1.56.1"
+  }
+}

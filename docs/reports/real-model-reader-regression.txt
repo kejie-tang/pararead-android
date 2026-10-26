@@ -1,0 +1,6 @@
+
+org.pararead.android.ReaderIntegrationTest:..
+
+Time: 10.28
+
+OK (2 tests)

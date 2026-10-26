@@ -1,0 +1,29 @@
+/* Android adaptations, preserving ParaRead's shared DOM geometry. */
+html { color-scheme: light dark; }
+/* A Compose WebView may first be measured at zero height. Avoid percentage-height roots. */
+html, body { height: 100vh; height: 100dvh; }
+.bilingualSplitter { width: 18px; margin-left: -9px; touch-action: none; }
+.bilingualHeaderButton, .bilingualToggle { min-height: 40px; }
+.bilingualSentence { cursor: pointer; }
+.bilingualSentence:focus-visible { outline: 2px solid #4b98cf; }
+#openFile, #printButton, #downloadButton, #secondaryOpenFile, #secondaryPrint, #secondaryDownload { display: none !important; }
+/* PDF.js breakpoints normally use the whole window; the PDF occupies only one pane. */
+#outerContainer { container: pdf-pane / inline-size; }
+@container pdf-pane (max-width: 750px) {
+  #outerContainer .hiddenMediumView { display: none !important; }
+  #outerContainer .visibleMediumView:not(.hidden, [hidden]) { display: inline-block !important; }
+}
+@container pdf-pane (max-width: 690px) {
+  .hiddenSmallView, .hiddenSmallView * { display: none !important; }
+  #toolbarContainer #toolbarViewer .toolbarButtonSpacer { width: 0; }
+}
+@container pdf-pane (max-width: 560px) {
+  #scaleSelectContainer { display: none; }
+}
+@container pdf-pane (max-width: 440px) {
+  #toolbarContainer #toolbarViewer #toolbarViewerLeft { margin-inline-start: 0; }
+  #pageNumber { width: 32px; }
+  #numPages { display: none; }
+}
+.bilingualBody { overscroll-behavior: contain; }
+@media (max-width: 700px) { .bilingualTitle { display: none; } .bilingualHeader { padding: 4px; } .bilingualHeaderTools { gap: 2px; } }

@@ -1,0 +1,67 @@
+{
+  "date": "2026-10-26",
+  "modelBytes": 1359279776,
+  "physicalAndroidDevice": false,
+  "modelSha256": "3d0b790534fe4b79525fc3692950408dca41171676ed7e21db57af5c65ef6ab6",
+  "cases": [
+    {
+      "totalMs": 2850.878792,
+      "name": "cold-single",
+      "raw": "{\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}\n\n```json\n{\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}\n```",
+      "error": "java.lang.IllegalArgumentException: TRAILING_OUTPUT",
+      "status": "failed"
+    },
+    {
+      "deltaEventsAreTokenCounts": false,
+      "translations": [
+        {
+          "translation": "模型使用 100 页码，利用 4 GB 的内存 [12].",
+          "id": "p1-b2-s1",
+          "source": "The model processes 100 pages using 4 GB of memory [12]."
+        },
+        {
+          "translation": "对于 $E=mc^2$，保留方程并查看 https://example.org/paper.",
+          "id": "p1-b2-s2",
+          "source": "For $E=mc^2$, retain the equation and see https://example.org/paper."
+        },
+        {
+          "translation": "注意力机制使用键值缓存；代码为 `cache.get(key)`.",
+          "id": "p1-b2-s3",
+          "source": "The attention mechanism uses a key-value cache; the code is `cache.get(key)`."
+        },
+        {
+          "translation": "所提出的方法通过 12.5% 降低延迟，而不改变输入顺序。",
+          "id": "p1-b2-s4",
+          "source": "The proposed method reduces latency by 12.5% without changing the input order."
+        }
+      ],
+      "firstDeltaMs": 1092.4345,
+      "totalMs": 3181.599459,
+      "name": "warm-batch-four-with-protected-spans",
+      "raw": "{\"translations\":[{\"id\":\"s1\",\"translation\":\"模型使用 ⟦P0⟧ 页码，利用 ⟦P1⟧ 的内存 ⟦P2⟧.\"},{\"id\":\"s2\",\"translation\":\"对于 ⟦P0⟧，保留方程并查看 ⟦P1⟧\"},{\"id\":\"s3\",\"translation\":\"注意力机制使用键值缓存；代码为 ⟦P0⟧.\"},{\"id\":\"s4\",\"translation\":\"所提出的方法通过 ⟦P0⟧ 降低延迟，而不改变输入顺序。\"}]}",
+      "generationMs": 3179.225166,
+      "deltaEvents": 112,
+      "status": "passed"
+    },
+    {
+      "totalMs": 4387.278084,
+      "name": "real-queue-cache-reopen",
+      "error": "java.lang.IllegalStateException: [(p1-b1-s1, TRAILING_OUTPUT)] cancelled=false",
+      "status": "failed"
+    },
+    {
+      "cancelAndJoinMs": 1.367,
+      "totalMs": 2323.6995,
+      "name": "cancel-stream-and-infer-again",
+      "raw": "{\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}\n\n```json\n{\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}\n```",
+      "error": "java.lang.IllegalArgumentException: TRAILING_OUTPUT",
+      "status": "failed"
+    }
+  ],
+  "provider": "jni",
+  "engine": "llama.cpp@2280f0fd163b03d4331d49e08460f66502e35854;cpu;arm64;ctx4096",
+  "configuration": "CPU; 4 threads maximum; ctx4096; batch512; ubatch128; no Metal/BLAS/Accelerate",
+  "modelTag": "qwen3:1.7b",
+  "platform": "Mac OS X aarch64",
+  "status": "failed"
+}

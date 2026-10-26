@@ -1,0 +1,110 @@
+TAP version 13
+# (node:70779) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/kjtang/Documents/app/pararead-android/.references/pararead/src/webview/segmenter/heuristic.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/kjtang/Documents/app/pararead-android/.references/pararead/package.json.
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: sentence IDs, spans and PDF rectangles are deterministic
+ok 1 - sentence IDs, spans and PDF rectangles are deterministic
+  ---
+  duration_ms: 4.416417
+  type: 'test'
+  ...
+# Subtest: ordered two-column content keeps the left column before the right
+ok 2 - ordered two-column content keeps the left column before the right
+  ---
+  duration_ms: 0.9175
+  type: 'test'
+  ...
+# Subtest: abbreviations, decimal values and URLs survive sentence splitting
+ok 3 - abbreviations, decimal values and URLs survive sentence splitting
+  ---
+  duration_ms: 0.187667
+  type: 'test'
+  ...
+# Subtest: language-specific glossary entries override flat entries
+ok 4 - language-specific glossary entries override flat entries
+  ---
+  duration_ms: 0.132042
+  type: 'test'
+  ...
+# Subtest: cache identity ignores layout whitespace and separates languages and models
+ok 5 - cache identity ignores layout whitespace and separates languages and models
+  ---
+  duration_ms: 0.573458
+  type: 'test'
+  ...
+# Subtest: reopening the disk cache returns translations without another model call
+ok 6 - reopening the disk cache returns translations without another model call
+  ---
+  duration_ms: 7.392042
+  type: 'test'
+  ...
+# Subtest: application-generated batch IDs are mapped back to the original sentence IDs
+ok 7 - application-generated batch IDs are mapped back to the original sentence IDs
+  ---
+  duration_ms: 2.552042
+  type: 'test'
+  ...
+# Subtest: missing translations retry individually and failures never enter the cache
+ok 8 - missing translations retry individually and failures never enter the cache
+  ---
+  duration_ms: 2.81225
+  type: 'test'
+  ...
+# Subtest: duplicate source sentences share a single model request
+ok 9 - duplicate source sentences share a single model request
+  ---
+  duration_ms: 1.500333
+  type: 'test'
+  ...
+# Subtest: parser rejects empty values, unknown IDs and malformed JSON
+ok 10 - parser rejects empty values, unknown IDs and malformed JSON
+  ---
+  duration_ms: 0.212875
+  type: 'test'
+  ...
+# Subtest: GAP: duplicate reply IDs silently overwrite earlier translations
+ok 11 - GAP: duplicate reply IDs silently overwrite earlier translations
+  ---
+  duration_ms: 0.074333
+  type: 'test'
+  ...
+# Subtest: GAP: upstream HTTP translation client requests a non-streaming completion
+ok 12 - GAP: upstream HTTP translation client requests a non-streaming completion
+  ---
+  duration_ms: 10.845292
+  type: 'test'
+  ...
+# Subtest: GAP: changing page queues a new range without cancelling the previous request
+ok 13 - GAP: changing page queues a new range without cancelling the previous request
+  ---
+  duration_ms: 2.748292
+  type: 'test'
+  ...
+# Subtest: stale translation replies are ignored after a document reset
+ok 14 - stale translation replies are ignored after a document reset
+  ---
+  duration_ms: 3.730417
+  type: 'test'
+  ...
+# Subtest: PDF and panel selections share the same stable sentence reference
+ok 15 - PDF and panel selections share the same stable sentence reference
+  ---
+  duration_ms: 0.918416
+  type: 'test'
+  ...
+# Subtest: GAP: bundled PDF.js range transport reserves a full-length byte buffer
+ok 16 - GAP: bundled PDF.js range transport reserves a full-length byte buffer
+  ---
+  duration_ms: 5.358542
+  type: 'test'
+  ...
+1..16
+# tests 16
+# suites 0
+# pass 16
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 143.0595

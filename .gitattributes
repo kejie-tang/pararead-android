@@ -1,0 +1,2 @@
+# Preserve third-party license bytes and their original whitespace.
+third_party/** -text -whitespace

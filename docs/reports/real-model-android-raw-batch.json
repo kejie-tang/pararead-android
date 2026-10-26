@@ -1,0 +1,11 @@
+{
+  "environment": "Android API 36 arm64-v8a",
+  "device": "sdk_gphone64_arm64",
+  "hardware": "ranchu",
+  "airplaneMode": true,
+  "engine": "llama.cpp@2280f0fd163b03d4331d49e08460f66502e35854;cpu;arm64;ctx4096",
+  "modelBytes": 1359279776,
+  "modelSha256": "3d0b790534fe4b79525fc3692950408dca41171676ed7e21db57af5c65ef6ab6",
+  "status": "failed",
+  "error": "java.lang.IllegalArgumentException: PROTECTED_TOKEN_MISMATCH"
+}

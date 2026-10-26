@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<testsuite name="org.pararead.android.ReaderIntegrationTest" tests="2" failures="0" errors="0" skipped="0" time="5.411" timestamp="2026-10-25T16:53:38" hostname="localhost">
+  <properties>
+    <property name="device" value="WishLoop_API36(AVD) - 16" />
+    <property name="flavor" value="" />
+    <property name="project" value=":app" />
+  </properties>
+  <testcase name="rangesSupportLongOffsetsConcurrentReadsAndDraftBoundary" classname="org.pararead.android.ReaderIntegrationTest" time="0.012" />
+  <testcase name="arm64JniReaderCacheDraftAndRecovery" classname="org.pararead.android.ReaderIntegrationTest" time="4.689" />
+</testsuite>

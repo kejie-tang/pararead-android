@@ -1,0 +1,47 @@
+
+org.pararead.android.RealModelIntegrationTest:
+Error in ggufTranslationStreamingCancellationAndReuse(org.pararead.android.RealModelIntegrationTest):
+java.lang.IllegalArgumentException: PROTECTED_TOKEN_MISMATCH
+	at org.pararead.core.ProtectedText.restore(Translation.kt:54)
+	at org.pararead.core.StructuredTranslation.validate(Translation.kt:124)
+	at org.pararead.android.RealModelIntegrationTest$ggufTranslationStreamingCancellationAndReuse$1.invokeSuspend$infer(RealModelIntegrationTest.kt:53)
+	at org.pararead.android.RealModelIntegrationTest$ggufTranslationStreamingCancellationAndReuse$1.access$invokeSuspend$infer(Unknown Source:0)
+	at org.pararead.android.RealModelIntegrationTest$ggufTranslationStreamingCancellationAndReuse$1$infer$1.invokeSuspend(Unknown Source:17)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.internal.ScopeCoroutine.afterResume(Scopes.kt:28)
+	at kotlinx.coroutines.AbstractCoroutine.resumeWith(AbstractCoroutine.kt:100)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:47)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:101)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:95)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:69)
+	at kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:47)
+	at kotlinx.coroutines.BuildersKt.runBlocking$default(Unknown Source:1)
+	at org.pararead.android.RealModelIntegrationTest.ggufTranslationStreamingCancellationAndReuse(RealModelIntegrationTest.kt:22)
+
+
+Time: 7.364
+There was 1 failure:
+1) ggufTranslationStreamingCancellationAndReuse(org.pararead.android.RealModelIntegrationTest)
+java.lang.IllegalArgumentException: PROTECTED_TOKEN_MISMATCH
+	at org.pararead.core.ProtectedText.restore(Translation.kt:54)
+	at org.pararead.core.StructuredTranslation.validate(Translation.kt:124)
+	at org.pararead.android.RealModelIntegrationTest$ggufTranslationStreamingCancellationAndReuse$1.invokeSuspend$infer(RealModelIntegrationTest.kt:53)
+	at org.pararead.android.RealModelIntegrationTest$ggufTranslationStreamingCancellationAndReuse$1.access$invokeSuspend$infer(Unknown Source:0)
+	at org.pararead.android.RealModelIntegrationTest$ggufTranslationStreamingCancellationAndReuse$1$infer$1.invokeSuspend(Unknown Source:17)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.internal.ScopeCoroutine.afterResume(Scopes.kt:28)
+	at kotlinx.coroutines.AbstractCoroutine.resumeWith(AbstractCoroutine.kt:100)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:47)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:101)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:95)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:69)
+	at kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:47)
+	at kotlinx.coroutines.BuildersKt.runBlocking$default(Unknown Source:1)
+	at org.pararead.android.RealModelIntegrationTest.ggufTranslationStreamingCancellationAndReuse(RealModelIntegrationTest.kt:22)
+
+FAILURES!!!
+Tests run: 1,  Failures: 1

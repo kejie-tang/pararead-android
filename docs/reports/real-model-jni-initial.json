@@ -1,0 +1,60 @@
+{
+  "date": "2026-10-26",
+  "modelBytes": 1359279776,
+  "physicalAndroidDevice": false,
+  "modelSha256": "3d0b790534fe4b79525fc3692950408dca41171676ed7e21db57af5c65ef6ab6",
+  "cases": [
+    {
+      "deltaEventsAreTokenCounts": false,
+      "translations": [{
+        "translation": "我们提出一种内存高效的科学文档翻译方法。",
+        "id": "p1-b1-s1",
+        "source": "We propose a memory-efficient method for translating scientific documents."
+      }],
+      "firstDeltaMs": 2333.384125,
+      "totalMs": 3340.044,
+      "name": "cold-single",
+      "raw": "{\"translations\":[{\"id\":\"s1\",\"translation\":\"我们提出一种内存高效的科学文档翻译方法。\"}]}\n\n{\"glossary\":{\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}}",
+      "generationMs": 3316.811,
+      "deltaEvents": 43,
+      "status": "passed"
+    },
+    {
+      "totalMs": 4839.17225,
+      "name": "warm-batch-four-with-protected-spans",
+      "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"模型使用内存中的 ⟦P1⟧ 处理 ⟦P0⟧ 页。\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"对于 ⟦P0⟧，保留方程并查看 ⟦P1⟧。\"\n    },\n    {\n      \"id\": \"s3\",\n      \"translation\": \"注意力机制使用键值缓存；代码为 ⟦P0⟧。\"\n    },\n    {\n      \"id\": \"s4\",\n      \"translation\": \"所提方法通过 ⟦P0⟧ 降低延迟，而不会改变输入顺序。\"\n    }\n  ]\n}",
+      "error": "java.lang.IllegalArgumentException: PROTECTED_TOKEN_MISMATCH",
+      "status": "failed"
+    },
+    {
+      "reopenProviderCalls": 0,
+      "initialProviderCalls": 1,
+      "totalMs": 1504.243125,
+      "name": "real-queue-cache-reopen",
+      "cacheEntries": 1,
+      "status": "passed"
+    },
+    {
+      "deltaEventsAreTokenCounts": false,
+      "cancelAndJoinMs": 1.545625,
+      "translations": [{
+        "translation": "我们提出一种内存高效的科学文档翻译方法。",
+        "id": "p1-b1-s1",
+        "source": "We propose a memory-efficient method for translating scientific documents."
+      }],
+      "firstDeltaMs": 551.426417,
+      "totalMs": 2416.33975,
+      "name": "cancel-stream-and-infer-again",
+      "raw": "{\"translations\":[{\"id\":\"s1\",\"translation\":\"我们提出一种内存高效的科学文档翻译方法。\"}]}\n\n{\"glossary\":{\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}}",
+      "generationMs": 1451.947334,
+      "deltaEvents": 43,
+      "status": "passed"
+    }
+  ],
+  "provider": "jni",
+  "engine": "llama.cpp@2280f0fd163b03d4331d49e08460f66502e35854;cpu;arm64;ctx4096",
+  "configuration": "CPU; 4 threads maximum; ctx4096; batch512; ubatch128; no Metal/BLAS/Accelerate",
+  "modelTag": "qwen3:1.7b",
+  "platform": "Mac OS X aarch64",
+  "status": "failed"
+}

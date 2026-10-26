@@ -1,0 +1,26 @@
+.references/
+node_modules/
+.cache/
+.gradle/
+**/build/
+**/.cxx/
+artifacts/
+*.apk
+local.properties
+*.iml
+.idea/
+.DS_Store
+__pycache__/
+*.py[cod]
+*.gguf
+*.pdf
+!test/fixtures/*.pdf
+
+# Only the original, distributable reading sample is public.
+!samples/pararead-reading-guide.pdf
+tmp/
+output/
+*.jks
+*.keystore
+*.p12
+*.aab

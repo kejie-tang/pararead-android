@@ -1,0 +1,60 @@
+ParaRead Android
+Copyright 2026 ParaRead Android contributors (Android-specific contributions).
+
+An independent, unofficial Android adaptation of ParaRead 0.6.1.
+Android-specific code and modifications are licensed under Apache-2.0.
+Third-party materials retain their own copyrights and licenses. No affiliation
+with or endorsement by the upstream projects or model providers is implied.
+
+Inherited ParaRead NOTICE (verbatim):
+-----------------------------------
+ParaRead
+Copyright 2026 Chuanyunux
+
+This product is a modified version of vscode-pdf
+(https://github.com/mathematic-inc/vscode-pdf), Copyright 2021 Mathematic Inc,
+licensed under the Apache License, Version 2.0.
+
+Changes to the upstream code:
+- src/extension.ts: removed the sponsorship prompt.
+- src/pdf-viewer-provider.ts, src/pdf-document.ts: editable custom editor
+  (annotation save, save as, revert, backup) and a typed message bridge.
+- assets/main.mjs: ported to TypeScript as src/webview/main.ts and extended.
+- package.json: new extension identity, view type and settings namespace.
+All other new functionality lives in new files under src/ and assets/panel.css.
+
+This product bundles PDF.js (https://github.com/mozilla/pdf.js),
+Copyright Mozilla Foundation, licensed under the Apache License, Version 2.0
+(see assets/pdf.js/LICENSE), with the modifications in patches/pdf.js.patch.
+
+ParaRead Android modifications (2026):
+------------------------------------
+- Kotlin/Compose tablet host, SAF immutable snapshots and native range reads.
+- Room document/page/translation/reading caches and durable whole-document jobs.
+- OpenAI-compatible and llama.cpp JNI providers, validation and cancellation.
+- Default GGUF download/import/deletion and configurable CPU inference threads.
+- Modified TS: main.ts, panel.ts, pdfjs.d.ts, pointer-select.ts, save-bridge.ts,
+  sentence-store.ts, translation-client.ts, messages.ts and tsconfig.json.
+  Changes cover Android bootstrap/messages, touch input, bounded state,
+  streamed drafts, cache integration, reading restoration and durable jobs.
+- Generated PDF.js worker: sparse byte ranges and incremental suffix saving.
+- Generated PDF.js viewer/HTML: bounded page buffer, native bootstrap, local
+  assets, CSP and tablet layout; original copyright headers are retained.
+- Source: Chuanyunux/pararead@c9d103481e4e3fa065cee6a52e611b8be20866c6.
+  Patches and asset generation: scripts/patch_pdfjs.mjs, scripts/build_reader.mjs.
+
+Additional components:
+----------------------
+- llama.cpp / ggml CPU engine: MIT; see third_party/llama.cpp for the full
+  copyright/license text and internal vendor notices.
+- PDF.js fonts, CMaps, ICC and WASM: separate notices are preserved in
+  third_party/pdfjs and alongside the bundled PDF.js assets.
+- Default Qwen3 GGUF: downloaded separately, not bundled. The actual Ollama
+  manifest license text (Copyright 2024 Alibaba Cloud) is preserved in
+  third_party/qwen3; it does not license arbitrary imported models or PDFs.
+- The bundled original reading guide is project-created Apache-2.0 content;
+  see samples/NOTICE. Upstream sample PDFs are excluded from Android assets.
+  Attention Is All You Need is linked externally and is not bundled.
+
+Full component scope, source pins and distribution locations:
+THIRD_PARTY_NOTICES.md and docs/licenses.md.

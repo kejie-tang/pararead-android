@@ -1,0 +1,26 @@
+[
+  {
+    "path": ".cache/large-pdfs/text-100MiB.pdf",
+    "requestedMiB": 100,
+    "bytes": 104814979,
+    "pages": 3264,
+    "kind": "synthetic uncompressed text, all lines within MediaBox; stress only",
+    "sha256": "d574aa4f1ce1f126ec0e8490484e79985b76bf3372af43bdb3f48a5f83246de6"
+  },
+  {
+    "path": ".cache/large-pdfs/text-300MiB.pdf",
+    "requestedMiB": 300,
+    "bytes": 314467821,
+    "pages": 9792,
+    "kind": "synthetic uncompressed text, all lines within MediaBox; stress only",
+    "sha256": "891db24eda09ca58b157472498d004f48264de8a3974497bb6dd910c62af17e1"
+  },
+  {
+    "path": ".cache/large-pdfs/text-500MiB.pdf",
+    "requestedMiB": 500,
+    "bytes": 524127598,
+    "pages": 16320,
+    "kind": "synthetic uncompressed text, all lines within MediaBox; stress only",
+    "sha256": "745970dd14cf77a82bad590ed842fcd996f0c55bf561b8b69a5b9431c9d2a4a7"
+  }
+]

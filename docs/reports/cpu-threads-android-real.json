@@ -1,0 +1,80 @@
+{
+  "environment": "Android API 36 arm64-v8a",
+  "device": "sdk_gphone64_arm64",
+  "hardware": "ranchu",
+  "airplaneMode": true,
+  "engine": "llama.cpp@2280f0fd163b03d4331d49e08460f66502e35854;cpu;arm64;ctx4096",
+  "modelBytes": 1359279776,
+  "modelSha256": "3d0b790534fe4b79525fc3692950408dca41171676ed7e21db57af5c65ef6ab6",
+  "requestedThreads": 0,
+  "effectiveThreads": 6,
+  "availableProcessors": 8,
+  "coldBatch": {
+    "attempts": [
+      {
+        "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model uses ⟦P0⟧ of memory ⟦P1⟧.\"},{\"id\":\"s2\",\"text\":\"Preserve ⟦P2⟧ and the code ⟦P3⟧.\"}]}\n\/no_think",
+        "raw": "{\"translations\":[{\"id\":\"s1\",\"translation\":\"模型使用内存的⟦P0⟧和代码⟦P3⟧.\"},{\"id\":\"s2\",\"translation\":\"保留⟦P2⟧和代码⟦P3⟧.\"}]}"
+      },
+      {
+        "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model uses ⟦P0⟧ of memory ⟦P1⟧.\"}]}\n\/no_think",
+        "raw": "{\"translations\":[{\"id\":\"s1\",\"translation\":\"模型使用内存的⟦P0⟧和⟦P1⟧。\"}]}\n\n"
+      },
+      {
+        "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"Preserve ⟦P0⟧ and the code ⟦P1⟧.\"}]}\n\/no_think",
+        "raw": "{\"translations\":[{\"id\":\"s1\",\"translation\":\"保存 ⟦P0⟧ 和代码 ⟦P1⟧.\"}]}"
+      }
+    ],
+    "firstDeltaMs": 1924.913251,
+    "totalMs": 9787.163463,
+    "deltaEvents": 100,
+    "providerCalls": 3,
+    "cacheEntries": 2,
+    "translations": [
+      {
+        "id": "p1-b1-s1",
+        "source": "The model uses 4 GB of memory [12].",
+        "translation": "模型使用内存的4 GB和[12]。"
+      },
+      {
+        "id": "p1-b1-s2",
+        "source": "Preserve $E=mc^2$ and the code `cache.get(key)`.",
+        "translation": "保存 $E=mc^2$ 和代码 `cache.get(key)`."
+      }
+    ]
+  },
+  "cancelAndJoinMs": 2.632541,
+  "afterCancelBatch": {
+    "attempts": [
+      {
+        "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model uses ⟦P0⟧ of memory ⟦P1⟧.\"},{\"id\":\"s2\",\"text\":\"Preserve ⟦P2⟧ and the code ⟦P3⟧.\"}]}\n\/no_think",
+        "raw": "{\"translations\":[{\"id\":\"s1\",\"translation\":\"模型使用内存的⟦P0⟧和代码⟦P3⟧.\"},{\"id\":\"s2\",\"translation\":\"保留⟦P2⟧和代码⟦P3⟧.\"}]}"
+      },
+      {
+        "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model uses ⟦P0⟧ of memory ⟦P1⟧.\"}]}\n\/no_think",
+        "raw": "{\"translations\":[{\"id\":\"s1\",\"translation\":\"模型使用内存的⟦P0⟧和⟦P1⟧。\"}]}\n\n"
+      },
+      {
+        "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"Preserve ⟦P0⟧ and the code ⟦P1⟧.\"}]}\n\/no_think",
+        "raw": "{\"translations\":[{\"id\":\"s1\",\"translation\":\"保存 ⟦P0⟧ 和代码 ⟦P1⟧.\"}]}"
+      }
+    ],
+    "firstDeltaMs": 1604.357792,
+    "totalMs": 9306.479879,
+    "deltaEvents": 100,
+    "providerCalls": 3,
+    "cacheEntries": 2,
+    "translations": [
+      {
+        "id": "p1-b1-s1",
+        "source": "The model uses 4 GB of memory [12].",
+        "translation": "模型使用内存的4 GB和[12]。"
+      },
+      {
+        "id": "p1-b1-s2",
+        "source": "Preserve $E=mc^2$ and the code `cache.get(key)`.",
+        "translation": "保存 $E=mc^2$ 和代码 `cache.get(key)`."
+      }
+    ]
+  },
+  "status": "passed"
+}

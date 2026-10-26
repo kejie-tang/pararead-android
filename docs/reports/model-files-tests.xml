@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.pararead.core.ModelFilesTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-10-26T03:38:48.002Z" hostname="ip-192-168-2-123.ap-east-1.compute.internal" time="0.093">
+  <properties/>
+  <testcase name="truncationHashMismatchAndInvalidMagicKeepPreviousModel" classname="org.pararead.core.ModelFilesTest" time="0.069"/>
+  <testcase name="verifiedInstallIsPublishedAndDeletionIsScopedToModels" classname="org.pararead.core.ModelFilesTest" time="0.005"/>
+  <testcase name="defaultPinsTheRequestedOllamaTagAndThinkingIsDisabledBeforeGeneration" classname="org.pararead.core.ModelFilesTest" time="0.012"/>
+  <testcase name="cancelledImportNeverPublishesPartialFile" classname="org.pararead.core.ModelFilesTest" time="0.005"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

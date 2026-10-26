@@ -1,0 +1,25 @@
+
+> pararead-android@0.2.0 test:android-web
+> node --import ./scripts/upstream-loader.mjs --test test/android-*.test.mjs
+
+✔ resume skips durable pages and waits for native checkpoint acknowledgement (2.845833ms)
+✔ cancel during segmentation never submits or checkpoints the partial page (0.494208ms)
+✔ cancel during inference keeps the page cursor and stops subsequent pages (0.660916ms)
+✔ whole-document work waits for visible-page work before counting a page (0.785958ms)
+✔ checkpoint or extraction errors stop the job at the last durable page (0.610625ms)
+✔ bridge cancellation stops remaining chunks of a large job page (33.535541ms)
+✔ bridge checkpoint promises require a successful durable native acknowledgement (4.220292ms)
+✔ sparse store allocates by fetched chunks, supports boundaries and eviction (3.358584ms)
+✔ patch is pinned and eliminates whole source copies in reader/save (25.026541ms)
+✔ saving one editor annotation in a 16320-page book visits only its edited page (20.239417ms)
+✔ tapping a pending sentence upgrades priority without stale cancellation clearing its new request (1.157833ms)
+✔ two-column block ordering keeps heading bands, IDs and coordinates (0.307833ms)
+✔ bridge rejects stale sessions and duplicate/out-of-order translation messages (34.70175ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 137.909834

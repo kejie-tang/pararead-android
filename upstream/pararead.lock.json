@@ -1,0 +1,2477 @@
+{
+  "repository": "Chuanyunux/pararead",
+  "commit": "c9d103481e4e3fa065cee6a52e611b8be20866c6",
+  "version": "0.6.1",
+  "pdfjsVersion": "6.2.108",
+  "pdfjsCommit": "7d9b2e0095e602ad274f05bb02fbb4125b30d93f",
+  "excluded": [
+    "demos/demo-hover.gif"
+  ],
+  "files": [
+    {
+      "path": ".gitattributes",
+      "gitBlobSha1": "00e5b2a3a7e5b7b80c9abdc32780edee83f0cc2f",
+      "size": 57
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "gitBlobSha1": "f416ece9e9a7a08f52df4e921a41e77b0fde9422",
+      "size": 1231
+    },
+    {
+      "path": ".github/workflows/release.yml",
+      "gitBlobSha1": "32099b5e58b140dcef0fc10ca2ae7cbe0e67c95f",
+      "size": 1546
+    },
+    {
+      "path": ".gitignore",
+      "gitBlobSha1": "1df77112f7103b409e25ecc0d4b4a3a8df0d6e76",
+      "size": 2081
+    },
+    {
+      "path": ".node-version",
+      "gitBlobSha1": "a45fd52cc5891570d6299fab38643103c3955474",
+      "size": 3
+    },
+    {
+      "path": ".oxfmtrc.json",
+      "gitBlobSha1": "a4947db6307e60e329d74e02d51c58783446d136",
+      "size": 222
+    },
+    {
+      "path": ".oxlintrc.json",
+      "gitBlobSha1": "f8ec3aecfb9cff934d3fa6b324b5995b556dd30b",
+      "size": 2546
+    },
+    {
+      "path": ".vscodeignore",
+      "gitBlobSha1": "f3070f46b8507bd5310d1e83716211d2ffcd6cfd",
+      "size": 527
+    },
+    {
+      "path": "CHANGELOG.md",
+      "gitBlobSha1": "806b61e5b5858f5b352f76ebcc1c4d9a4f1c8134",
+      "size": 6062
+    },
+    {
+      "path": "CLA.md",
+      "gitBlobSha1": "b3193c6785e7a6a9951264c5830fbadd1e6dabf9",
+      "size": 3903
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "gitBlobSha1": "ba8f131401615ca6774d3671b9946a3fc61dcc9e",
+      "size": 1983
+    },
+    {
+      "path": "LICENSE",
+      "gitBlobSha1": "8d3aafdc6a67979c296774f246cb785f2cedb086",
+      "size": 11345
+    },
+    {
+      "path": "NOTICE",
+      "gitBlobSha1": "20463eda7e83f31de7167bb5b0abbd2afd3629ed",
+      "size": 893
+    },
+    {
+      "path": "README.md",
+      "gitBlobSha1": "b53e4927af7a667763d43baa3e243ef5409a743e",
+      "size": 12633
+    },
+    {
+      "path": "README.zh-CN.md",
+      "gitBlobSha1": "923dfe4f3e36299911eb8cf6fc2172be83653992",
+      "size": 11345
+    },
+    {
+      "path": "assets/main.css",
+      "gitBlobSha1": "c78f4814785e8c09edb437e2116fccc224b0a84e",
+      "size": 774
+    },
+    {
+      "path": "assets/panel.css",
+      "gitBlobSha1": "4e7925e0d6be218ac0a88d81a534e7902dac32bf",
+      "size": 9079
+    },
+    {
+      "path": "assets/pdf.js/LICENSE",
+      "gitBlobSha1": "f433b1a53f5b830a205fd2df78e2b34974656c7b",
+      "size": 10174
+    },
+    {
+      "path": "assets/pdf.js/build/pdf.mjs",
+      "gitBlobSha1": "d4faabafbacb11428c0848c735badeba1b17d33e",
+      "size": 1032996
+    },
+    {
+      "path": "assets/pdf.js/build/pdf.mjs.map",
+      "gitBlobSha1": "894625cd9e87fa82c9499ef82c4734289c39b978",
+      "size": 2359830
+    },
+    {
+      "path": "assets/pdf.js/build/pdf.sandbox.mjs",
+      "gitBlobSha1": "97264b760074da4f36910dd6aa0a553f5474ac1c",
+      "size": 297371
+    },
+    {
+      "path": "assets/pdf.js/build/pdf.sandbox.mjs.map",
+      "gitBlobSha1": "7869886289bd2455a7b901f1674a8668918a4e3e",
+      "size": 88858
+    },
+    {
+      "path": "assets/pdf.js/build/pdf.worker.mjs",
+      "gitBlobSha1": "ff381bb9b154685f8ed641b6c1adabb4c732e1f3",
+      "size": 2383409
+    },
+    {
+      "path": "assets/pdf.js/build/pdf.worker.mjs.map",
+      "gitBlobSha1": "fb97bb33a13e5a7d7056a7e784216e29146a7de7",
+      "size": 5440888
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/78-EUC-H.bcmap",
+      "gitBlobSha1": "2655fc70ae706c7ba52a5d647cbfdfad6072c697",
+      "size": 2404
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/78-EUC-V.bcmap",
+      "gitBlobSha1": "f1ed8538287499647d923d7d8f517a00cdac4e3a",
+      "size": 173
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/78-H.bcmap",
+      "gitBlobSha1": "39e89d3339c74cbe06e7e4f76d60bf3556b0d4b6",
+      "size": 2379
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/78-RKSJ-H.bcmap",
+      "gitBlobSha1": "e4167cb51f66c60ef7d9500b450303b5da175574",
+      "size": 2398
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/78-RKSJ-V.bcmap",
+      "gitBlobSha1": "50b1646e94bba61b3242a680fe3023337e191123",
+      "size": 173
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/78-V.bcmap",
+      "gitBlobSha1": "d7af99b5e2ae9a21d534f1965c35a2b572143322",
+      "size": 169
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/78ms-RKSJ-H.bcmap",
+      "gitBlobSha1": "37077d01e26f9ee2427592f6deebb145d628e731",
+      "size": 2651
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/78ms-RKSJ-V.bcmap",
+      "gitBlobSha1": "acf23231aea22e1a95761f7eafd35f1d42ea6b84",
+      "size": 290
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/83pv-RKSJ-H.bcmap",
+      "gitBlobSha1": "2359bc529d160857cce4c1d1bfca1322290205c1",
+      "size": 905
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/90ms-RKSJ-H.bcmap",
+      "gitBlobSha1": "af8293829c90ce63cc4c5eda0318003785ffcba1",
+      "size": 721
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/90ms-RKSJ-V.bcmap",
+      "gitBlobSha1": "780549de19de05b6cbea4ccd4737351bc9ff6104",
+      "size": 290
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/90msp-RKSJ-H.bcmap",
+      "gitBlobSha1": "bfd3119c62d9976dde9b1e59c572c678cf5811a0",
+      "size": 715
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/90msp-RKSJ-V.bcmap",
+      "gitBlobSha1": "25ef14ab4af42f4b70ccac76cddac8f3b22d8813",
+      "size": 291
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/90pv-RKSJ-H.bcmap",
+      "gitBlobSha1": "02f713bb838a8cd46f5b262c934d0edc8c6e8fe9",
+      "size": 982
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/90pv-RKSJ-V.bcmap",
+      "gitBlobSha1": "d08e0cc5d98b2d933ab848c69dd6c504fbf1787d",
+      "size": 260
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Add-H.bcmap",
+      "gitBlobSha1": "59442acafb613b0c090314379f9f4c2fa134a1a1",
+      "size": 2419
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Add-RKSJ-H.bcmap",
+      "gitBlobSha1": "a3065e441a0e1f1a65e9109ec9bc4f826fccac24",
+      "size": 2413
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Add-RKSJ-V.bcmap",
+      "gitBlobSha1": "040014cfc0880371c20a89212942727c5dc30a78",
+      "size": 287
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Add-V.bcmap",
+      "gitBlobSha1": "2f816d320f08b8671498299c4d00e4564d2ece6c",
+      "size": 282
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Adobe-CNS1-0.bcmap",
+      "gitBlobSha1": "88ec04af49d1e8ab6038e3b36dd28daf4dcf0119",
+      "size": 317
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Adobe-CNS1-1.bcmap",
+      "gitBlobSha1": "03a501477c91d8156723f0c274a37d397ed65bad",
+      "size": 371
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Adobe-CNS1-2.bcmap",
+      "gitBlobSha1": "2aa95141f9f5802818e34b0aa626e34e7cfee805",
+      "size": 376
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Adobe-CNS1-3.bcmap",
+      "gitBlobSha1": "86d8b8c79cfa3907281aa3f25a46f178b87aedfa",
+      "size": 401
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Adobe-CNS1-4.bcmap",
+      "gitBlobSha1": "f50fc6c14e67a228c4ba9a61b1357c16410e8228",
+      "size": 405
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Adobe-CNS1-5.bcmap",
+      "gitBlobSha1": "6caf4a83146a60a2db652647b9cfed5fb71bd97c",
+      "size": 406
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Adobe-CNS1-6.bcmap",
+      "gitBlobSha1": "b77fb0705c28d647d0bf7b25246af566a791b2ec",
+      "size": 406
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Adobe-CNS1-UCS2.bcmap",
+      "gitBlobSha1": "69d79a2c2c2b00207ab27b68ebf4404aa17c6f2c",
+      "size": 41193
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Adobe-GB1-0.bcmap",
+      "gitBlobSha1": "36101083fa8fd22399728ccf533c48e830781de0",
+      "size": 217
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Adobe-GB1-1.bcmap",
+      "gitBlobSha1": "707bb1065c76d69551c287141cb258519132ef8e",
+      "size": 250
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Adobe-GB1-2.bcmap",
+      "gitBlobSha1": "f7648cc3ff02c44e9594ccbd71deec742e253c2f",
+      "size": 465
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Adobe-GB1-3.bcmap",
+      "gitBlobSha1": "852145890ede3dc04339de284993da270d62311d",
+      "size": 470
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Adobe-GB1-4.bcmap",
+      "gitBlobSha1": "e40c63ab1e5c240841f3b465ade920d60be6328f",
+      "size": 601
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Adobe-GB1-5.bcmap",
+      "gitBlobSha1": "d7623b500232b6e62f29c2c232e6c2469a527314",
+      "size": 625
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Adobe-GB1-UCS2.bcmap",
+      "gitBlobSha1": "7586525936cc5398b86d3752a4eb45b15825b25c",
+      "size": 33974
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Adobe-Japan1-0.bcmap",
+      "gitBlobSha1": "f0e94ec196757e8660b567d8ece7f99869927913",
+      "size": 225
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Adobe-Japan1-1.bcmap",
+      "gitBlobSha1": "dad42c5ad7dad57954fc9a051ee7e222e83bee45",
+      "size": 226
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Adobe-Japan1-2.bcmap",
+      "gitBlobSha1": "090819a064533f20aa68f562275556397683ae81",
+      "size": 233
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Adobe-Japan1-3.bcmap",
+      "gitBlobSha1": "087dfc155860e65d2dc828dd432ffe88239fde23",
+      "size": 242
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Adobe-Japan1-4.bcmap",
+      "gitBlobSha1": "46aa9bffe576e9a8b714646aed7f9e1a4e99dfe2",
+      "size": 337
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Adobe-Japan1-5.bcmap",
+      "gitBlobSha1": "5b4b65cc6292a5ba7d89e976565bf08814bb88b6",
+      "size": 430
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Adobe-Japan1-6.bcmap",
+      "gitBlobSha1": "e77d699ab6a1bfd1e3eab6db428222e108342aec",
+      "size": 485
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Adobe-Japan1-UCS2.bcmap",
+      "gitBlobSha1": "128a14107750da2939d920c3e0802798c36f2e18",
+      "size": 40951
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Adobe-Korea1-0.bcmap",
+      "gitBlobSha1": "cef1a9985191f53c4a8a35811d1caeecdd1a1820",
+      "size": 241
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Adobe-Korea1-1.bcmap",
+      "gitBlobSha1": "11ffa36df8404ab970df2a24b2d80b1dc6348436",
+      "size": 386
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Adobe-Korea1-2.bcmap",
+      "gitBlobSha1": "3172308c79d57147cdbe05930228043faa48ca54",
+      "size": 391
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Adobe-Korea1-UCS2.bcmap",
+      "gitBlobSha1": "f3371c0cbd14c89a7d2b5a72e4e4f9cdc6d6017e",
+      "size": 23293
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/B5-H.bcmap",
+      "gitBlobSha1": "beb4d228104cd985130e6eed7ccabdb63e94ce27",
+      "size": 1086
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/B5-V.bcmap",
+      "gitBlobSha1": "2d4f87d5035f03485616d4986b6373fa0820d0af",
+      "size": 142
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/B5pc-H.bcmap",
+      "gitBlobSha1": "ce0013167f852a873b639e301088c094d468a750",
+      "size": 1099
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/B5pc-V.bcmap",
+      "gitBlobSha1": "73b99ff2fbca40e7ca5501f61e3f2f29c1fc1af6",
+      "size": 144
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/CNS-EUC-H.bcmap",
+      "gitBlobSha1": "61d1d0cb001dd484630e52eb7e47eaabbdee62cd",
+      "size": 1780
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/CNS-EUC-V.bcmap",
+      "gitBlobSha1": "1a393a51e079d1b5e7898423463fac5e87170da2",
+      "size": 1920
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/CNS1-H.bcmap",
+      "gitBlobSha1": "f738e218ae2b4e9c33a1833a49fe20027e869aa1",
+      "size": 706
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/CNS1-V.bcmap",
+      "gitBlobSha1": "9c3169f0d9a083b462427bf4e46a25296ebbd862",
+      "size": 143
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/CNS2-H.bcmap",
+      "gitBlobSha1": "c89b3527fe57ad3b32061f36b73c756ead3fb071",
+      "size": 504
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/CNS2-V.bcmap",
+      "gitBlobSha1": "7588cec83e271feb04e3c7f3a6ee3a4c153f2052",
+      "size": 93
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/ETHK-B5-H.bcmap",
+      "gitBlobSha1": "cb29415de4f5a669c1b47e34ab889b5fdee6e428",
+      "size": 4426
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/ETHK-B5-V.bcmap",
+      "gitBlobSha1": "f09aec6318dbec88491e3e488526882eaa930f37",
+      "size": 158
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/ETen-B5-H.bcmap",
+      "gitBlobSha1": "c2d77462d298cdb261f5e2eed5218fcba35cbe4e",
+      "size": 1125
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/ETen-B5-V.bcmap",
+      "gitBlobSha1": "89bff159ec62cc86b7c4a3258ee0455cab10b76a",
+      "size": 158
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/ETenms-B5-H.bcmap",
+      "gitBlobSha1": "a7d69db5e32646c3fecf51bd03dc1a61c8189fae",
+      "size": 101
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/ETenms-B5-V.bcmap",
+      "gitBlobSha1": "adc5d618d6912cb3a67e4745b63764120f93d17f",
+      "size": 172
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/EUC-H.bcmap",
+      "gitBlobSha1": "e92ea5b3b99b1f20d31c9760481de0472e72685b",
+      "size": 578
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/EUC-V.bcmap",
+      "gitBlobSha1": "7a7c183228dfdc5c236b7914ca68298520ac60a1",
+      "size": 170
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Ext-H.bcmap",
+      "gitBlobSha1": "3b5cde44dbaf7f78c716c3705590ae28e9bed265",
+      "size": 2536
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Ext-RKSJ-H.bcmap",
+      "gitBlobSha1": "ea4d2d97b8bc1df2abebce0d4f8c58789f723eb1",
+      "size": 2542
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Ext-RKSJ-V.bcmap",
+      "gitBlobSha1": "3457c2770913963731993654c838df133deabbb3",
+      "size": 218
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Ext-V.bcmap",
+      "gitBlobSha1": "4999ca40412b66e87c56870c80cff32212483ee8",
+      "size": 215
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/GB-EUC-H.bcmap",
+      "gitBlobSha1": "e39908b9844939a3c6d6baccced5771b8c1b1b2d",
+      "size": 549
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/GB-EUC-V.bcmap",
+      "gitBlobSha1": "d5be5446aa40898742183202ce0624b8acee5234",
+      "size": 179
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/GB-H.bcmap",
+      "gitBlobSha1": "39189c54e363ebe2ea542addd6b629bdacd0e8e9",
+      "size": 528
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/GB-V.bcmap",
+      "gitBlobSha1": "310834512ffe49cbb7ca903abc2dc1aaa934e6f4",
+      "size": 175
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/GBK-EUC-H.bcmap",
+      "gitBlobSha1": "05fff7e8254c995031783fb3b4892d58a6b176ac",
+      "size": 14692
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/GBK-EUC-V.bcmap",
+      "gitBlobSha1": "0cdf6bed6d450473f92e691e9015e4028113607e",
+      "size": 180
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/GBK2K-H.bcmap",
+      "gitBlobSha1": "46f6ba5967cdfb381f001eb1193f17b43d943962",
+      "size": 19662
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/GBK2K-V.bcmap",
+      "gitBlobSha1": "d9a9479843eda25fb0a8fd69fb302740813d925f",
+      "size": 219
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/GBKp-EUC-H.bcmap",
+      "gitBlobSha1": "5cb0af687ee20a10ecc367892ae49d7b1e74acd1",
+      "size": 14686
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/GBKp-EUC-V.bcmap",
+      "gitBlobSha1": "bca93b8efbb18a13e15025ad41d23db8267d2577",
+      "size": 181
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/GBT-EUC-H.bcmap",
+      "gitBlobSha1": "4b4e2d32294538b5093ed3870bb9de37abf21599",
+      "size": 7290
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/GBT-EUC-V.bcmap",
+      "gitBlobSha1": "38f706699f395dcdad5c6ad93d1a9b6fe9f66c78",
+      "size": 180
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/GBT-H.bcmap",
+      "gitBlobSha1": "8437ac33771536813228e3f9c1cb6c35af3acc72",
+      "size": 7269
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/GBT-V.bcmap",
+      "gitBlobSha1": "697ab4a8e756204de9d089c8c136579973c9c0c6",
+      "size": 176
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/GBTpc-EUC-H.bcmap",
+      "gitBlobSha1": "f6e50e89363483070b25106b94f729ae38587d28",
+      "size": 7298
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/GBTpc-EUC-V.bcmap",
+      "gitBlobSha1": "6c0d71a2d04473870c60dc59342400fe1b4ccc48",
+      "size": 182
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/GBpc-EUC-H.bcmap",
+      "gitBlobSha1": "c9edf67cf6d640607080ad2775c14760df77dd96",
+      "size": 557
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/GBpc-EUC-V.bcmap",
+      "gitBlobSha1": "31450c97f640ff40bd79677cd3e97f4485453d9b",
+      "size": 181
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/H.bcmap",
+      "gitBlobSha1": "7b24ea4629d0d4cc9f0cd5852edde324156ef0b1",
+      "size": 553
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/HKdla-B5-H.bcmap",
+      "gitBlobSha1": "7d30c0500520d563d0e5891c8f4781c61ddcca5e",
+      "size": 2654
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/HKdla-B5-V.bcmap",
+      "gitBlobSha1": "78946940d68cdd2ea1bec1230b1eb0b19b8d5deb",
+      "size": 148
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/HKdlb-B5-H.bcmap",
+      "gitBlobSha1": "d829a231015161e107123e211d4a78110daab6bf",
+      "size": 2414
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/HKdlb-B5-V.bcmap",
+      "gitBlobSha1": "2b572b50a47f09a51c777efabcaf6a9e3faa26c2",
+      "size": 148
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/HKgccs-B5-H.bcmap",
+      "gitBlobSha1": "971a4f23f791f75d4e604ad717735ee55529eda5",
+      "size": 2292
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/HKgccs-B5-V.bcmap",
+      "gitBlobSha1": "d353ca256b54236a4acefafdbc08e5b719892014",
+      "size": 149
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/HKm314-B5-H.bcmap",
+      "gitBlobSha1": "576dc01112bd7f28c30804661f546ece203c53d8",
+      "size": 1772
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/HKm314-B5-V.bcmap",
+      "gitBlobSha1": "0e96d0e228e0608f77f035655140c6a235d4ea56",
+      "size": 149
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/HKm471-B5-H.bcmap",
+      "gitBlobSha1": "11d170c75ed8696f0705f9fb9f5afcf3b0aff4c9",
+      "size": 2171
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/HKm471-B5-V.bcmap",
+      "gitBlobSha1": "54959bf9e776c990460f2582adee80d317062d20",
+      "size": 149
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/HKscs-B5-H.bcmap",
+      "gitBlobSha1": "6ef7857ad17cefc4ab714d209716002317c23baa",
+      "size": 4437
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/HKscs-B5-V.bcmap",
+      "gitBlobSha1": "1fb2fa2a2ecdf5abd6b7cbf2cb5f2ee4f0b11fe2",
+      "size": 159
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Hankaku.bcmap",
+      "gitBlobSha1": "4b8ec7fcef466bc4090dc13c8edb354cb94d0b67",
+      "size": 132
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Hiragana.bcmap",
+      "gitBlobSha1": "17e983e77264c62ee149d1c8ec576a23e8f90eda",
+      "size": 124
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/KSC-EUC-H.bcmap",
+      "gitBlobSha1": "a45c65f008e7d6ff34edaf53af15ea471d4f6d90",
+      "size": 1848
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/KSC-EUC-V.bcmap",
+      "gitBlobSha1": "0e7b21f0a612b1acc41c1b23ad0060da539eaf2b",
+      "size": 164
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/KSC-H.bcmap",
+      "gitBlobSha1": "b9b22b67879d4043c75b617a24f96b0bd47cf4ca",
+      "size": 1831
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/KSC-Johab-H.bcmap",
+      "gitBlobSha1": "2531ffcf41acc01338f781c845c7f50f62fcc84a",
+      "size": 16791
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/KSC-Johab-V.bcmap",
+      "gitBlobSha1": "367ceb226ab1e33624b30512716a3b65feb5a100",
+      "size": 166
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/KSC-V.bcmap",
+      "gitBlobSha1": "6ae2f0b6b7238adc67bd9231668d9853ea3c8e1e",
+      "size": 160
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/KSCms-UHC-H.bcmap",
+      "gitBlobSha1": "a8d4240e6adb3ac1db859085b769a0715be03c72",
+      "size": 2787
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/KSCms-UHC-HW-H.bcmap",
+      "gitBlobSha1": "8b4ae18fd3efdbe020e4e1407d2f65125085a71a",
+      "size": 2789
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/KSCms-UHC-HW-V.bcmap",
+      "gitBlobSha1": "b655dbcfb123ed06c7eeb87dfc96ecf6759363dd",
+      "size": 169
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/KSCms-UHC-V.bcmap",
+      "gitBlobSha1": "21f97f65b4a61adfa13f55d5a096ceab45eb485b",
+      "size": 166
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/KSCpc-EUC-H.bcmap",
+      "gitBlobSha1": "e06f361eb6d429290806b9f9cd7a0aebce22be4d",
+      "size": 2024
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/KSCpc-EUC-V.bcmap",
+      "gitBlobSha1": "f3c9113fcf0b02e1deea8246bfd27408becc8401",
+      "size": 166
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Katakana.bcmap",
+      "gitBlobSha1": "524303c4f0c20e6cd19aa1d35805e98c2c05cb7c",
+      "size": 100
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/LICENSE",
+      "gitBlobSha1": "b1ad168ad0dd09b578cafec31d2666049b4d8718",
+      "size": 2080
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/NWP-H.bcmap",
+      "gitBlobSha1": "afc5e4b05ee6f4be4f17eb616742b59aee4c5ac1",
+      "size": 2765
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/NWP-V.bcmap",
+      "gitBlobSha1": "bb5785e3278ab7a24b3080cf22ea0f609aab4595",
+      "size": 252
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/RKSJ-H.bcmap",
+      "gitBlobSha1": "fb8d298e9bb8e090139bbc5e958f11a237672825",
+      "size": 534
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/RKSJ-V.bcmap",
+      "gitBlobSha1": "a2555a6c048de98d68f534fbba18baf4b4311e50",
+      "size": 170
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/Roman.bcmap",
+      "gitBlobSha1": "f896dcf1c7fb118fc491094edd6244e16856d586",
+      "size": 96
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniCNS-UCS2-H.bcmap",
+      "gitBlobSha1": "d5db27c5cf1f5b0e66e16f6314d042a4ef707222",
+      "size": 48280
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniCNS-UCS2-V.bcmap",
+      "gitBlobSha1": "1dc9b7a21bc59b6540d55b3d8933e5a6ba9f8947",
+      "size": 156
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniCNS-UTF16-H.bcmap",
+      "gitBlobSha1": "961afefb66cb70ea2f10784029572e5f68ae4740",
+      "size": 50419
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniCNS-UTF16-V.bcmap",
+      "gitBlobSha1": "df0cffe86b5e9f154c5ef6207120d6bd43706631",
+      "size": 156
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniCNS-UTF32-H.bcmap",
+      "gitBlobSha1": "1ab18a14367cf31113eddf5ae15d9fb3549f39ab",
+      "size": 52679
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniCNS-UTF32-V.bcmap",
+      "gitBlobSha1": "ad14662e25e7a4e3bd7f543c126ac24417bc3665",
+      "size": 160
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniCNS-UTF8-H.bcmap",
+      "gitBlobSha1": "83c6bd7c4ff0abf4634765312b8a3026942d2b35",
+      "size": 53629
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniCNS-UTF8-V.bcmap",
+      "gitBlobSha1": "22a27e4ddbe26664c57f778a864b6872f6c2ba03",
+      "size": 157
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniGB-UCS2-H.bcmap",
+      "gitBlobSha1": "5bd6228ce62ec10f00316b136663ed6b60ebf9e5",
+      "size": 43366
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniGB-UCS2-V.bcmap",
+      "gitBlobSha1": "53c534b7fecfd84e465c8943fe3adf500a4444f4",
+      "size": 193
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniGB-UTF16-H.bcmap",
+      "gitBlobSha1": "b95045b400a77419292cab245f9f66f6298dbb5d",
+      "size": 44086
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniGB-UTF16-V.bcmap",
+      "gitBlobSha1": "51f023e0d609798e72d46bf41309e092d72ccb07",
+      "size": 178
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniGB-UTF32-H.bcmap",
+      "gitBlobSha1": "f0dbd14f3795a40b23cbe5b826f776f4ea7cba4c",
+      "size": 45738
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniGB-UTF32-V.bcmap",
+      "gitBlobSha1": "ce9c30a98541e23244876fef9dc67c2639fdd746",
+      "size": 182
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniGB-UTF8-H.bcmap",
+      "gitBlobSha1": "982ca462b1b047c945d3b7b0123eb42dfd8d48cd",
+      "size": 46837
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniGB-UTF8-V.bcmap",
+      "gitBlobSha1": "f78020dd4028d56497c44b7afa94985f0d18f8ce",
+      "size": 181
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniJIS-UCS2-H.bcmap",
+      "gitBlobSha1": "7daf56afabf65a4707d7bb06d829f56b247c9e80",
+      "size": 25439
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniJIS-UCS2-HW-H.bcmap",
+      "gitBlobSha1": "ac9975c585ede6958758980ade161f687d40d58b",
+      "size": 119
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniJIS-UCS2-HW-V.bcmap",
+      "gitBlobSha1": "3da0a1c62f19f720590b54fc1de7b027af100945",
+      "size": 680
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniJIS-UCS2-V.bcmap",
+      "gitBlobSha1": "c50b9ddfde9da7ebb2f67eba68d58fa2cdee902a",
+      "size": 664
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniJIS-UTF16-H.bcmap",
+      "gitBlobSha1": "6761344639bcde069cf7133d52e127536dcdd037",
+      "size": 39443
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniJIS-UTF16-V.bcmap",
+      "gitBlobSha1": "70bf90c0efb66da2a7aa19a820d766cfe3ef3183",
+      "size": 643
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniJIS-UTF32-H.bcmap",
+      "gitBlobSha1": "7a83d53ae70ca3d81cda827cc224ec8c5efa4f17",
+      "size": 40539
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniJIS-UTF32-V.bcmap",
+      "gitBlobSha1": "7a8713539491f51c52ba3a1525d181efd32c1f0f",
+      "size": 677
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniJIS-UTF8-H.bcmap",
+      "gitBlobSha1": "9f0334cac7f3852b4d06dc9e5cf0f9646ba21a5e",
+      "size": 41695
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniJIS-UTF8-V.bcmap",
+      "gitBlobSha1": "808a94f0fd9c3b3cb0267e5cfe4dced2e65ecb1c",
+      "size": 678
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniJIS2004-UTF16-H.bcmap",
+      "gitBlobSha1": "d768bf811ffeb0d794b732a82940fa1442af499f",
+      "size": 39534
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniJIS2004-UTF16-V.bcmap",
+      "gitBlobSha1": "3d5bf6fb4ef94b452ed1ef0df926fc2bee55e973",
+      "size": 647
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniJIS2004-UTF32-H.bcmap",
+      "gitBlobSha1": "09eee10d4fb4b9fe1e70a1ee56825a207ae8034a",
+      "size": 40630
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniJIS2004-UTF32-V.bcmap",
+      "gitBlobSha1": "6c546001331cf4f2f68563229f994b55730dfdb1",
+      "size": 681
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniJIS2004-UTF8-H.bcmap",
+      "gitBlobSha1": "1b1a64f50d204b03ef0c5575233687830a1b053a",
+      "size": 41779
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniJIS2004-UTF8-V.bcmap",
+      "gitBlobSha1": "994aa9ef9f50495a3ac558630b0234680be23c2f",
+      "size": 682
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniJISPro-UCS2-HW-V.bcmap",
+      "gitBlobSha1": "643f921b65819c9e8c80a97c51fc68a89053bd51",
+      "size": 705
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniJISPro-UCS2-V.bcmap",
+      "gitBlobSha1": "c148f67f5e9fe4a108519eeaace89e708a51f8f5",
+      "size": 689
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniJISPro-UTF8-V.bcmap",
+      "gitBlobSha1": "1849d809a679e56414f4e18dce8ca3c41109e84e",
+      "size": 726
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniJISX0213-UTF32-H.bcmap",
+      "gitBlobSha1": "a83a677c56df6f1ac395d2ba71e60a08b0985e97",
+      "size": 40517
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniJISX0213-UTF32-V.bcmap",
+      "gitBlobSha1": "f527248ad547015ad8af1181e646da3b235de08f",
+      "size": 684
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniJISX02132004-UTF32-H.bcmap",
+      "gitBlobSha1": "e1a988dc9e80be9a0803e22d021b1e81fdcc5b94",
+      "size": 40608
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniJISX02132004-UTF32-V.bcmap",
+      "gitBlobSha1": "47e054a961adb3d97caaa31c854d9b8ef4555bf9",
+      "size": 688
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniKS-UCS2-H.bcmap",
+      "gitBlobSha1": "b5b94852a57b19bcb357a6cae2cae2e7910e05a1",
+      "size": 25783
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniKS-UCS2-V.bcmap",
+      "gitBlobSha1": "026adcaad4c56cb1989bd31cbcf3ad21f3965a17",
+      "size": 178
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniKS-UTF16-H.bcmap",
+      "gitBlobSha1": "fd4e66e81f3507b190fb2986a26a45c1c380e302",
+      "size": 26327
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniKS-UTF16-V.bcmap",
+      "gitBlobSha1": "075efb7054901b1022af68e723647769cbe1d556",
+      "size": 164
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniKS-UTF32-H.bcmap",
+      "gitBlobSha1": "769d2142c03b10680800b3b6ae883e27fe04c5a2",
+      "size": 26451
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniKS-UTF32-V.bcmap",
+      "gitBlobSha1": "bdab208b69d287128195eccbd084c8cf4ca658c3",
+      "size": 168
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniKS-UTF8-H.bcmap",
+      "gitBlobSha1": "6ff8674af772af896d7d33c7addc37c57822f8a2",
+      "size": 27790
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/UniKS-UTF8-V.bcmap",
+      "gitBlobSha1": "8dfa76a58eb720dd1992c2cc9abf1dd4b39c5a66",
+      "size": 169
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/V.bcmap",
+      "gitBlobSha1": "fdec9906621904180f42bd5c91f377397fd6cf95",
+      "size": 166
+    },
+    {
+      "path": "assets/pdf.js/web/cmaps/WP-Symbol.bcmap",
+      "gitBlobSha1": "46729bbf30f3b2f176492d907fb8ca3f6a1e3026",
+      "size": 179
+    },
+    {
+      "path": "assets/pdf.js/web/compressed.tracemonkey-pldi-09.pdf",
+      "gitBlobSha1": "65570184ac82fbc478a403cb8dd64a59c0065eae",
+      "size": 1016315
+    },
+    {
+      "path": "assets/pdf.js/web/debugger.css",
+      "gitBlobSha1": "74058440d9dcc35fe8e3a61fd45ffe9179fe9901",
+      "size": 2999
+    },
+    {
+      "path": "assets/pdf.js/web/debugger.mjs",
+      "gitBlobSha1": "16ebd141e4256cddd68e0c1f3c954771fa6a1fd7",
+      "size": 24298
+    },
+    {
+      "path": "assets/pdf.js/web/iccs/CGATS001Compat-v2-micro.icc",
+      "gitBlobSha1": "b5a73495bfc7509837b300800d8197d94e83fab7",
+      "size": 8464
+    },
+    {
+      "path": "assets/pdf.js/web/iccs/LICENSE",
+      "gitBlobSha1": "4ee29e090cbd37377041c696bed983e66641d7cc",
+      "size": 6553
+    },
+    {
+      "path": "assets/pdf.js/web/images/altText_add.svg",
+      "gitBlobSha1": "3451b536ce7253b9341022f1fc2d7138f7840f79",
+      "size": 920
+    },
+    {
+      "path": "assets/pdf.js/web/images/altText_disclaimer.svg",
+      "gitBlobSha1": "6fe79e710c82a0361e535b3988d349d48b62eed3",
+      "size": 3397
+    },
+    {
+      "path": "assets/pdf.js/web/images/altText_done.svg",
+      "gitBlobSha1": "f54924ebf92890ce3148ade2313f471cc385b710",
+      "size": 1087
+    },
+    {
+      "path": "assets/pdf.js/web/images/altText_spinner.svg",
+      "gitBlobSha1": "fedb4724f7ed39a065b50d47d05e84d18953a853",
+      "size": 2710
+    },
+    {
+      "path": "assets/pdf.js/web/images/altText_warning.svg",
+      "gitBlobSha1": "03014ceab2506cc0f706a0ab16ec479eb93e83da",
+      "size": 1532
+    },
+    {
+      "path": "assets/pdf.js/web/images/annotation-check.svg",
+      "gitBlobSha1": "71cd16df576f158da70e8007c946cf25ad25e397",
+      "size": 415
+    },
+    {
+      "path": "assets/pdf.js/web/images/annotation-comment.svg",
+      "gitBlobSha1": "86f1f17249f0a2e49e54a6610fa928c91815c2d7",
+      "size": 883
+    },
+    {
+      "path": "assets/pdf.js/web/images/annotation-help.svg",
+      "gitBlobSha1": "00938fefe048b07fede7186d235179fe6ac2482c",
+      "size": 2168
+    },
+    {
+      "path": "assets/pdf.js/web/images/annotation-insert.svg",
+      "gitBlobSha1": "519ef6826e56b178cbad9d91adf0b7a870696602",
+      "size": 408
+    },
+    {
+      "path": "assets/pdf.js/web/images/annotation-key.svg",
+      "gitBlobSha1": "8d09d5378d5be7d1350e08c3ece3d87e2e711a96",
+      "size": 1452
+    },
+    {
+      "path": "assets/pdf.js/web/images/annotation-newparagraph.svg",
+      "gitBlobSha1": "38d2497da9112076d3e88876d03aedbb1437a1a2",
+      "size": 426
+    },
+    {
+      "path": "assets/pdf.js/web/images/annotation-noicon.svg",
+      "gitBlobSha1": "c07d1080832bebea22ad1cf45fe3bac16ca90642",
+      "size": 158
+    },
+    {
+      "path": "assets/pdf.js/web/images/annotation-note.svg",
+      "gitBlobSha1": "70173651c7e2a3d53492f234e7444c9d775b3b2c",
+      "size": 1041
+    },
+    {
+      "path": "assets/pdf.js/web/images/annotation-paperclip.svg",
+      "gitBlobSha1": "2bed2250aee5b1e1aa4b884ae5eb984ad6aa1c91",
+      "size": 552
+    },
+    {
+      "path": "assets/pdf.js/web/images/annotation-paragraph.svg",
+      "gitBlobSha1": "6ae5212b75d6855aa2cf7964de2b27650a6a2b80",
+      "size": 1143
+    },
+    {
+      "path": "assets/pdf.js/web/images/annotation-pushpin.svg",
+      "gitBlobSha1": "6e0896cf4ac0e9d2368ea4cfb11fe106b3855dbf",
+      "size": 1375
+    },
+    {
+      "path": "assets/pdf.js/web/images/checkmark.svg",
+      "gitBlobSha1": "20ba0d207df2cc4edb8f0e698805e119bf471367",
+      "size": 565
+    },
+    {
+      "path": "assets/pdf.js/web/images/comment-actionsButton.svg",
+      "gitBlobSha1": "3161438cacddba57632639031eac5325cd88fff6",
+      "size": 421
+    },
+    {
+      "path": "assets/pdf.js/web/images/comment-closeButton.svg",
+      "gitBlobSha1": "6fb5f6a2c4040538956975187549f6e17beba558",
+      "size": 1199
+    },
+    {
+      "path": "assets/pdf.js/web/images/comment-editButton.svg",
+      "gitBlobSha1": "92b1316f23f98dae71e0c160001de52bd80e735b",
+      "size": 908
+    },
+    {
+      "path": "assets/pdf.js/web/images/comment-popup-editButton.svg",
+      "gitBlobSha1": "e49742287558cf42dd76b6f85601bbe6a806e8d8",
+      "size": 1635
+    },
+    {
+      "path": "assets/pdf.js/web/images/cursor-editorFreeHighlight.svg",
+      "gitBlobSha1": "513f6bdfdaa928912c1220fee3d95f2978c8cdf0",
+      "size": 2936
+    },
+    {
+      "path": "assets/pdf.js/web/images/cursor-editorFreeText.svg",
+      "gitBlobSha1": "de2838ef102b5b7666fa192bc7d620b9b0fffb3b",
+      "size": 1452
+    },
+    {
+      "path": "assets/pdf.js/web/images/cursor-editorInk.svg",
+      "gitBlobSha1": "1dadb5c0155e91dd36fdaf6a0e270627fd314f8a",
+      "size": 1323
+    },
+    {
+      "path": "assets/pdf.js/web/images/cursor-editorTextHighlight.svg",
+      "gitBlobSha1": "800340cb5b18aba3528973b7a9e846ddda450ba4",
+      "size": 5402
+    },
+    {
+      "path": "assets/pdf.js/web/images/editor-toolbar-delete.svg",
+      "gitBlobSha1": "f84520d85a3406933e8f5d5d66f7c56c90a375ed",
+      "size": 909
+    },
+    {
+      "path": "assets/pdf.js/web/images/editor-toolbar-edit.svg",
+      "gitBlobSha1": "692de38d32c5b40287f132b0646a528a8dbf08d2",
+      "size": 869
+    },
+    {
+      "path": "assets/pdf.js/web/images/findbarButton-next.svg",
+      "gitBlobSha1": "8cb39bec6f1a491aa6ee2fabf6c20a9432b2ee6f",
+      "size": 578
+    },
+    {
+      "path": "assets/pdf.js/web/images/findbarButton-previous.svg",
+      "gitBlobSha1": "b610879dafcce529a81fcba83d34262cb6460612",
+      "size": 578
+    },
+    {
+      "path": "assets/pdf.js/web/images/gv-toolbarButton-download.svg",
+      "gitBlobSha1": "d56cf3ce70e11286d2b8f33483db252e85a5d30e",
+      "size": 782
+    },
+    {
+      "path": "assets/pdf.js/web/images/loading-icon.gif",
+      "gitBlobSha1": "1c72ebb554be018511ae972c3f2361dff02dce02",
+      "size": 2545
+    },
+    {
+      "path": "assets/pdf.js/web/images/loading.svg",
+      "gitBlobSha1": "0a15ff6885de8c9e8423e98dd066840d56f3df19",
+      "size": 1559
+    },
+    {
+      "path": "assets/pdf.js/web/images/messageBar_closingButton.svg",
+      "gitBlobSha1": "8a40715ded3a5c48b9a4eac09182b4be4a6a647b",
+      "size": 1092
+    },
+    {
+      "path": "assets/pdf.js/web/images/messageBar_info.svg",
+      "gitBlobSha1": "b12b6be4aa63b8061316d8f5fb9e05b6365ed924",
+      "size": 1076
+    },
+    {
+      "path": "assets/pdf.js/web/images/messageBar_warning.svg",
+      "gitBlobSha1": "011cfcf3e146018947ccc73682cc1469ca2e5d14",
+      "size": 811
+    },
+    {
+      "path": "assets/pdf.js/web/images/pages_closeButton.svg",
+      "gitBlobSha1": "92fc5ecf65c022a58a3f552c173d502a37e8d4ef",
+      "size": 284
+    },
+    {
+      "path": "assets/pdf.js/web/images/pages_selected.svg",
+      "gitBlobSha1": "32c481641003701d45f11a451b2e010c291651b3",
+      "size": 355
+    },
+    {
+      "path": "assets/pdf.js/web/images/pages_viewArrow.svg",
+      "gitBlobSha1": "a4932d42769d3a96d3c26b1a283c626cae6e8bb5",
+      "size": 705
+    },
+    {
+      "path": "assets/pdf.js/web/images/pages_viewButton.svg",
+      "gitBlobSha1": "24c518d4331bfab669f520ef52527add7c9c638d",
+      "size": 1406
+    },
+    {
+      "path": "assets/pdf.js/web/images/secondaryToolbarButton-documentProperties.svg",
+      "gitBlobSha1": "dd3917b91d981d9b522c7c822cc2113d6a758f70",
+      "size": 417
+    },
+    {
+      "path": "assets/pdf.js/web/images/secondaryToolbarButton-firstPage.svg",
+      "gitBlobSha1": "f5c917f12a67772571b35880e90beecc58b30db4",
+      "size": 260
+    },
+    {
+      "path": "assets/pdf.js/web/images/secondaryToolbarButton-handTool.svg",
+      "gitBlobSha1": "b7073b598957c43288998b17fa5d424e4a782517",
+      "size": 1344
+    },
+    {
+      "path": "assets/pdf.js/web/images/secondaryToolbarButton-lastPage.svg",
+      "gitBlobSha1": "c04f65079c59c6e966e51fc920b4d9c4db4db339",
+      "size": 257
+    },
+    {
+      "path": "assets/pdf.js/web/images/secondaryToolbarButton-rotateCcw.svg",
+      "gitBlobSha1": "da73a1b16be7ec3f6b96ff3db884c8b6b853b3a9",
+      "size": 596
+    },
+    {
+      "path": "assets/pdf.js/web/images/secondaryToolbarButton-rotateCw.svg",
+      "gitBlobSha1": "c41ce7365eb4ca48558b71cca2d5d4e4a9b99a6f",
+      "size": 576
+    },
+    {
+      "path": "assets/pdf.js/web/images/secondaryToolbarButton-scrollHorizontal.svg",
+      "gitBlobSha1": "fb440b9465316f3511d680fad8aa08516a959797",
+      "size": 971
+    },
+    {
+      "path": "assets/pdf.js/web/images/secondaryToolbarButton-scrollPage.svg",
+      "gitBlobSha1": "64a9f500732d7072a9c5e771adaf5dfbba5cbdc8",
+      "size": 731
+    },
+    {
+      "path": "assets/pdf.js/web/images/secondaryToolbarButton-scrollVertical.svg",
+      "gitBlobSha1": "dc7e80520072e254cb4cca66841ae4028ecef9da",
+      "size": 969
+    },
+    {
+      "path": "assets/pdf.js/web/images/secondaryToolbarButton-scrollWrapped.svg",
+      "gitBlobSha1": "75fe26bcfcc5149376058eea001acc44d3f319fb",
+      "size": 1228
+    },
+    {
+      "path": "assets/pdf.js/web/images/secondaryToolbarButton-selectTool.svg",
+      "gitBlobSha1": "94d51410dd43142275323c6fd3ae87859412f92a",
+      "size": 1085
+    },
+    {
+      "path": "assets/pdf.js/web/images/secondaryToolbarButton-spreadEven.svg",
+      "gitBlobSha1": "ce201e33c0a5dd9815e1067a3c523bcea353d59a",
+      "size": 775
+    },
+    {
+      "path": "assets/pdf.js/web/images/secondaryToolbarButton-spreadNone.svg",
+      "gitBlobSha1": "e8d487fa389e25b6aa35db299197d1c816ae5646",
+      "size": 395
+    },
+    {
+      "path": "assets/pdf.js/web/images/secondaryToolbarButton-spreadOdd.svg",
+      "gitBlobSha1": "9211a427bfee600ad9c02cfe3c77bb108928c6f9",
+      "size": 711
+    },
+    {
+      "path": "assets/pdf.js/web/images/signature-properties-row-check.svg",
+      "gitBlobSha1": "f40d8301f589404f38a428d1fb737ec6ca4886e9",
+      "size": 296
+    },
+    {
+      "path": "assets/pdf.js/web/images/toolbarButton-bookmark.svg",
+      "gitBlobSha1": "c4c37c90582dd951e90804502902989cb4c8503e",
+      "size": 861
+    },
+    {
+      "path": "assets/pdf.js/web/images/toolbarButton-currentOutlineItem.svg",
+      "gitBlobSha1": "01e67623bf2ab17b21193966cd3ef9ff17c87cb3",
+      "size": 607
+    },
+    {
+      "path": "assets/pdf.js/web/images/toolbarButton-download.svg",
+      "gitBlobSha1": "e2e850adf73d0cf2f499a3c33c9d4988676ad018",
+      "size": 1036
+    },
+    {
+      "path": "assets/pdf.js/web/images/toolbarButton-editorFreeText.svg",
+      "gitBlobSha1": "13a67bd9b6ab2106f5b4db06ce3a55263e2dbc4b",
+      "size": 498
+    },
+    {
+      "path": "assets/pdf.js/web/images/toolbarButton-editorHighlight.svg",
+      "gitBlobSha1": "b3cd7fda9c960be975f276950a7b7c25966d0c8d",
+      "size": 910
+    },
+    {
+      "path": "assets/pdf.js/web/images/toolbarButton-editorInk.svg",
+      "gitBlobSha1": "b579eec7ee58f1f9d43736ff1e671f542d942444",
+      "size": 1189
+    },
+    {
+      "path": "assets/pdf.js/web/images/toolbarButton-editorSignature.svg",
+      "gitBlobSha1": "0b4e9049feea700ba4a6bd5d9a1e521869fe2875",
+      "size": 1577
+    },
+    {
+      "path": "assets/pdf.js/web/images/toolbarButton-editorStamp.svg",
+      "gitBlobSha1": "a1fef4922d97f073c59dfe409db557b2e968408a",
+      "size": 734
+    },
+    {
+      "path": "assets/pdf.js/web/images/toolbarButton-menuArrow.svg",
+      "gitBlobSha1": "82ffeaabb9e497590979506a13f761b908ca6bd7",
+      "size": 681
+    },
+    {
+      "path": "assets/pdf.js/web/images/toolbarButton-openFile.svg",
+      "gitBlobSha1": "e773781d607247c6807cd7fe17c7fb7fddd74119",
+      "size": 1400
+    },
+    {
+      "path": "assets/pdf.js/web/images/toolbarButton-pageDown.svg",
+      "gitBlobSha1": "1fc12e733d9b957f359ec561063750dffab65073",
+      "size": 701
+    },
+    {
+      "path": "assets/pdf.js/web/images/toolbarButton-pageUp.svg",
+      "gitBlobSha1": "0936b9a578f89dd940767529a755c1c470e8a49c",
+      "size": 682
+    },
+    {
+      "path": "assets/pdf.js/web/images/toolbarButton-presentationMode.svg",
+      "gitBlobSha1": "901d5672bcb34191c425679a1b35db14e0f5abd1",
+      "size": 681
+    },
+    {
+      "path": "assets/pdf.js/web/images/toolbarButton-print.svg",
+      "gitBlobSha1": "97a390474d93e6c34b17479f1781fc5266f72f0b",
+      "size": 927
+    },
+    {
+      "path": "assets/pdf.js/web/images/toolbarButton-search.svg",
+      "gitBlobSha1": "0cc7ae21ac16844b81e3861f0bd517fb2cb58a9b",
+      "size": 1234
+    },
+    {
+      "path": "assets/pdf.js/web/images/toolbarButton-secondaryToolbarToggle.svg",
+      "gitBlobSha1": "cace863728ade3088e92292458c28d9d0022c42f",
+      "size": 1080
+    },
+    {
+      "path": "assets/pdf.js/web/images/toolbarButton-signaturePropertiesError.svg",
+      "gitBlobSha1": "43a8b413e2d87c6dc71679851dd418a9728b9538",
+      "size": 345
+    },
+    {
+      "path": "assets/pdf.js/web/images/toolbarButton-signaturePropertiesVerified.svg",
+      "gitBlobSha1": "e294c6c90af4ff102a9a0fc4286b3a87f31ee4c9",
+      "size": 356
+    },
+    {
+      "path": "assets/pdf.js/web/images/toolbarButton-viewAttachments.svg",
+      "gitBlobSha1": "ab73f6e6e071e95c3c90b94b219c9c94a49e307f",
+      "size": 570
+    },
+    {
+      "path": "assets/pdf.js/web/images/toolbarButton-viewLayers.svg",
+      "gitBlobSha1": "1d726682642bf968612180bfba62a2edd0882cfb",
+      "size": 671
+    },
+    {
+      "path": "assets/pdf.js/web/images/toolbarButton-viewOutline.svg",
+      "gitBlobSha1": "7ed1bd97f2f5b57aef1e73046e1df0d2b3ccf6ef",
+      "size": 332
+    },
+    {
+      "path": "assets/pdf.js/web/images/toolbarButton-viewThumbnail.svg",
+      "gitBlobSha1": "040d123266a20cc089b2af50a0a39b9760e2d493",
+      "size": 1396
+    },
+    {
+      "path": "assets/pdf.js/web/images/toolbarButton-viewsManagerToggle.svg",
+      "gitBlobSha1": "1d8d0e4b23aab16ccd62f0e1dbb69088db84bc06",
+      "size": 1560
+    },
+    {
+      "path": "assets/pdf.js/web/images/toolbarButton-zoomIn.svg",
+      "gitBlobSha1": "30ec51a2ffdff5fc1f7bb6088bd9fa492c428a09",
+      "size": 958
+    },
+    {
+      "path": "assets/pdf.js/web/images/toolbarButton-zoomOut.svg",
+      "gitBlobSha1": "f273b5995cdb234502a123a7e384af651f1e47bd",
+      "size": 472
+    },
+    {
+      "path": "assets/pdf.js/web/images/treeitem-collapsed.svg",
+      "gitBlobSha1": "831cddfc869518822c6d70e289ea5fe4b175cb94",
+      "size": 93
+    },
+    {
+      "path": "assets/pdf.js/web/images/treeitem-expanded.svg",
+      "gitBlobSha1": "2d45f0c8d18dd66c1cbc6756b97299051b9886e2",
+      "size": 94
+    },
+    {
+      "path": "assets/pdf.js/web/locale/ach/viewer.ftl",
+      "gitBlobSha1": "8f101454057ea808733757deb945835c46632725",
+      "size": 7258
+    },
+    {
+      "path": "assets/pdf.js/web/locale/af/viewer.ftl",
+      "gitBlobSha1": "577888cc8b8a76a4278c552550ec69338f5ec850",
+      "size": 6324
+    },
+    {
+      "path": "assets/pdf.js/web/locale/an/viewer.ftl",
+      "gitBlobSha1": "ad5d2fe81a13511bb4fc3a53acf1616e39ef8144",
+      "size": 9193
+    },
+    {
+      "path": "assets/pdf.js/web/locale/ar/viewer.ftl",
+      "gitBlobSha1": "6036f7c0038c25d251240bf5ace26a33aa9794bb",
+      "size": 40645
+    },
+    {
+      "path": "assets/pdf.js/web/locale/ast/viewer.ftl",
+      "gitBlobSha1": "2993916ade249d8457f128d819b43c8204ba6396",
+      "size": 6335
+    },
+    {
+      "path": "assets/pdf.js/web/locale/az/viewer.ftl",
+      "gitBlobSha1": "a2d8c1962a0cbf3c3a57d41553124360cd16ee5e",
+      "size": 9230
+    },
+    {
+      "path": "assets/pdf.js/web/locale/be/viewer.ftl",
+      "gitBlobSha1": "a52625414b907ac2f54a7bc5501b3b0eeff0a5b3",
+      "size": 46545
+    },
+    {
+      "path": "assets/pdf.js/web/locale/bg/viewer.ftl",
+      "gitBlobSha1": "a1de897be126bb01bbcbffdbf52923226e2e14fd",
+      "size": 19914
+    },
+    {
+      "path": "assets/pdf.js/web/locale/bn/viewer.ftl",
+      "gitBlobSha1": "7ca2c1d2b76032118940782bf517c71a2c48dd47",
+      "size": 11544
+    },
+    {
+      "path": "assets/pdf.js/web/locale/bo/viewer.ftl",
+      "gitBlobSha1": "4bea89761fe311ac602d0c0e250797cafd265c81",
+      "size": 8395
+    },
+    {
+      "path": "assets/pdf.js/web/locale/bqi/viewer.ftl",
+      "gitBlobSha1": "ca31acb6b335f95c3fac9fb7394bbe305065dab4",
+      "size": 5372
+    },
+    {
+      "path": "assets/pdf.js/web/locale/br/viewer.ftl",
+      "gitBlobSha1": "1f86d469d21c8c96f0c50cc3fb0e3420defb6bc6",
+      "size": 12695
+    },
+    {
+      "path": "assets/pdf.js/web/locale/brx/viewer.ftl",
+      "gitBlobSha1": "bd4440395b345b0754b51e6b60db5dffc0132fcc",
+      "size": 9633
+    },
+    {
+      "path": "assets/pdf.js/web/locale/bs/viewer.ftl",
+      "gitBlobSha1": "f0a67cafb6bef4e96fedf862368efd96158e9e18",
+      "size": 25813
+    },
+    {
+      "path": "assets/pdf.js/web/locale/ca/viewer.ftl",
+      "gitBlobSha1": "4e0d9cbb7fc1fdd694e3191ab0955f2d2a613ce6",
+      "size": 10505
+    },
+    {
+      "path": "assets/pdf.js/web/locale/cak/viewer.ftl",
+      "gitBlobSha1": "3f9c6a231e7610e627dcea415ed3e03eb6603d02",
+      "size": 10365
+    },
+    {
+      "path": "assets/pdf.js/web/locale/ckb/viewer.ftl",
+      "gitBlobSha1": "73f9e860a888de0f5bb2f5cd0e2242cb205e541a",
+      "size": 9646
+    },
+    {
+      "path": "assets/pdf.js/web/locale/cs/viewer.ftl",
+      "gitBlobSha1": "3534d0c7affeb7b460a8a59ff1fc20e02c196ae8",
+      "size": 39191
+    },
+    {
+      "path": "assets/pdf.js/web/locale/cy/viewer.ftl",
+      "gitBlobSha1": "66d3ff6fb156d9ee54a2e63d3924b8c72a1042b0",
+      "size": 40102
+    },
+    {
+      "path": "assets/pdf.js/web/locale/da/viewer.ftl",
+      "gitBlobSha1": "ba5bd581a0bc245751f5320a369cfc58f2fdc731",
+      "size": 31542
+    },
+    {
+      "path": "assets/pdf.js/web/locale/de/viewer.ftl",
+      "gitBlobSha1": "dcfbf11179c91a979fb229a7a7d1f940b2bde95e",
+      "size": 38335
+    },
+    {
+      "path": "assets/pdf.js/web/locale/dsb/viewer.ftl",
+      "gitBlobSha1": "ec7a74f73a117ab1a2840f54decdfab237f68182",
+      "size": 39935
+    },
+    {
+      "path": "assets/pdf.js/web/locale/el/viewer.ftl",
+      "gitBlobSha1": "fbd292d10a74ed1b7e96b29bbd178e65e6be3668",
+      "size": 47180
+    },
+    {
+      "path": "assets/pdf.js/web/locale/en-CA/viewer.ftl",
+      "gitBlobSha1": "f79758583a56268dccded11b4d983b6697f1db44",
+      "size": 31055
+    },
+    {
+      "path": "assets/pdf.js/web/locale/en-GB/viewer.ftl",
+      "gitBlobSha1": "c5287a1a8b9bcaf254e311b47c9915013e34fa06",
+      "size": 35641
+    },
+    {
+      "path": "assets/pdf.js/web/locale/en-US/viewer.ftl",
+      "gitBlobSha1": "46f376891c5d0c8bd31341f5645c8a4dc59f722b",
+      "size": 34396
+    },
+    {
+      "path": "assets/pdf.js/web/locale/eo/viewer.ftl",
+      "gitBlobSha1": "4a6ac909f58fe15402c5dbfd7b79d661dd3bec75",
+      "size": 37220
+    },
+    {
+      "path": "assets/pdf.js/web/locale/es-AR/viewer.ftl",
+      "gitBlobSha1": "c35b411c1f773d58705f6a5dff799704081b1aec",
+      "size": 37468
+    },
+    {
+      "path": "assets/pdf.js/web/locale/es-CL/viewer.ftl",
+      "gitBlobSha1": "3806a5b60f29a7103b53f8abf94d2c8932240f9a",
+      "size": 37698
+    },
+    {
+      "path": "assets/pdf.js/web/locale/es-ES/viewer.ftl",
+      "gitBlobSha1": "5bb20121e8213a4183e1a84091099b41dc0ed6b4",
+      "size": 33062
+    },
+    {
+      "path": "assets/pdf.js/web/locale/es-MX/viewer.ftl",
+      "gitBlobSha1": "8fafb6dc540899e510ac5004930630298f113b27",
+      "size": 33063
+    },
+    {
+      "path": "assets/pdf.js/web/locale/et/viewer.ftl",
+      "gitBlobSha1": "e0212b77d48f7754b541fe3aa9a8f4ea0f0174e7",
+      "size": 9466
+    },
+    {
+      "path": "assets/pdf.js/web/locale/eu/viewer.ftl",
+      "gitBlobSha1": "45ab19a96de965b16bc1eedfa46a07f4194cd4fb",
+      "size": 37335
+    },
+    {
+      "path": "assets/pdf.js/web/locale/fa/viewer.ftl",
+      "gitBlobSha1": "edff37cf89db82829f256789a7fdd03c7a12bde7",
+      "size": 13594
+    },
+    {
+      "path": "assets/pdf.js/web/locale/ff/viewer.ftl",
+      "gitBlobSha1": "e7cc1d705bf448b876c1c04a1574c7bb2d80713e",
+      "size": 8469
+    },
+    {
+      "path": "assets/pdf.js/web/locale/fi/viewer.ftl",
+      "gitBlobSha1": "73c120efdf8e22f21f5b5928ed13f495476c3986",
+      "size": 37419
+    },
+    {
+      "path": "assets/pdf.js/web/locale/fr/viewer.ftl",
+      "gitBlobSha1": "5c77dd8301b5dd1cbc9d0e227852304f0764bd97",
+      "size": 38498
+    },
+    {
+      "path": "assets/pdf.js/web/locale/fur/viewer.ftl",
+      "gitBlobSha1": "ed942244bce237332e8b5976c819c1bfc74ac673",
+      "size": 28413
+    },
+    {
+      "path": "assets/pdf.js/web/locale/fy-NL/viewer.ftl",
+      "gitBlobSha1": "c88b1a777c3e8d9c2ae947b1f7eae79db82f62f1",
+      "size": 37396
+    },
+    {
+      "path": "assets/pdf.js/web/locale/ga-IE/viewer.ftl",
+      "gitBlobSha1": "680d5bf67e6b28f36e9e03dac28670528dd63c65",
+      "size": 6792
+    },
+    {
+      "path": "assets/pdf.js/web/locale/gd/viewer.ftl",
+      "gitBlobSha1": "a15bc9eea9c2603a03e5c641c403cb37933c716d",
+      "size": 10644
+    },
+    {
+      "path": "assets/pdf.js/web/locale/gl/viewer.ftl",
+      "gitBlobSha1": "b77dda354ba8c6b8a0743624bfa313741215969c",
+      "size": 26221
+    },
+    {
+      "path": "assets/pdf.js/web/locale/gn/viewer.ftl",
+      "gitBlobSha1": "a6d3d353cb304ec81cff0d967984a77e2a729d5b",
+      "size": 37110
+    },
+    {
+      "path": "assets/pdf.js/web/locale/gu-IN/viewer.ftl",
+      "gitBlobSha1": "5ad3db15629f2135da6ad21eff4a6b9ad4958c92",
+      "size": 11740
+    },
+    {
+      "path": "assets/pdf.js/web/locale/he/viewer.ftl",
+      "gitBlobSha1": "49c3f824a0a4e82f1d31fa37e2af9c629c9cb550",
+      "size": 40463
+    },
+    {
+      "path": "assets/pdf.js/web/locale/hi-IN/viewer.ftl",
+      "gitBlobSha1": "91459ebf2d4db254f79acb30d16457e93a82f4d4",
+      "size": 11412
+    },
+    {
+      "path": "assets/pdf.js/web/locale/hr/viewer.ftl",
+      "gitBlobSha1": "bd8fcf96248c930850031bc5a7c35e0cf84fc708",
+      "size": 31373
+    },
+    {
+      "path": "assets/pdf.js/web/locale/hsb/viewer.ftl",
+      "gitBlobSha1": "3a52b0ad382b5b2b2607befdeace34cd4fd0716c",
+      "size": 39865
+    },
+    {
+      "path": "assets/pdf.js/web/locale/hu/viewer.ftl",
+      "gitBlobSha1": "e63349fd5fa44d08f2497bf987d67fcdcaedc7c9",
+      "size": 38650
+    },
+    {
+      "path": "assets/pdf.js/web/locale/hy-AM/viewer.ftl",
+      "gitBlobSha1": "6ceb7181f5733a83804b26a8b722a6e9b1790de6",
+      "size": 34960
+    },
+    {
+      "path": "assets/pdf.js/web/locale/hye/viewer.ftl",
+      "gitBlobSha1": "4625bfec5b445a2289636d8b75d3e37cc57e7e3c",
+      "size": 11724
+    },
+    {
+      "path": "assets/pdf.js/web/locale/ia/viewer.ftl",
+      "gitBlobSha1": "e53f4b0c02c8a3ba401e7c875a7da817c9d2fa84",
+      "size": 37409
+    },
+    {
+      "path": "assets/pdf.js/web/locale/id/viewer.ftl",
+      "gitBlobSha1": "f5b84af0c60eb30ede7cb88c3c0bc0839cbcc9fb",
+      "size": 25784
+    },
+    {
+      "path": "assets/pdf.js/web/locale/is/viewer.ftl",
+      "gitBlobSha1": "2f27e672f770b5280fad08a49eba4e8412ceaa6e",
+      "size": 25163
+    },
+    {
+      "path": "assets/pdf.js/web/locale/it/viewer.ftl",
+      "gitBlobSha1": "53f3856da3d7079bf589581c6afcb1011a8faf30",
+      "size": 37953
+    },
+    {
+      "path": "assets/pdf.js/web/locale/ja/viewer.ftl",
+      "gitBlobSha1": "47db1c113ef95b92a09780c1ef5b1adec9eb050b",
+      "size": 38770
+    },
+    {
+      "path": "assets/pdf.js/web/locale/ka/viewer.ftl",
+      "gitBlobSha1": "43a4cffd3519779abfe1375a330a2a047db466d0",
+      "size": 52703
+    },
+    {
+      "path": "assets/pdf.js/web/locale/kab/viewer.ftl",
+      "gitBlobSha1": "8cd604c539039ce7135fefcfbad0306b50583755",
+      "size": 26094
+    },
+    {
+      "path": "assets/pdf.js/web/locale/kk/viewer.ftl",
+      "gitBlobSha1": "f6a9be845990cb29f95754d44b77a9294a252330",
+      "size": 44992
+    },
+    {
+      "path": "assets/pdf.js/web/locale/km/viewer.ftl",
+      "gitBlobSha1": "cf899f4725c3c958a7361dedf6181e1a3bf763f5",
+      "size": 12076
+    },
+    {
+      "path": "assets/pdf.js/web/locale/kn/viewer.ftl",
+      "gitBlobSha1": "0da25c5152375271a99f5783607ad9358ebe9e90",
+      "size": 9582
+    },
+    {
+      "path": "assets/pdf.js/web/locale/ko/viewer.ftl",
+      "gitBlobSha1": "26346cf9830ba515d7bf3e5176a666ad1fd5390c",
+      "size": 36643
+    },
+    {
+      "path": "assets/pdf.js/web/locale/lij/viewer.ftl",
+      "gitBlobSha1": "8847b258dfa9e4a4f94a2b62e4eb1940250929f2",
+      "size": 8744
+    },
+    {
+      "path": "assets/pdf.js/web/locale/lo/viewer.ftl",
+      "gitBlobSha1": "492c8cf1c8779d976d3d9fe0d6f5d38cde35b6a2",
+      "size": 13628
+    },
+    {
+      "path": "assets/pdf.js/web/locale/locale.json",
+      "gitBlobSha1": "16ae62e3a951222a758f6095b72f651744dff15d",
+      "size": 2542
+    },
+    {
+      "path": "assets/pdf.js/web/locale/lt/viewer.ftl",
+      "gitBlobSha1": "f15d1f9dd9579d0ded893eaa3e5678bbffd71630",
+      "size": 9747
+    },
+    {
+      "path": "assets/pdf.js/web/locale/ltg/viewer.ftl",
+      "gitBlobSha1": "d837f92d449bf14e26562d35df8176a9d24fb723",
+      "size": 8588
+    },
+    {
+      "path": "assets/pdf.js/web/locale/lv/viewer.ftl",
+      "gitBlobSha1": "e82433af296a9683a1235f0d06e092c305a180dc",
+      "size": 8660
+    },
+    {
+      "path": "assets/pdf.js/web/locale/meh/viewer.ftl",
+      "gitBlobSha1": "43f1fef928e22f07b3c6ec89a7cb5cb7d97d1c36",
+      "size": 1497
+    },
+    {
+      "path": "assets/pdf.js/web/locale/mk/viewer.ftl",
+      "gitBlobSha1": "ad0ba31dfe1ace02fa1585dae30304fdb9ec2226",
+      "size": 40227
+    },
+    {
+      "path": "assets/pdf.js/web/locale/ml/viewer.ftl",
+      "gitBlobSha1": "6c33b8fcdb3172432fe6b16ba58b8713000d260a",
+      "size": 30184
+    },
+    {
+      "path": "assets/pdf.js/web/locale/mr/viewer.ftl",
+      "gitBlobSha1": "fbb9698e69e1e120f830349002b1d0042f768755",
+      "size": 10840
+    },
+    {
+      "path": "assets/pdf.js/web/locale/ms/viewer.ftl",
+      "gitBlobSha1": "e5e8b1ec13d2ea46d0ec10a38ecf311459a8ffb4",
+      "size": 8471
+    },
+    {
+      "path": "assets/pdf.js/web/locale/my/viewer.ftl",
+      "gitBlobSha1": "e6c6c35239343b1fda4ecdfe65f48260b60c0016",
+      "size": 9106
+    },
+    {
+      "path": "assets/pdf.js/web/locale/nb-NO/viewer.ftl",
+      "gitBlobSha1": "2413dc9640eaafdf28c3b6366d16f330545a0824",
+      "size": 36589
+    },
+    {
+      "path": "assets/pdf.js/web/locale/ne-NP/viewer.ftl",
+      "gitBlobSha1": "38dac7a563cff1ef0f4dac4e4e4f5bbc2165f11f",
+      "size": 11043
+    },
+    {
+      "path": "assets/pdf.js/web/locale/nl/viewer.ftl",
+      "gitBlobSha1": "fa04654162284386b9f540d32f435b3681ca3b32",
+      "size": 37902
+    },
+    {
+      "path": "assets/pdf.js/web/locale/nn-NO/viewer.ftl",
+      "gitBlobSha1": "9e7358a6548a0383550ebdc04810705a56e46f12",
+      "size": 36624
+    },
+    {
+      "path": "assets/pdf.js/web/locale/oc/viewer.ftl",
+      "gitBlobSha1": "a10a398cff630173b95985741aad42ef99535cb0",
+      "size": 15552
+    },
+    {
+      "path": "assets/pdf.js/web/locale/pa-IN/viewer.ftl",
+      "gitBlobSha1": "0ef28c927d79d4cbebbbf69ec8159a2be4cf222d",
+      "size": 42454
+    },
+    {
+      "path": "assets/pdf.js/web/locale/pl/viewer.ftl",
+      "gitBlobSha1": "c800ff7d6c8e8b5da3ee99820e79a619bb7dbdff",
+      "size": 38424
+    },
+    {
+      "path": "assets/pdf.js/web/locale/pt-BR/viewer.ftl",
+      "gitBlobSha1": "839c886873a878b5dbf75d5e4e9fd5b01964a6e7",
+      "size": 37754
+    },
+    {
+      "path": "assets/pdf.js/web/locale/pt-PT/viewer.ftl",
+      "gitBlobSha1": "136a45c889c099f202e51953d6786d86daa8f6ff",
+      "size": 33107
+    },
+    {
+      "path": "assets/pdf.js/web/locale/rm/viewer.ftl",
+      "gitBlobSha1": "e632848e06918048465912dba13c8e374592a1dc",
+      "size": 28741
+    },
+    {
+      "path": "assets/pdf.js/web/locale/ro/viewer.ftl",
+      "gitBlobSha1": "44d389e71cfab3f61c8f9b4acfe4ac5b95a5f1c0",
+      "size": 38762
+    },
+    {
+      "path": "assets/pdf.js/web/locale/ru/viewer.ftl",
+      "gitBlobSha1": "bac2800f0b3514481de5a22f754c9470dd1d44a7",
+      "size": 47323
+    },
+    {
+      "path": "assets/pdf.js/web/locale/sat/viewer.ftl",
+      "gitBlobSha1": "e2e3140966a736f10a37324985e9a53f087d2f00",
+      "size": 14934
+    },
+    {
+      "path": "assets/pdf.js/web/locale/sc/viewer.ftl",
+      "gitBlobSha1": "7f334e43047c66d21c6492f4db1b211739094d95",
+      "size": 20030
+    },
+    {
+      "path": "assets/pdf.js/web/locale/scn/viewer.ftl",
+      "gitBlobSha1": "287201af07520b75b41bc30877bb276d7637d5af",
+      "size": 845
+    },
+    {
+      "path": "assets/pdf.js/web/locale/sco/viewer.ftl",
+      "gitBlobSha1": "ed4c3bb04ba5f2bb52b4c560f3b940fe20a610ed",
+      "size": 8882
+    },
+    {
+      "path": "assets/pdf.js/web/locale/si/viewer.ftl",
+      "gitBlobSha1": "28d53f32764057321cb348e6b85e648adf10b1c0",
+      "size": 11044
+    },
+    {
+      "path": "assets/pdf.js/web/locale/sk/viewer.ftl",
+      "gitBlobSha1": "f55766c6ea5bc27eb1c35916e2ed43ad36b486c4",
+      "size": 39760
+    },
+    {
+      "path": "assets/pdf.js/web/locale/skr/viewer.ftl",
+      "gitBlobSha1": "6136dfcbe80feb298c487c03ce56571f2f01b04f",
+      "size": 23579
+    },
+    {
+      "path": "assets/pdf.js/web/locale/sl/viewer.ftl",
+      "gitBlobSha1": "f0aeaafa374998a80990a1d4123ce8ff5b0ea868",
+      "size": 34905
+    },
+    {
+      "path": "assets/pdf.js/web/locale/son/viewer.ftl",
+      "gitBlobSha1": "ecbe86d2396af374247dd78d8d942a8e4d33c6eb",
+      "size": 5977
+    },
+    {
+      "path": "assets/pdf.js/web/locale/sq/viewer.ftl",
+      "gitBlobSha1": "cbf3d55a7f00db3fd635bd97f717e3030979d7e9",
+      "size": 32416
+    },
+    {
+      "path": "assets/pdf.js/web/locale/sr/viewer.ftl",
+      "gitBlobSha1": "3da82e01506d339d22a826f364b9bd0664ab711c",
+      "size": 45466
+    },
+    {
+      "path": "assets/pdf.js/web/locale/sv-SE/viewer.ftl",
+      "gitBlobSha1": "b9cc32d7e132abbb4a806edf1dd81133b9d79519",
+      "size": 36761
+    },
+    {
+      "path": "assets/pdf.js/web/locale/szl/viewer.ftl",
+      "gitBlobSha1": "4ab6c8f815c90b8099abd297e11343c1170cd0ff",
+      "size": 8994
+    },
+    {
+      "path": "assets/pdf.js/web/locale/ta/viewer.ftl",
+      "gitBlobSha1": "fe1c34775770b6746c573a966f02f5ea04627f6d",
+      "size": 10959
+    },
+    {
+      "path": "assets/pdf.js/web/locale/te/viewer.ftl",
+      "gitBlobSha1": "24838bc89f0ddcce8351a528cc6e794fab522737",
+      "size": 10940
+    },
+    {
+      "path": "assets/pdf.js/web/locale/tg/viewer.ftl",
+      "gitBlobSha1": "ad09f513fe5081c44c438b90da13dbdf817b94f8",
+      "size": 40631
+    },
+    {
+      "path": "assets/pdf.js/web/locale/th/viewer.ftl",
+      "gitBlobSha1": "ccc0034c466e06be7d2a63acb978aa341ea6a1ca",
+      "size": 42487
+    },
+    {
+      "path": "assets/pdf.js/web/locale/tl/viewer.ftl",
+      "gitBlobSha1": "628ef97b1b425a44b831a5a343162d91c9e2c467",
+      "size": 9103
+    },
+    {
+      "path": "assets/pdf.js/web/locale/tr/viewer.ftl",
+      "gitBlobSha1": "a735e0887362287d752617ad5a8802d99383068a",
+      "size": 36983
+    },
+    {
+      "path": "assets/pdf.js/web/locale/trs/viewer.ftl",
+      "gitBlobSha1": "de1e8cbf31b960e019434a05b826c2be6b7e9dd8",
+      "size": 6306
+    },
+    {
+      "path": "assets/pdf.js/web/locale/uk/viewer.ftl",
+      "gitBlobSha1": "3b293e20440f73424fab9aa6fec26f73342b0ad4",
+      "size": 38727
+    },
+    {
+      "path": "assets/pdf.js/web/locale/ur/viewer.ftl",
+      "gitBlobSha1": "1d2e92de035541c7413cfbf59e5a8b99ca94d61b",
+      "size": 9463
+    },
+    {
+      "path": "assets/pdf.js/web/locale/uz/viewer.ftl",
+      "gitBlobSha1": "8bc38e6433bd6f93b24e0769ca1ecbf944b30304",
+      "size": 5516
+    },
+    {
+      "path": "assets/pdf.js/web/locale/vi/viewer.ftl",
+      "gitBlobSha1": "3eefed5027c145c749fdddaf0e080d16f61f2b1d",
+      "size": 38076
+    },
+    {
+      "path": "assets/pdf.js/web/locale/wo/viewer.ftl",
+      "gitBlobSha1": "22c6a3f75bf84fa3da4ff63ab0235433ef59f491",
+      "size": 2994
+    },
+    {
+      "path": "assets/pdf.js/web/locale/xh/viewer.ftl",
+      "gitBlobSha1": "a55157ad3e1aac7d68d8fe8ea0e8d47ee1b43c50",
+      "size": 6728
+    },
+    {
+      "path": "assets/pdf.js/web/locale/zh-CN/viewer.ftl",
+      "gitBlobSha1": "2f48b10a49329af56d74a3f83964b277207b8922",
+      "size": 31030
+    },
+    {
+      "path": "assets/pdf.js/web/locale/zh-TW/viewer.ftl",
+      "gitBlobSha1": "bf58047d4acd5f1810408d72bd63560ba3deb98a",
+      "size": 34657
+    },
+    {
+      "path": "assets/pdf.js/web/standard_fonts/FoxitDingbats.pfb",
+      "gitBlobSha1": "30d52963e281dcd7e6dd70555340fc987d3568ef",
+      "size": 29513
+    },
+    {
+      "path": "assets/pdf.js/web/standard_fonts/FoxitFixed.pfb",
+      "gitBlobSha1": "f12dcbce52babb40fb61765aa46ddf47e3846511",
+      "size": 17597
+    },
+    {
+      "path": "assets/pdf.js/web/standard_fonts/FoxitFixedBold.pfb",
+      "gitBlobSha1": "cf8e24aee5962ebcf7e4d58d932cc3321f3cdd38",
+      "size": 18055
+    },
+    {
+      "path": "assets/pdf.js/web/standard_fonts/FoxitFixedBoldItalic.pfb",
+      "gitBlobSha1": "d2880017c25716417f837a1c26044a0342fa3f9a",
+      "size": 19151
+    },
+    {
+      "path": "assets/pdf.js/web/standard_fonts/FoxitFixedItalic.pfb",
+      "gitBlobSha1": "d71697d4b638737a5545dd0cb28cba8f613e4eec",
+      "size": 18746
+    },
+    {
+      "path": "assets/pdf.js/web/standard_fonts/FoxitSerif.pfb",
+      "gitBlobSha1": "3fa682efbb4b1d1941194a5dd8b78f39b33b72b0",
+      "size": 19469
+    },
+    {
+      "path": "assets/pdf.js/web/standard_fonts/FoxitSerifBold.pfb",
+      "gitBlobSha1": "ff7c6ddecf6b689d93823c4c2a8c41e6e058de46",
+      "size": 19395
+    },
+    {
+      "path": "assets/pdf.js/web/standard_fonts/FoxitSerifBoldItalic.pfb",
+      "gitBlobSha1": "460231fb88a0083e577ed534760307d7779fd82f",
+      "size": 20733
+    },
+    {
+      "path": "assets/pdf.js/web/standard_fonts/FoxitSerifItalic.pfb",
+      "gitBlobSha1": "d03a7c781e1a2b91481103dc3227a6bdca4a461c",
+      "size": 21227
+    },
+    {
+      "path": "assets/pdf.js/web/standard_fonts/FoxitSymbol.pfb",
+      "gitBlobSha1": "c8f9bca78c2f89ce40dff0afe6cdd7068061b3e6",
+      "size": 16729
+    },
+    {
+      "path": "assets/pdf.js/web/standard_fonts/LICENSE_FOXIT",
+      "gitBlobSha1": "8b4ed6dddf22b2fcc9f7f520cd23613b49307fa0",
+      "size": 1553
+    },
+    {
+      "path": "assets/pdf.js/web/standard_fonts/LICENSE_LIBERATION",
+      "gitBlobSha1": "aba73e8a403084a93a245ca00e4a0db007886e0a",
+      "size": 4414
+    },
+    {
+      "path": "assets/pdf.js/web/standard_fonts/LiberationSans-Bold.ttf",
+      "gitBlobSha1": "ee2371540417ffbc652745b059effa260430179f",
+      "size": 137052
+    },
+    {
+      "path": "assets/pdf.js/web/standard_fonts/LiberationSans-BoldItalic.ttf",
+      "gitBlobSha1": "42b5717ddb92dc6e85edc72fb5c3a798b380902e",
+      "size": 135124
+    },
+    {
+      "path": "assets/pdf.js/web/standard_fonts/LiberationSans-Italic.ttf",
+      "gitBlobSha1": "0cf61263494608cbf1fccecce606bc01a247d1e4",
+      "size": 162036
+    },
+    {
+      "path": "assets/pdf.js/web/standard_fonts/LiberationSans-Regular.ttf",
+      "gitBlobSha1": "366d1489cdde3523e488ed1ee85583618fb0c120",
+      "size": 139512
+    },
+    {
+      "path": "assets/pdf.js/web/viewer.css",
+      "gitBlobSha1": "374aab39b979240e971197a1665a3d0886da31be",
+      "size": 208715
+    },
+    {
+      "path": "assets/pdf.js/web/viewer.html",
+      "gitBlobSha1": "25d036bb1193c95fe66221fced7e2fcdb6e05c15",
+      "size": 67354
+    },
+    {
+      "path": "assets/pdf.js/web/viewer.mjs",
+      "gitBlobSha1": "d5d3dc6824a7bd1a1cdab77f277deea657b93273",
+      "size": 822837
+    },
+    {
+      "path": "assets/pdf.js/web/viewer.mjs.map",
+      "gitBlobSha1": "ddacdeefc38e7dc84e1f695e4806dadd0da38080",
+      "size": 1840135
+    },
+    {
+      "path": "assets/pdf.js/web/wasm/LICENSE_JBIG2",
+      "gitBlobSha1": "37a329c636c65ab5fde4e471dc0bdf9b61d313cd",
+      "size": 12862
+    },
+    {
+      "path": "assets/pdf.js/web/wasm/LICENSE_OPENJPEG",
+      "gitBlobSha1": "e8fa41040dfbe8be524cac5b1bb19d60c6eb0320",
+      "size": 2112
+    },
+    {
+      "path": "assets/pdf.js/web/wasm/LICENSE_PDFJS_JBIG2",
+      "gitBlobSha1": "f1845baf6613d744626e975ec933de7cdde1f915",
+      "size": 555
+    },
+    {
+      "path": "assets/pdf.js/web/wasm/LICENSE_PDFJS_OPENJPEG",
+      "gitBlobSha1": "623929b849547b81e8d1f025f66ac0e347e27b88",
+      "size": 1285
+    },
+    {
+      "path": "assets/pdf.js/web/wasm/LICENSE_PDFJS_QCMS",
+      "gitBlobSha1": "7e1aeb34f9178d69df1d49f996012b22070d9870",
+      "size": 1285
+    },
+    {
+      "path": "assets/pdf.js/web/wasm/LICENSE_QCMS",
+      "gitBlobSha1": "eec8246dfa81e83f19dae23f6c1fbf51720908c0",
+      "size": 1121
+    },
+    {
+      "path": "assets/pdf.js/web/wasm/jbig2.wasm",
+      "gitBlobSha1": "254e1e48c86f51e103ee5a7f1fe0ee09e17af80c",
+      "size": 104852
+    },
+    {
+      "path": "assets/pdf.js/web/wasm/jbig2_nowasm_fallback.js",
+      "gitBlobSha1": "c86528f05912cef7320491b555d487715ecf394e",
+      "size": 145703
+    },
+    {
+      "path": "assets/pdf.js/web/wasm/openjpeg.wasm",
+      "gitBlobSha1": "5acce73fd95c1baa3aa68cfe9d29aa3f97b7ce18",
+      "size": 252032
+    },
+    {
+      "path": "assets/pdf.js/web/wasm/openjpeg_nowasm_fallback.js",
+      "gitBlobSha1": "0df96aed34f98a6c88a2a11656673b547f41e4c1",
+      "size": 451590
+    },
+    {
+      "path": "assets/pdf.js/web/wasm/qcms_bg.wasm",
+      "gitBlobSha1": "ea1d07bc4439d034d5a188bb78ef317c33f56787",
+      "size": 96589
+    },
+    {
+      "path": "assets/pdf.js/web/wasm/quickjs-eval.js",
+      "gitBlobSha1": "f087fb29602352e8be9a6e7f7d766ccdb0dda038",
+      "size": 6232
+    },
+    {
+      "path": "assets/pdf.js/web/wasm/quickjs-eval.wasm",
+      "gitBlobSha1": "42980e94aa4d7359e4113c968c67800b45462764",
+      "size": 469105
+    },
+    {
+      "path": "icon.png",
+      "gitBlobSha1": "d08813fdfd1dbf58fa1e72fa811657bc9e4895b1",
+      "size": 9333
+    },
+    {
+      "path": "l10n/bundle.l10n.zh-cn.json",
+      "gitBlobSha1": "cd398f192d5b283dc2fdbd137620eea23d50058e",
+      "size": 4549
+    },
+    {
+      "path": "package.json",
+      "gitBlobSha1": "e33832fbea22a3753e7fb3c3b07d1b45ed9daa42",
+      "size": 9724
+    },
+    {
+      "path": "package.nls.json",
+      "gitBlobSha1": "5014a58c6bc99336656fbdb9435143e635560131",
+      "size": 3740
+    },
+    {
+      "path": "package.nls.zh-cn.json",
+      "gitBlobSha1": "03ec3e4dc41b9834d848791b64023608f653f919",
+      "size": 3533
+    },
+    {
+      "path": "patches/pdf.js.patch",
+      "gitBlobSha1": "3eaa60fb5da6fe889888525f590d330cff9315d2",
+      "size": 2578
+    },
+    {
+      "path": "pdfjs_version.txt",
+      "gitBlobSha1": "117a31f4ce8b673bfbebb2ac7ca4e25702ad08ea",
+      "size": 49
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "gitBlobSha1": "b1f166883d9b5b11d9b561695151d87b09508e43",
+      "size": 105973
+    },
+    {
+      "path": "pnpm-workspace.yaml",
+      "gitBlobSha1": "9232f9fabbb122ebc28ef1718e93caf878ee2fb5",
+      "size": 182
+    },
+    {
+      "path": "src/disposable.ts",
+      "gitBlobSha1": "db98fb628f596fcece3c33e5f3871c6170bcf419",
+      "size": 1358
+    },
+    {
+      "path": "src/extension.ts",
+      "gitBlobSha1": "5d26874af41340e24ac2b2d49eed33aad359c1ad",
+      "size": 2212
+    },
+    {
+      "path": "src/l10n.ts",
+      "gitBlobSha1": "a828ee1e3ee9726cc52dd37c55e52ea13b921fac",
+      "size": 1038
+    },
+    {
+      "path": "src/languages.ts",
+      "gitBlobSha1": "1da9d38e5300599644378eda82178a7677603f53",
+      "size": 7812
+    },
+    {
+      "path": "src/messages.ts",
+      "gitBlobSha1": "e35ed4aa662dd9d1e32d3898cddfa56b23d21851",
+      "size": 4046
+    },
+    {
+      "path": "src/pdf-document.ts",
+      "gitBlobSha1": "27a473449d47de8a28d8796924e6d95058dd4e03",
+      "size": 3836
+    },
+    {
+      "path": "src/pdf-viewer-provider.ts",
+      "gitBlobSha1": "c78017aab7e86403211cca6ba5342fa9613825ff",
+      "size": 13968
+    },
+    {
+      "path": "src/translation-bridge.ts",
+      "gitBlobSha1": "686dd40631b2e25149422ec6ce55779a79f87ad2",
+      "size": 5997
+    },
+    {
+      "path": "src/translation/cache.ts",
+      "gitBlobSha1": "c48b1b92cf42cf65b27fa1d48b714930874c7aa1",
+      "size": 3932
+    },
+    {
+      "path": "src/translation/client.ts",
+      "gitBlobSha1": "601f60138c84a725c4f42a9f0f0b8dd8e15182ad",
+      "size": 5808
+    },
+    {
+      "path": "src/translation/config.ts",
+      "gitBlobSha1": "4e99745ef3398b030dfceb971a669d4cf1ad271b",
+      "size": 4405
+    },
+    {
+      "path": "src/translation/errors.ts",
+      "gitBlobSha1": "15ad7e02bd8d87115dd78845726a92e98018fcc2",
+      "size": 2023
+    },
+    {
+      "path": "src/translation/parse.ts",
+      "gitBlobSha1": "15ed751defc048359c26d1d151bbc70aa55da6f0",
+      "size": 1774
+    },
+    {
+      "path": "src/translation/prompt.ts",
+      "gitBlobSha1": "5f0116ff0d971ff267052c3d5d1e2832b8fa53ae",
+      "size": 4119
+    },
+    {
+      "path": "src/translation/providers.ts",
+      "gitBlobSha1": "8cee899ee9a66ac8a0f2bd61faf0acc2b8bb07fe",
+      "size": 3063
+    },
+    {
+      "path": "src/translation/service.ts",
+      "gitBlobSha1": "05034a1033cc0b190222191d3da689a547c324a2",
+      "size": 16518
+    },
+    {
+      "path": "src/translation/translator.ts",
+      "gitBlobSha1": "bef76cec9c81f4691a321ce0a74472bec2cbaa24",
+      "size": 13068
+    },
+    {
+      "path": "src/types.ts",
+      "gitBlobSha1": "d3290e096b822f2dc4616dc60f7e5285829a4643",
+      "size": 672
+    },
+    {
+      "path": "src/utils.ts",
+      "gitBlobSha1": "e1c3bbc569f05f17c8c1e916b86f6a81eee2c05c",
+      "size": 701
+    },
+    {
+      "path": "src/webview-collection.ts",
+      "gitBlobSha1": "c4406502698d02443a914ea2852ffd158f2c7d67",
+      "size": 1557
+    },
+    {
+      "path": "src/webview-strings.ts",
+      "gitBlobSha1": "f03e3fba1e683dadec521fa65ed9ca119a4f6a50",
+      "size": 879
+    },
+    {
+      "path": "src/webview/connector.ts",
+      "gitBlobSha1": "411f0aa3fd11d4ddab7deef85c025c8e99b3271d",
+      "size": 4054
+    },
+    {
+      "path": "src/webview/geometry.ts",
+      "gitBlobSha1": "06182a9925b3e936c5348b2cd32ada4ccfb404df",
+      "size": 1987
+    },
+    {
+      "path": "src/webview/highlight-overlay.ts",
+      "gitBlobSha1": "15dd09787523b1f05b906d8a4dce45d76e602e9a",
+      "size": 2865
+    },
+    {
+      "path": "src/webview/i18n.ts",
+      "gitBlobSha1": "d2ec38142d24fae85a53baeb05b21433c8a48b9c",
+      "size": 979
+    },
+    {
+      "path": "src/webview/main.ts",
+      "gitBlobSha1": "e1a0a9328cd539e6cebaaa5113955d3ad17e461d",
+      "size": 7464
+    },
+    {
+      "path": "src/webview/panel.ts",
+      "gitBlobSha1": "3bb3fc197ddede7bba6e24bce2cd0d2ea73b9f21",
+      "size": 16360
+    },
+    {
+      "path": "src/webview/pdfjs.d.ts",
+      "gitBlobSha1": "7b36d245bc92a292a557ffe9481e46f35e2116ce",
+      "size": 2848
+    },
+    {
+      "path": "src/webview/pointer-select.ts",
+      "gitBlobSha1": "b882a38d71d56d6aa5b548e1b5a47d347457920b",
+      "size": 6232
+    },
+    {
+      "path": "src/webview/save-bridge.ts",
+      "gitBlobSha1": "dcccb9dda40f79bd5a00477faf081094ceae1077",
+      "size": 2468
+    },
+    {
+      "path": "src/webview/scroll-sync.ts",
+      "gitBlobSha1": "16c7b428a361babf0aa299fc6cb3295fb1df1ec0",
+      "size": 6177
+    },
+    {
+      "path": "src/webview/segmenter/heuristic.ts",
+      "gitBlobSha1": "c3b3694f6dac927dc6aeb7596dc61c26283de702",
+      "size": 17716
+    },
+    {
+      "path": "src/webview/segmenter/protect.ts",
+      "gitBlobSha1": "39f612a78bb1c1312e5a0089d4bf8cc0590c0662",
+      "size": 8777
+    },
+    {
+      "path": "src/webview/segmenter/types.ts",
+      "gitBlobSha1": "c45d871e477c5675aff0922b4a9e1f390f87004e",
+      "size": 2344
+    },
+    {
+      "path": "src/webview/selection.ts",
+      "gitBlobSha1": "08ac955af7b1e7a7cb2006c6aa52417ac9c841ae",
+      "size": 1602
+    },
+    {
+      "path": "src/webview/sentence-store.ts",
+      "gitBlobSha1": "4f23ee22fa628b13df9ba1dc8a2b926bc071e572",
+      "size": 4562
+    },
+    {
+      "path": "src/webview/translation-client.ts",
+      "gitBlobSha1": "457a94d590d7fb26786c025f4f60b6fcaad362bf",
+      "size": 7033
+    },
+    {
+      "path": "src/webview/tsconfig.json",
+      "gitBlobSha1": "7148f3cf277e8470f0b0a896e5ea88326a7823ec",
+      "size": 303
+    },
+    {
+      "path": "test/fixtures.ts",
+      "gitBlobSha1": "2b2e4e4a1e8fc17f64ea7ec365cb86c24ac50f47",
+      "size": 885
+    },
+    {
+      "path": "test/global-setup.ts",
+      "gitBlobSha1": "41e4088824e305a65af85b2968583504b0a96a76",
+      "size": 1930
+    },
+    {
+      "path": "test/host.test.ts",
+      "gitBlobSha1": "c7df7354ae40c2a67c6bb3137b09ebe489aa98a7",
+      "size": 15959
+    },
+    {
+      "path": "test/l10n.test.ts",
+      "gitBlobSha1": "3eed3a116760f42c41c97fed1a3bc5a17d2b3c17",
+      "size": 3280
+    },
+    {
+      "path": "test/languages.test.ts",
+      "gitBlobSha1": "d0ea8273275b8863e28ad96e8abd0446384e1bd5",
+      "size": 7225
+    },
+    {
+      "path": "test/multilingual.test.ts",
+      "gitBlobSha1": "be77ab9585f82c84b8864eb6047cae579c3c7ee3",
+      "size": 7621
+    },
+    {
+      "path": "test/providers.test.ts",
+      "gitBlobSha1": "33622d83d798795f959ec71cf4f19e1a5193afc2",
+      "size": 1802
+    },
+    {
+      "path": "test/segmenter.test.ts",
+      "gitBlobSha1": "d6e92e4aee3cf59d2b694c2e443bf1f19d12fadc",
+      "size": 7938
+    },
+    {
+      "path": "test/translation.test.ts",
+      "gitBlobSha1": "864fea4dd159fac84a3568e0c9ad3c14ab07510f",
+      "size": 14776
+    },
+    {
+      "path": "tools/check_pdfjs.mjs",
+      "gitBlobSha1": "baec8bb1df0720cbdcef5ed540872ed8628334ba",
+      "size": 3834
+    },
+    {
+      "path": "tools/download_pdfjs.sh",
+      "gitBlobSha1": "c47c9d310fb06da15f9e7f08172eb5352a39f390",
+      "size": 807
+    },
+    {
+      "path": "tools/dump_text_content.mjs",
+      "gitBlobSha1": "29bc51e6d095f1999da84d6e67f339b3c35c760d",
+      "size": 644
+    },
+    {
+      "path": "tools/harness.mjs",
+      "gitBlobSha1": "d1157a48eea927e5ec12794b2ebc8d5652691f9f",
+      "size": 5303
+    },
+    {
+      "path": "tools/patching.sh",
+      "gitBlobSha1": "c8083e1faff975a12beb0027a8cc3ec8ea1a72c0",
+      "size": 1001
+    },
+    {
+      "path": "tools/pdf-text.mjs",
+      "gitBlobSha1": "2ccca6566010c6d63ff669526ea403954f38fe9d",
+      "size": 2799
+    },
+    {
+      "path": "tools/prepare_pdfjs.sh",
+      "gitBlobSha1": "b649306312bb176f31f4bc4d830c3acbf52e73ce",
+      "size": 1011
+    },
+    {
+      "path": "tools/segment_fixture.ts",
+      "gitBlobSha1": "9695ec7f9585aaa3dc3563226bb4bbe1c2fcc0ec",
+      "size": 1844
+    },
+    {
+      "path": "tsconfig.json",
+      "gitBlobSha1": "12edb5895af6b86610e2db126c4bc16c48a71121",
+      "size": 903
+    },
+    {
+      "path": "tsup.config.ts",
+      "gitBlobSha1": "0e92824c75977f5011c1c30524dc729c46bdf1da",
+      "size": 603
+    },
+    {
+      "path": "vitest.config.mts",
+      "gitBlobSha1": "69a8e5a7d3a18d0f6aad86a12c0acb2e17a9098c",
+      "size": 229
+    }
+  ]
+}

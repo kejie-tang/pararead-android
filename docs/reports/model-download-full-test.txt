@@ -1,0 +1,6 @@
+
+org.pararead.android.RealModelDownloadTest:.
+
+Time: 8.441
+
+OK (1 test)

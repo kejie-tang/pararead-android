@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-26",
+  "environment": "API36 ARM64 AVD 2560x1600@240dpi",
+  "physicalDevice": false,
+  "readyButtonObserved": true,
+  "staleDownloadErrorAbsent": true,
+  "thinkingDisabledLabelObserved": true,
+  "deleteButtonWorked": true,
+  "modelSettingsCleared": true,
+  "privateModelsDirectoryEmpty": true,
+  "downloadButtonAvailableAfterDeletion": true,
+  "preservedRoomRowCountsBefore": {
+    "DocumentRecord": 1,
+    "TranslationRecord": 394,
+    "PageRecord": 10,
+    "ReadingRecord": 1,
+    "DraftRecord": 1,
+    "JobRecord": 0
+  },
+  "preservedRoomRowCountsAfter": {
+    "DocumentRecord": 1,
+    "TranslationRecord": 394,
+    "PageRecord": 10,
+    "ReadingRecord": 1,
+    "DraftRecord": 1,
+    "JobRecord": 0
+  },
+  "status": "passed"
+}

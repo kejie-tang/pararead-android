@@ -1,0 +1,34 @@
+
+> pararead-android@0.2.0 test:reader
+> npm run build:reader && node scripts/test_reader.mjs
+
+
+> pararead-android@0.2.0 build:reader
+> node scripts/build_reader.mjs
+
+Reader assets: /Users/kjtang/Documents/app/pararead-android/app/build/generated/readerAssets/reader
+Loading
+CONSOLE warning No available adapters.
+CONSOLE log PDF 110dd61fd57444010b1ab5ff38782f0f [1.4 pdfeTeX-1.21a / TeX] (PDF.js: 6.2.108 [0365cbde0])
+Rendered and translated
+Touch sentence { id: 'p1-b1-s1', x: 132.40038888888887, y: 145.95979477124172 }
+Both directions selected
+CONSOLE warning Warning: Font "Helv" is not available -- attempting to fallback to a default font.
+Portrait toolbar bounds {"pane":{"x":0,"y":0,"width":380,"height":1280,"top":0,"right":380,"bottom":1280,"left":0},"groups":[{"id":"toolbarViewerLeft","box":{"x":1,"y":2,"width":107,"height":28,"top":2,"right":108,"bottom":30,"left":1}},{"id":"toolbarViewerMiddle","box":{"x":118.5,"y":2,"width":59,"height":28,"top":2,"right":177.5,"bottom":30,"left":118.5}},{"id":"toolbarViewerRight","box":{"x":188,"y":2,"width":191,"height":28,"top":2,"right":379,"bottom":30,"left":188}}]}
+{
+  "status": "passed",
+  "environment": "Desktop Chromium, touch emulation; not Android or device",
+  "rangeRequests": 2,
+  "largestRange": 262144,
+  "bidirectionalSelection": true,
+  "portraitToolbarWithinPane": true,
+  "alignmentDeltaPx": 0.2692699346406471,
+  "incrementalSave": {
+    "suffixLength": 948,
+    "pages": 14,
+    "values": [
+      "ParaRead save test"
+    ]
+  },
+  "errors": []
+}

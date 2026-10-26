@@ -1,0 +1,6 @@
+$ pnpm run typecheck && pnpm run check:pdfjs && oxlint --deny-warnings . && oxfmt --check .
+$ tsc --noEmit && tsc --noEmit -p src/webview
+$ node tools/check_pdfjs.mjs
+PDF.js assets verified (113 locales).
+No files found to lint. Please check your paths and ignore patterns.
+[ELIFECYCLE] Command failed with exit code 1.

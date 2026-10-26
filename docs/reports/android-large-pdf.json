@@ -1,0 +1,98 @@
+[
+  {
+    "requestedMiB": 100,
+    "environment": "Android API 36 ARM64 emulator, Mock provider, synthetic text",
+    "rendered": true,
+    "pages": 3264,
+    "firstRenderMs": 4066.7512089999996,
+    "jumpPage": 2448,
+    "jumpRendered": true,
+    "jumpMs": 438.0670829999999,
+    "mainJsHeap": {
+      "usedSize": 8966172,
+      "totalSize": 27029504
+    },
+    "processes": [
+      {
+        "pid": "12711",
+        "process": "12711 org.pararead.android        org.pararead.android",
+        "pssKiB": 179782
+      },
+      {
+        "pid": "12757",
+        "process": "12757 com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0 com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0",
+        "pssKiB": 305848
+      }
+    ],
+    "aggregatePssKiB": 485630,
+    "incrementalSave": {
+      "nativeDraftConfirmed": true,
+      "suffixBytes": 959,
+      "elapsedMs": 317.89999999990687
+    }
+  },
+  {
+    "requestedMiB": 300,
+    "environment": "Android API 36 ARM64 emulator, Mock provider, synthetic text",
+    "rendered": true,
+    "pages": 9792,
+    "firstRenderMs": 6838.149624999999,
+    "jumpPage": 7344,
+    "jumpRendered": true,
+    "jumpMs": 730.5391250000011,
+    "mainJsHeap": {
+      "usedSize": 16751704,
+      "totalSize": 35553280
+    },
+    "processes": [
+      {
+        "pid": "12847",
+        "process": "12847 org.pararead.android        org.pararead.android",
+        "pssKiB": 178633
+      },
+      {
+        "pid": "12893",
+        "process": "12893 com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0 com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0",
+        "pssKiB": 425592
+      }
+    ],
+    "aggregatePssKiB": 604225,
+    "incrementalSave": {
+      "nativeDraftConfirmed": true,
+      "suffixBytes": 970,
+      "elapsedMs": 259.10000000009313
+    }
+  },
+  {
+    "requestedMiB": 500,
+    "environment": "Android API 36 ARM64 emulator, Mock provider, synthetic text",
+    "rendered": true,
+    "pages": 16320,
+    "firstRenderMs": 8861.968332999997,
+    "jumpPage": 12240,
+    "jumpRendered": true,
+    "jumpMs": 463.99324999999953,
+    "mainJsHeap": {
+      "usedSize": 25527416,
+      "totalSize": 48558080
+    },
+    "processes": [
+      {
+        "pid": "12983",
+        "process": "12983 org.pararead.android        org.pararead.android",
+        "pssKiB": 174934
+      },
+      {
+        "pid": "13033",
+        "process": "13033 com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0 com.google.android.webview:sandboxed_process0:org.chromium.content.app.SandboxedProcessService0:0",
+        "pssKiB": 397711
+      }
+    ],
+    "aggregatePssKiB": 572645,
+    "incrementalSave": {
+      "nativeDraftConfirmed": true,
+      "suffixBytes": 970,
+      "elapsedMs": 310
+    }
+  }
+]

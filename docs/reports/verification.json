@@ -1,0 +1,205 @@
+{
+  "date": "2026-10-26",
+  "scope": "Phase 2-5 integrated development build; full release acceptance pending",
+  "gitBase": "3df1571",
+  "apk": {
+    "path": "artifacts/ParaRead-android-arm64-debug.apk",
+    "bytes": 45174582,
+    "sha256": "dc8d83b1e7743ec9e8580d8e7464e0b164db1a6026c0a02864267aa09cd0aeaa",
+    "variant": "debug",
+    "version": "0.2.0-dev",
+    "abis": [
+      "arm64-v8a"
+    ],
+    "signature": "Android Debug certificate; apksigner verify passed",
+    "zipalign16KiB": "passed",
+    "nativeLibraries": [
+      {
+        "file": "lib/arm64-v8a/libandroidx.graphics.path.so",
+        "elfMachine": 183,
+        "loadSegmentAlignments": [
+          16384,
+          16384,
+          16384
+        ]
+      },
+      {
+        "file": "lib/arm64-v8a/libpararead-llama.so",
+        "elfMachine": 183,
+        "loadSegmentAlignments": [
+          16384,
+          16384,
+          16384
+        ]
+      }
+    ],
+    "noticePackaging": "Project notices, all third-party copies, original PDF.js asset notices and original sample notice retained; only original sample PDF bundled"
+  },
+  "versions": {
+    "pararead": "c9d103481e4e3fa065cee6a52e611b8be20866c6",
+    "pdfjs": "6.2.108",
+    "llama.cpp": "2280f0fd163b03d4331d49e08460f66502e35854",
+    "jdk": "21.0.13",
+    "gradle": "8.14.3",
+    "agp": "8.13.2",
+    "kotlin": "2.2.20",
+    "ndk": "28.2.13676358",
+    "cmake": "3.22.1"
+  },
+  "environment": {
+    "android": "API 36 ARM64 AVD WishLoop_API36",
+    "physicalDevice": false,
+    "webview": "133.0.6943.137",
+    "display": "2560x1600@240dpi and 1600x2560@240dpi; AVD override",
+    "benchmarkProvider": "MockTranslationProvider",
+    "modelLoaded": "Local Ollama qwen3:1.7b Q4_K_M; SHA256 3d0b790534fe4b79525fc3692950408dca41171676ed7e21db57af5c65ef6ab6",
+    "realModelAndroid": "API36 ARM64 ranchu AVD, 6GiB; prior 4 vCPU/4 threads baseline plus 8 vCPU/auto6 follow-up; airplane mode, engine/queue instrumentation only",
+    "realModelHost": "Apple M1 Pro, 32GiB, macOS26.6.2; CPU4 baseline and CPU6 follow-up; ctx4096; no physical tablet",
+    "cpuThreadsSettingsUi": "API36 ARM64 AVD, 8 vCPU; default phone display 1080x2400@420dpi",
+    "modelManagement": "API36 ARM64 AVD, 8 vCPU/6GiB; real DownloadManager; full pinned GGUF via adb-reverse HTTP fixture; production CDN partial test only",
+    "wholeDocumentRecovery": "API36 ARM64 AVD, 1080x2400@420dpi, 4GiB; actual WebView/Room/Mock queue, Activity recreation; no force-stop or physical tablet test"
+  },
+  "tests": {
+    "sourceContracts": {
+      "passed": 16,
+      "failed": 0,
+      "note": "Includes GAP cases for unmodified upstream"
+    },
+    "kotlinCore": {
+      "passed": 24,
+      "failed": 0,
+      "reports": [
+        "core-tests.xml",
+        "cpu-threads-tests.xml",
+        "model-files-tests.xml",
+        "whole-job-tests.xml"
+      ]
+    },
+    "androidReader": {
+      "passed": 13,
+      "failed": 0
+    },
+    "androidInstrumentation": {
+      "passed": 9,
+      "failed": 0,
+      "latestReport": "public-upload-android.txt",
+      "baselineXml": "android-instrumentation.xml"
+    },
+    "chromiumReader": "passed on original six-page sample; touch selection, alignment, portrait toolbar and incremental save reparse",
+    "syntheticMiB": [
+      100,
+      300,
+      500
+    ],
+    "independentNativeSaveValidation": "pypdf + Poppler: all 3 passed; warnings retained",
+    "benchmarkApkSha256": "624b907a5c1206b39fdeef74ff6b4a9f125a31e0d7adbb370ddfc5b8ae67a130",
+    "benchmarkBuildNote": "Synthetic large-PDF baseline predates toolbar, inference prompt/validator/grammar, CPU thread settings and model management changes; PDF access/save code unchanged. See phase-4.md. Whole-job recovery changes are also newer than that baseline.",
+    "realModel": {
+      "jni": {
+        "status": "passed",
+        "report": "real-model-jni.json"
+      },
+      "api": {
+        "status": "passed",
+        "report": "real-model-api.json"
+      },
+      "android": {
+        "status": "passed",
+        "report": "real-model-android.json"
+      }
+    },
+    "cpuThreads": {
+      "hostSixThreads": {
+        "status": "passed",
+        "report": "cpu-threads-host-six.json"
+      },
+      "androidAutoSixOfEight": {
+        "status": "passed",
+        "report": "cpu-threads-android-real.json"
+      },
+      "settingsUi": {
+        "status": "passed",
+        "report": "cpu-threads-ui.json"
+      },
+      "report": "cpu-threads.md",
+      "physicalDimensity9400Tested": false
+    },
+    "modelManagement": {
+      "report": "model-management.md",
+      "defaultSource": "default-model-source.json",
+      "fullDownload": "model-download-full.json",
+      "offlineInference": "model-download-offline-inference.json",
+      "tabletUi": "model-management-ui.json",
+      "fullProductionCdnDownloadTested": false,
+      "physicalDimensity9400Tested": false
+    },
+    "wholeDocumentRecovery": {
+      "report": "whole-document-recovery.md",
+      "newCoreTests": 4,
+      "newJsBridgeTests": 7,
+      "newAndroidTests": 2,
+      "provider": "mock",
+      "activityRecreation": true,
+      "forceStopTested": false,
+      "realModelWholeJobTested": false,
+      "physicalDeviceTested": false
+    },
+    "publicRepositoryPreparation": {
+      "typecheck": "passed",
+      "jsBridgeTests": 13,
+      "copiedPdfjsLicenses": 11,
+      "apkLicenseContentChecks": 27,
+      "sourceNoticeRetained": true,
+      "modelLicenseDigestVerified": true,
+      "runtimeChange": "Only provenance comments and license packaging; preceding core/native/browser regressions retained, not rerun",
+      "report": "public-repository.md"
+    },
+    "publicUpload": {
+      "sample": "Original ParaRead Reading Guide; Apache-2.0; 6 text pages, 15143 bytes",
+      "upstreamPdfExcluded": true,
+      "historicalPaperScreenshotsExcluded": true,
+      "browserReport": "public-upload-browser.txt",
+      "androidTests": 9,
+      "androidReport": "public-upload-android.txt",
+      "workflowLint": "actionlint 1.7.12 passed",
+      "releaseVariant": "Build, lint, signature, asset notices and 16KiB alignment passed using a disposable validation certificate; not published",
+      "releaseReport": "public-upload-release-check.txt",
+      "productionReleaseKeyConfigured": false,
+      "publicReleaseCreated": false
+    }
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 34,
+    "byId": {
+      "OldTargetApi": 1,
+      "RequiresFeature": 1,
+      "AndroidGradlePluginVersion": 1,
+      "GradleDependency": 11,
+      "NewerVersionAvailable": 1,
+      "ChromeOsAbiSupport": 1,
+      "DataExtractionRules": 1,
+      "KaptUsageInsteadOfKsp": 1,
+      "MissingApplicationIcon": 1,
+      "UseKtx": 15
+    }
+  },
+  "unverified": [
+    "Physical ARM64 tablet, stylus and sustained flight-mode inference",
+    "SAF model-import UI and WebView whole-page real-model integration",
+    "Human academic semantic quality, large-corpus success rates and long cancellation stress",
+    "Encrypted/complex PDFs, SAF export failure matrix",
+    "Peak PSS, sustained 100-page/full-book memory convergence and repeated latency distributions with model loaded",
+    "Full production CDN model download",
+    "Whole-document recovery after process force-stop/reboot/Doze, sustained real-model and large-file jobs"
+  ],
+  "notImplemented": [
+    "VS Code legacy cache import",
+    "Cache-hit and sentence-level categorized counts",
+    "Shared in-flight subscription merging",
+    "Historical Room migrations",
+    "Full accessibility, Perfetto/Macrobenchmark, CSV export",
+    "Model-loading watchdog",
+    "Large-form widget save above 512 pages"
+  ]
+}

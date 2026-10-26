@@ -1,0 +1,47 @@
+[
+  {
+    "requestedMiB": 100,
+    "status": "passed",
+    "pages": 3264,
+    "page": 2448,
+    "suffixBytes": 959,
+    "annotationContents": "ParaRead large save 100 MiB",
+    "appearancePresent": true,
+    "pypdfStrict": true,
+    "pypdfWarnings": [
+      "Xref table not zero-indexed. ID numbers for objects will be corrected."
+    ],
+    "popplerRendered": true,
+    "popplerWarnings": ""
+  },
+  {
+    "requestedMiB": 300,
+    "status": "passed",
+    "pages": 9792,
+    "page": 7344,
+    "suffixBytes": 970,
+    "annotationContents": "ParaRead large save 300 MiB",
+    "appearancePresent": true,
+    "pypdfStrict": true,
+    "pypdfWarnings": [
+      "Xref table not zero-indexed. ID numbers for objects will be corrected."
+    ],
+    "popplerRendered": true,
+    "popplerWarnings": ""
+  },
+  {
+    "requestedMiB": 500,
+    "status": "passed",
+    "pages": 16320,
+    "page": 12240,
+    "suffixBytes": 970,
+    "annotationContents": "ParaRead large save 500 MiB",
+    "appearancePresent": true,
+    "pypdfStrict": true,
+    "pypdfWarnings": [
+      "Xref table not zero-indexed. ID numbers for objects will be corrected."
+    ],
+    "popplerRendered": true,
+    "popplerWarnings": ""
+  }
+]

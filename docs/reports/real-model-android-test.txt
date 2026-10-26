@@ -1,0 +1,6 @@
+
+org.pararead.android.RealModelIntegrationTest:.
+
+Time: 27.144
+
+OK (1 test)

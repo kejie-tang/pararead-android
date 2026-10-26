@@ -1,0 +1,9 @@
+
+org.pararead.android.WholeDocumentRecoveryTest:..
+org.pararead.android.ModelManagerTest:....
+org.pararead.android.ReaderIntegrationTest:..
+org.pararead.android.CpuThreadsSettingsTest:.
+
+Time: 48.029
+
+OK (9 tests)

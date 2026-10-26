@@ -1,0 +1,90 @@
+[
+  {
+    "repository": "Chuanyunux/pararead",
+    "defaultBranch": "main",
+    "license": {
+      "key": "apache-2.0",
+      "name": "Apache License 2.0",
+      "spdx_id": "Apache-2.0",
+      "url": "https://api.github.com/licenses/apache-2.0",
+      "node_id": "MDc6TGljZW5zZTI="
+    },
+    "licensePath": "LICENSE",
+    "licenseBlob": "8d3aafdc6a67979c296774f246cb785f2cedb086",
+    "licenseUrl": "https://github.com/Chuanyunux/pararead/blob/main/LICENSE",
+    "commit": "c9d103481e4e3fa065cee6a52e611b8be20866c6",
+    "commitDate": "2026-09-30T06:36:20Z"
+  },
+  {
+    "repository": "ggml-org/llama.cpp",
+    "defaultBranch": "master",
+    "license": {
+      "key": "mit",
+      "name": "MIT License",
+      "spdx_id": "MIT",
+      "url": "https://api.github.com/licenses/mit",
+      "node_id": "MDc6TGljZW5zZTEz"
+    },
+    "licensePath": "LICENSE",
+    "licenseBlob": "e7dca554bcb802f98408383a864404e3aa4eacca",
+    "licenseUrl": "https://github.com/ggml-org/llama.cpp/blob/master/LICENSE",
+    "commit": "2280f0fd163b03d4331d49e08460f66502e35854",
+    "commitDate": "2026-10-25T13:23:22Z"
+  },
+  {
+    "repository": "a-ghorbani/pocketpal-ai",
+    "defaultBranch": "main",
+    "license": {
+      "key": "mit",
+      "name": "MIT License",
+      "spdx_id": "MIT",
+      "url": "https://api.github.com/licenses/mit",
+      "node_id": "MDc6TGljZW5zZTEz"
+    },
+    "licensePath": "LICENSE",
+    "licenseBlob": "e7eb7856d5b9c14bf66f1de361acbe62634fa757",
+    "licenseUrl": "https://github.com/a-ghorbani/pocketpal-ai/blob/main/LICENSE",
+    "commit": "4ef1600cc9062984cf69e2f1974e881e0b10e990",
+    "commitDate": "2026-10-24T22:20:39Z"
+  },
+  {
+    "repository": "readest/readest",
+    "defaultBranch": "main",
+    "license": {
+      "key": "agpl-3.0",
+      "name": "GNU Affero General Public License v3.0",
+      "spdx_id": "AGPL-3.0",
+      "url": "https://api.github.com/licenses/agpl-3.0",
+      "node_id": "MDc6TGljZW5zZTE="
+    },
+    "licensePath": "LICENSE",
+    "licenseBlob": "dba13ed2ddf783ee8118c6a581dbf75305f816a3",
+    "licenseUrl": "https://github.com/readest/readest/blob/main/LICENSE",
+    "commit": "32dc7856f1cd2b2c1b3abb2347b8221193b42b73",
+    "commitDate": "2026-10-25T13:06:35Z"
+  },
+  {
+    "repository": "mudlej/mj_pdf",
+    "defaultBranch": "main",
+    "license": {
+      "key": "gpl-3.0",
+      "name": "GNU General Public License v3.0",
+      "spdx_id": "GPL-3.0",
+      "url": "https://api.github.com/licenses/gpl-3.0",
+      "node_id": "MDc6TGljZW5zZTk="
+    },
+    "licensePath": "LICENSE",
+    "licenseBlob": "a93b8a4e1cf679cf337eaf9a2960dce317547538",
+    "licenseUrl": "https://github.com/mudlej/mj_pdf/blob/main/LICENSE",
+    "commit": "a5065a4d77c6e7bf07b134579752380005406b16",
+    "commitDate": "2026-08-25T06:37:01Z"
+  },
+  {
+    "repository": "Kimi-syl/PocketLLM",
+    "defaultBranch": "main",
+    "license": null,
+    "licenseError": "HTTP Error 404: Not Found",
+    "commit": "94ac4bbeba3131c58029389a73fda1d4ae442aaa",
+    "commitDate": "2026-10-25T10:19:12Z"
+  }
+]

@@ -1,0 +1,24 @@
+{
+  "checkedDate": "2026-10-26",
+  "tag": "qwen3:1.7b",
+  "manifestUrl": "https://registry.ollama.ai/v2/library/qwen3/manifests/1.7b",
+  "manifestSha256": "8f68893c685c3ddff2aa3fffce2aa60a30bb2da65ca488b61fff134a4d1730e7",
+  "modelLayer": {
+    "mediaType": "application/vnd.ollama.image.model",
+    "digest": "sha256:3d0b790534fe4b79525fc3692950408dca41171676ed7e21db57af5c65ef6ab6",
+    "size": 1359279776
+  },
+  "blobUrl": "https://registry.ollama.ai/v2/library/qwen3/blobs/sha256:3d0b790534fe4b79525fc3692950408dca41171676ed7e21db57af5c65ef6ab6",
+  "license": "Apache-2.0",
+  "quantization": "Q4_K_M",
+  "catalogPolicy": "Pinned model-layer SHA256; no mutable tag resolution inside app",
+  "thinkingEnabled": false,
+  "cdnProbe": {
+    "range": "bytes=16777216-33554431",
+    "bytes": 16777216,
+    "rangeSha256": "66b7940ebc8fce4f9bd195cf0f83a07c17d7e1f4e939dceb6720884a58785f14",
+    "matchesExistingPinnedGgufRange": true,
+    "completeExternalCdnDownloadTested": false,
+    "uiDownloadStartedAndReachedMiB": 33
+  }
+}

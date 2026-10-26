@@ -1,0 +1,14 @@
+✓ Lockfile passes supply-chain policies (verified 5m ago)
+Lockfile is up to date, resolution step is skipped
+Already up to date
+
+Done in 405ms using pnpm v11.25.0
+$ pnpm run typecheck && pnpm run check:pdfjs && oxlint --deny-warnings . && oxfmt --check .
+$ tsc --noEmit && tsc --noEmit -p src/webview
+$ node tools/check_pdfjs.mjs
+PDF.js assets verified (113 locales).
+Checking formatting...
+
+All matched files use the correct format.
+Finished in 119ms on 70 files using 10 threads.
+Verified 493 files at c9d103481e4e3fa065cee6a52e611b8be20866c6

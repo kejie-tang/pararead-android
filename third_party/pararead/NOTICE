@@ -1,0 +1,32 @@
+ParaRead
+Copyright 2026 Chuanyunux
+
+This product is a modified version of vscode-pdf
+(https://github.com/mathematic-inc/vscode-pdf), Copyright 2021 Mathematic Inc,
+licensed under the Apache License, Version 2.0.
+
+Changes to the upstream code:
+- src/extension.ts: removed the sponsorship prompt.
+- src/pdf-viewer-provider.ts, src/pdf-document.ts: editable custom editor
+  (annotation save, save as, revert, backup) and a typed message bridge.
+- assets/main.mjs: ported to TypeScript as src/webview/main.ts and extended.
+- package.json: new extension identity, view type and settings namespace.
+All other new functionality lives in new files under src/ and assets/panel.css.
+
+This product bundles PDF.js (https://github.com/mozilla/pdf.js),
+Copyright Mozilla Foundation, licensed under the Apache License, Version 2.0
+(see assets/pdf.js/LICENSE), with the modifications in patches/pdf.js.patch.
+
+ParaRead Android modifications (2026):
+- Reuse src/webview TypeScript modules, src/messages.ts, languages.ts, webview strings.
+- main.ts, sentence-store.ts, panel.ts, translation-client.ts: Android host,
+  Room page caches, bounded page state, streamed drafts, reading restoration
+  and durable whole-document job recovery.
+- messages.ts, pdfjs.d.ts and tsconfig.json: Android message/typing/build changes.
+- pointer-select.ts and panel.ts: touch gestures and pointer type handling.
+- save-bridge.ts: native incremental save and annotation change observation.
+- PDF.js ChunkedStream, range completion, SaveDocument/incrementalUpdate and
+  viewer page buffer are patched during asset generation; patches are in
+  scripts/patch_pdfjs.mjs and scripts/build_reader.mjs.
+Upstream source: Chuanyunux/pararead@c9d103481e4e3fa065cee6a52e611b8be20866c6.
+Existing source notices and PDF.js asset licenses are retained.

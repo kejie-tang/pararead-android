@@ -1,0 +1,156 @@
+正在为以下对象生成 3,072 位RSA密钥对和自签名证书 (SHA384withRSA) (有效期为 2 天):
+	 CN=Disposable Build Validation
+
+Warning:
+JKS 密钥库使用专用格式。建议使用 "keytool -importkeystore -srckeystore /Users/kjtang/Documents/app/pararead-android/.cache/signing-check-17vrkjm0/disposable.jks -destkeystore /Users/kjtang/Documents/app/pararead-android/.cache/signing-check-17vrkjm0/disposable.jks -deststoretype pkcs12" 迁移到行业标准格式 PKCS12。
+> Task :core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:compileKotlin UP-TO-DATE
+> Task :core:compileJava NO-SOURCE
+> Task :core:processResources NO-SOURCE
+> Task :core:classes UP-TO-DATE
+> Task :core:jar UP-TO-DATE
+> Task :app:buildReader UP-TO-DATE
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preReleaseBuild UP-TO-DATE
+> Task :app:mergeReleaseJniLibFolders
+> Task :engine:llama:preBuild UP-TO-DATE
+> Task :engine:llama:preReleaseBuild UP-TO-DATE
+> Task :engine:llama:configureCMakeRelease[arm64-v8a]
+> Task :engine:llama:buildCMakeRelease[arm64-v8a]
+> Task :engine:llama:mergeReleaseJniLibFolders
+> Task :engine:llama:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :engine:llama:generateReleaseResValues
+> Task :engine:llama:generateReleaseResources
+> Task :engine:llama:mergeReleaseNativeLibs
+> Task :engine:llama:packageReleaseResources
+> Task :engine:llama:processReleaseNavigationResources
+> Task :engine:llama:javaPreCompileRelease
+> Task :engine:llama:copyReleaseJniLibsProjectOnly
+> Task :engine:llama:parseReleaseLocalResources
+> Task :app:checkReleaseDuplicateClasses
+> Task :engine:llama:generateReleaseRFile
+> Task :app:mergeReleaseNativeLibs
+> Task :app:buildKotlinToolingMetadata
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:generateReleaseBuildConfig
+
+> Task :app:stripReleaseDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libandroidx.graphics.path.so, libpararead-llama.so. Run with --info option to learn more.
+
+> Task :engine:llama:writeReleaseAarMetadata
+> Task :app:extractReleaseNativeSymbolTables
+> Task :app:processReleaseNavigationResources
+> Task :app:mergeReleaseNativeDebugMetadata NO-SOURCE
+> Task :app:checkReleaseAarMetadata
+> Task :app:generateReleaseResValues
+> Task :app:compileReleaseNavigationResources
+> Task :app:mapReleaseSourceSetPaths
+> Task :app:generateReleaseResources
+> Task :engine:llama:compileReleaseKotlin
+> Task :engine:llama:compileReleaseJavaWithJavac NO-SOURCE
+> Task :app:packageReleaseResources
+> Task :app:createReleaseCompatibleScreenManifests
+> Task :app:extractDeepLinksRelease
+> Task :engine:llama:extractDeepLinksRelease
+> Task :app:parseReleaseLocalResources
+> Task :engine:llama:compileReleaseLibraryResources
+> Task :engine:llama:bundleLibRuntimeToDirRelease
+> Task :app:desugarReleaseFileDependencies
+> Task :app:mergeReleaseStartupProfile
+> Task :app:javaPreCompileRelease
+> Task :engine:llama:bundleLibCompileToJarRelease
+> Task :engine:llama:processReleaseManifest
+> Task :app:mergeReleaseResources
+> Task :app:processReleaseMainManifest
+> Task :app:processReleaseManifest
+> Task :engine:llama:prepareReleaseArtProfile
+> Task :engine:llama:bundleLibRuntimeToJarRelease
+> Task :app:mergeReleaseShaders
+> Task :app:processReleaseManifestForPackage
+> Task :app:mergeReleaseArtProfile
+> Task :app:compileReleaseShaders NO-SOURCE
+> Task :app:generateReleaseAssets UP-TO-DATE
+> Task :engine:llama:mergeReleaseShaders
+> Task :engine:llama:compileReleaseShaders NO-SOURCE
+> Task :engine:llama:generateReleaseAssets UP-TO-DATE
+> Task :engine:llama:mergeReleaseAssets
+> Task :app:mergeReleaseAssets
+> Task :app:extractReleaseVersionControlInfo
+> Task :app:extractProguardFiles UP-TO-DATE
+> Task :engine:llama:processReleaseJavaRes
+> Task :engine:llama:createFullJarRelease
+> Task :engine:llama:extractProguardFiles UP-TO-DATE
+> Task :engine:llama:generateReleaseLintModel
+> Task :app:processReleaseResources
+> Task :engine:llama:prepareLintJarForPublish UP-TO-DATE
+> Task :app:compressReleaseAssets
+> Task :engine:llama:checkReleaseAarMetadata
+> Task :engine:llama:extractDeepLinksForAarRelease
+> Task :engine:llama:extractReleaseAnnotations
+> Task :engine:llama:mergeReleaseGeneratedProguardFiles
+> Task :engine:llama:mergeReleaseConsumerProguardFiles
+> Task :engine:llama:writeReleaseLintModelMetadata
+> Task :engine:llama:generateReleaseLintVitalModel
+> Task :engine:llama:mergeReleaseJavaResource
+> Task :engine:llama:syncReleaseLibJars
+> Task :engine:llama:stripReleaseDebugSymbols
+> Task :app:collectReleaseDependencies
+> Task :app:optimizeReleaseResources
+> Task :engine:llama:copyReleaseJniLibsProjectAndLocalJars
+> Task :app:sdkReleaseDependencyData
+> Task :engine:llama:bundleReleaseLocalLintAar
+> Task :app:validateSigningRelease
+> Task :app:writeReleaseAppMetadata
+> Task :app:writeReleaseSigningConfigVersions
+> Task :app:preReleaseUnitTestBuild UP-TO-DATE
+> Task :engine:llama:preReleaseUnitTestBuild UP-TO-DATE
+> Task :engine:llama:generateReleaseUnitTestLintModel
+> Task :engine:llama:lintAnalyzeReleaseUnitTest
+> Task :app:kaptGenerateStubsReleaseKotlin
+> Task :app:mergeExtDexRelease
+> Task :engine:llama:lintVitalAnalyzeRelease
+> Task :engine:llama:lintAnalyzeRelease
+> Task :app:kaptReleaseKotlin
+> Task :app:compileReleaseKotlin
+> Task :app:compileReleaseJavaWithJavac
+> Task :app:dexBuilderRelease
+> Task :app:mergeReleaseGlobalSynthetics
+> Task :app:generateReleaseLintVitalReportModel
+> Task :app:processReleaseJavaRes
+> Task :app:generateReleaseLintReportModel
+> Task :app:bundleReleaseClassesToCompileJar
+> Task :app:generateReleaseUnitTestLintModel
+> Task :app:mergeReleaseJavaResource
+> Task :app:lintAnalyzeReleaseUnitTest
+> Task :app:mergeDexRelease
+> Task :app:compileReleaseArtProfile
+> Task :app:lintVitalAnalyzeRelease
+> Task :app:lintVitalReportRelease SKIPPED
+> Task :app:lintVitalRelease SKIPPED
+> Task :app:packageRelease
+> Task :app:createReleaseApkListingFileRedirect
+> Task :app:assembleRelease
+> Task :app:lintAnalyzeRelease
+
+> Task :app:lintReportRelease
+Wrote HTML report to file:///Users/kjtang/Documents/app/pararead-android/app/build/reports/lint-results-release.html
+
+> Task :app:lintRelease
+
+BUILD SUCCESSFUL in 31s
+106 actionable tasks: 100 executed, 6 up-to-date
+The operation couldn’t be completed. Unable to locate a Java Runtime.
+Please visit http://www.java.com for information on installing Java.
+
+
+Verification rerun with local JDK 21 explicitly selected:
+Signer #1 certificate DN: CN=Disposable Build Validation
+Signer #1 certificate SHA-256 digest: ac8ca16bf4542bb840842ad4be69f83b26bbc87afbbce0cc49c82afe71e79633
+Signer #1 certificate SHA-1 digest: 85564985d45a43d18cd36d9cd54512079893cb8e
+Signer #1 certificate MD5 digest: 2611a18e6242f360733fe2dc89edeb9c
+Validated sole original sample, no GGUF, all notices, ARM64 engine and ELF 16KiB alignment.
+/Users/kjtang/Documents/app/pararead-android/artifacts/distribution/ParaRead-0.2.0-dev-android-arm64-release.apk
+/Users/kjtang/Documents/app/pararead-android/artifacts/distribution/ParaRead-0.2.0-dev-android-arm64-release-notices.zip
+/Users/kjtang/Documents/app/pararead-android/artifacts/distribution/SHA256SUMS.txt
+
+PASSED. Disposable validation certificate only; NOT a production signing key. Temporary key deleted. Release APK not uploaded or published.

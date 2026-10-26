@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-26",
+  "source": "local Ollama qwen3:1.7b, read-only reuse",
+  "ggufVersion": 3,
+  "architecture": "qwen3",
+  "quantization": "Q4_K_M",
+  "sizeLabel": "1.7B",
+  "reportedParameters": 2031739904,
+  "bytes": 1359279776,
+  "sha256": "3d0b790534fe4b79525fc3692950408dca41171676ed7e21db57af5c65ef6ab6",
+  "export": "artifacts/models/Qwen3-1.7B-Q4_K_M.gguf",
+  "ollamaVersion": "0.40.9",
+  "hostServerVersion": "llama.cpp 0.7.0 build11669 620d2225c",
+  "hostServerConfiguration": {
+    "ngl": 0,
+    "threads": 4,
+    "ctx": 4096,
+    "batch": 512,
+    "ubatch": 128,
+    "slots": 1,
+    "reasoning": "off"
+  },
+  "androidPinnedEngine": "2280f0fd163b03d4331d49e08460f66502e35854",
+  "provenanceNote": "Ollama local blob verified by SHA-256; no assertion that it is byte-identical to an official Hugging Face revision.",
+  "hostHardware": "Apple M1 Pro; 32GiB; macOS26.6.2",
+  "modelLicence": "Apache-2.0, as reported by local Ollama show"
+}

@@ -1,0 +1,3 @@
+// Modified for ParaRead Android (2026): include Android adapter sources and TS imports.
+// Derived from ParaRead 0.6.1 under Apache-2.0; see third_party/pararead/NOTICE.
+{"compilerOptions":{"target":"ES2022","module":"ESNext","moduleResolution":"Bundler","lib":["ES2023","DOM","DOM.Iterable"],"strict":true,"noEmit":true,"allowImportingTsExtensions":true},"include":["../**/*.ts"]}

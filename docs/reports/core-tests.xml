@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.pararead.core.TranslationTest" tests="13" skipped="0" failures="0" errors="0" timestamp="2026-10-26T03:38:48.097Z" hostname="ip-192-168-2-123.ap-east-1.compute.internal" time="0.207">
+  <properties/>
+  <testcase name="trailingOutputCannotHideBehindAValidJsonPrefix" classname="org.pararead.core.TranslationTest" time="0.009"/>
+  <testcase name="protocolRejectsBadVersionAndUtf8Limit" classname="org.pararead.core.TranslationTest" time="0.005"/>
+  <testcase name="cancellationSettlesAndSelectionPreempts" classname="org.pararead.core.TranslationTest" time="0.035"/>
+  <testcase name="sseUtf8AndFinishValidation" classname="org.pararead.core.TranslationTest" time="0.13"/>
+  <testcase name="invalidOrUnfinishedOutputNeverValidates" classname="org.pararead.core.TranslationTest" time="0.002"/>
+  <testcase name="draftsAreDecodedAndFragmentsRetainOriginalProtectedSpans" classname="org.pararead.core.TranslationTest" time="0.006"/>
+  <testcase name="duplicateIdsCannotOverwrite" classname="org.pararead.core.TranslationTest" time="0.0"/>
+  <testcase name="selectionPreemptsAndWholeBookWorkResumesAfterwards" classname="org.pararead.core.TranslationTest" time="0.009"/>
+  <testcase name="exactIdsAndProtectedTokens" classname="org.pararead.core.TranslationTest" time="0.001"/>
+  <testcase name="cacheCommitBeforeCallbackAndReopenSkipsProvider" classname="org.pararead.core.TranslationTest" time="0.004"/>
+  <testcase name="batchPlaceholdersCannotReferToAnotherSentence" classname="org.pararead.core.TranslationTest" time="0.001"/>
+  <testcase name="cacheIdentityIncludesModelLanguageAndGlossary" classname="org.pararead.core.TranslationTest" time="0.001"/>
+  <testcase name="retriesAreFiniteAndInvalidDraftsNeverEnterCache" classname="org.pararead.core.TranslationTest" time="0.004"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

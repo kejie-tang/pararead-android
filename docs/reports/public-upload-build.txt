@@ -1,0 +1,136 @@
+> Task :core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:compileKotlin UP-TO-DATE
+> Task :core:compileJava NO-SOURCE
+> Task :core:processResources NO-SOURCE
+> Task :core:classes UP-TO-DATE
+> Task :core:jar UP-TO-DATE
+> Task :core:compileTestKotlin UP-TO-DATE
+> Task :core:compileTestJava NO-SOURCE
+> Task :core:processTestResources NO-SOURCE
+> Task :core:testClasses UP-TO-DATE
+> Task :core:test UP-TO-DATE
+
+> Task :app:buildReader
+Reader assets: /Users/kjtang/Documents/app/pararead-android/app/build/generated/readerAssets/reader
+
+> Task :app:preBuild
+> Task :app:preDebugBuild
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:generateDebugBuildConfig UP-TO-DATE
+> Task :engine:llama:preBuild UP-TO-DATE
+> Task :engine:llama:preDebugBuild UP-TO-DATE
+> Task :engine:llama:writeDebugAarMetadata UP-TO-DATE
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :engine:llama:processDebugNavigationResources UP-TO-DATE
+> Task :app:processDebugNavigationResources UP-TO-DATE
+> Task :app:compileDebugNavigationResources UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :engine:llama:generateDebugResValues UP-TO-DATE
+> Task :engine:llama:generateDebugResources UP-TO-DATE
+> Task :engine:llama:packageDebugResources UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :engine:llama:extractDeepLinksDebug UP-TO-DATE
+> Task :engine:llama:processDebugManifest UP-TO-DATE
+> Task :app:processDebugMainManifest UP-TO-DATE
+> Task :app:processDebugManifest UP-TO-DATE
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+> Task :engine:llama:compileDebugLibraryResources UP-TO-DATE
+> Task :engine:llama:parseDebugLocalResources UP-TO-DATE
+> Task :engine:llama:generateDebugRFile UP-TO-DATE
+> Task :app:processDebugResources UP-TO-DATE
+> Task :engine:llama:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :engine:llama:compileDebugKotlin UP-TO-DATE
+> Task :engine:llama:javaPreCompileDebug UP-TO-DATE
+> Task :engine:llama:compileDebugJavaWithJavac NO-SOURCE
+> Task :engine:llama:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:mergeDebugShaders UP-TO-DATE
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :engine:llama:mergeDebugShaders UP-TO-DATE
+> Task :engine:llama:compileDebugShaders NO-SOURCE
+> Task :engine:llama:generateDebugAssets UP-TO-DATE
+> Task :engine:llama:mergeDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets
+> Task :engine:llama:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :app:desugarDebugFileDependencies UP-TO-DATE
+> Task :engine:llama:processDebugJavaRes UP-TO-DATE
+> Task :app:checkDebugDuplicateClasses UP-TO-DATE
+> Task :app:compressDebugAssets
+> Task :app:mergeExtDexDebug UP-TO-DATE
+> Task :engine:llama:bundleLibRuntimeToDirDebug UP-TO-DATE
+> Task :app:mergeDebugJniLibFolders UP-TO-DATE
+> Task :engine:llama:preReleaseBuild UP-TO-DATE
+> Task :engine:llama:configureCMakeRelease[arm64-v8a]
+> Task :app:mergeLibDexDebug UP-TO-DATE
+> Task :engine:llama:buildCMakeRelease[arm64-v8a]
+> Task :engine:llama:mergeDebugJniLibFolders UP-TO-DATE
+> Task :engine:llama:mergeDebugNativeLibs UP-TO-DATE
+> Task :engine:llama:copyDebugJniLibsProjectOnly UP-TO-DATE
+> Task :app:mergeDebugNativeLibs UP-TO-DATE
+> Task :app:stripDebugDebugSymbols UP-TO-DATE
+> Task :app:validateSigningDebug UP-TO-DATE
+> Task :app:writeDebugAppMetadata UP-TO-DATE
+> Task :app:writeDebugSigningConfigVersions UP-TO-DATE
+> Task :engine:llama:checkDebugAarMetadata UP-TO-DATE
+> Task :engine:llama:stripDebugDebugSymbols UP-TO-DATE
+> Task :engine:llama:copyDebugJniLibsProjectAndLocalJars UP-TO-DATE
+> Task :engine:llama:extractDebugAnnotations UP-TO-DATE
+> Task :engine:llama:extractDeepLinksForAarDebug UP-TO-DATE
+> Task :engine:llama:mergeDebugGeneratedProguardFiles UP-TO-DATE
+> Task :engine:llama:mergeDebugConsumerProguardFiles UP-TO-DATE
+> Task :engine:llama:prepareDebugArtProfile UP-TO-DATE
+> Task :engine:llama:prepareLintJarForPublish UP-TO-DATE
+> Task :engine:llama:mergeDebugJavaResource UP-TO-DATE
+> Task :engine:llama:syncDebugLibJars UP-TO-DATE
+> Task :engine:llama:bundleDebugLocalLintAar UP-TO-DATE
+> Task :app:preDebugAndroidTestBuild SKIPPED
+> Task :app:generateDebugAndroidTestResValues UP-TO-DATE
+> Task :engine:llama:createFullJarDebug UP-TO-DATE
+> Task :engine:llama:writeDebugLintModelMetadata UP-TO-DATE
+> Task :app:extractProguardFiles UP-TO-DATE
+> Task :engine:llama:extractProguardFiles UP-TO-DATE
+> Task :engine:llama:generateDebugLintModel UP-TO-DATE
+> Task :app:preDebugUnitTestBuild
+> Task :engine:llama:lintAnalyzeDebug UP-TO-DATE
+> Task :engine:llama:preDebugAndroidTestBuild UP-TO-DATE
+> Task :engine:llama:generateDebugAndroidTestResValues UP-TO-DATE
+> Task :engine:llama:generateDebugAndroidTestLintModel UP-TO-DATE
+> Task :engine:llama:preDebugUnitTestBuild UP-TO-DATE
+> Task :engine:llama:generateDebugUnitTestLintModel UP-TO-DATE
+> Task :engine:llama:lintAnalyzeDebugAndroidTest UP-TO-DATE
+> Task :engine:llama:lintAnalyzeDebugUnitTest UP-TO-DATE
+> Task :app:kaptGenerateStubsDebugKotlin
+> Task :app:kaptDebugKotlin UP-TO-DATE
+> Task :app:compileDebugKotlin
+> Task :app:compileDebugJavaWithJavac UP-TO-DATE
+> Task :app:dexBuilderDebug
+> Task :app:mergeDebugGlobalSynthetics UP-TO-DATE
+> Task :app:processDebugJavaRes UP-TO-DATE
+> Task :app:mergeDebugJavaResource UP-TO-DATE
+> Task :app:generateDebugLintReportModel
+> Task :app:bundleDebugClassesToCompileJar
+> Task :app:generateDebugAndroidTestLintModel
+> Task :app:generateDebugUnitTestLintModel
+> Task :app:mergeProjectDexDebug
+> Task :app:packageDebug
+> Task :app:createDebugApkListingFileRedirect UP-TO-DATE
+> Task :app:assembleDebug
+> Task :app:lintAnalyzeDebugUnitTest
+> Task :app:lintAnalyzeDebugAndroidTest
+> Task :app:lintAnalyzeDebug
+
+> Task :app:lintReportDebug
+Wrote HTML report to file:///Users/kjtang/Documents/app/pararead-android/app/build/reports/lint-results-debug.html
+
+> Task :app:lintDebug
+
+BUILD SUCCESSFUL in 7s
+102 actionable tasks: 19 executed, 83 up-to-date

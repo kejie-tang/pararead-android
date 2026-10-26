@@ -1,0 +1,39 @@
+25/405 verified
+50/405 verified
+75/405 verified
+100/405 verified
+125/405 verified
+150/405 verified
+175/405 verified
+200/405 verified
+225/405 verified
+250/405 verified
+275/405 verified
+300/405 verified
+325/405 verified
+350/405 verified
+375/405 verified
+400/405 verified
+405 pinned llama.cpp source blobs verified
+> Task :core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :core:compileKotlin UP-TO-DATE
+> Task :core:compileJava NO-SOURCE
+> Task :core:processResources NO-SOURCE
+> Task :core:classes UP-TO-DATE
+> Task :core:jar UP-TO-DATE
+> Task :tools:host-llama:configureHostNative UP-TO-DATE
+> Task :tools:host-llama:buildHostNative UP-TO-DATE
+> Task :tools:host-llama:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :tools:host-llama:processResources NO-SOURCE
+> Task :tools:host-llama:compileKotlin
+> Task :tools:host-llama:compileJava NO-SOURCE
+> Task :tools:host-llama:classes UP-TO-DATE
+
+> Task :tools:host-llama:run
+cold-single: passed
+warm-batch-four-with-protected-spans: passed
+real-queue-repair-and-cache-reopen: passed
+cancel-stream-and-infer-again: passed
+
+BUILD SUCCESSFUL in 23s
+6 actionable tasks: 2 executed, 4 up-to-date
