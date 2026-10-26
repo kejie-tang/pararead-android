@@ -3,6 +3,7 @@ package org.pararead.llama
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.flow.callbackFlow
@@ -11,12 +12,15 @@ import java.nio.ByteBuffer
 import java.nio.CharBuffer
 import java.nio.charset.CodingErrorAction
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
 
 /** All model/context operations share one executor. cancel() only sets the native atomic abort flag. */
-class LlamaCppProvider(private val path: String, requestedThreads: Int = 0) : TranslationProvider {
+class LlamaCppProvider(private val path: String, requestedThreads: Int = 0, private val singleResult: Boolean = false) : MeasuredTranslationProvider {
     val threadCount = CpuThreads.resolve(requestedThreads)
+    @Volatile override var metrics: GenerationMetrics? = null
+        private set
     private val executor = Executors.newSingleThreadExecutor { r -> Thread(r, "pararead-llama") }
     private val handle = AtomicLong()
     private val closed = AtomicBoolean()
@@ -28,6 +32,7 @@ class LlamaCppProvider(private val path: String, requestedThreads: Int = 0) : Tr
         val stopped = CompletableDeferred<Unit>()
         executor.execute {
             try {
+                metrics = null
                 check(!closed.get() && !cancelled.get())
                 if (handle.get() == 0L) handle.set(NativeBridge.load(path, threadCount))
                 if (cancelled.get() || closed.get()) return@execute
@@ -47,9 +52,11 @@ class LlamaCppProvider(private val path: String, requestedThreads: Int = 0) : Tr
                         return true
                     }
                 }
-                NativeBridge.generate(handle.get(), input, callback)
+                val measured = NativeBridge.generate(handle.get(), input, callback, singleResult)
                 check(!cancelled.get()) { "INFERENCE_CANCELLED" }
                 check(pending.isEmpty()) { "INCOMPLETE_UTF8_TOKEN" }
+                check(measured.size == 4) { "INVALID_NATIVE_TOKEN_METRICS" }
+                metrics = GenerationMetrics(measured[0], measured[1], measured[2], measured[3])
                 check(trySendBlocking(ProviderEvent.Complete(output.toString())).isSuccess) { "OUTPUT_CHANNEL_CLOSED" }; close()
             } catch (e: Throwable) { close(e) }
             finally { stopped.complete(Unit) }
@@ -68,13 +75,20 @@ class LlamaCppProvider(private val path: String, requestedThreads: Int = 0) : Tr
             executor.shutdown()
         }
     }
+    /** Do not load another model until all native work and model release have finished. */
+    suspend fun closeAndJoin(): Unit = withContext(NonCancellable) {
+        close()
+        withContext(Dispatchers.IO) {
+            while (!executor.awaitTermination(1, TimeUnit.SECONDS)) { /* native load may still be finishing */ }
+        }
+    }
 }
 private fun java.nio.charset.CoderResult.throwIfError() { if (isError) throwException() }
 interface TokenCallback { fun onBytes(bytes: ByteArray): Boolean }
 object NativeBridge {
     init { System.loadLibrary("pararead-llama") }
     external fun load(path: String, threads: Int): Long
-    external fun generate(handle: Long, prompt: String, callback: TokenCallback)
+    external fun generate(handle: Long, prompt: String, callback: TokenCallback, singleResult: Boolean): LongArray
     external fun cancel(handle: Long)
     external fun free(handle: Long)
     external fun version(): String

@@ -1,13 +1,13 @@
 {
   "date": "2026-10-26",
-  "scope": "Phase 2-5 integrated development build; full release acceptance pending",
-  "gitBase": "3df1571",
+  "scope": "0.2.0-alpha.2 development preview with in-app real-model speed test; physical tablet acceptance pending",
+  "gitBase": "27fe6e93ade1be24f109404727c5859e0f44925b",
   "apk": {
-    "path": "artifacts/ParaRead-android-arm64-debug.apk",
-    "bytes": 45174582,
-    "sha256": "dc8d83b1e7743ec9e8580d8e7464e0b164db1a6026c0a02864267aa09cd0aeaa",
+    "path": "artifacts/distribution/ParaRead-0.2.0-alpha.2-android-arm64-debug.apk",
+    "bytes": 50733123,
+    "sha256": "dfee684399a3e89558a578e3855a4159b83a2773682b58ae2825134bd6a6c5d4",
     "variant": "debug",
-    "version": "0.2.0-dev",
+    "version": "0.2.0-alpha.2",
     "abis": [
       "arm64-v8a"
     ],
@@ -66,13 +66,14 @@
       "note": "Includes GAP cases for unmodified upstream"
     },
     "kotlinCore": {
-      "passed": 24,
+      "passed": 28,
       "failed": 0,
       "reports": [
         "core-tests.xml",
         "cpu-threads-tests.xml",
         "model-files-tests.xml",
-        "whole-job-tests.xml"
+        "whole-job-tests.xml",
+        "app-speed-test-core.xml"
       ]
     },
     "androidReader": {
@@ -80,9 +81,9 @@
       "failed": 0
     },
     "androidInstrumentation": {
-      "passed": 9,
+      "passed": 12,
       "failed": 0,
-      "latestReport": "public-upload-android.txt",
+      "latestReport": "app-speed-test.md",
       "baselineXml": "android-instrumentation.xml"
     },
     "chromiumReader": "passed on original six-page sample; touch selection, alignment, portrait toolbar and incremental save reparse",
@@ -175,6 +176,21 @@
       "cpuThreads": 6,
       "scope": "Host CPU JNI only; Android numbers are prior single emulator observations, not physical-tablet or WebView timings",
       "sourceCommit": "d87084ff601d5c6427d00db519521a59b8aae13a"
+    },
+    "inAppSpeedTest": {
+      "report": "app-speed-test.md",
+      "rawResult": "app-speed-test-android.json",
+      "uiTests": 3,
+      "baselineAndroidTests": 9,
+      "provider": "real Qwen3 GGUF via llama.cpp CPU JNI",
+      "nativeTokenCounts": true,
+      "freshThenThreeWarmRuns": true,
+      "activityRecreation": true,
+      "cancellationAndNativeRelease": true,
+      "lastCompleteResultPersisted": true,
+      "readerSuspendedAndResumed": true,
+      "physicalDeviceTested": false,
+      "androidFilePickerExport": "Saved to Downloads and parsed back; JSON matches the complete report"
     }
   },
   "lint": {

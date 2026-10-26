@@ -6,7 +6,7 @@
 
 [![Android CI](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml/badge.svg?branch=main)](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml) [![Android 9+](https://img.shields.io/badge/Android-9%2B-3DDC84?logo=android&logoColor=white)](#快速开始) [![代码许可：Apache-2.0](https://img.shields.io/badge/Code-Apache--2.0-blue)](LICENSE)
 
-**[下载预览版 APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-dev/ParaRead-0.2.0-dev-android-arm64-debug.apk)** · [全部版本](https://github.com/kejie-tang/pararead-android/releases) · [快速开始](#快速开始) · [English](README.md)
+**[下载预览版 APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.2/ParaRead-0.2.0-alpha.2-android-arm64-debug.apk)** · [全部版本](https://github.com/kejie-tang/pararead-android/releases) · [快速开始](#快速开始) · [English](README.md)
 
 基于 [ParaRead](https://github.com/Chuanyunux/pararead) 0.6.1 的独立、非官方 Android 移植与扩展。**当前为开发预览版，仅支持 ARM64；应用界面目前主要使用中文。**
 
@@ -26,12 +26,13 @@
 | 保存阅读成果 | 复用译文缓存与阅读位置；全篇逐页保存进度，同一文档和配置重开后可继续。 |
 | 批注与导出 | 保留本地批注草稿，另存带批注的 PDF 副本。 |
 | 自己选择翻译配置 | 下载、校验、导入或删除支持的模型，调整 CPU 线程数和术语表；也可选择兼容 API。 |
+| 测试本机速度 | 直接在 App 内运行真实模型测速，对比响应耗时、token/s，并导出结果。 |
 
 ## 快速开始
 
 **设备要求：** Android 9 / API 28 及以上、ARM64，以及支持 `WebMessageListener` 的 Android System WebView。布局面向平板设计。
 
-1. **安装[预览版 APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-dev/ParaRead-0.2.0-dev-android-arm64-debug.apk)。** 当前下载为 debug 签名的 `0.2.0-dev`。若旧版签名不同，可能需要卸载后安装；卸载会清除应用数据，请先另存重要的批注 PDF。
+1. **安装[预览版 APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.2/ParaRead-0.2.0-alpha.2-android-arm64-debug.apk)。** 当前下载为 debug 签名的 `0.2.0-alpha.2`。若旧版签名不同，可能需要卸载后安装；卸载会清除应用数据，请先另存重要的批注 PDF。
 2. **打开文档。** 点击“打开示例文档”，或通过系统文件选择器导入有可选中文字的 PDF。
 3. **下载本地模型。** 点击书库的“下载默认模型”，或进入“设置 → 离线 GGUF”。应用会在完整大小与 SHA-256 校验通过后启用模型。
 4. **开始阅读。** 点击句子，翻译本页，或启动全篇任务；在“目标语言”中调整译文语言。主动取消后，点击“全篇 / 继续”接续任务。
@@ -65,6 +66,16 @@
 
 ## 速度测试
 
+**直接在 App 测自己的设备：**打开 **设置 → 离线 GGUF → 速度测试**，点击“开始测速”。需先下载或导入模型。测试使用设置中当前填写的 CPU 线程数，无需先保存。
+
+- 对固定的英文句子连续英译中四次：首次新加载模型测一次，模型已加载后再测三次，不使用译文缓存。
+- 显示首次流式响应、完成耗时，以及三次热模型测试的中位数。生成速度按底层实际 token 数除以生成阶段耗时计算，包含 JSON 格式 token。
+- 支持取消和旋转屏幕。最近一次完整结果保存在本机，可导出 JSON，包含模型哈希、设备、线程数、引擎版本及四次原始数据。
+
+测试期间阅读器暂停，关闭后恢复。首次耗时包含模型加载，未清空系统文件缓存；首次响应可能是 JSON 语法。它衡量固定短句的翻译速度，不代表整篇 PDF 吞吐或翻译质量。详见 [App 内测速说明与验证](docs/reports/app-speed-test.md)。
+
+### 早期参考数据
+
 测试日期：**2026-10-26**。使用真实 **Qwen3 1.7B Q4_K_M**，英译中、关闭思考、CPU 推理、上下文 4,096 tokens。以下为引擎/集成链路耗时；实体平板速度和 WebView 端到端延迟仍待测试。
 
 | 环境 | 工作负载 | 首个流式响应 | 完成耗时 | 样本数 |
@@ -92,7 +103,7 @@ python3 scripts/benchmark_translation.py --runs 3 --threads 6
 
 ## 当前进展
 
-**这是可以体验的开发预览版，实体平板验证仍待完成。** 现有证据覆盖 24 项 Kotlin 核心测试、13 项 JS/bridge、9 项 Android ARM64 模拟器回归，以及 Chromium 阅读器与批注保存重开验证。真实 Qwen3 已通过宿主机和 Android ARM64 模拟器推理冒烟测试。范围见[验证记录](docs/reports/verification.json)与[公开构建检查](docs/reports/public-upload.md)。
+**这是可以体验的开发预览版，实体平板验证仍待完成。** 现有证据覆盖 28 项 Kotlin 核心测试、13 项 JS/bridge、12 项 Android ARM64 模拟器检查（含真实模型 App 内测速），以及 Chromium 阅读器与批注保存重开验证。真实 Qwen3 已通过宿主机和 Android ARM64 模拟器推理冒烟测试。范围见[验证记录](docs/reports/verification.json)与[公开构建检查](docs/reports/public-upload.md)。
 
 实体平板性能、真模型持续阅读、学术翻译质量、强杀/重启恢复、无障碍和触控笔仍待验收。100/300/500 MiB 合成 PDF 测试只提供有限基线，不代表真实文档与模型并行运行的完整性能结论。本预览版不提供纯图片扫描件的 OCR 流程，未实现旧 VS Code 缓存导入；超过 512 页的表单字段修改目前拒绝保存，损坏或异常复杂 PDF 也可能触发明确的资源限制。细节见[兼容性](docs/compatibility.md)、[性能](docs/performance.md)和[任务清单](docs/tasks.md)。
 

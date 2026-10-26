@@ -1,0 +1,1 @@
+Android ACTION_CREATE_DOCUMENT → Downloads → JSON matches all four samples and environment metadata.

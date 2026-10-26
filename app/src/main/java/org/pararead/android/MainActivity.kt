@@ -35,6 +35,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var repository: DocumentRepository
     private lateinit var settings: Settings
     private val modelViewModel: ModelViewModel by viewModels()
+    private val speedTestViewModel: SpeedTestViewModel by viewModels()
     private var host: ReaderHost? = null
     private var readerScope: CoroutineScope? = null
     private var selected by mutableStateOf<DocumentRecord?>(null)
@@ -75,6 +76,7 @@ class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
     @Composable private fun App() {
         val modelState by modelViewModel.manager.state.collectAsState()
+        val speedState by speedTestViewModel.state.collectAsState()
         LaunchedEffect(modelState.installed?.path, modelState.installed?.sha256) { reopen() }
         LaunchedEffect(Unit) {
             withFrameNanos { }
@@ -103,6 +105,15 @@ class MainActivity : ComponentActivity() {
         val glossaryExport = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri -> uri?.let {
             runImport { withContext(Dispatchers.IO) { contentResolver.openOutputStream(it)!!.use { out -> out.write(settings.glossary.toByteArray()) } }; status = "术语表已导出" }
         } }
+        val speedExport = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+            val json = speedTestViewModel.takeExport()
+            if (uri != null && json != null) lifecycleScope.launch {
+                try {
+                    withContext(Dispatchers.IO) { contentResolver.openOutputStream(uri)!!.use { it.write(json.toByteArray(Charsets.UTF_8)) } }
+                    status = "测速结果已导出"
+                } catch (e: Exception) { status = "测速结果导出失败：${e.message}" }
+            }
+        }
         val export = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/pdf")) { uri -> uri?.let { host?.requestSave(it) } }
         val metrics = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri -> uri?.let { lifecycleScope.launch(Dispatchers.IO) {
             val rows = db.reader().performance()
@@ -123,7 +134,9 @@ class MainActivity : ComponentActivity() {
             }
             Text(status, Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp), style = MaterialTheme.typography.bodySmall)
             val document = selected
-            if (document == null) {
+            if (speedState.visible || speedState.busy) {
+                Text("速度测试期间阅读器已暂停", Modifier.padding(20.dp))
+            } else if (document == null) {
                 Text("ParaRead · 离线双语阅读", Modifier.padding(20.dp), style = MaterialTheme.typography.headlineSmall)
                 Text("默认：qwen3:1.7b · 思考模式已关闭", Modifier.padding(horizontal = 20.dp))
                 if (modelState.installed == null || modelState.busy || modelState.phase == ModelPhase.ERROR) {
@@ -164,11 +177,18 @@ class MainActivity : ComponentActivity() {
             }
         }
         if (showSettings) SettingsDialog(modelState = modelState, onModel = { modelPicker.launch(arrayOf("*/*")) },
+            onSpeedTest = { threads -> modelState.installed?.let { model ->
+                val previous = host; reopen()
+                speedTestViewModel.open(model, threads) { previous?.awaitProviderClosed() }
+            } },
             onImportGlossary = { glossaryPicker.launch(arrayOf("application/json", "text/plain")) },
             onExportGlossary = { glossaryExport.launch("pararead-glossary.json") },
             onSave = { showSettings = false; reopen() }, onClose = { showSettings = false })
+        if (speedState.visible) SpeedTestDialog(speedState, onStart = speedTestViewModel::start,
+            onCancel = speedTestViewModel::cancel, onClose = speedTestViewModel::dismiss,
+            onExport = { if (speedTestViewModel.prepareExport()) speedExport.launch("pararead-speed-test.json") })
     }
-    @Composable private fun SettingsDialog(modelState: ModelState, onModel: () -> Unit, onImportGlossary: () -> Unit, onExportGlossary: () -> Unit, onSave: () -> Unit, onClose: () -> Unit) {
+    @Composable private fun SettingsDialog(modelState: ModelState, onModel: () -> Unit, onSpeedTest: (Int) -> Unit, onImportGlossary: () -> Unit, onExportGlossary: () -> Unit, onSave: () -> Unit, onClose: () -> Unit) {
         var provider by remember { mutableStateOf(settings.provider) }; var url by remember { mutableStateOf(settings.baseUrl) }
         var model by remember { mutableStateOf(settings.model) }; var apiKey by remember { mutableStateOf(settings.apiKey) }
         var target by remember { mutableStateOf(settings.targetLanguage) }; var source by remember { mutableStateOf(settings.sourceLanguage) }
@@ -202,6 +222,12 @@ class MainActivity : ComponentActivity() {
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), singleLine = true,
                         supportingText = { Text("0 = 自动（当前 ${CpuThreads.resolve(0)} 线程）；手动范围 1–${CpuThreads.maximum()}。保存后重新加载模型。") })
                     TextButton(onClick = { cpuThreads = "0" }) { Text("恢复自动线程数") }
+                    Button(enabled = modelState.installed != null && !modelState.busy, onClick = {
+                        val threads = cpuThreads.toIntOrNull()
+                        if (threads == null || threads !in 0..CpuThreads.maximum()) error = "线程数填写 0（自动）或 1–${CpuThreads.maximum()}"
+                        else { error = ""; onSpeedTest(threads) }
+                    }) { Text("速度测试") }
+                    Text("使用上方线程数测试本机模型；无需先保存设置。", style = MaterialTheme.typography.bodySmall)
                 }
                 if (provider == "api") {
                     OutlinedTextField(url, { url = it }, label = { Text("API 基址（含 /v1）") })

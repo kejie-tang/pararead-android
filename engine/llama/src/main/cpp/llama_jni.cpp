@@ -2,6 +2,7 @@
 #include <jni.h>
 #include <llama.h>
 #include <atomic>
+#include <chrono>
 #include <memory>
 #include <mutex>
 #include <stdexcept>
@@ -21,6 +22,13 @@ static bool abort_decode(void * data) { return static_cast<Engine *>(data)->canc
 static constexpr const char * translation_grammar = R"GBNF(
 root ::= ws "{" ws "\"translations\"" ws ":" ws "[" ws item (ws "," ws item)* ws "]" ws "}" ws
 item ::= "{" ws "\"id\"" ws ":" ws "\"s" [1-9] [0-9]* "\"" ws "," ws "\"translation\"" ws ":" ws string ws "}"
+string ::= "\"" char+ "\""
+char ::= [^"\\\x00-\x1f] | "\\" (["\\/bfnrt] | "u" [0-9a-fA-F]{4})
+ws ::= [ \t\n\r]*
+)GBNF";
+// A controlled single-sentence benchmark cannot accidentally generate additional result rows.
+static constexpr const char * single_translation_grammar = R"GBNF(
+root ::= ws "{" ws "\"translations\"" ws ":" ws "[" ws "{" ws "\"id\"" ws ":" ws "\"s1\"" ws "," ws "\"translation\"" ws ":" ws string ws "}" ws "]" ws "}" ws
 string ::= "\"" char+ "\""
 char ::= [^"\\\x00-\x1f] | "\\" (["\\/bfnrt] | "u" [0-9a-fA-F]{4})
 ws ::= [ \t\n\r]*
@@ -55,9 +63,9 @@ extern "C" JNIEXPORT jlong JNICALL Java_org_pararead_llama_NativeBridge_load(JNI
         return reinterpret_cast<jlong>(engine.release());
     } catch (const std::exception & e) { fail(env, e.what()); return 0; }
 }
-extern "C" JNIEXPORT void JNICALL Java_org_pararead_llama_NativeBridge_generate(JNIEnv * env, jobject, jlong handle, jstring input, jobject callback) {
+extern "C" JNIEXPORT jlongArray JNICALL Java_org_pararead_llama_NativeBridge_generate(JNIEnv * env, jobject, jlong handle, jstring input, jobject callback, jboolean single_result) {
     auto * engine = reinterpret_cast<Engine *>(handle);
-    if (!engine) { fail(env, "MODEL_NOT_LOADED"); return; }
+    if (!engine) { fail(env, "MODEL_NOT_LOADED"); return nullptr; }
     try {
         engine->cancelled.store(false);
         auto cls = env->GetObjectClass(callback);
@@ -65,8 +73,9 @@ extern "C" JNIEXPORT void JNICALL Java_org_pararead_llama_NativeBridge_generate(
         auto empty = env->NewByteArray(0);
         bool accepted_start = env->CallBooleanMethod(callback, emit, empty);
         env->DeleteLocalRef(empty);
-        if (env->ExceptionCheck()) return;
+        if (env->ExceptionCheck()) return nullptr;
         if (!accepted_start) throw std::runtime_error("INFERENCE_CANCELLED");
+        const auto prefill_start = std::chrono::steady_clock::now();
         llama_memory_clear(llama_get_memory(engine->context), true);
         auto prompt = utf8(env, input);
         auto vocab = llama_model_get_vocab(engine->model);
@@ -79,10 +88,11 @@ extern "C" JNIEXPORT void JNICALL Java_org_pararead_llama_NativeBridge_generate(
             auto batch = llama_batch_get_one(tokens.data() + offset, std::min(512, count - offset));
             if (llama_decode(engine->context, batch) != 0) throw std::runtime_error("PREFILL_FAILED_OR_CANCELLED");
         }
+        const auto prefill_end = std::chrono::steady_clock::now();
         auto sp = llama_sampler_chain_default_params();
         auto * sampler = llama_sampler_chain_init(sp);
         std::unique_ptr<llama_sampler, decltype(&llama_sampler_free)> holder(sampler, llama_sampler_free);
-        auto * grammar = llama_sampler_init_grammar(vocab, translation_grammar, "root");
+        auto * grammar = llama_sampler_init_grammar(vocab, single_result ? single_translation_grammar : translation_grammar, "root");
         if (!grammar) throw std::runtime_error("TRANSLATION_GRAMMAR_INIT_FAILED");
         llama_sampler_chain_add(sampler, grammar);
         llama_sampler_chain_add(sampler, llama_sampler_init_top_k(20));
@@ -91,22 +101,33 @@ extern "C" JNIEXPORT void JNICALL Java_org_pararead_llama_NativeBridge_generate(
         llama_sampler_chain_add(sampler, llama_sampler_init_dist(42));
         std::vector<char> piece(256);
         bool ended = false;
+        jlong generated_tokens = 0;
+        const auto generation_start = std::chrono::steady_clock::now();
         for (int generated = 0; generated < 1536; ++generated) {
             if (engine->cancelled.load()) throw std::runtime_error("INFERENCE_CANCELLED");
             auto token = llama_sampler_sample(sampler, engine->context, -1);
             if (llama_vocab_is_eog(vocab, token)) { ended = true; break; }
+            ++generated_tokens;
             int n = llama_token_to_piece(vocab, token, piece.data(), piece.size(), 0, false);
             if (n < 0) { piece.resize(-n); n = llama_token_to_piece(vocab, token, piece.data(), piece.size(), 0, false); }
             if (n < 0) throw std::runtime_error("TOKEN_DECODE_FAILED");
             auto bytes = env->NewByteArray(n); env->SetByteArrayRegion(bytes, 0, n, reinterpret_cast<jbyte *>(piece.data()));
             bool accepted = env->CallBooleanMethod(callback, emit, bytes); env->DeleteLocalRef(bytes);
-            if (env->ExceptionCheck()) return;
+            if (env->ExceptionCheck()) return nullptr;
             if (!accepted) throw std::runtime_error("INFERENCE_CANCELLED");
             if (llama_decode(engine->context, llama_batch_get_one(&token, 1)) != 0) throw std::runtime_error("DECODE_FAILED_OR_CANCELLED");
         }
         env->DeleteLocalRef(cls);
         if (!ended) throw std::runtime_error("TRUNCATED_GENERATION");
+        const auto generation_end = std::chrono::steady_clock::now();
+        const jlong stats[] = {count, generated_tokens,
+            std::chrono::duration_cast<std::chrono::nanoseconds>(prefill_end - prefill_start).count(),
+            std::chrono::duration_cast<std::chrono::nanoseconds>(generation_end - generation_start).count()};
+        auto result = env->NewLongArray(4);
+        if (result) env->SetLongArrayRegion(result, 0, 4, stats);
+        return result;
     } catch (const std::exception & e) { if (!env->ExceptionCheck()) fail(env, e.what()); }
+    return nullptr;
 }
 extern "C" JNIEXPORT void JNICALL Java_org_pararead_llama_NativeBridge_cancel(JNIEnv *, jobject, jlong handle) {
     if (handle) reinterpret_cast<Engine *>(handle)->cancelled.store(true);

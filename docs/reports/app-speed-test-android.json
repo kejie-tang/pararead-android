@@ -1,0 +1,64 @@
+{
+  "methodVersion": 1,
+  "source": "We propose a memory-efficient method for translating scientific documents.",
+  "sourceLanguage": "en",
+  "targetLanguage": "zh-CN",
+  "translationCache": false,
+  "samples": [
+    {
+      "firstResponseMs": 1895.379959,
+      "totalMs": 3098.222793,
+      "promptTokens": 110,
+      "generatedTokens": 24,
+      "prefillNanos": 1471980084,
+      "generationNanos": 1220507834,
+      "tokensPerSecond": 19.663945885004456,
+      "translation": "我们提出一种内存高效的方法用于翻译科学文档。"
+    },
+    {
+      "firstResponseMs": 1434.850875,
+      "totalMs": 2507.399043,
+      "promptTokens": 110,
+      "generatedTokens": 24,
+      "prefillNanos": 1417966459,
+      "generationNanos": 1088568334,
+      "tokensPerSecond": 22.04730677017838,
+      "translation": "我们提出一种内存高效的方法用于翻译科学文档。"
+    },
+    {
+      "firstResponseMs": 1286.120542,
+      "totalMs": 2384.182459,
+      "promptTokens": 110,
+      "generatedTokens": 24,
+      "prefillNanos": 1269533168,
+      "generationNanos": 1113752001,
+      "tokensPerSecond": 21.548782833567273,
+      "translation": "我们提出一种内存高效的方法用于翻译科学文档。"
+    },
+    {
+      "firstResponseMs": 1279.176875,
+      "totalMs": 2368.946584,
+      "promptTokens": 110,
+      "generatedTokens": 24,
+      "prefillNanos": 1261474043,
+      "generationNanos": 1106318751,
+      "tokensPerSecond": 21.693567046844713,
+      "translation": "我们提出一种内存高效的方法用于翻译科学文档。"
+    }
+  ],
+  "environment": {
+    "startedAtEpochMs": 1793015249723,
+    "appVersion": "0.2.0-alpha.2",
+    "device": "Google sdk_gphone64_arm64",
+    "hardware": "ranchu",
+    "androidApi": 36,
+    "abis": "arm64-v8a",
+    "modelSha256": "3d0b790534fe4b79525fc3692950408dca41171676ed7e21db57af5c65ef6ab6",
+    "modelBytes": 1359279776,
+    "requestedThreads": 6,
+    "effectiveThreads": 6,
+    "availableProcessors": 8,
+    "engine": "llama.cpp@2280f0fd163b03d4331d49e08460f66502e35854;cpu;arm64;ctx4096",
+    "singleResultGrammar": true
+  }
+}

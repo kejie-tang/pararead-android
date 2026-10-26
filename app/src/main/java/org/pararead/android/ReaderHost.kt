@@ -340,4 +340,5 @@ class ReaderHost(
         closed = true; translationQueue.cancelAll(); autoSave?.cancel(); pageChunks.clear()
         exportTemp?.delete(); source.close(); provider.close()
     }
+    suspend fun awaitProviderClosed() { (provider as? org.pararead.llama.LlamaCppProvider)?.closeAndJoin() }
 }

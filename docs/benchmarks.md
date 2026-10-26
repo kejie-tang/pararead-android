@@ -1,5 +1,7 @@
 # Translation speed test
 
+The app now has its own **Settings → Offline GGUF → Speed test** screen. See [in-app benchmark and validation](reports/app-speed-test.md) for its fixed single-sentence protocol, native token metrics, and Android UI checks. The reference measurements below predate that screen and use different workloads.
+
 This page documents the development reference measurements shown in the [English README](../README.md#speed-test) and [中文 README](../README.zh-CN.md#速度测试). The measurements describe real model generation through the project's own JNI/provider and queue code. They do not measure the time from a tap to a visible translated sentence in the Android reader.
 
 ## Configuration

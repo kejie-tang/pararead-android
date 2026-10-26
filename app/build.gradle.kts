@@ -11,8 +11,8 @@ android {
         applicationId = "org.pararead.android"
         minSdk = 28
         targetSdk = 36
-        versionCode = 1
-        versionName = "0.2.0-dev"
+        versionCode = 2
+        versionName = "0.2.0-alpha.2"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         ndk { abiFilters += "arm64-v8a" }
     }
@@ -66,4 +66,6 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test:runner:1.6.2")
     androidTestImplementation("androidx.test:rules:1.6.1")
+    androidTestImplementation(platform("androidx.compose:compose-bom:2025.08.01"))
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4")
 }

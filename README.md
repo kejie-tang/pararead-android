@@ -6,7 +6,7 @@ Keep the original page in view, tap a sentence to follow its translation, and us
 
 [![Android CI](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml/badge.svg?branch=main)](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml) [![Android 9+](https://img.shields.io/badge/Android-9%2B-3DDC84?logo=android&logoColor=white)](#quick-start) [![Code license: Apache-2.0](https://img.shields.io/badge/Code-Apache--2.0-blue)](LICENSE)
 
-**[Download preview APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-dev/ParaRead-0.2.0-dev-android-arm64-debug.apk)** · [All releases](https://github.com/kejie-tang/pararead-android/releases) · [Quick start](#quick-start) · [简体中文](README.zh-CN.md)
+**[Download preview APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.2/ParaRead-0.2.0-alpha.2-android-arm64-debug.apk)** · [All releases](https://github.com/kejie-tang/pararead-android/releases) · [Quick start](#quick-start) · [简体中文](README.zh-CN.md)
 
 An independent, unofficial Android adaptation of [ParaRead](https://github.com/Chuanyunux/pararead) 0.6.1. **Development preview:** ARM64 only; the app interface currently uses Chinese labels.
 
@@ -26,12 +26,13 @@ A translation is easier to check when the source is right beside it. ParaRead An
 | Saved progress | Reuse cached translations and reading positions. Whole-document jobs save a checkpoint after each page and can continue when reopened with matching settings. |
 | Notes and PDF export | Keep local annotation drafts and save an annotated PDF copy. |
 | Your translation setup | Download, verify, import, or remove a supported model; adjust CPU threads and terminology; optionally use an OpenAI-compatible API. |
+| Test your device | Run a real-model speed test inside the app, compare response time and token/s, and export the results. |
 
 ## Quick start
 
 **You need:** Android 9 / API 28 or newer, an ARM64 device, and an Android System WebView with `WebMessageListener` support. The layout is designed for tablets.
 
-1. **Install the [preview APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-dev/ParaRead-0.2.0-dev-android-arm64-debug.apk).** The current download is debug-signed (`0.2.0-dev`). If upgrading from a differently signed build, you may need to uninstall first; export important annotated PDFs before uninstalling, which removes app data.
+1. **Install the [preview APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.2/ParaRead-0.2.0-alpha.2-android-arm64-debug.apk).** The current download is debug-signed (`0.2.0-alpha.2`). If upgrading from a differently signed build, you may need to uninstall first; export important annotated PDFs before uninstalling, which removes app data.
 2. **Open a PDF.** Try **打开示例文档** (Open sample document), or import a PDF with selectable text through the system file picker.
 3. **Download the local model.** Tap **下载默认模型** (Download default model), or open **设置 → 离线 GGUF** (Settings → Offline GGUF). The app checks the full file size and SHA-256 before enabling it.
 4. **Start reading.** Tap a sentence, translate a page, or start a whole-document job. Change the target language in **目标语言** (Target language). After an explicit cancellation, use **全篇 / 继续** (Whole document / Continue) to resume.
@@ -65,6 +66,16 @@ For a familiar research paper, download Vaswani et al., *Attention Is All You Ne
 
 ## Speed test
 
+**Test your own device inside the app:** open **设置 → 离线 GGUF → 速度测试** (Settings → Offline GGUF → Speed test), then tap **开始测速**. Download or import a model first. The test uses the CPU thread count currently entered in Settings, including edits you have not saved.
+
+- Runs one fixed English-to-Chinese sentence four times: once with a fresh model instance, then three times with the model loaded. The translation cache is bypassed.
+- Shows first stream response, completion time, and the median of the three warm runs. Generation speed uses native token counts, including JSON formatting tokens, divided by generation time.
+- Supports cancellation and screen rotation. The latest complete result stays on your device and can be exported as JSON with the model hash, device, threads, engine version, and all four samples.
+
+The reader pauses during testing and resumes after you close it. First-use timings include model loading; OS file caches are left intact. First response may be JSON syntax. This measures a short translation workload, not full-PDF throughput or translation quality. See [in-app test details](docs/reports/app-speed-test.md).
+
+### Earlier reference measurements
+
 Measured on **26 October 2026**, using the real **Qwen3 1.7B Q4_K_M** model, English-to-Chinese translation, thinking disabled, and CPU inference with a 4,096-token context. These are engine/integration timings; physical-tablet and WebView end-to-end latency are still unmeasured.
 
 | Environment | Workload | First stream update | Completed | Samples |
@@ -92,7 +103,7 @@ Output: `artifacts/translation-speed/summary.json`, with per-run logs alongside 
 
 ## Preview status
 
-**A working development preview, with physical-tablet validation still ahead.** Existing evidence covers 24 Kotlin core tests, 13 JS/bridge tests, 9 Android ARM64 emulator regressions, and a Chromium reading/annotation round trip. Real Qwen3 inference has also passed smoke checks on the host and an Android ARM64 emulator. See the [verification record](docs/reports/verification.json) and [public build checks](docs/reports/public-upload.md).
+**A working development preview, with physical-tablet validation still ahead.** Existing evidence covers 28 Kotlin core tests, 13 JS/bridge tests, 12 Android ARM64 emulator checks including the real-model in-app speed test, and a Chromium reading/annotation round trip. Real Qwen3 inference has also passed smoke checks on the host and an Android ARM64 emulator. See the [verification record](docs/reports/verification.json) and [public build checks](docs/reports/public-upload.md).
 
 Physical-tablet performance, sustained real-model reading sessions, academic translation quality, process-kill/reboot recovery, accessibility, and stylus behavior still need validation. Synthetic 100/300/500 MiB PDF tests establish a limited baseline, not a complete real-document performance claim. This preview does not provide an OCR workflow for image-only scans, and legacy VS Code cache import is not implemented. Form-field changes above 512 pages are currently rejected; damaged or unusually complex PDFs may also hit explicit resource limits. See [compatibility](docs/compatibility.md), [performance](docs/performance.md), and the [task list](docs/tasks.md) for details (Chinese).
 
