@@ -166,6 +166,15 @@
       "releaseReport": "public-upload-release-check.txt",
       "productionReleaseKeyConfigured": false,
       "publicReleaseCreated": false
+    },
+    "translationSpeed": {
+      "report": "translation-speed-host.json",
+      "method": "../benchmarks.md",
+      "hostRuns": 3,
+      "hostRealModelCasesPassed": 12,
+      "cpuThreads": 6,
+      "scope": "Host CPU JNI only; Android numbers are prior single emulator observations, not physical-tablet or WebView timings",
+      "sourceCommit": "d87084ff601d5c6427d00db519521a59b8aae13a"
     }
   },
   "lint": {

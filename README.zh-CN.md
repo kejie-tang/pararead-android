@@ -63,6 +63,33 @@
 
 也可以从 [arXiv 官方页面](https://arxiv.org/abs/1706.03762)下载 Vaswani 等人的 *Attention Is All You Need*（2017），再导入自己的副本。仓库、APK 和发布附件均不附带该论文；其[分发许可](https://arxiv.org/licenses/nonexclusive-distrib/1.0/license.html)与版权独立于本项目的代码许可证。Android 构建排除了上游 PDF.js 示例 PDF。
 
+## 速度测试
+
+测试日期：**2026-10-26**。使用真实 **Qwen3 1.7B Q4_K_M**，英译中、关闭思考、CPU 推理、上下文 4,096 tokens。以下为引擎/集成链路耗时；实体平板速度和 WebView 端到端延迟仍待测试。
+
+| 环境 | 工作负载 | 首个流式响应 | 完成耗时 | 样本数 |
+| --- | --- | --- | --- | --- |
+| M1 Pro 主机，6 线程 | 首次单句，模型尚未加载 | **1.70 秒** | **2.92 秒** | 3 次中位数 |
+| M1 Pro 主机，6 线程 | 四句批次，模型已加载 | **0.68 秒** | **5.42 秒** | 3 次中位数 |
+| Android ARM64 模拟器，自动 6 线程 | 首次两句，模型尚未加载 | 1.92 秒 | 9.79 秒 | 既有单次记录 |
+| Android ARM64 模拟器，自动 6 线程 | 取消后再次翻译两句，模型已加载 | 1.60 秒 | 9.31 秒 | 既有单次记录 |
+
+主机为 Apple M1 Pro、32 GiB RAM；模拟器为 8 vCPU、6 GiB RAM。Android 每个批次都包含 **3 次模型调用**：首轮批次校验未通过，再以两个单句修复，重试耗时全部计入。两端输入不同，不用于平台速度排名。首个流式响应可能只是 JSON 语法，不等于首个译词，也不是 tokens/s。首次耗时包含模型加载，未清空系统文件缓存。
+
+<details>
+<summary>自己跑一次真实模型测速</summary>
+
+配置好[源码构建环境](#从源码构建)，将环境变量指向本机的默认 GGUF。脚本会核验 SHA-256，启动三个独立 JVM/provider 会话，保留所有原始值、中位数和范围，不下载模型权重。
+
+```sh
+export PARAREAD_GGUF="/absolute/path/Qwen3-1.7B-Q4_K_M.gguf"
+python3 scripts/benchmark_translation.py --runs 3 --threads 6
+```
+
+输出为 `artifacts/translation-speed/summary.json`，逐次运行日志保存在同级子目录；`--threads 0` 使用自动线程策略。详见[测试方法与数据](docs/benchmarks.md)、[主机原始记录](docs/reports/translation-speed-host.json)与 [Android 参考记录](docs/reports/cpu-threads-android-real.json)。
+
+</details>
+
 ## 当前进展
 
 **这是可以体验的开发预览版，实体平板验证仍待完成。** 现有证据覆盖 24 项 Kotlin 核心测试、13 项 JS/bridge、9 项 Android ARM64 模拟器回归，以及 Chromium 阅读器与批注保存重开验证。真实 Qwen3 已通过宿主机和 Android ARM64 模拟器推理冒烟测试。范围见[验证记录](docs/reports/verification.json)与[公开构建检查](docs/reports/public-upload.md)。

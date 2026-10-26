@@ -63,6 +63,33 @@ The app includes an original six-page [reading guide](samples/pararead-reading-g
 
 For a familiar research paper, download Vaswani et al., *Attention Is All You Need* (2017), from its [official arXiv page](https://arxiv.org/abs/1706.03762) and import your copy. The repository, APK, and release assets do not include that paper. Its [arXiv distribution license](https://arxiv.org/licenses/nonexclusive-distrib/1.0/license.html) and copyright remain separate from this project's code license. Upstream PDF.js sample PDFs are excluded from Android assets.
 
+## Speed test
+
+Measured on **26 October 2026**, using the real **Qwen3 1.7B Q4_K_M** model, English-to-Chinese translation, thinking disabled, and CPU inference with a 4,096-token context. These are engine/integration timings; physical-tablet and WebView end-to-end latency are still unmeasured.
+
+| Environment | Workload | First stream update | Completed | Samples |
+| --- | --- | --- | --- | --- |
+| M1 Pro host, 6 threads | 1 sentence, model initially unloaded | **1.70 s** | **2.92 s** | Median of 3 |
+| M1 Pro host, 6 threads | 4 sentences, model already loaded | **0.68 s** | **5.42 s** | Median of 3 |
+| Android ARM64 emulator, auto 6 threads | 2 sentences, model initially unloaded | 1.92 s | 9.79 s | 1 prior run |
+| Android ARM64 emulator, auto 6 threads | 2 sentences, after cancellation, model loaded | 1.60 s | 9.31 s | 1 prior run |
+
+The host is an Apple M1 Pro with 32 GiB RAM; the emulator has 8 vCPUs and 6 GiB RAM. Each Android batch includes **3 model calls**: an invalid batch followed by two single-sentence repairs. Workloads differ, so these rows are not a platform ranking. First stream updates can contain JSON syntax; they are not the first translated word or tokens/s. First-use timings include model loading, with OS file caches left intact.
+
+<details>
+<summary>Run the real-model speed test yourself</summary>
+
+After setting up the [source-build toolchain](#build-from-source), point to your local copy of the default GGUF. The benchmark checks its SHA-256, starts three fresh JVM/provider sessions, and saves all observations plus the median and range. It does not download model weights.
+
+```sh
+export PARAREAD_GGUF="/absolute/path/Qwen3-1.7B-Q4_K_M.gguf"
+python3 scripts/benchmark_translation.py --runs 3 --threads 6
+```
+
+Output: `artifacts/translation-speed/summary.json`, with per-run logs alongside it. Use `--threads 0` for the automatic thread policy. See [method and raw results](docs/benchmarks.md), [host observations](docs/reports/translation-speed-host.json), and the [Android reference](docs/reports/cpu-threads-android-real.json).
+
+</details>
+
 ## Preview status
 
 **A working development preview, with physical-tablet validation still ahead.** Existing evidence covers 24 Kotlin core tests, 13 JS/bridge tests, 9 Android ARM64 emulator regressions, and a Chromium reading/annotation round trip. Real Qwen3 inference has also passed smoke checks on the host and an Android ARM64 emulator. See the [verification record](docs/reports/verification.json) and [public build checks](docs/reports/public-upload.md).
