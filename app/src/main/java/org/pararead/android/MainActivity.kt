@@ -36,6 +36,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var settings: Settings
     private val modelViewModel: ModelViewModel by viewModels()
     private val speedTestViewModel: SpeedTestViewModel by viewModels()
+    private val modelCatalogViewModel: ModelCatalogViewModel by viewModels()
     private var host: ReaderHost? = null
     private var readerScope: CoroutineScope? = null
     private var selected by mutableStateOf<DocumentRecord?>(null)
@@ -43,6 +44,7 @@ class MainActivity : ComponentActivity() {
     private var documents by mutableStateOf<List<DocumentRecord>>(emptyList())
     private var status by mutableStateOf("导入 PDF，或打开示例文档")
     private var showSettings by mutableStateOf(false)
+    private var showModelCatalog by mutableStateOf(false)
     private var importTask: Job? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -187,6 +189,13 @@ class MainActivity : ComponentActivity() {
         if (speedState.visible) SpeedTestDialog(speedState, onStart = speedTestViewModel::start,
             onCancel = speedTestViewModel::cancel, onClose = speedTestViewModel::dismiss,
             onExport = { if (speedTestViewModel.prepareExport()) speedExport.launch("pararead-speed-test.json") })
+        if (showModelCatalog) {
+            val catalogState by modelCatalogViewModel.state.collectAsState()
+            ModelCatalogDialog(catalogState, modelState.installed?.sha256, modelCatalogViewModel::query,
+                modelCatalogViewModel::search, modelCatalogViewModel::details, modelCatalogViewModel::back,
+                onDownload = { modelViewModel.manager.download(it); modelCatalogViewModel.stop(); showModelCatalog = false },
+                onClose = { modelCatalogViewModel.stop(); showModelCatalog = false })
+        }
     }
     @Composable private fun SettingsDialog(modelState: ModelState, onModel: () -> Unit, onSpeedTest: (Int) -> Unit, onImportGlossary: () -> Unit, onExportGlossary: () -> Unit, onSave: () -> Unit, onClose: () -> Unit) {
         var provider by remember { mutableStateOf(settings.provider) }; var url by remember { mutableStateOf(settings.baseUrl) }
@@ -204,6 +213,7 @@ class MainActivity : ComponentActivity() {
                     Text("默认：qwen3:1.7b · Q4_K_M · 思考模式已关闭")
                     Text("Ollama 官方模型源 · 1.36 GB · 下载后离线使用", style = MaterialTheme.typography.bodySmall)
                     Text(modelState.installed?.let { "本机模型：${it.sha256.take(12)} · ${it.bytes / 1048576} MiB" } ?: "尚无本机模型")
+                    if (modelState.installed != null && settings.modelLicense.isNotEmpty()) Text("模型许可：${settings.modelLicense}", style = MaterialTheme.typography.bodySmall)
                     ModelTransferProgress(modelState)
                     if (modelState.cancellable) TextButton(onClick = { modelViewModel.manager.cancel() }) { Text("取消模型下载或导入") }
                     else Button(enabled = !modelState.busy && modelState.installed?.sha256 != DefaultModel.asset.sha256,
@@ -218,6 +228,7 @@ class MainActivity : ComponentActivity() {
                         TextButton(enabled = !modelState.busy, onClick = onModel) { Text("导入 GGUF 模型") }
                         TextButton(enabled = !modelState.busy, onClick = { modelViewModel.manager.delete() }) { Text("删除本机模型") }
                     }
+                    Button(enabled = !modelState.busy, onClick = { showModelCatalog = true }) { Text("从 Hugging Face 搜索下载") }
                     OutlinedTextField(cpuThreads, { cpuThreads = it }, label = { Text("CPU 推理线程数") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), singleLine = true,
                         supportingText = { Text("0 = 自动（当前 ${CpuThreads.resolve(0)} 线程）；手动范围 1–${CpuThreads.maximum()}。保存后重新加载模型。") })

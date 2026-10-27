@@ -26,7 +26,7 @@ flowchart TB
 - `web/reader/src/upstream`：从固定 ParaRead 提交复制的阅读模块。保留句子切分、spanRange/PDF rects、结构化译文、双向高亮、30% 阅读锚点、同高滚动和连接线。
 - `bridge.ts` 将原 VS Code 消息适配至 Kotlin；`reading-order.ts` 在原分段器之后保守调整双栏块顺序，不重建句子 ID 或坐标。
 
-工具链：JDK 21、Gradle 8.14.3、AGP 8.13.2、Kotlin 2.2.20、Compose BOM 2025.08.01、Room 2.7.2、WebKit 1.14.0。API 28 起，compile/target 36，仅 ARM64。llama.cpp 固定 `2280f0fd163b03d4331d49e08460f66502e35854`，NDK 28.2.13676358，CMake 3.22.1，CPU Release 优化，16KiB ELF 对齐；未启用 GPU/OpenMP/KleidiAI。
+工具链：JDK 21、Gradle 8.14.3、AGP 8.13.2、Kotlin 2.2.20、Compose BOM 2025.08.01、Room 2.7.2、WebKit 1.14.0。API 28 起，compile/target 36，仅 ARM64。llama.cpp 固定 `2280f0fd163b03d4331d49e08460f66502e35854`，NDK 28.2.13676358，CMake 3.22.1，CPU Release 优化，16KiB ELF 对齐；未启用 GPU/OpenMP；KleidiAI v1.32.0 通过运行时 CPU 特征检测选择内核。
 
 ## ADR-01：保留单个 WebView 的原阅读语义
 

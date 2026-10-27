@@ -9,6 +9,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
 import org.junit.Assert.*
 import org.junit.Test
+import org.junit.Assume.assumeTrue
 import org.junit.runner.RunWith
 import org.pararead.core.*
 import java.io.Closeable
@@ -70,20 +71,41 @@ class ModelManagerTest {
         state.first { predicate(it) || it.phase == ModelPhase.ERROR }.also { check(predicate(it)) { "Unexpected model state: $it" } }
     }
 
+    @Test fun liveHuggingFaceSelectionDownloadsAndVerifies(): Unit = runBlocking {
+        assumeTrue("Opt in with hfLive=true", InstrumentationRegistry.getArguments().getString("hfLive") == "true")
+        val context = IsolatedContext(base); val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+        try {
+            val catalog = HuggingFaceCatalog()
+            assertTrue(catalog.search("LFM2.5-350M").any { it.id == "LiquidAI/LFM2.5-350M-GGUF" })
+            val details = catalog.details("LiquidAI/LFM2.5-350M-GGUF")
+            val asset = details.files.single { it.filename == "LFM2.5-350M-Q4_K_M.gguf" }.asset
+            val manager = ModelManager(context, scope)
+            withContext(Dispatchers.Main) { manager.download(asset) }
+            val ready = withTimeout(180000) { manager.state.first { it.installed?.sha256 == asset.sha256 && !it.busy || it.phase == ModelPhase.ERROR } }
+            assertEquals(ready.message, asset.sha256, ready.installed?.sha256)
+            assertEquals(asset.bytes, File(ready.installed!!.path).length())
+            assertEquals("lfm1.0", Settings(context).modelLicense)
+            File(base.filesDir, "hf-download-check.json").writeText(org.json.JSONObject().put("status", "passed")
+                .put("repository", asset.repository).put("revision", asset.revision).put("sha256", asset.sha256).put("bytes", asset.bytes).toString(2))
+        } finally { scope.cancel(); context.cleanup() }
+    }
+
     @Test fun downloadSurvivesMonitorRecreationThenDeletePreservesDocumentsAndCache(): Unit = runBlocking {
         val context = IsolatedContext(base); val bytes = payload
         var scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
         try { ModelServer(bytes, 20).use { server ->
-            val asset = spec(server, bytes)
-            val first = ModelManager(context, scope, asset)
-            withContext(Dispatchers.Main) { first.download() }
+            val asset = spec(server, bytes).copy(name = "LiquidAI/test · model.gguf", license = "lfm1.0", repository = "LiquidAI/test", revision = "a".repeat(40))
+            val first = ModelManager(context, scope)
+            withContext(Dispatchers.Main) { first.download(asset) }
             first.await { it.completed > 0 && it.phase == ModelPhase.DOWNLOADING }
             scope.cancel() // Network belongs to DownloadManager and continues without an Activity or monitor.
             scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
-            val resumed = ModelManager(context, scope, asset)
+            val resumed = ModelManager(context, scope)
             val ready = resumed.await { it.installed?.sha256 == asset.sha256 && !it.busy }
             assertEquals(bytes.size.toLong(), File(ready.installed!!.path).length())
-            assertEquals("llama", Settings(context).provider); assertEquals("qwen3:1.7b", Settings(context).model)
+            assertEquals("llama", Settings(context).provider); assertEquals(asset.name, Settings(context).model)
+            assertEquals("lfm1.0", Settings(context).modelLicense); assertEquals("LiquidAI/test", Settings(context).modelRepository)
+            assertEquals(asset.revision, Settings(context).modelRevision)
             withTimeout(5000) { while (context.getSharedPreferences("model-download", 0).getLong("id", 0) > 0) delay(10) }
             context.getSharedPreferences("model-download", 0).edit().putLong("id", Long.MAX_VALUE).putString("error", "下载任务已移除，请重试").commit()
             val reconciled = ModelManager(context, scope, asset)
@@ -136,6 +158,7 @@ class ModelManagerTest {
             withContext(Dispatchers.Main) { manager.import(Uri.fromFile(input)) }
             val ready = manager.await { it.installed != null && !it.busy }
             assertTrue(File(ready.installed!!.path).isFile)
+            assertEquals("input.gguf", Settings(context).model)
             withContext(Dispatchers.Main) { manager.delete() }; manager.await { it.message == "模型已删除" }
             assertTrue(input.exists())
         } finally { scope.cancel(); context.cleanup() }

@@ -1,0 +1,7 @@
+{
+  "repository": "https://github.com/ARM-software/kleidiai",
+  "tag": "v1.32.0",
+  "url": "https://github.com/ARM-software/kleidiai/releases/download/v1.32.0/kleidiai-v1.32.0-src.tar.gz",
+  "sha256": "a48d373e7c5d721a0aecbf5ddaf0bdf245bc8064e6b84086f13db0e102b553a6",
+  "license": "Apache-2.0 AND BSD-3-Clause"
+}

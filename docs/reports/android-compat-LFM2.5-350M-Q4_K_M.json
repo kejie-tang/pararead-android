@@ -1,0 +1,24 @@
+{
+  "device": "Google sdk_gphone64_arm64",
+  "model": "LFM2.5-350M-Q4_K_M.gguf",
+  "threads": 6,
+  "cases": [
+    {
+      "fixture": "short",
+      "status": "passed",
+      "raw": "{\"translations\":[{\"id\":\"s1\",\"translation\":\"高效的记忆转换方法\"}]}",
+      "generatedTokens": 26,
+      "tokensPerSecond": 102.33888636595107
+    },
+    {
+      "fixture": "protected-batch",
+      "status": "failed",
+      "error": "java.lang.IllegalArgumentException: PROTECTED_TOKEN_MISMATCH",
+      "raw": "{\"translations\":[{\"id\":\"s1\",\"translation\":\"处理了P0页面\"}, {\"id\":\"s2\",\"translation\":\"对于P3保持公式\"}]}",
+      "generatedTokens": 40,
+      "tokensPerSecond": 128.93034403431338
+    }
+  ],
+  "systemInfo": "CPU : NEON = 1 | ARM_FMA = 1 | LLAMAFILE = 1 | KLEIDIAI = 1 | REPACK = 1 | ",
+  "architecture": "lfm2"
+}

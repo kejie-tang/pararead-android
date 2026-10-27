@@ -1,0 +1,24 @@
+{
+  "device": "Google sdk_gphone64_arm64",
+  "model": "LFM2.5-1.2B-Instruct-Q4_K_M.gguf",
+  "threads": 6,
+  "cases": [
+    {
+      "fixture": "short",
+      "status": "passed",
+      "raw": "{\"translations\": [{\"id\": \"s1\", \"translation\": \"我们提出一种内存高效的方法用于将科学文档翻译\"}]}",
+      "generatedTokens": 37,
+      "tokensPerSecond": 55.60491602281083
+    },
+    {
+      "fixture": "protected-batch",
+      "status": "failed",
+      "error": "java.lang.IllegalArgumentException: PROTECTED_TOKEN_MISMATCH",
+      "raw": "{\"translations\": [{\"id\": \"s1\", \"translation\": \"模型处理⟨P0⟩页面，使用⟦P1⟩的内存⟦P2⟩.\"}, {\"id\": \"s2\", \"translation\": \"对于⟦P3⟩，保留方程并查看⟦P4⟩.\"}]}",
+      "generatedTokens": 92,
+      "tokensPerSecond": 53.159318722629024
+    }
+  ],
+  "systemInfo": "CPU : NEON = 1 | ARM_FMA = 1 | LLAMAFILE = 1 | KLEIDIAI = 1 | REPACK = 1 | ",
+  "architecture": "lfm2"
+}

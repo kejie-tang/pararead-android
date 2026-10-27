@@ -17,9 +17,12 @@ import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
 
 /** All model/context operations share one executor. cancel() only sets the native atomic abort flag. */
-class LlamaCppProvider(private val path: String, requestedThreads: Int = 0, private val singleResult: Boolean = false) : MeasuredTranslationProvider {
+class LlamaCppProvider(private val path: String, requestedThreads: Int = 0, private val singleResult: Boolean = false,
+    private val constrainJson: Boolean = true) : MeasuredTranslationProvider {
     val threadCount = CpuThreads.resolve(requestedThreads)
     @Volatile override var metrics: GenerationMetrics? = null
+        private set
+    @Volatile var architecture: String = "unloaded"
         private set
     private val executor = Executors.newSingleThreadExecutor { r -> Thread(r, "pararead-llama") }
     private val handle = AtomicLong()
@@ -27,19 +30,22 @@ class LlamaCppProvider(private val path: String, requestedThreads: Int = 0, priv
     private val nativeLock = Any()
     override fun generate(prompt: ModelPrompt) = callbackFlow {
         check(!closed.get()) { "MODEL_CLOSED" }
-        require(path.isNotEmpty()) { "请先一键下载或导入 qwen3:1.7b GGUF 模型" }
+        require(path.isNotEmpty()) { "请先下载或导入支持的 GGUF 模型" }
         val cancelled = AtomicBoolean()
         val stopped = CompletableDeferred<Unit>()
         executor.execute {
             try {
                 metrics = null
                 check(!closed.get() && !cancelled.get())
-                if (handle.get() == 0L) handle.set(NativeBridge.load(path, threadCount))
+                if (handle.get() == 0L) {
+                    handle.set(NativeBridge.load(path, threadCount))
+                    architecture = NativeBridge.architecture(handle.get())
+                }
                 if (cancelled.get() || closed.get()) return@execute
                 val decoder = Charsets.UTF_8.newDecoder().onMalformedInput(CodingErrorAction.REPORT)
                 var pending = ByteArray(0)
                 val output = StringBuilder()
-                val input = Qwen3ChatTemplate.render(prompt)
+                val input = ModelChatTemplate.render(architecture, prompt)
                 val callback = object : TokenCallback {
                     override fun onBytes(bytes: ByteArray): Boolean {
                         if (cancelled.get() || closed.get()) return false
@@ -52,11 +58,11 @@ class LlamaCppProvider(private val path: String, requestedThreads: Int = 0, priv
                         return true
                     }
                 }
-                val measured = NativeBridge.generate(handle.get(), input, callback, singleResult)
+                val measured = NativeBridge.generate(handle.get(), input, callback, if (singleResult) 1 else prompt.expectedResults, constrainJson)
                 check(!cancelled.get()) { "INFERENCE_CANCELLED" }
                 check(pending.isEmpty()) { "INCOMPLETE_UTF8_TOKEN" }
-                check(measured.size == 4) { "INVALID_NATIVE_TOKEN_METRICS" }
-                metrics = GenerationMetrics(measured[0], measured[1], measured[2], measured[3])
+                check(measured.size == 7) { "INVALID_NATIVE_TOKEN_METRICS" }
+                metrics = GenerationMetrics(measured[0], measured[1], measured[2], measured[3], measured[4], measured[5], measured[6])
                 check(trySendBlocking(ProviderEvent.Complete(output.toString())).isSuccess) { "OUTPUT_CHANNEL_CLOSED" }; close()
             } catch (e: Throwable) { close(e) }
             finally { stopped.complete(Unit) }
@@ -82,13 +88,38 @@ class LlamaCppProvider(private val path: String, requestedThreads: Int = 0, priv
             while (!executor.awaitTermination(1, TimeUnit.SECONDS)) { /* native load may still be finishing */ }
         }
     }
+    suspend fun benchmark(promptTokens: Int = 512, generatedTokens: Int = 128): DoubleArray {
+        val result = CompletableDeferred<DoubleArray>()
+        check(!closed.get()) { "MODEL_CLOSED" }
+        executor.execute {
+            try {
+                check(!closed.get()) { "MODEL_CLOSED" }
+                if (handle.get() == 0L) {
+                    handle.set(NativeBridge.load(path, threadCount)); architecture = NativeBridge.architecture(handle.get())
+                }
+                val callback = object : TokenCallback { override fun onBytes(bytes: ByteArray) = !result.isCancelled && !closed.get() }
+                if (!result.isCancelled && !closed.get()) result.complete(NativeBridge.benchmark(handle.get(), promptTokens, generatedTokens, callback))
+                else result.cancel()
+            } catch (e: Throwable) { result.completeExceptionally(e) }
+        }
+        try { return result.await() }
+        finally {
+            if (!result.isCompleted) {
+                result.cancel()
+                synchronized(nativeLock) { handle.get().takeIf { it != 0L }?.let { NativeBridge.cancel(it) } }
+            }
+        }
+    }
 }
 private fun java.nio.charset.CoderResult.throwIfError() { if (isError) throwException() }
 interface TokenCallback { fun onBytes(bytes: ByteArray): Boolean }
 object NativeBridge {
     init { System.loadLibrary("pararead-llama") }
     external fun load(path: String, threads: Int): Long
-    external fun generate(handle: Long, prompt: String, callback: TokenCallback, singleResult: Boolean): LongArray
+    external fun generate(handle: Long, prompt: String, callback: TokenCallback, expectedResults: Int, constrainJson: Boolean): LongArray
+    external fun architecture(handle: Long): String
+    external fun systemInfo(): String
+    external fun benchmark(handle: Long, promptTokens: Int, generatedTokens: Int, callback: TokenCallback): DoubleArray
     external fun cancel(handle: Long)
     external fun free(handle: Long)
     external fun version(): String

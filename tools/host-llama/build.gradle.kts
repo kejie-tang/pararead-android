@@ -11,16 +11,20 @@ dependencies {
 }
 val nativeDir = layout.buildDirectory.dir("native")
 val cmake = providers.gradleProperty("cmakePath").orElse("cmake")
+val kleidiai = providers.gradleProperty("kleidiai").orElse("ON")
 val configureHostNative by tasks.registering(Exec::class) {
     commandLine(cmake.get(), "-S", projectDir, "-B", nativeDir.get().asFile,
-        "-DLLAMA_SOURCE=${rootProject.file(".references/llama.cpp")}", "-DCMAKE_BUILD_TYPE=Release")
+        "-DLLAMA_SOURCE=${rootProject.file(".references/llama.cpp")}", "-DCMAKE_BUILD_TYPE=Release", "-DPARAREAD_KLEIDIAI=${kleidiai.get()}")
+    inputs.property("kleidiai", kleidiai)
     inputs.file("CMakeLists.txt")
     inputs.file(rootProject.file("upstream/llama.lock.json"))
+    inputs.file(rootProject.file("upstream/kleidiai.lock.json"))
     outputs.file(nativeDir.map { it.file("CMakeCache.txt") })
 }
 val buildHostNative by tasks.registering(Exec::class) {
     dependsOn(configureHostNative)
     commandLine(cmake.get(), "--build", nativeDir.get().asFile, "--target", "pararead-llama", "--parallel", "4")
+    inputs.property("kleidiai", kleidiai)
     inputs.file(rootProject.file("engine/llama/src/main/cpp/llama_jni.cpp"))
     inputs.file("CMakeLists.txt")
     inputs.file(rootProject.file("upstream/llama.lock.json"))

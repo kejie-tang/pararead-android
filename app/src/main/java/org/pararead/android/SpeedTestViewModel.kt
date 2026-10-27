@@ -8,6 +8,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.json.JSONObject
+import org.json.JSONArray
 import org.pararead.core.*
 import org.pararead.llama.LlamaCppProvider
 import org.pararead.llama.NativeBridge
@@ -81,13 +82,27 @@ class SpeedTestViewModel(app: Application) : AndroidViewModel(app) {
                 val result = SpeedTest.run(provider) { index ->
                     mutable.value = state.value.copy(run = index, message = if (index == 1) "首次加载 · 第 1 / 4 次" else "模型已加载 · 第 $index / 4 次")
                 }
+                val engineSamples = JSONArray()
+                for (index in 1..3) {
+                    mutable.value = state.value.copy(run = index + 4, message = "纯引擎 pp512 / tg128 · 第 $index / 3 次")
+                    val measured = withTimeout(120_000) { provider.benchmark() }
+                    check(measured.size == 4 && measured.all { it.isFinite() && it > 0 }) { "INVALID_ENGINE_BENCHMARK" }
+                    engineSamples.put(JSONObject().put("promptTokens", 512).put("generatedTokens", 128)
+                        .put("prefillTokensPerSecond", measured[0]).put("decodeTokensPerSecond", measured[1])
+                        .put("prefillMs", measured[2]).put("decodeMs", measured[3]))
+                }
                 val metadata = JSONObject().put("startedAtEpochMs", started).put("appVersion", BuildConfig.VERSION_NAME)
                     .put("device", "${Build.MANUFACTURER} ${Build.MODEL}").put("hardware", Build.HARDWARE)
                     .put("androidApi", Build.VERSION.SDK_INT).put("abis", Build.SUPPORTED_ABIS.joinToString())
                     .put("modelSha256", model.sha256).put("modelBytes", model.bytes)
+                    .put("modelName", Settings(getApplication()).model).put("modelLicense", Settings(getApplication()).modelLicense)
+                    .put("modelRepository", Settings(getApplication()).modelRepository).put("modelRevision", Settings(getApplication()).modelRevision)
                     .put("requestedThreads", request.requestedThreads).put("effectiveThreads", provider.threadCount)
                     .put("availableProcessors", CpuThreads.maximum()).put("engine", NativeBridge.version())
                     .put("singleResultGrammar", true)
+                    .put("architecture", provider.architecture).put("systemInfo", NativeBridge.systemInfo())
+                    .put("engineBenchmarkProtocol", "16-token warmup; pp512 then tg128; pl1; 3 runs; no grammar/sampler/callback; ctx4096; batch512; ubatch128")
+                    .put("engineSamples", engineSamples)
                 report = SavedSpeedReport(result, metadata)
             } catch (_: TimeoutCancellationException) {
                 failure = "单次测试超过 120 秒，请减少线程数或检查模型后重试"

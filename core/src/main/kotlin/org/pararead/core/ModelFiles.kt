@@ -10,14 +10,15 @@ import java.security.MessageDigest
 import java.util.UUID
 import kotlin.coroutines.coroutineContext
 
-data class ModelAsset(val name: String, val url: String, val bytes: Long, val sha256: String)
+data class ModelAsset(val name: String, val url: String, val bytes: Long, val sha256: String,
+    val license: String = "", val repository: String = "", val revision: String = "")
 data class InstalledModel(val path: String, val sha256: String, val bytes: Long)
 
 object DefaultModel {
     // Ollama library/qwen3:1.7b model layer, pinned by content digest, Q4_K_M / Apache-2.0.
     val asset = ModelAsset("qwen3:1.7b",
         "https://registry.ollama.ai/v2/library/qwen3/blobs/sha256:3d0b790534fe4b79525fc3692950408dca41171676ed7e21db57af5c65ef6ab6",
-        1359279776L, "3d0b790534fe4b79525fc3692950408dca41171676ed7e21db57af5c65ef6ab6")
+        1359279776L, "3d0b790534fe4b79525fc3692950408dca41171676ed7e21db57af5c65ef6ab6", "Apache-2.0")
 }
 
 /** Publish complete, verified files by rename. A failed transfer never replaces an installed model. */

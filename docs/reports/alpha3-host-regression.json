@@ -1,0 +1,113 @@
+{
+  "date": "2026-10-27",
+  "modelBytes": 1359279776,
+  "physicalAndroidDevice": false,
+  "modelSha256": "3d0b790534fe4b79525fc3692950408dca41171676ed7e21db57af5c65ef6ab6",
+  "cases": [
+    {
+      "deltaEventsAreTokenCounts": false,
+      "translations": [{
+        "translation": "我们提出一种内存高效的方法，用于翻译科学文档。",
+        "id": "p1-b1-s1",
+        "source": "We propose a memory-efficient method for translating scientific documents."
+      }],
+      "firstDeltaMs": 3224.825417,
+      "totalMs": 3904.346125,
+      "name": "cold-single",
+      "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"我们提出一种内存高效的方法，用于翻译科学文档。\"\n    }\n  ]\n}",
+      "generationMs": 3891.610792,
+      "deltaEvents": 39,
+      "status": "passed"
+    },
+    {
+      "deltaEventsAreTokenCounts": false,
+      "translations": [
+        {
+          "translation": "模型使用 4 GB 的内存 [12] 处理 100 页。",
+          "id": "p1-b2-s1",
+          "source": "The model processes 100 pages using 4 GB of memory [12]."
+        },
+        {
+          "translation": "对于 $E=mc^2$，保留方程并查看 https://example.org/paper.。",
+          "id": "p1-b2-s2",
+          "source": "For $E=mc^2$, retain the equation and see https://example.org/paper."
+        },
+        {
+          "translation": "注意力机制使用键值缓存；代码为 `cache.get(key)`。",
+          "id": "p1-b2-s3",
+          "source": "The attention mechanism uses a key-value cache; the code is `cache.get(key)`."
+        },
+        {
+          "translation": "所提出的方法通过 12.5% 降低延迟，而不会改变输入顺序。",
+          "id": "p1-b2-s4",
+          "source": "The proposed method reduces latency by 12.5% without changing the input order."
+        }
+      ],
+      "firstDeltaMs": 636.933625,
+      "totalMs": 3656.89025,
+      "name": "warm-batch-four-with-protected-spans",
+      "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"模型使用 ⟦P1⟧ 的内存 ⟦P2⟧ 处理 ⟦P0⟧ 页。\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"对于 ⟦P3⟧，保留方程并查看 ⟦P4⟧。\"\n    },\n    {\n      \"id\": \"s3\",\n      \"translation\": \"注意力机制使用键值缓存；代码为 ⟦P5⟧。\"\n    },\n    {\n      \"id\": \"s4\",\n      \"translation\": \"所提出的方法通过 ⟦P6⟧ 降低延迟，而不会改变输入顺序。\"\n    }\n  ]\n}",
+      "generationMs": 3655.688959,
+      "deltaEvents": 159,
+      "status": "passed"
+    },
+    {
+      "reopenProviderCalls": 0,
+      "initialProviderCalls": 1,
+      "translations": [
+        {
+          "translation": "模型使用 4 GB 的内存 [12] 处理 100 页。",
+          "id": "p1-b2-s1",
+          "source": "The model processes 100 pages using 4 GB of memory [12]."
+        },
+        {
+          "translation": "对于 $E=mc^2$，保留方程并查看 https://example.org/paper.。",
+          "id": "p1-b2-s2",
+          "source": "For $E=mc^2$, retain the equation and see https://example.org/paper."
+        },
+        {
+          "translation": "注意力机制使用键值缓存；代码为 `cache.get(key)`。",
+          "id": "p1-b2-s3",
+          "source": "The attention mechanism uses a key-value cache; the code is `cache.get(key)`."
+        },
+        {
+          "translation": "所提出的方法通过 12.5% 降低延迟，而不会改变输入顺序。",
+          "id": "p1-b2-s4",
+          "source": "The proposed method reduces latency by 12.5% without changing the input order."
+        }
+      ],
+      "totalMs": 3544.885541,
+      "name": "real-queue-repair-and-cache-reopen",
+      "cacheEntries": 4,
+      "attempts": [{
+        "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes ⟦P0⟧ pages using ⟦P1⟧ of memory ⟦P2⟧.\"},{\"id\":\"s2\",\"text\":\"For ⟦P3⟧, retain the equation and see ⟦P4⟧\"},{\"id\":\"s3\",\"text\":\"The attention mechanism uses a key-value cache; the code is ⟦P5⟧.\"},{\"id\":\"s4\",\"text\":\"The proposed method reduces latency by ⟦P6⟧ without changing the input order.\"}]}\n/no_think",
+        "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"模型使用 ⟦P1⟧ 的内存 ⟦P2⟧ 处理 ⟦P0⟧ 页。\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"对于 ⟦P3⟧，保留方程并查看 ⟦P4⟧。\"\n    },\n    {\n      \"id\": \"s3\",\n      \"translation\": \"注意力机制使用键值缓存；代码为 ⟦P5⟧。\"\n    },\n    {\n      \"id\": \"s4\",\n      \"translation\": \"所提出的方法通过 ⟦P6⟧ 降低延迟，而不会改变输入顺序。\"\n    }\n  ]\n}"
+      }],
+      "status": "passed"
+    },
+    {
+      "deltaEventsAreTokenCounts": false,
+      "cancelAndJoinMs": 0.834625,
+      "translations": [{
+        "translation": "我们提出一种内存高效的方法，用于翻译科学文档。",
+        "id": "p1-b1-s1",
+        "source": "We propose a memory-efficient method for translating scientific documents."
+      }],
+      "firstDeltaMs": 415.451792,
+      "totalMs": 1708.001541,
+      "name": "cancel-stream-and-infer-again",
+      "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"我们提出一种内存高效的方法，用于翻译科学文档。\"\n    }\n  ]\n}",
+      "generationMs": 1074.160584,
+      "deltaEvents": 39,
+      "status": "passed"
+    }
+  ],
+  "configuration": "CPU; 6 threads; ctx4096; batch512; ubatch128; no Metal/BLAS/Accelerate",
+  "modelTag": "qwen3:1.7b",
+  "requestedThreads": 6,
+  "platform": "Mac OS X aarch64",
+  "provider": "jni",
+  "engine": "llama.cpp@2280f0fd163b03d4331d49e08460f66502e35854;cpu;arm64;ctx4096;proposal-exact-grammar-v3",
+  "effectiveThreads": 6,
+  "status": "passed"
+}

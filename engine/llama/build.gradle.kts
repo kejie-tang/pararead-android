@@ -7,7 +7,8 @@ android {
         minSdk = 28
         ndk { abiFilters += "arm64-v8a" }
         if (!providers.gradleProperty("skipNative").isPresent) {
-            externalNativeBuild { cmake { arguments += listOf("-DLLAMA_SOURCE=${rootDir}/.references/llama.cpp", "-DCMAKE_BUILD_TYPE=Release") } }
+            externalNativeBuild { cmake { arguments += listOf("-DLLAMA_SOURCE=${rootDir}/.references/llama.cpp", "-DCMAKE_BUILD_TYPE=Release",
+                "-DPARAREAD_KLEIDIAI=${providers.gradleProperty("kleidiai").getOrElse("ON")}") } }
         }
     }
     if (!providers.gradleProperty("skipNative").isPresent) {

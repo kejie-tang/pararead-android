@@ -58,4 +58,14 @@ class SpeedTestTest {
         assertFailsWith<IllegalArgumentException> { GenerationMetrics(10, 0, 10, 10) }
         assertFailsWith<IllegalArgumentException> { SpeedSample(20.0, 10.0, GenerationMetrics(1, 1, 1, 1), "译文") }
     }
+    @Test fun previousShortReportsStillLoadWithoutNewTimingFields() {
+        val sample = SpeedSample(1.0, 3.0, GenerationMetrics(10, 4, 100, 200), "译文")
+        val old = SpeedTestResult(List(4) { sample }).toJson().put("methodVersion", 1)
+        repeat(4) { index -> old.getJSONArray("samples").getJSONObject(index).apply {
+            remove("samplingNanos"); remove("decodeNanos"); remove("callbackNanos")
+        } }
+        val restored = SpeedTestResult.fromJson(old)
+        assertEquals(SpeedTest.SOURCE, restored.source)
+        assertEquals(0L, restored.first.metrics.samplingNanos)
+    }
 }

@@ -2,7 +2,10 @@ llama.cpp and ggml, MIT License. Copyright (c) 2023-2026 The ggml authors.
 Pinned source: ggml-org/llama.cpp@2280f0fd163b03d4331d49e08460f66502e35854
 405 CPU build source blobs are verified by upstream/llama.lock.json.
 The Android JNI wrapper in engine/llama is original project code.
-CPU-only; common, examples, server, mtmd, Vulkan and KleidiAI are disabled.
+CPU-only; common, examples, server, mtmd and Vulkan are disabled.
+KleidiAI v1.32.0 Arm CPU kernels are enabled with runtime feature dispatch.
+Copyright 2024-2026 Arm Limited and/or its affiliates.
+KleidiAI source is Apache-2.0 AND BSD-3-Clause; full texts in third_party/kleidiai.
 llamafile CPU multiplication: Copyright 2024 Mozilla Foundation, MIT (included).
 Hash support vendor sources: xxHash BSD-2-Clause; rotate-bits MIT;
 SHA-1 by Steve Reid and SHA-256 by Igor Pavlov are public domain.

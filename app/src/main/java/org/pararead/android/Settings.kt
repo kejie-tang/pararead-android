@@ -27,11 +27,15 @@ class Settings(context: Context) {
     var cpuThreads: Int
         get() = prefs.getInt("cpuThreads", 0).coerceAtLeast(0)
         set(value) { require(value in 0..CpuThreads.maximum()); prefs.edit().putInt("cpuThreads", value).apply() }
-    fun installModel(path: String, hash: String, name: String) {
-        prefs.edit(commit = true) { putString("modelPath", path); putString("modelHash", hash); putString("model", name); putString("provider", "llama") }
+    val modelLicense: String get() = prefs.getString("modelLicense", "")!!
+    val modelRepository: String get() = prefs.getString("modelRepository", "")!!
+    val modelRevision: String get() = prefs.getString("modelRevision", "")!!
+    fun installModel(path: String, hash: String, name: String, license: String = "", repository: String = "", revision: String = "") {
+        prefs.edit(commit = true) { putString("modelPath", path); putString("modelHash", hash); putString("model", name); putString("provider", "llama")
+            putString("modelLicense", license); putString("modelRepository", repository); putString("modelRevision", revision) }
     }
     fun clearModel() {
-        prefs.edit(commit = true) { remove("modelPath"); remove("modelHash") }
+        prefs.edit(commit = true) { remove("modelPath"); remove("modelHash"); remove("modelLicense"); remove("modelRepository"); remove("modelRevision") }
     }
     var translateRange: String get() = prefs.getString("translateRange", "nearby")!!; set(v) { prefs.edit().putString("translateRange", v).apply() }
     var apiKey: String

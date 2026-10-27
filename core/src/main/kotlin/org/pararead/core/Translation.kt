@@ -17,7 +17,7 @@ data class TranslationConfig(
 ) {
     // Preserve native cache keys written before the default display name became the Ollama tag.
     fun fingerprint() = listOf(provider, if (provider == "llama" && model == "qwen3:1.7b") "Qwen3-1.7B" else model, modelHash, sourceLanguage, targetLanguage, canonicalGlossary(glossary),
-        "prompt=5", "validator=4", "template=qwen3-no-think-v1", "nativeGrammar=translation-json-v1").joinToString("\u0000")
+        "prompt=5", "validator=4", "template=qwen3-no-think-v1", "nativeGrammar=exact-translation-json-v3").joinToString("\u0000")
 }
 fun sha256(text: String): String = MessageDigest.getInstance("SHA-256").digest(text.toByteArray()).joinToString("") { "%02x".format(it) }
 fun contentKey(text: String, config: TranslationConfig): String = sha256(Normalizer.normalize(text, Normalizer.Form.NFC).replace(Regex("\\s+"), " ").trim() + "\u0000" + config.fingerprint())
@@ -32,7 +32,7 @@ sealed interface ProviderEvent {
     data class Delta(val text: String) : ProviderEvent
     data class Complete(val text: String) : ProviderEvent
 }
-data class ModelPrompt(val system: String, val user: String)
+data class ModelPrompt(val system: String, val user: String, val expectedResults: Int = 0)
 interface TranslationProvider : AutoCloseable {
     fun generate(prompt: ModelPrompt): Flow<ProviderEvent>
     override fun close() {}
@@ -99,7 +99,7 @@ object StructuredTranslation {
         val system = "Translate from ${c.sourceLanguage} to ${c.targetLanguage}. Return only JSON: {\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}. " +
             "Exactly one entry per provided id. Copy ALL ⟦Pn⟧ placeholders from EACH input sentence exactly once, including citations. " +
             "Preserve terms, code, equations and references. No reasoning. Glossary: $terms"
-        return ModelPrompt(system, JSONObject().put("sentences", rows).toString() + "\n/no_think") to values
+        return ModelPrompt(system, JSONObject().put("sentences", rows).toString() + "\n/no_think", sentences.size) to values
     }
     fun validate(raw: String, sentences: List<SourceSentence>, protected: List<ProtectedText>): List<Pair<SourceSentence, String>> {
         require(raw.toByteArray().size <= 262144) { "OUTPUT_TOO_LARGE" }

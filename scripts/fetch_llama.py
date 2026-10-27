@@ -6,6 +6,8 @@ import json
 from pathlib import Path
 import urllib.request
 import time
+import subprocess
+import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 lock = json.loads((ROOT / 'upstream/llama.lock.json').read_text())
@@ -38,3 +40,4 @@ if __name__ == '__main__':
         for i, _ in enumerate(pool.map(fetch, lock['files']), 1):
             if i % 25 == 0: print(f'{i}/{len(lock["files"])} verified', flush=True)
     print(f'{len(lock["files"])} pinned llama.cpp source blobs verified')
+    subprocess.run([sys.executable, str(ROOT / 'scripts/fetch_kleidiai.py')], check=True)

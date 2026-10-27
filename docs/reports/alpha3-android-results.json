@@ -1,0 +1,163 @@
+{
+  "tests": [
+    {
+      "name": "org.pararead.android.ReaderIntegrationTest.rangesSupportLongOffsetsConcurrentReadsAndDraftBoundary",
+      "attempts": [
+        {
+          "log": "android-regression.log",
+          "status": "passed"
+        }
+      ],
+      "finalStatus": "passed"
+    },
+    {
+      "name": "org.pararead.android.ReaderIntegrationTest.arm64JniReaderCacheDraftAndRecovery",
+      "attempts": [
+        {
+          "log": "android-regression.log",
+          "status": "passed"
+        }
+      ],
+      "finalStatus": "passed"
+    },
+    {
+      "name": "org.pararead.android.ModelManagerTest.liveHuggingFaceSelectionDownloadsAndVerifies",
+      "attempts": [
+        {
+          "log": "android-regression.log",
+          "status": "passed"
+        }
+      ],
+      "finalStatus": "passed"
+    },
+    {
+      "name": "org.pararead.android.ModelManagerTest.cancelRemovesTransferAndRetryCanInstall",
+      "attempts": [
+        {
+          "log": "android-regression.log",
+          "status": "passed"
+        }
+      ],
+      "finalStatus": "passed"
+    },
+    {
+      "name": "org.pararead.android.ModelManagerTest.manualGgufImportUsesSameManagedStorage",
+      "attempts": [
+        {
+          "log": "android-regression.log",
+          "status": "passed"
+        }
+      ],
+      "finalStatus": "passed"
+    },
+    {
+      "name": "org.pararead.android.ModelManagerTest.failedHashKeepsOldModelAndCanRetryWithCorrectDigest",
+      "attempts": [
+        {
+          "log": "android-regression.log",
+          "status": "passed"
+        }
+      ],
+      "finalStatus": "passed"
+    },
+    {
+      "name": "org.pararead.android.ModelManagerTest.downloadSurvivesMonitorRecreationThenDeletePreservesDocumentsAndCache",
+      "attempts": [
+        {
+          "log": "android-regression.log",
+          "status": "passed"
+        }
+      ],
+      "finalStatus": "passed"
+    },
+    {
+      "name": "org.pararead.android.CpuThreadsSettingsTest.settingsReachANewProviderAndDoNotInvalidateTranslations",
+      "attempts": [
+        {
+          "log": "android-regression.log",
+          "status": "passed"
+        }
+      ],
+      "finalStatus": "passed"
+    },
+    {
+      "name": "org.pararead.android.WholeDocumentRecoveryTest.interruptedReaderResumesFromDurableCursorAndReusesPartialPageCache",
+      "attempts": [
+        {
+          "log": "android-regression.log",
+          "status": "passed"
+        }
+      ],
+      "finalStatus": "passed"
+    },
+    {
+      "name": "org.pararead.android.WholeDocumentRecoveryTest.explicitCancelDoesNotAutoResumeAndChangedConfigurationStartsANewJob",
+      "attempts": [
+        {
+          "log": "android-regression.log",
+          "status": "passed"
+        }
+      ],
+      "finalStatus": "passed"
+    },
+    {
+      "name": "org.pararead.android.ModelCatalogUiTest.settingsOpensSearchAndCloseReturnsToSettings",
+      "attempts": [
+        {
+          "log": "android-regression.log",
+          "status": "failed"
+        },
+        {
+          "log": "catalog-ui-retest.log",
+          "status": "passed"
+        }
+      ],
+      "finalStatus": "passed"
+    },
+    {
+      "name": "org.pararead.android.ModelCatalogUiTest.selectedFileDisplaysLicenseSizeAndDownloadsThePinnedAsset",
+      "attempts": [
+        {
+          "log": "android-regression.log",
+          "status": "passed"
+        },
+        {
+          "log": "catalog-ui-retest.log",
+          "status": "passed"
+        }
+      ],
+      "finalStatus": "passed"
+    },
+    {
+      "name": "org.pararead.android.SpeedTestUiTest.missingModelDisablesSpeedTestEntry",
+      "attempts": [
+        {
+          "log": "speed-ui.log",
+          "status": "passed"
+        }
+      ],
+      "finalStatus": "passed"
+    },
+    {
+      "name": "org.pararead.android.SpeedTestUiTest.realModelResultsSurviveRotationCancellationAndPersistence",
+      "attempts": [
+        {
+          "log": "speed-ui.log",
+          "status": "passed"
+        }
+      ],
+      "finalStatus": "passed"
+    },
+    {
+      "name": "org.pararead.android.SpeedTestUiTest.cancelledCallerFinishesModelRelease",
+      "attempts": [
+        {
+          "log": "speed-ui.log",
+          "status": "passed"
+        }
+      ],
+      "finalStatus": "passed"
+    }
+  ],
+  "note": "Initial catalog close-button locator ambiguity fixed; both catalog tests reran successfully. No failing model fixture is counted as a format pass."
+}

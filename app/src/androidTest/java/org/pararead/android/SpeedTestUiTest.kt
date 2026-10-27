@@ -80,12 +80,14 @@ class SpeedTestUiTest {
             scenario.recreate()
             scenario.onActivity { assertSame(vm, ViewModelProvider(it)[SpeedTestViewModel::class.java]) }
             compose.onNodeWithText("离线模型速度测试").assertExists()
-            compose.waitUntil(180_000) { !vm!!.state.value.busy }
+            compose.waitUntil(360_000) { !vm!!.state.value.busy }
             assertEquals(vm!!.state.value.message, SpeedPhase.COMPLETED, vm!!.state.value.phase)
             val report = vm!!.state.value.report!!
             assertEquals(4, report.result.samples.size)
             assertTrue(report.result.samples.all { it.metrics.generatedTokens > 1 && it.metrics.tokensPerSecond > 0 })
-            assertEquals(SpeedTest.SOURCE, report.toJson().getString("source"))
+            assertEquals(SpeedTest.LONG_SOURCE, report.toJson().getString("source"))
+            assertEquals(3, report.metadata.getJSONArray("engineSamples").length())
+            assertTrue(report.result.samples.all { it.metrics.decodeNanos > 0 && it.metrics.samplingNanos > 0 })
             File(context.filesDir, "app-speed-test.json").writeText(report.toJson().toString(2))
             compose.onNodeWithText("生成速度：", substring = true).performScrollTo().assertExists()
             compose.onNodeWithText("导出测速结果 JSON").performScrollTo().assertIsEnabled()

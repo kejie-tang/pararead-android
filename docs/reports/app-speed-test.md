@@ -1,4 +1,10 @@
-# In-app speed test — 0.2.0-alpha.2
+# In-app speed test — 0.2.0-alpha.3
+
+The table and screenshot below retain the **alpha.2 short-sentence observation**. Current alpha.3 uses the 158-word original `SpeedTest.LONG_SOURCE`, then three pure-engine pp512 → tg128 runs (single sequence, 16-token warmup, ctx4096/batch512/ubatch128). Exports add native decode, sampling/grammar and callback intervals. Method version 2 loads historical method-1 reports without relabeling their source. See [the new format matrix and performance investigation](model-compatibility.md) and [the new Android raw results](app-speed-test-android-alpha3.json).
+
+![alpha.3 long translation and raw engine results on the ARM64 emulator](app-speed-test-alpha3.png)
+
+## Historical alpha.2 method and observation
 
 Open **设置 → 离线 GGUF → 速度测试**, then tap **开始测速**. Download or import a model first. The test uses the thread count currently entered in Settings without saving that edit. It always runs the local GGUF engine, including when the reader previously used another provider or target language.
 

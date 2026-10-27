@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-27",
+  "appVersion": "0.2.0-alpha.3",
+  "physicalDimensity9400Tested": false,
+  "coreTests": 33,
+  "sourceContractTests": 16,
+  "androidBridgeTests": 13,
+  "readerTypes": "passed",
+  "androidUniqueChecks": 18,
+  "androidCatalogRetest": "2/2 passed after fixing an ambiguous test-only close-button locator",
+  "liveHuggingFaceDownload": "passed; 229312224 bytes; pinned revision and SHA-256",
+  "hostProductionRegression": "4/4 passed",
+  "hostFormatMatrix": "See model-matrix-optimized.json; LFM placeholder failures retained",
+  "assembly": "passed",
+  "lintDebug": "passed",
+  "apkSignature": "v2 verified; same local debug certificate as alpha.2",
+  "zipAndElf16KiBAlignment": "passed",
+  "soleOriginalSampleNoBundledModelsAndAllNotices": "passed",
+  "certificateSha256": "e044c8f329f42465866add4d041f29c498009361241610c8ee2de43ae6e87a45",
+  "distribution": {
+    "ParaRead-0.2.0-alpha.3-android-arm64-debug.apk": {
+      "bytes": 51377289,
+      "sha256": "b6aec0fb753bcbf157482c47048d9a46dd2919b3c9bb077c177a4e6c08a0a76a"
+    },
+    "ParaRead-0.2.0-alpha.3-android-arm64-debug-notices.zip": {
+      "bytes": 54543,
+      "sha256": "44e3bf2545b964ea919376c1355e78586b5e01e3277d0327aab59173d8b8fb1e"
+    }
+  }
+}

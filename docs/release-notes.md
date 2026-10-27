@@ -1,16 +1,13 @@
-ParaRead Android 开发预览版：非官方 Android 平板移植与扩展。
+ParaRead Android 0.2.0-alpha.3 — development preview / 开发预览版
 
-- 句子级双语 PDF 阅读、双向定位、同步滚动。
-- ARM64 llama.cpp 本地翻译；默认 Qwen3 GGUF 单独下载，不包含在 APK 中。
-- 模型下载/校验/删除、CPU 线程设置、持久翻译缓存和全篇任务恢复。
-- 内置自编六页阅读指南；不包含第三方论文。
+- Add Hugging Face model search, quantization selection and downloads pinned to a commit and LFS SHA-256. Display model licenses; a verified selection replaces the current local model.
+- Support text-only Qwen3.5 and LFM2.5 templates alongside Qwen3. LFM2.5 remains experimental: protected-token and translation-completeness failures are documented in the model report.
+- Replace full-vocabulary grammar filtering on every token with proposal validation and grammar-filtered resampling when required. Constrain output IDs/count to the input batch; retain strict placeholder validation.
+- Enable runtime-dispatched Arm KleidiAI CPU kernels, with original license texts bundled.
+- Expand the in-app test to a 158-word translation and three pp512 → tg128 engine runs, with decode/sampling/callback timing and JSON export.
 
-要求：Android 9+、ARM64、支持 WebMessageListener 的 Android System WebView。首次模型下载需要联网，校验阶段约需 2.8 GB 空间。
+新增 Hugging Face 搜索下载、多模型文本模板、ARM 内核与约束采样优化；测速同时显示长段翻译和纯引擎成绩。LFM 小模型的格式与漏译问题没有作为通过隐藏，详见仓库实测报告。
 
-本版本仍是开发预览。现有证据覆盖核心逻辑、浏览器及 ARM64 模拟器；实体平板、天玑 9400 性能、真实论文翻译质量、强杀/重启恢复及完整大文件矩阵尚未验收。不要将本次构建描述为稳定版。
+Android 9+ / ARM64. This release's `*-debug.apk` uses the same local debug certificate as alpha.2 and versionCode 3. Differently signed builds require exporting important annotated PDFs before uninstalling (uninstall removes app data). APK, SHA256SUMS.txt and a notices ZIP are attached. Model weights and third-party papers are not bundled.
 
-安装 `*-release.apk`；`SHA256SUMS.txt` 提供完整性摘要；`*-notices.zip` 提供项目及第三方通知和本次 release 运行依赖清单。APK 内也保留相关通知。
-
-首次从 debug 版切换到发布签名时，可能需要卸载旧版本；卸载会删除应用私有文档、缓存与模型，请先另存需要保留的批注 PDF。后续更新使用同一发布密钥并递增 versionCode。
-
-推荐阅读：[Attention Is All You Need](https://arxiv.org/abs/1706.03762)，由用户从官方页面自行下载并导入；本发布不附带论文。
+Host and Android ARM64 emulator observations do not establish physical Dimensity 9400 performance. The reported PocketPal v1.20.1 tg128 result and ParaRead's old JSON translation rate measured different workloads; use the new raw tg128 result for a closer on-device comparison. Translation quality still requires checking against the original.

@@ -1,6 +1,6 @@
 # Third-party notices / 第三方声明
 
-核对日期：2026-10-26。本文件区分直接复用的代码与资产、运行依赖、单独下载的模型及仅参考的项目。项目新增代码与适配修改使用根目录 [Apache-2.0 LICENSE](LICENSE)；下列第三方内容保留自己的权利与条件。
+核对日期：2026-10-27。本文件区分直接复用的代码与资产、运行依赖、单独下载的模型及仅参考的项目。项目新增代码与适配修改使用根目录 [Apache-2.0 LICENSE](LICENSE)；下列第三方内容保留自己的权利与条件。
 
 ## ParaRead、vscode-pdf 与 PDF.js
 
@@ -35,7 +35,9 @@ PDF.js 版本为 **6.2.108**，随固定 ParaRead 快照取得。其独立资产
 - [rotate-bits，MIT](third_party/llama.cpp/vendor/hash/rotate-bits/LICENSE.md)。
 - [SHA support 的 public-domain 声明](third_party/llama.cpp/vendor/hash/sha256/LICENSE)。
 
-范围见 [native NOTICE](third_party/llama.cpp/NOTICE)。当前 APK 不启用 Vulkan、KleidiAI、server、mtmd 等目标；引擎许可证不会因此扩大为对未使用组件的分发声明。
+范围见 [native NOTICE](third_party/llama.cpp/NOTICE)。当前 APK 不启用 Vulkan、server、mtmd 等目标。
+
+CPU 构建启用 [Arm KleidiAI v1.32.0](https://github.com/ARM-software/kleidiai/releases/tag/v1.32.0)，Copyright 2024–2026 Arm Limited and/or its affiliates，通过运行时 CPU 特征检测选择内核。固定下载摘要见 [upstream/kleidiai.lock.json](upstream/kleidiai.lock.json)；[Apache-2.0](third_party/kleidiai/Apache-2.0.txt) 与 [BSD-3-Clause](third_party/kleidiai/BSD-3-Clause.txt) 完整文本与包含 Fujitsu、Meta 贡献者署名的 [NOTICE](third_party/kleidiai/NOTICE) 随 APK 分发。
 
 ## Android 运行依赖与开发工具
 
@@ -57,6 +59,8 @@ Size:    1,359,279,776 bytes
 [Qwen 官方 GGUF 仓库](https://huggingface.co/Qwen/Qwen3-1.7B-GGUF) 的声明也为 Apache-2.0；本项目不据此宣称所选 Ollama 权重与其任一文件字节相同。其他 GGUF、模型版本或第三方微调模型须分别查看自己的许可；本文件不重新授权用户导入的模型。
 
 ## 示例论文、用户文档与译文
+
+Hugging Face 搜索展示各仓库模型卡声明的许可，模型权重仍由用户单独下载。LFM2.5 官方模型使用自定义 LFM1.0 许可；Qwen3.5 官方 GGUF 使用 Apache-2.0。应用代码的许可证不替代模型许可；分发或商用前应查看所选仓库的实际条款。
 
 内置 `reader/sample.pdf` 来自本仓库的 [samples/pararead-reading-guide.pdf](samples/pararead-reading-guide.pdf)，是本项目自编的六页操作示例，文字、表格、矢量图采用 Apache-2.0；署名与范围见 [samples/NOTICE](samples/NOTICE)。使用 PDF 标准基础字体，不嵌入外部字体文件。
 

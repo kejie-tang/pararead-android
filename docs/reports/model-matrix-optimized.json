@@ -1,0 +1,838 @@
+{
+  "date": "2026-10-27",
+  "physicalAndroidDevice": false,
+  "systemInfo": "CPU : NEON = 1 | ARM_FMA = 1 | FP16_VA = 1 | DOTPROD = 1 | LLAMAFILE = 1 | KLEIDIAI = 1 | REPACK = 1 | ",
+  "models": [
+    {
+      "file": "Qwen3-1.7B-Q4_K_M.gguf",
+      "cases": [
+        {
+          "tokensPerSecond": 51.38618063038055,
+          "totalMs": 3949.68375,
+          "samplingNanos": 4808082,
+          "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"我们提出一种内存高效的方法，用于翻译科学文档。\"\n    }\n  ]\n}",
+          "generatedTokens": 39,
+          "fixture": "short",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"We propose a memory-efficient method for translating scientific documents.\"}]}\n/no_think",
+          "jsonGrammar": true,
+          "callbackNanos": 6409376,
+          "translations": [{
+            "translation": "我们提出一种内存高效的方法，用于翻译科学文档。",
+            "source": "We propose a memory-efficient method for translating scientific documents."
+          }],
+          "promptTokens": 125,
+          "decodeNanos": 747696712,
+          "status": "passed"
+        },
+        {
+          "tokensPerSecond": 50.057306959214245,
+          "totalMs": 4991.207458,
+          "samplingNanos": 87480549,
+          "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"科学文档结合连续的散文与公式、表格、参考文献和技术术语。一位有用的阅读助手应翻译散文内容，同时保持原文的含义和文档结构。研究人员经常多次阅读同一段文字，以理解陌生的方法并将其与先前的工作进行比较。本地语言模型可以支持这一过程，而无需将文档发送到远程服务。其实际速度取决于内存带宽、处理器指令、工作者线程以及正在处理的上下文量。一个简短的答案可能在处理器达到稳定工作状态之前就完成，因此重复测量具有更长输出的测量结果是有用的。提示处理和令牌生成应分别进行测量，因为它们执行不同的计算类型。公平的比较还应记录精确的模型文件、推理设置和设备条件。本实验的目标是生成忠实的中文翻译，并保留足够的时序信息以区分引擎性能和应用程序开销。\"\n    }\n  ]\n}",
+          "generatedTokens": 207,
+          "fixture": "long",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"Scientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead.\"}]}\n/no_think",
+          "jsonGrammar": true,
+          "callbackNanos": 20191499,
+          "translations": [{
+            "translation": "科学文档结合连续的散文与公式、表格、参考文献和技术术语。一位有用的阅读助手应翻译散文内容，同时保持原文的含义和文档结构。研究人员经常多次阅读同一段文字，以理解陌生的方法并将其与先前的工作进行比较。本地语言模型可以支持这一过程，而无需将文档发送到远程服务。其实际速度取决于内存带宽、处理器指令、工作者线程以及正在处理的上下文量。一个简短的答案可能在处理器达到稳定工作状态之前就完成，因此重复测量具有更长输出的测量结果是有用的。提示处理和令牌生成应分别进行测量，因为它们执行不同的计算类型。公平的比较还应记录精确的模型文件、推理设置和设备条件。本实验的目标是生成忠实的中文翻译，并保留足够的时序信息以区分引擎性能和应用程序开销。",
+            "source": "Scientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead."
+          }],
+          "promptTokens": 291,
+          "decodeNanos": 4027380583,
+          "status": "passed"
+        },
+        {
+          "tokensPerSecond": 48.36050353051172,
+          "totalMs": 4011.669167,
+          "samplingNanos": 29974549,
+          "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"模型使用 ⟦P1⟧ 的内存 ⟦P2⟧ 处理 ⟦P0⟧ 页。\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"对于 ⟦P3⟧，保留方程并查看 ⟦P4⟧。\"\n    },\n    {\n      \"id\": \"s3\",\n      \"translation\": \"注意力机制使用键值缓存；代码为 ⟦P5⟧。\"\n    },\n    {\n      \"id\": \"s4\",\n      \"translation\": \"所提出的方法通过 ⟦P6⟧ 降低延迟，而不会改变输入顺序。\"\n    }\n  ]\n}",
+          "generatedTokens": 159,
+          "fixture": "protected-batch",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes ⟦P0⟧ pages using ⟦P1⟧ of memory ⟦P2⟧.\"},{\"id\":\"s2\",\"text\":\"For ⟦P3⟧, retain the equation and see ⟦P4⟧\"},{\"id\":\"s3\",\"text\":\"The attention mechanism uses a key-value cache; the code is ⟦P5⟧.\"},{\"id\":\"s4\",\"text\":\"The proposed method reduces latency by ⟦P6⟧ without changing the input order.\"}]}\n/no_think",
+          "jsonGrammar": true,
+          "callbackNanos": 13675548,
+          "translations": [
+            {
+              "translation": "模型使用 4 GB 的内存 [12] 处理 100 页。",
+              "source": "The model processes 100 pages using 4 GB of memory [12]."
+            },
+            {
+              "translation": "对于 $E=mc^2$，保留方程并查看 https://example.org/paper.。",
+              "source": "For $E=mc^2$, retain the equation and see https://example.org/paper."
+            },
+            {
+              "translation": "注意力机制使用键值缓存；代码为 `cache.get(key)`。",
+              "source": "The attention mechanism uses a key-value cache; the code is `cache.get(key)`."
+            },
+            {
+              "translation": "所提出的方法通过 12.5% 降低延迟，而不会改变输入顺序。",
+              "source": "The proposed method reduces latency by 12.5% without changing the input order."
+            }
+          ],
+          "promptTokens": 213,
+          "decodeNanos": 3243980913,
+          "status": "passed"
+        },
+        {
+          "tokensPerSecond": 49.25725578486129,
+          "totalMs": 1080.509333,
+          "samplingNanos": 22937413,
+          "raw": "{\"translations\":[{\"id\":\"s1\",\"translation\":\"作者将此称为\\\"阅读助手\\\"。\\n保持两个句子的含义。\"}] }",
+          "generatedTokens": 29,
+          "fixture": "escaped-text",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The author calls this a \\\"reading assistant\\\".\\nKeep the meaning of both sentences.\"}]}\n/no_think",
+          "jsonGrammar": true,
+          "callbackNanos": 2169669,
+          "translations": [{
+            "translation": "作者将此称为\"阅读助手\"。\n保持两个句子的含义。",
+            "source": "The author calls this a \"reading assistant\".\nKeep the meaning of both sentences."
+          }],
+          "promptTokens": 132,
+          "decodeNanos": 563592084,
+          "status": "passed"
+        },
+        {
+          "tokensPerSecond": 46.24873361332214,
+          "totalMs": 3568.352208,
+          "samplingNanos": 3980124,
+          "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"我们提出一种内存高效的方法，用于翻译科学文档。\"\n    }\n  ]\n}",
+          "generatedTokens": 39,
+          "fixture": "short",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"We propose a memory-efficient method for translating scientific documents.\"}]}\n/no_think",
+          "jsonGrammar": false,
+          "callbackNanos": 2662337,
+          "translations": [{
+            "translation": "我们提出一种内存高效的方法，用于翻译科学文档。",
+            "source": "We propose a memory-efficient method for translating scientific documents."
+          }],
+          "promptTokens": 125,
+          "decodeNanos": 836527662,
+          "status": "passed"
+        },
+        {
+          "tokensPerSecond": 50.62317052427423,
+          "totalMs": 5648.912334,
+          "samplingNanos": 23426591,
+          "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"科学文档结合连续的散文与公式、表格、参考文献和技术术语。一位有用的阅读助手应翻译散文内容，同时保持原文的含义和文档结构。研究人员经常多次阅读同一段文字，以理解陌生的方法并将其与先前的工作进行比较。本地语言模型可以支持这一过程，而无需将文档发送到远程服务。其实际速度取决于内存带宽、处理器指令、工作者线程以及正在处理的上下文量。一个简短的答案可能在处理器达到稳定工作状态之前就完成，因此重复测量具有更长输出的测量结果是有用的。提示处理和令牌生成应分别进行测量，因为它们执行不同的计算类型。公平的比较还应记录精确的模型文件、推理设置和设备条件。本实验的目标是生成忠实的中文翻译，并保留足够的时序信息以区分引擎性能和应用程序开销。\"\n    }\n  ],\n  \"glossary\": {\n    \"key-value cache\": \"键值缓存\",\n    \"attention mechanism\": \"注意力机制\"\n  }\n}",
+          "generatedTokens": 237,
+          "fixture": "long",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"Scientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead.\"}]}\n/no_think",
+          "jsonGrammar": false,
+          "callbackNanos": 12022257,
+          "translations": [{
+            "translation": "科学文档结合连续的散文与公式、表格、参考文献和技术术语。一位有用的阅读助手应翻译散文内容，同时保持原文的含义和文档结构。研究人员经常多次阅读同一段文字，以理解陌生的方法并将其与先前的工作进行比较。本地语言模型可以支持这一过程，而无需将文档发送到远程服务。其实际速度取决于内存带宽、处理器指令、工作者线程以及正在处理的上下文量。一个简短的答案可能在处理器达到稳定工作状态之前就完成，因此重复测量具有更长输出的测量结果是有用的。提示处理和令牌生成应分别进行测量，因为它们执行不同的计算类型。公平的比较还应记录精确的模型文件、推理设置和设备条件。本实验的目标是生成忠实的中文翻译，并保留足够的时序信息以区分引擎性能和应用程序开销。",
+            "source": "Scientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead."
+          }],
+          "promptTokens": 291,
+          "decodeNanos": 4645753453,
+          "status": "passed"
+        },
+        {
+          "tokensPerSecond": 48.519671870957694,
+          "totalMs": 4595.517166,
+          "samplingNanos": 18944283,
+          "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"模型使用 ⟦P1⟧ 的内存 ⟦P2⟧ 处理 ⟦P0⟧ 页。\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"对于 ⟦P3⟧，保留方程并查看 ⟦P4⟧。\"\n    },\n    {\n      \"id\": \"s3\",\n      \"translation\": \"注意力机制使用键值缓存；代码为 ⟦P5⟧。\"\n    },\n    {\n      \"id\": \"s4\",\n      \"translation\": \"所提出的方法通过 ⟦P6⟧ 降低延迟，而不会改变输入顺序。\"\n    }\n  ],\n  \"glossary\": {\n    \"key-value cache\": \"键值缓存\",\n    \"attention mechanism\": \"注意力机制\"\n  }\n}",
+          "generatedTokens": 189,
+          "fixture": "protected-batch",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes ⟦P0⟧ pages using ⟦P1⟧ of memory ⟦P2⟧.\"},{\"id\":\"s2\",\"text\":\"For ⟦P3⟧, retain the equation and see ⟦P4⟧\"},{\"id\":\"s3\",\"text\":\"The attention mechanism uses a key-value cache; the code is ⟦P5⟧.\"},{\"id\":\"s4\",\"text\":\"The proposed method reduces latency by ⟦P6⟧ without changing the input order.\"}]}\n/no_think",
+          "jsonGrammar": false,
+          "callbackNanos": 9424784,
+          "translations": [
+            {
+              "translation": "模型使用 4 GB 的内存 [12] 处理 100 页。",
+              "source": "The model processes 100 pages using 4 GB of memory [12]."
+            },
+            {
+              "translation": "对于 $E=mc^2$，保留方程并查看 https://example.org/paper.。",
+              "source": "For $E=mc^2$, retain the equation and see https://example.org/paper."
+            },
+            {
+              "translation": "注意力机制使用键值缓存；代码为 `cache.get(key)`。",
+              "source": "The attention mechanism uses a key-value cache; the code is `cache.get(key)`."
+            },
+            {
+              "translation": "所提出的方法通过 12.5% 降低延迟，而不会改变输入顺序。",
+              "source": "The proposed method reduces latency by 12.5% without changing the input order."
+            }
+          ],
+          "promptTokens": 213,
+          "decodeNanos": 3866590620,
+          "status": "passed"
+        },
+        {
+          "tokensPerSecond": 52.05721738419874,
+          "totalMs": 1918.007917,
+          "samplingNanos": 7623373,
+          "raw": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"作者称此为\\\"阅读助手\\\"。\\n保持两个句子的含义。\"}]}\n\n{\"translations\":[{\"id\":\"s1\",\"translation\":\"作者称此为\\\"阅读助手\\\"。\\n保持两个句子的含义。\"}]}\n\n{\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}",
+          "error": "java.lang.IllegalArgumentException: TRAILING_OUTPUT",
+          "generatedTokens": 75,
+          "fixture": "escaped-text",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The author calls this a \\\"reading assistant\\\".\\nKeep the meaning of both sentences.\"}]}\n/no_think",
+          "jsonGrammar": false,
+          "callbackNanos": 3748167,
+          "promptTokens": 132,
+          "decodeNanos": 1429210497,
+          "status": "failed"
+        }
+      ],
+      "sha256": "3d0b790534fe4b79525fc3692950408dca41171676ed7e21db57af5c65ef6ab6",
+      "bytes": 1359279776,
+      "productionQueue": {
+        "failures": [],
+        "translations": {
+          "a": "模型使用 4 GB 的内存 [12] 处理 100 页。",
+          "b": "对于 $E=mc^2$，保留方程并查看 https://example.org/paper.。",
+          "c": "注意力机制使用键值缓存；代码为 `cache.get(key)`。",
+          "d": "所提出的方法通过 12.5% 降低延迟，而不会改变输入顺序。"
+        },
+        "cancelled": false,
+        "attempts": [{
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes ⟦P0⟧ pages using ⟦P1⟧ of memory ⟦P2⟧.\"},{\"id\":\"s2\",\"text\":\"For ⟦P3⟧, retain the equation and see ⟦P4⟧\"},{\"id\":\"s3\",\"text\":\"The attention mechanism uses a key-value cache; the code is ⟦P5⟧.\"},{\"id\":\"s4\",\"text\":\"The proposed method reduces latency by ⟦P6⟧ without changing the input order.\"}]}\n/no_think",
+          "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"模型使用 ⟦P1⟧ 的内存 ⟦P2⟧ 处理 ⟦P0⟧ 页。\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"对于 ⟦P3⟧，保留方程并查看 ⟦P4⟧。\"\n    },\n    {\n      \"id\": \"s3\",\n      \"translation\": \"注意力机制使用键值缓存；代码为 ⟦P5⟧。\"\n    },\n    {\n      \"id\": \"s4\",\n      \"translation\": \"所提出的方法通过 ⟦P6⟧ 降低延迟，而不会改变输入顺序。\"\n    }\n  ]\n}"
+        }],
+        "status": "passed"
+      },
+      "architecture": "qwen3",
+      "engineSamples": [
+        {
+          "decodeMs": 2406.638375,
+          "tg128": 53.186220800621946,
+          "prefillMs": 1652.771791,
+          "pp512": 309.7826347158414
+        },
+        {
+          "decodeMs": 2860.0510419999996,
+          "tg128": 44.754446029218805,
+          "prefillMs": 1668.6139170000001,
+          "pp512": 306.84150167015537
+        },
+        {
+          "decodeMs": 2867.145333,
+          "tg128": 44.64370833482266,
+          "prefillMs": 1992.68175,
+          "pp512": 256.9401762223195
+        }
+      ]
+    },
+    {
+      "file": "LFM2.5-1.2B-Instruct-Q4_K_M.gguf",
+      "cases": [
+        {
+          "tokensPerSecond": 95.04018912997637,
+          "totalMs": 2066.582083,
+          "samplingNanos": 2256749,
+          "raw": "{\"translations\": [{\"id\": \"s1\", \"translation\": \"我们提出一种内存高效的方法用于翻译科学文档.\"}]}",
+          "generatedTokens": 36,
+          "fixture": "short",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"We propose a memory-efficient method for translating scientific documents.\"}]}\n/no_think",
+          "jsonGrammar": true,
+          "callbackNanos": 1698336,
+          "translations": [{
+            "translation": "我们提出一种内存高效的方法用于翻译科学文档.",
+            "source": "We propose a memory-efficient method for translating scientific documents."
+          }],
+          "promptTokens": 139,
+          "decodeNanos": 374800588,
+          "status": "passed"
+        },
+        {
+          "tokensPerSecond": 84.48127236806457,
+          "totalMs": 3670.70775,
+          "samplingNanos": 23408638,
+          "raw": "{\"translations\": [{\"id\": \"s1\", \"translation\": \"科学文献将连续文本与方程式、表格、引用和专业术语结合。一个有用的阅读辅助工具应能够将文本转换为 prose，同时保留原有意思和结构。研究人员常会多次阅读同一段文字，以理解不熟悉的方法，并与早期工作进行比较。本地语言模型可以支持这一过程，而无需将文档发送到远程服务。其实际速度取决于内存带宽、处理器指令、工作线程以及正在处理的上下文量。简短的回答可能在处理器达到稳定运行状态之前完成，因此进行更长输出的重复测量是有帮助的。prompt处理和令牌生成的计算应单独衡量，因为它们执行不同类型的计算。对比时应记录精确的模型文件、推理设置和设备条件。此实验的目标是生成忠实的中文翻译，并保留足够的时间信息以区分引擎性能与应用开销。\"}]}",
+          "generatedTokens": 257,
+          "fixture": "long",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"Scientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead.\"}]}\n/no_think",
+          "jsonGrammar": true,
+          "callbackNanos": 12810635,
+          "translations": [{
+            "translation": "科学文献将连续文本与方程式、表格、引用和专业术语结合。一个有用的阅读辅助工具应能够将文本转换为 prose，同时保留原有意思和结构。研究人员常会多次阅读同一段文字，以理解不熟悉的方法，并与早期工作进行比较。本地语言模型可以支持这一过程，而无需将文档发送到远程服务。其实际速度取决于内存带宽、处理器指令、工作线程以及正在处理的上下文量。简短的回答可能在处理器达到稳定运行状态之前完成，因此进行更长输出的重复测量是有帮助的。prompt处理和令牌生成的计算应单独衡量，因为它们执行不同类型的计算。对比时应记录精确的模型文件、推理设置和设备条件。此实验的目标是生成忠实的中文翻译，并保留足够的时间信息以区分引擎性能与应用开销。",
+            "source": "Scientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead."
+          }],
+          "promptTokens": 305,
+          "decodeNanos": 3005618820,
+          "status": "passed"
+        },
+        {
+          "tokensPerSecond": 89.77548928700335,
+          "totalMs": 2271.503708,
+          "samplingNanos": 9964452,
+          "raw": "{\"translations\": [{\"id\": \"s1\", \"translation\": \"模型处理⟨P0⟩页面使用⟨P1⟩的内存⟨P2⟩.\"}, {\"id\": \"s2\", \"translation\": \"对于⟦P3⟩，保留方程并查看⟦P4⟩.\"}, {\"id\": \"s3\", \"translation\": \"注意机制使用键值缓存；代码是⟦P5⟧.\"}, {\"id\": \"s4\", \"translation\": \"提出的方法通过⟦P6⟩减少延迟而不改变输入顺序.\"}]}",
+          "error": "java.lang.IllegalArgumentException: PROTECTED_TOKEN_MISMATCH",
+          "generatedTokens": 159,
+          "fixture": "protected-batch",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes ⟦P0⟧ pages using ⟦P1⟧ of memory ⟦P2⟧.\"},{\"id\":\"s2\",\"text\":\"For ⟦P3⟧, retain the equation and see ⟦P4⟧\"},{\"id\":\"s3\",\"text\":\"The attention mechanism uses a key-value cache; the code is ⟦P5⟧.\"},{\"id\":\"s4\",\"text\":\"The proposed method reduces latency by ⟦P6⟧ without changing the input order.\"}]}\n/no_think",
+          "jsonGrammar": true,
+          "callbackNanos": 7007581,
+          "promptTokens": 251,
+          "decodeNanos": 1753968383,
+          "status": "failed"
+        },
+        {
+          "tokensPerSecond": 96.49134648640909,
+          "totalMs": 625.49525,
+          "samplingNanos": 1986625,
+          "raw": "{\"translations\": [{\"id\": \"s1\", \"translation\": \"作者称这是一个'阅读助手'。\"}]}",
+          "generatedTokens": 31,
+          "fixture": "escaped-text",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The author calls this a \\\"reading assistant\\\".\\nKeep the meaning of both sentences.\"}]}\n/no_think",
+          "jsonGrammar": true,
+          "callbackNanos": 1541875,
+          "translations": [{
+            "translation": "作者称这是一个'阅读助手'。",
+            "source": "The author calls this a \"reading assistant\".\nKeep the meaning of both sentences."
+          }],
+          "promptTokens": 146,
+          "decodeNanos": 317716082,
+          "status": "passed"
+        },
+        {
+          "tokensPerSecond": 85.69945827967902,
+          "totalMs": 2105.048416,
+          "samplingNanos": 1824122,
+          "raw": "{\"translations\": [{\"id\": \"s1\", \"translation\": \"我们提出一种内存高效的方法用于翻译科学文档.\"}]}",
+          "generatedTokens": 36,
+          "fixture": "short",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"We propose a memory-efficient method for translating scientific documents.\"}]}\n/no_think",
+          "jsonGrammar": false,
+          "callbackNanos": 1685252,
+          "translations": [{
+            "translation": "我们提出一种内存高效的方法用于翻译科学文档.",
+            "source": "We propose a memory-efficient method for translating scientific documents."
+          }],
+          "promptTokens": 139,
+          "decodeNanos": 416509915,
+          "status": "passed"
+        },
+        {
+          "tokensPerSecond": 89.39041694195133,
+          "totalMs": 3497.546625,
+          "samplingNanos": 13037335,
+          "raw": "{\"translations\": [{\"id\": \"s1\", \"translation\": \"科学文献将连续文本与方程式、表格、引用和专业术语结合。一个有用的阅读辅助工具应能够将文本转换为 prose，同时保留原有意思和结构。研究人员常会多次阅读同一段文字，以理解不熟悉的方法，并与早期工作进行比较。本地语言模型可以支持这一过程，而无需将文档发送到远程服务。其实际速度取决于内存带宽、处理器指令、工作线程以及正在处理的上下文量。简短的回答可能在处理器达到稳定运行状态之前完成，因此进行更长输出的重复测量是有帮助的。prompt处理和令牌生成的计算应单独衡量，因为它们执行不同类型的计算。对比时应记录精确的模型文件、推理设置和设备条件。此实验的目标是生成忠实的中文翻译，并保留足够的时间信息以区分引擎性能与应用开销。\"}}}",
+          "error": "org.json.JSONException: Expected a ',' or ']' at 360 [character 361 line 1]",
+          "generatedTokens": 257,
+          "fixture": "long",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"Scientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead.\"}]}\n/no_think",
+          "jsonGrammar": false,
+          "callbackNanos": 11775915,
+          "promptTokens": 305,
+          "decodeNanos": 2849863011,
+          "status": "failed"
+        },
+        {
+          "tokensPerSecond": 70.40142148882734,
+          "totalMs": 2779.088792,
+          "samplingNanos": 7951544,
+          "raw": "{\"translations\": [{\"id\": \"s1\", \"translation\": \"模型处理⟨P0⟩页面使用⟨P1⟩的内存⟨P2⟩.\"}, {\"id\": \"s2\", \"translation\": \"对于⟦P3⟩，保留方程并查看⟦P4⟩.\"}, {\"id\": \"s3\", \"translation\": \"注意机制使用键值缓存；代码是⟦P5⟧.\"}, {\"id\": \"s4\", \"translation\": \"提出的方法通过⟦P6⟩减少延迟而不改变输入顺序.\"}]}",
+          "error": "java.lang.IllegalArgumentException: PROTECTED_TOKEN_MISMATCH",
+          "generatedTokens": 159,
+          "fixture": "protected-batch",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes ⟦P0⟧ pages using ⟦P1⟧ of memory ⟦P2⟧.\"},{\"id\":\"s2\",\"text\":\"For ⟦P3⟧, retain the equation and see ⟦P4⟧\"},{\"id\":\"s3\",\"text\":\"The attention mechanism uses a key-value cache; the code is ⟦P5⟧.\"},{\"id\":\"s4\",\"text\":\"The proposed method reduces latency by ⟦P6⟧ without changing the input order.\"}]}\n/no_think",
+          "jsonGrammar": false,
+          "callbackNanos": 8319665,
+          "promptTokens": 251,
+          "decodeNanos": 2241954036,
+          "status": "failed"
+        },
+        {
+          "tokensPerSecond": 60.49535458026068,
+          "totalMs": 999.15975,
+          "samplingNanos": 1692584,
+          "raw": "{\"translations\": [{\"id\": \"s1\", \"translation\": \"作者称这是一个'阅读助手'。\"}]}",
+          "generatedTokens": 31,
+          "fixture": "escaped-text",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The author calls this a \\\"reading assistant\\\".\\nKeep the meaning of both sentences.\"}]}\n/no_think",
+          "jsonGrammar": false,
+          "callbackNanos": 2667339,
+          "translations": [{
+            "translation": "作者称这是一个'阅读助手'。",
+            "source": "The author calls this a \"reading assistant\".\nKeep the meaning of both sentences."
+          }],
+          "promptTokens": 146,
+          "decodeNanos": 508027877,
+          "status": "passed"
+        }
+      ],
+      "sha256": "b1b3de114215d9507409a662a501a631095a479a419584e8a2ded6304b19b4f5",
+      "bytes": 730895168,
+      "productionQueue": {
+        "failures": [
+          {
+            "reason": "PROTECTED_TOKEN_MISMATCH",
+            "id": "a"
+          },
+          {
+            "reason": "PROTECTED_TOKEN_MISMATCH",
+            "id": "b"
+          },
+          {
+            "reason": "PROTECTED_TOKEN_MISMATCH",
+            "id": "c"
+          },
+          {
+            "reason": "PROTECTED_TOKEN_MISMATCH",
+            "id": "d"
+          }
+        ],
+        "translations": {},
+        "cancelled": false,
+        "attempts": [
+          {
+            "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes ⟦P0⟧ pages using ⟦P1⟧ of memory ⟦P2⟧.\"},{\"id\":\"s2\",\"text\":\"For ⟦P3⟧, retain the equation and see ⟦P4⟧\"},{\"id\":\"s3\",\"text\":\"The attention mechanism uses a key-value cache; the code is ⟦P5⟧.\"},{\"id\":\"s4\",\"text\":\"The proposed method reduces latency by ⟦P6⟧ without changing the input order.\"}]}\n/no_think",
+            "raw": "{\"translations\": [{\"id\": \"s1\", \"translation\": \"模型处理⟨P0⟩页面使用⟨P1⟩的内存⟨P2⟩.\"}, {\"id\": \"s2\", \"translation\": \"对于⟦P3⟩，保留方程并查看⟦P4⟩.\"}, {\"id\": \"s3\", \"translation\": \"注意机制使用键值缓存；代码是⟦P5⟧.\"}, {\"id\": \"s4\", \"translation\": \"提出的方法通过⟦P6⟩减少延迟而不改变输入顺序.\"}]}"
+          },
+          {
+            "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes ⟦P0⟧ pages using ⟦P1⟧ of memory ⟦P2⟧.\"}]}\n/no_think",
+            "raw": "{\"translations\": [{\"id\": \"s1\", \"translation\": \"模型处理⟨P0⟩页面，使用⟨P1⟩的内存⟨P2⟩。\"}]}"
+          },
+          {
+            "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes ⟦P0⟧ pages using ⟦P1⟧ of memory ⟦P2⟧.\"}]}\n/no_think",
+            "raw": "{\"translations\": [{\"id\": \"s1\", \"translation\": \"模型处理⟨P0⟩页面，使用⟨P1⟩的内存⟨P2⟩。\"}]}"
+          }
+        ],
+        "status": "failed"
+      },
+      "architecture": "lfm2",
+      "engineSamples": [
+        {
+          "decodeMs": 1352.228709,
+          "tg128": 94.65854344614421,
+          "prefillMs": 1058.7805409999999,
+          "pp512": 483.57518878881626
+        },
+        {
+          "decodeMs": 1372.785958,
+          "tg128": 93.24104697755075,
+          "prefillMs": 992.310375,
+          "pp512": 515.9675973356623
+        },
+        {
+          "decodeMs": 1401.864625,
+          "tg128": 91.3069619685995,
+          "prefillMs": 1068.203,
+          "pp512": 479.309644327904
+        }
+      ]
+    },
+    {
+      "file": "LFM2.5-350M-Q4_K_M.gguf",
+      "cases": [
+        {
+          "tokensPerSecond": 189.45667000441955,
+          "totalMs": 777.405875,
+          "samplingNanos": 14136335,
+          "raw": "{\"translations\":[{\"id\":\"s1\",\"translation\":\"高效的记忆方法\"}]}",
+          "generatedTokens": 24,
+          "fixture": "short",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"We propose a memory-efficient method for translating scientific documents.\"}]}\n/no_think",
+          "jsonGrammar": true,
+          "callbackNanos": 971541,
+          "translations": [{
+            "translation": "高效的记忆方法",
+            "source": "We propose a memory-efficient method for translating scientific documents."
+          }],
+          "promptTokens": 139,
+          "decodeNanos": 111496959,
+          "status": "passed"
+        },
+        {
+          "tokensPerSecond": 202.34279648350406,
+          "totalMs": 1456.204792,
+          "samplingNanos": 22784790,
+          "raw": "{\"translations\": [{\"id\": \"s1\", \"translation\": \"科学文献结合连续的文本与数学公式、表格、参考文献和技术术语。一个有用的阅读助手应翻译文本，同时保留原文的结构和内容。研究人员往往阅读相同的段落多次来理解未知的方法，并与之前的工作进行比较。地方语言模型可以支持这一过程，避免将文档送往远程服务。其实际速度取决于存储带宽、处理器指令、工作者线程和被处理的上下文数量。一个短答可能会在处理器达到平稳运行状态之前完成，因此重复测量长度的测量是有用的。提交的提示处理和标记器应被测量分开，因为它们执行不同的计算。公平的比较也记录了模型文件、推理设置和设备条件。这个实验的目标是生成一份真实的中文翻译，并保留足够的时序信息，以区分发射性能与应用开销。\"}]}",
+          "generatedTokens": 251,
+          "fixture": "long",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"Scientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead.\"}]}\n/no_think",
+          "jsonGrammar": true,
+          "callbackNanos": 11385205,
+          "translations": [{
+            "translation": "科学文献结合连续的文本与数学公式、表格、参考文献和技术术语。一个有用的阅读助手应翻译文本，同时保留原文的结构和内容。研究人员往往阅读相同的段落多次来理解未知的方法，并与之前的工作进行比较。地方语言模型可以支持这一过程，避免将文档送往远程服务。其实际速度取决于存储带宽、处理器指令、工作者线程和被处理的上下文数量。一个短答可能会在处理器达到平稳运行状态之前完成，因此重复测量长度的测量是有用的。提交的提示处理和标记器应被测量分开，因为它们执行不同的计算。公平的比较也记录了模型文件、推理设置和设备条件。这个实验的目标是生成一份真实的中文翻译，并保留足够的时序信息，以区分发射性能与应用开销。",
+            "source": "Scientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead."
+          }],
+          "promptTokens": 305,
+          "decodeNanos": 1206058171,
+          "status": "passed"
+        },
+        {
+          "tokensPerSecond": 234.0531568760232,
+          "totalMs": 751.757542,
+          "samplingNanos": 14010295,
+          "raw": "{\"translations\":[{\"id\":\"s1\",\"translation\":\"The model processes ⟦P0⟧ pages using ⟦P1⟧ of memory\"}, {\"id\":\"s2\",\"translation\":\"For ⟦P3⟧, retain the equation and see ⟦P4⟧\"}, {\"id\":\"s3\",\"translation\":\"The attention mechanism uses a key-value cache; the code is ⟦P5⟧\"}, {\"id\":\"s4\",\"translation\":\"The proposed method reduces latency by ⟦P6⟧ without changing the input order.\"}]}",
+          "error": "java.lang.IllegalArgumentException: PROTECTED_TOKEN_MISMATCH",
+          "generatedTokens": 136,
+          "fixture": "protected-batch",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes ⟦P0⟧ pages using ⟦P1⟧ of memory ⟦P2⟧.\"},{\"id\":\"s2\",\"text\":\"For ⟦P3⟧, retain the equation and see ⟦P4⟧\"},{\"id\":\"s3\",\"text\":\"The attention mechanism uses a key-value cache; the code is ⟦P5⟧.\"},{\"id\":\"s4\",\"text\":\"The proposed method reduces latency by ⟦P6⟧ without changing the input order.\"}]}\n/no_think",
+          "jsonGrammar": true,
+          "callbackNanos": 5443837,
+          "promptTokens": 251,
+          "decodeNanos": 561491587,
+          "status": "failed"
+        },
+        {
+          "tokensPerSecond": 220.483226472964,
+          "totalMs": 194.613208,
+          "samplingNanos": 5003250,
+          "raw": "{\"translations\":[{\"id\":\"s1\",\"translation\":\"阅读助手\"}]}",
+          "generatedTokens": 22,
+          "fixture": "escaped-text",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The author calls this a \\\"reading assistant\\\".\\nKeep the meaning of both sentences.\"}]}\n/no_think",
+          "jsonGrammar": true,
+          "callbackNanos": 956708,
+          "translations": [{
+            "translation": "阅读助手",
+            "source": "The author calls this a \"reading assistant\".\nKeep the meaning of both sentences."
+          }],
+          "promptTokens": 146,
+          "decodeNanos": 93800249,
+          "status": "passed"
+        },
+        {
+          "tokensPerSecond": 252.83548554597147,
+          "totalMs": 802.926334,
+          "samplingNanos": 2527377,
+          "raw": "{\"translations\":[{\"id\":\"s1\":{\"translation\":\"我们提出一种高效的存储方法用于翻译科学文档\"}}, {\"id\":\"attention\":{\"translation\":\"注意力机制\"}}}]\"}",
+          "error": "org.json.JSONException: Expected a ',' or '}' at 28 [character 29 line 1]",
+          "generatedTokens": 52,
+          "fixture": "short",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"We propose a memory-efficient method for translating scientific documents.\"}]}\n/no_think",
+          "jsonGrammar": false,
+          "callbackNanos": 2089625,
+          "promptTokens": 139,
+          "decodeNanos": 200982753,
+          "status": "failed"
+        },
+        {
+          "tokensPerSecond": 230.70507093404055,
+          "totalMs": 1004.840625,
+          "samplingNanos": 8971168,
+          "raw": "```json\n{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"科学文献结合连续的叙述与方程式、表格、参考文献和技术术语。一个有用的阅读助手应翻译叙述，同时保留原文的结构和内容。研究人员往往读同一段文字多次以理解未知的方法，并与早期研究进行比较。地方语言模型可以支持这一过程，避免将文档送往远程服务。其实际速度取决于存储带宽、处理器指令、工作者线程和处理的上下文数量。短答可能在处理器达到平稳运行状态之前完成，因此重复测量长输出是有用的。\"\n    }\n  ]\n}\n```",
+          "generatedTokens": 181,
+          "fixture": "long",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"Scientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead.\"}]}\n/no_think",
+          "jsonGrammar": false,
+          "callbackNanos": 7699868,
+          "translations": [{
+            "translation": "科学文献结合连续的叙述与方程式、表格、参考文献和技术术语。一个有用的阅读助手应翻译叙述，同时保留原文的结构和内容。研究人员往往读同一段文字多次以理解未知的方法，并与早期研究进行比较。地方语言模型可以支持这一过程，避免将文档送往远程服务。其实际速度取决于存储带宽、处理器指令、工作者线程和处理的上下文数量。短答可能在处理器达到平稳运行状态之前完成，因此重复测量长输出是有用的。",
+            "source": "Scientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead."
+          }],
+          "promptTokens": 305,
+          "decodeNanos": 767680217,
+          "status": "passed"
+        },
+        {
+          "tokensPerSecond": 229.57687225168104,
+          "totalMs": 747.045708,
+          "samplingNanos": 6492580,
+          "raw": "```json\n{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"The model processes pages using pages of memory of P1\"\n    },\n    {\n      \"id\": \"p1\",\n      \"translation\": \"For P3, retain the equation and see P4\"\n    },\n    {\n      \"id\": \"p5\",\n      \"translation\": \"The attention mechanism uses a key-value cache; the code is P5\"\n    },\n    {\n      \"id\": \"p6\",\n      \"translation\": \"The proposed method reduces latency by P6 without changing the input order\"\n    }\n  ]\n}\n```",
+          "error": "java.lang.IllegalArgumentException: UNKNOWN_ID",
+          "generatedTokens": 136,
+          "fixture": "protected-batch",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes ⟦P0⟧ pages using ⟦P1⟧ of memory ⟦P2⟧.\"},{\"id\":\"s2\",\"text\":\"For ⟦P3⟧, retain the equation and see ⟦P4⟧\"},{\"id\":\"s3\",\"text\":\"The attention mechanism uses a key-value cache; the code is ⟦P5⟧.\"},{\"id\":\"s4\",\"text\":\"The proposed method reduces latency by ⟦P6⟧ without changing the input order.\"}]}\n/no_think",
+          "jsonGrammar": false,
+          "callbackNanos": 5376000,
+          "promptTokens": 251,
+          "decodeNanos": 580391503,
+          "status": "failed"
+        },
+        {
+          "tokensPerSecond": 219.6734583070544,
+          "totalMs": 345.32325,
+          "samplingNanos": 2722621,
+          "raw": "{\"translations\":[{\"id\":\"s1\",\"translation\":\"阅读助手\"}]} {\"key-value_cache\":{\"key\":\"s1\",\"value\":\"s1\"}, \"attention_mechanism\":\"注意力机制\"}}",
+          "error": "java.lang.IllegalArgumentException: TRAILING_OUTPUT",
+          "generatedTokens": 56,
+          "fixture": "escaped-text",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The author calls this a \\\"reading assistant\\\".\\nKeep the meaning of both sentences.\"}]}\n/no_think",
+          "jsonGrammar": false,
+          "callbackNanos": 2300586,
+          "promptTokens": 146,
+          "decodeNanos": 249826877,
+          "status": "failed"
+        }
+      ],
+      "sha256": "7e6f72643caafc9a68256686638c4d7916f2cec76d1df478d4c3ddcd95a6aed4",
+      "bytes": 229312224,
+      "productionQueue": {
+        "failures": [
+          {
+            "reason": "PROTECTED_TOKEN_MISMATCH",
+            "id": "a"
+          },
+          {
+            "reason": "PROTECTED_TOKEN_MISMATCH",
+            "id": "b"
+          },
+          {
+            "reason": "PROTECTED_TOKEN_MISMATCH",
+            "id": "c"
+          },
+          {
+            "reason": "PROTECTED_TOKEN_MISMATCH",
+            "id": "d"
+          }
+        ],
+        "translations": {},
+        "cancelled": false,
+        "attempts": [
+          {
+            "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes ⟦P0⟧ pages using ⟦P1⟧ of memory ⟦P2⟧.\"},{\"id\":\"s2\",\"text\":\"For ⟦P3⟧, retain the equation and see ⟦P4⟧\"},{\"id\":\"s3\",\"text\":\"The attention mechanism uses a key-value cache; the code is ⟦P5⟧.\"},{\"id\":\"s4\",\"text\":\"The proposed method reduces latency by ⟦P6⟧ without changing the input order.\"}]}\n/no_think",
+            "raw": "{\"translations\":[{\"id\":\"s1\",\"translation\":\"The model processes ⟦P0⟧ pages using ⟦P1⟧ of memory\"}, {\"id\":\"s2\",\"translation\":\"For ⟦P3⟧, retain the equation and see ⟦P4⟧\"}, {\"id\":\"s3\",\"translation\":\"The attention mechanism uses a key-value cache; the code is ⟦P5⟧\"}, {\"id\":\"s4\",\"translation\":\"The proposed method reduces latency by ⟦P6⟧ without changing the input order.\"}]}"
+          },
+          {
+            "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes ⟦P0⟧ pages using ⟦P1⟧ of memory ⟦P2⟧.\"}]}\n/no_think",
+            "raw": "{\"translations\":[{\"id\":\"s1\",\"translation\":\"处理了P0页面\"}]}"
+          },
+          {
+            "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes ⟦P0⟧ pages using ⟦P1⟧ of memory ⟦P2⟧.\"}]}\n/no_think",
+            "raw": "{\"translations\":[{\"id\":\"s1\",\"translation\":\"处理了P0页面\"}]}"
+          }
+        ],
+        "status": "failed"
+      },
+      "architecture": "lfm2",
+      "engineSamples": [
+        {
+          "decodeMs": 818.158167,
+          "tg128": 156.44896691473105,
+          "prefillMs": 318.15349999999995,
+          "pp512": 1609.286083604298
+        },
+        {
+          "decodeMs": 816.571041,
+          "tg128": 156.75304850787623,
+          "prefillMs": 368.496792,
+          "pp512": 1389.4286493544291
+        },
+        {
+          "decodeMs": 595.658334,
+          "tg128": 214.88828862755406,
+          "prefillMs": 345.44404099999997,
+          "pp512": 1482.15033183913
+        }
+      ]
+    },
+    {
+      "file": "Qwen3.5-0.8B-Q4_0.gguf",
+      "cases": [
+        {
+          "tokensPerSecond": 103.79090888942106,
+          "totalMs": 1472.05425,
+          "samplingNanos": 4160039,
+          "raw": "{\"translations\":[{\"id\":\"s1\",\"translation\":\"我们提出了一种用于翻译科学文档的内存高效方法。\"}]}",
+          "generatedTokens": 24,
+          "fixture": "short",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"We propose a memory-efficient method for translating scientific documents.\"}]}\n/no_think",
+          "jsonGrammar": true,
+          "callbackNanos": 993127,
+          "translations": [{
+            "translation": "我们提出了一种用于翻译科学文档的内存高效方法。",
+            "source": "We propose a memory-efficient method for translating scientific documents."
+          }],
+          "promptTokens": 122,
+          "decodeNanos": 226046959,
+          "status": "passed"
+        },
+        {
+          "tokensPerSecond": 90.14333900699614,
+          "totalMs": 2458.301,
+          "samplingNanos": 31511080,
+          "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"科学文献结合了连续 prose 与方程、表格、参考文献和技术术语。一个有用的阅读助手应翻译 prose 并保留原文含义和文档结构。研究人员常阅读同一段落多次以理解不熟悉的方法并比较其先前工作。本地语言模型可支持此过程而不发送文档到远程服务。其实际速度取决于内存带宽、处理器指令、工作线程和处理的上下文量。一个简短的答案可能在处理器到达稳态前完成，因此使用更长输出的重复测量是有益的。应分别测量 Prompt 处理和 Token 生成，因为它们执行不同的计算。公平比较也记录了精确的模型文件、推理设置和设备条件。该实验的目标是产生一个忠实的中文翻译并保留足够的时间信息以区分引擎性能与应用开销。\"\n    }\n  ]\n}",
+          "generatedTokens": 183,
+          "fixture": "long",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"Scientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead.\"}]}\n/no_think",
+          "jsonGrammar": true,
+          "callbackNanos": 8138758,
+          "translations": [{
+            "translation": "科学文献结合了连续 prose 与方程、表格、参考文献和技术术语。一个有用的阅读助手应翻译 prose 并保留原文含义和文档结构。研究人员常阅读同一段落多次以理解不熟悉的方法并比较其先前工作。本地语言模型可支持此过程而不发送文档到远程服务。其实际速度取决于内存带宽、处理器指令、工作线程和处理的上下文量。一个简短的答案可能在处理器到达稳态前完成，因此使用更长输出的重复测量是有益的。应分别测量 Prompt 处理和 Token 生成，因为它们执行不同的计算。公平比较也记录了精确的模型文件、推理设置和设备条件。该实验的目标是产生一个忠实的中文翻译并保留足够的时间信息以区分引擎性能与应用开销。",
+            "source": "Scientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead."
+          }],
+          "promptTokens": 288,
+          "decodeNanos": 1990257421,
+          "status": "passed"
+        },
+        {
+          "tokensPerSecond": 93.70497564259561,
+          "totalMs": 2236.347958,
+          "samplingNanos": 29920586,
+          "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"该模型利用⟦P0⟧页处理⟦P1⟧的内存，使用⟦P2⟧。\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"对于⟦P3⟧，保留方程并查看⟦P4⟧。\"\n    },\n    {\n      \"id\": \"s3\",\n      \"translation\": \"注意力机制使用键值缓存；代码为⟦P5⟧。\"\n    },\n    {\n      \"id\": \"s4\",\n      \"translation\": \"该方法通过⟦P6⟧减少延迟，未改变输入顺序。\"\n    }\n  ]\n}",
+          "generatedTokens": 179,
+          "fixture": "protected-batch",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes ⟦P0⟧ pages using ⟦P1⟧ of memory ⟦P2⟧.\"},{\"id\":\"s2\",\"text\":\"For ⟦P3⟧, retain the equation and see ⟦P4⟧\"},{\"id\":\"s3\",\"text\":\"The attention mechanism uses a key-value cache; the code is ⟦P5⟧.\"},{\"id\":\"s4\",\"text\":\"The proposed method reduces latency by ⟦P6⟧ without changing the input order.\"}]}\n/no_think",
+          "jsonGrammar": true,
+          "callbackNanos": 7267048,
+          "translations": [
+            {
+              "translation": "该模型利用100页处理4 GB的内存，使用[12]。",
+              "source": "The model processes 100 pages using 4 GB of memory [12]."
+            },
+            {
+              "translation": "对于$E=mc^2$，保留方程并查看https://example.org/paper.。",
+              "source": "For $E=mc^2$, retain the equation and see https://example.org/paper."
+            },
+            {
+              "translation": "注意力机制使用键值缓存；代码为`cache.get(key)`。",
+              "source": "The attention mechanism uses a key-value cache; the code is `cache.get(key)`."
+            },
+            {
+              "translation": "该方法通过12.5%减少延迟，未改变输入顺序。",
+              "source": "The proposed method reduces latency by 12.5% without changing the input order."
+            }
+          ],
+          "promptTokens": 217,
+          "decodeNanos": 1872844716,
+          "status": "passed"
+        },
+        {
+          "tokensPerSecond": 91.10408381929716,
+          "totalMs": 658.866125,
+          "samplingNanos": 7057667,
+          "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"该作者称此为\u2018阅读助手\u2019。\"\n    }\n  ]\n}",
+          "generatedTokens": 42,
+          "fixture": "escaped-text",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The author calls this a \\\"reading assistant\\\".\\nKeep the meaning of both sentences.\"}]}\n/no_think",
+          "jsonGrammar": true,
+          "callbackNanos": 1785542,
+          "translations": [{
+            "translation": "该作者称此为\u2018阅读助手\u2019。",
+            "source": "The author calls this a \"reading assistant\".\nKeep the meaning of both sentences."
+          }],
+          "promptTokens": 129,
+          "decodeNanos": 452108954,
+          "status": "passed"
+        },
+        {
+          "tokensPerSecond": 88.86183276463736,
+          "totalMs": 1531.456708,
+          "samplingNanos": 3844170,
+          "raw": "{\"translations\":[{\"id\":\"s1\",\"translation\":\"我们提出了一种用于翻译科学文档的内存高效方法。\"}]}",
+          "generatedTokens": 24,
+          "fixture": "short",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"We propose a memory-efficient method for translating scientific documents.\"}]}\n/no_think",
+          "jsonGrammar": false,
+          "callbackNanos": 1055291,
+          "translations": [{
+            "translation": "我们提出了一种用于翻译科学文档的内存高效方法。",
+            "source": "We propose a memory-efficient method for translating scientific documents."
+          }],
+          "promptTokens": 122,
+          "decodeNanos": 265140543,
+          "status": "passed"
+        },
+        {
+          "tokensPerSecond": 88.24676466528715,
+          "totalMs": 2542.78725,
+          "samplingNanos": 28853047,
+          "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"科学文献结合了连续 prose 与方程、表格、参考文献和技术术语。一个有用的阅读助手应翻译 prose 并保留原文含义和文档结构。研究人员常阅读同一段落多次以理解不熟悉的方法并比较其先前工作。本地语言模型可支持此过程而不发送文档到远程服务。其实际速度取决于内存带宽、处理器指令、工作线程和处理的上下文量。一个简短的答案可能在处理器到达稳态前完成，因此使用更长输出的重复测量是有益的。应分别测量 Prompt 处理和 Token 生成，因为它们执行不同的计算。公平比较也记录了精确的模型文件、推理设置和设备条件。该实验的目标是产生一个忠实的中文翻译并保留足够的时间信息以区分引擎性能与应用开销。\"\n    }\n  ]\n}",
+          "generatedTokens": 183,
+          "fixture": "long",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"Scientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead.\"}]}\n/no_think",
+          "jsonGrammar": false,
+          "callbackNanos": 7771123,
+          "translations": [{
+            "translation": "科学文献结合了连续 prose 与方程、表格、参考文献和技术术语。一个有用的阅读助手应翻译 prose 并保留原文含义和文档结构。研究人员常阅读同一段落多次以理解不熟悉的方法并比较其先前工作。本地语言模型可支持此过程而不发送文档到远程服务。其实际速度取决于内存带宽、处理器指令、工作线程和处理的上下文量。一个简短的答案可能在处理器到达稳态前完成，因此使用更长输出的重复测量是有益的。应分别测量 Prompt 处理和 Token 生成，因为它们执行不同的计算。公平比较也记录了精确的模型文件、推理设置和设备条件。该实验的目标是产生一个忠实的中文翻译并保留足够的时间信息以区分引擎性能与应用开销。",
+            "source": "Scientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead."
+          }],
+          "promptTokens": 288,
+          "decodeNanos": 2036795667,
+          "status": "passed"
+        },
+        {
+          "tokensPerSecond": 91.51018520426354,
+          "totalMs": 2341.559042,
+          "samplingNanos": 27430919,
+          "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"该模型利用⟦P0⟧页处理⟦P1⟧的内存，使用⟦P2⟧。\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"对于⟦P3⟧，保留方程并查看⟦P4⟧。\"\n    },\n    {\n      \"id\": \"s3\",\n      \"translation\": \"注意力机制使用键值缓存；代码为⟦P5⟧。\"\n    },\n    {\n      \"id\": \"s4\",\n      \"translation\": \"该方法通过⟦P6⟧减少延迟，未改变输入顺序。\"\n    }\n  ]\n}",
+          "generatedTokens": 179,
+          "fixture": "protected-batch",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes ⟦P0⟧ pages using ⟦P1⟧ of memory ⟦P2⟧.\"},{\"id\":\"s2\",\"text\":\"For ⟦P3⟧, retain the equation and see ⟦P4⟧\"},{\"id\":\"s3\",\"text\":\"The attention mechanism uses a key-value cache; the code is ⟦P5⟧.\"},{\"id\":\"s4\",\"text\":\"The proposed method reduces latency by ⟦P6⟧ without changing the input order.\"}]}\n/no_think",
+          "jsonGrammar": false,
+          "callbackNanos": 7157835,
+          "translations": [
+            {
+              "translation": "该模型利用100页处理4 GB的内存，使用[12]。",
+              "source": "The model processes 100 pages using 4 GB of memory [12]."
+            },
+            {
+              "translation": "对于$E=mc^2$，保留方程并查看https://example.org/paper.。",
+              "source": "For $E=mc^2$, retain the equation and see https://example.org/paper."
+            },
+            {
+              "translation": "注意力机制使用键值缓存；代码为`cache.get(key)`。",
+              "source": "The attention mechanism uses a key-value cache; the code is `cache.get(key)`."
+            },
+            {
+              "translation": "该方法通过12.5%减少延迟，未改变输入顺序。",
+              "source": "The proposed method reduces latency by 12.5% without changing the input order."
+            }
+          ],
+          "promptTokens": 217,
+          "decodeNanos": 1921200834,
+          "status": "passed"
+        },
+        {
+          "tokensPerSecond": 84.50858670320528,
+          "totalMs": 694.143166,
+          "samplingNanos": 6576792,
+          "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"该作者称此为\u2018阅读助手\u2019。\"\n    }\n  ]\n}",
+          "generatedTokens": 42,
+          "fixture": "escaped-text",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The author calls this a \\\"reading assistant\\\".\\nKeep the meaning of both sentences.\"}]}\n/no_think",
+          "jsonGrammar": false,
+          "callbackNanos": 1878001,
+          "translations": [{
+            "translation": "该作者称此为\u2018阅读助手\u2019。",
+            "source": "The author calls this a \"reading assistant\".\nKeep the meaning of both sentences."
+          }],
+          "promptTokens": 129,
+          "decodeNanos": 488457874,
+          "status": "passed"
+        }
+      ],
+      "sha256": "57d1997790d1744fba5b40a7317df71ea5e2acee28c47e78f0cce39c0703f8cf",
+      "bytes": 563036064,
+      "productionQueue": {
+        "failures": [],
+        "translations": {
+          "a": "该模型利用100页处理4 GB的内存，使用[12]。",
+          "b": "对于$E=mc^2$，保留方程并查看https://example.org/paper.。",
+          "c": "注意力机制使用键值缓存；代码为`cache.get(key)`。",
+          "d": "该方法通过12.5%减少延迟，未改变输入顺序。"
+        },
+        "cancelled": false,
+        "attempts": [{
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes ⟦P0⟧ pages using ⟦P1⟧ of memory ⟦P2⟧.\"},{\"id\":\"s2\",\"text\":\"For ⟦P3⟧, retain the equation and see ⟦P4⟧\"},{\"id\":\"s3\",\"text\":\"The attention mechanism uses a key-value cache; the code is ⟦P5⟧.\"},{\"id\":\"s4\",\"text\":\"The proposed method reduces latency by ⟦P6⟧ without changing the input order.\"}]}\n/no_think",
+          "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"该模型利用⟦P0⟧页处理⟦P1⟧的内存，使用⟦P2⟧。\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"对于⟦P3⟧，保留方程并查看⟦P4⟧。\"\n    },\n    {\n      \"id\": \"s3\",\n      \"translation\": \"注意力机制使用键值缓存；代码为⟦P5⟧。\"\n    },\n    {\n      \"id\": \"s4\",\n      \"translation\": \"该方法通过⟦P6⟧减少延迟，未改变输入顺序。\"\n    }\n  ]\n}"
+        }],
+        "status": "passed"
+      },
+      "architecture": "qwen35",
+      "engineSamples": [
+        {
+          "decodeMs": 1416.4194160000002,
+          "tg128": 90.3687132173568,
+          "prefillMs": 752.9525,
+          "pp512": 679.9897735912956
+        },
+        {
+          "decodeMs": 1444.331917,
+          "tg128": 88.62228861207116,
+          "prefillMs": 777.84275,
+          "pp512": 658.2307285116433
+        },
+        {
+          "decodeMs": 1374.245666,
+          "tg128": 93.1420074058287,
+          "prefillMs": 753.59575,
+          "pp512": 679.4093517645236
+        }
+      ]
+    }
+  ],
+  "engine": "llama.cpp@2280f0fd163b03d4331d49e08460f66502e35854;cpu;arm64;ctx4096;proposal-exact-grammar-v3",
+  "context": 4096,
+  "batch": 512,
+  "threads": 6,
+  "gpuLayers": 0,
+  "ubatch": 128,
+  "platform": "Mac OS X aarch64"
+}

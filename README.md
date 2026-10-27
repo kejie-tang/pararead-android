@@ -6,7 +6,7 @@ Keep the original page in view, tap a sentence to follow its translation, and us
 
 [![Android CI](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml/badge.svg?branch=main)](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml) [![Android 9+](https://img.shields.io/badge/Android-9%2B-3DDC84?logo=android&logoColor=white)](#quick-start) [![Code license: Apache-2.0](https://img.shields.io/badge/Code-Apache--2.0-blue)](LICENSE)
 
-**[Download preview APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.2/ParaRead-0.2.0-alpha.2-android-arm64-debug.apk)** · [All releases](https://github.com/kejie-tang/pararead-android/releases) · [Quick start](#quick-start) · [简体中文](README.zh-CN.md)
+**[Download preview APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.3/ParaRead-0.2.0-alpha.3-android-arm64-debug.apk)** · [All releases](https://github.com/kejie-tang/pararead-android/releases) · [Quick start](#quick-start) · [简体中文](README.zh-CN.md)
 
 An independent, unofficial Android adaptation of [ParaRead](https://github.com/Chuanyunux/pararead) 0.6.1. **Development preview:** ARM64 only; the app interface currently uses Chinese labels.
 
@@ -21,18 +21,18 @@ A translation is easier to check when the source is right beside it. ParaRead An
 | Feature | What you can do |
 | --- | --- |
 | Sentence alignment | Tap the source or translation to find the matching sentence, with highlighting, vertical alignment, and linked scrolling. |
-| On-device translation | Run a Qwen3 GGUF locally through llama.cpp. After downloading the model, translate without a remote translation service. |
+| On-device translation | Run a supported Qwen3, Qwen3.5, or LFM2.5 GGUF locally through llama.cpp. After downloading the model, translate without a remote translation service. |
 | Flexible reading pace | Translate a selected passage, the current page, nearby pages, or the whole document. Cancel when needed. |
 | Saved progress | Reuse cached translations and reading positions. Whole-document jobs save a checkpoint after each page and can continue when reopened with matching settings. |
 | Notes and PDF export | Keep local annotation drafts and save an annotated PDF copy. |
-| Your translation setup | Download, verify, import, or remove a supported model; adjust CPU threads and terminology; optionally use an OpenAI-compatible API. |
-| Test your device | Run a real-model speed test inside the app, compare response time and token/s, and export the results. |
+| Your translation setup | Search Hugging Face, choose a GGUF quantization, or download the default model; adjust CPU threads and terminology; optionally use an OpenAI-compatible API. |
+| Test your device | Run a real-model speed test inside the app, compare translation and raw engine token/s, and export the results. |
 
 ## Quick start
 
 **You need:** Android 9 / API 28 or newer, an ARM64 device, and an Android System WebView with `WebMessageListener` support. The layout is designed for tablets.
 
-1. **Install the [preview APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.2/ParaRead-0.2.0-alpha.2-android-arm64-debug.apk).** The current download is debug-signed (`0.2.0-alpha.2`). If upgrading from a differently signed build, you may need to uninstall first; export important annotated PDFs before uninstalling, which removes app data.
+1. **Install the [preview APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.3/ParaRead-0.2.0-alpha.3-android-arm64-debug.apk).** The current download is debug-signed (`0.2.0-alpha.3`). If upgrading from a differently signed build, you may need to uninstall first; export important annotated PDFs before uninstalling, which removes app data.
 2. **Open a PDF.** Try **打开示例文档** (Open sample document), or import a PDF with selectable text through the system file picker.
 3. **Download the local model.** Tap **下载默认模型** (Download default model), or open **设置 → 离线 GGUF** (Settings → Offline GGUF). The app checks the full file size and SHA-256 before enabling it.
 4. **Start reading.** Tap a sentence, translate a page, or start a whole-document job. Change the target language in **目标语言** (Target language). After an explicit cancellation, use **全篇 / 继续** (Whole document / Continue) to resume.
@@ -46,7 +46,9 @@ A translation is easier to check when the source is right beside it. ParaRead An
 | Storage | About **2.8 GB free during download and verification**, plus space for PDFs |
 | Runtime | llama.cpp on the CPU; automatic or manual thread count |
 | Source | A fixed, SHA-256-verified GGUF layer from the Ollama registry; **no Ollama app required** |
-| Manual imports | Qwen3 GGUF architecture only in this preview |
+| Model search / imports | Hugging Face search and single-file GGUF downloads; Qwen3, Qwen3.5 and LFM2.5 text templates |
+
+**Choose another model:** open **设置 → 离线 GGUF → 从 Hugging Face 搜索下载**. Search a model name or enter `org/repo`, inspect its license, and choose a quantization. Downloads are pinned to a repository commit and checked against its LFS SHA-256. A successful download replaces the current local model. LFM2.5 is experimental: small-model formatting and translation completeness have known failures. See the [actual model compatibility results](docs/reports/model-compatibility.md).
 
 Downloads use Android's system queue, with progress, cancellation, retry, and monitoring after reopening the app. Removing the model keeps your documents, reading progress, and translation cache. See [model management](docs/reports/model-management.md) and [CPU thread settings](docs/reports/cpu-threads.md) for implementation and test details (Chinese).
 
@@ -68,11 +70,12 @@ For a familiar research paper, download Vaswani et al., *Attention Is All You Ne
 
 **Test your own device inside the app:** open **设置 → 离线 GGUF → 速度测试** (Settings → Offline GGUF → Speed test), then tap **开始测速**. Download or import a model first. The test uses the CPU thread count currently entered in Settings, including edits you have not saved.
 
-- Runs one fixed English-to-Chinese sentence four times: once with a fresh model instance, then three times with the model loaded. The translation cache is bypassed.
+- Runs one fixed, original 158-word English-to-Chinese paragraph four times: once with a fresh model instance, then three times with the model loaded. The translation cache is bypassed.
 - Shows first stream response, completion time, and the median of the three warm runs. Generation speed uses native token counts, including JSON formatting tokens, divided by generation time.
+- Then measures three raw engine **pp512 / tg128** runs, excluding grammar, sampling and per-token UI callbacks. Reports decode, sampling/grammar and callback time separately.
 - Supports cancellation and screen rotation. The latest complete result stays on your device and can be exported as JSON with the model hash, device, threads, engine version, and all four samples.
 
-The reader pauses during testing and resumes after you close it. First-use timings include model loading; OS file caches are left intact. First response may be JSON syntax. This measures a short translation workload, not full-PDF throughput or translation quality. See [in-app test details](docs/reports/app-speed-test.md).
+The reader pauses during testing and resumes after you close it. First-use timings include model loading; OS file caches are left intact. First response may be JSON syntax. Translation and raw engine results measure different workloads; neither establishes full-PDF throughput or translation quality. The new JSON sampler avoids a full vocabulary grammar scan for accepted candidate tokens, and ARM kernels use KleidiAI runtime dispatch. See the [PocketPal comparison and measured limits](docs/reports/model-compatibility.md). See [in-app test details](docs/reports/app-speed-test.md).
 
 ### Earlier reference measurements
 
@@ -103,7 +106,7 @@ Output: `artifacts/translation-speed/summary.json`, with per-run logs alongside 
 
 ## Preview status
 
-**A working development preview, with physical-tablet validation still ahead.** Existing evidence covers 28 Kotlin core tests, 13 JS/bridge tests, 12 Android ARM64 emulator checks including the real-model in-app speed test, and a Chromium reading/annotation round trip. Real Qwen3 inference has also passed smoke checks on the host and an Android ARM64 emulator. See the [verification record](docs/reports/verification.json) and [public build checks](docs/reports/public-upload.md).
+**A working development preview, with physical-tablet validation still ahead.** Evidence covers core and bridge tests, Android ARM64 emulator checks including real-model speed and format tests, and a Chromium reading/annotation round trip. Real Qwen3 inference has also passed smoke checks on the host and an Android ARM64 emulator. See the [verification record](docs/reports/alpha3-verification.json) and [public build checks](docs/reports/public-upload.md).
 
 Physical-tablet performance, sustained real-model reading sessions, academic translation quality, process-kill/reboot recovery, accessibility, and stylus behavior still need validation. Synthetic 100/300/500 MiB PDF tests establish a limited baseline, not a complete real-document performance claim. This preview does not provide an OCR workflow for image-only scans, and legacy VS Code cache import is not implemented. Form-field changes above 512 pages are currently rejected; damaged or unusually complex PDFs may also hit explicit resource limits. See [compatibility](docs/compatibility.md), [performance](docs/performance.md), and the [task list](docs/tasks.md) for details (Chinese).
 
@@ -121,7 +124,7 @@ python3 scripts/fetch_llama.py
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
-Both source-fetch scripts verify pinned upstream Git blob hashes. Source snapshots live in the ignored `.references/` directory; model weights are not fetched by the build. `-PskipNative` produces a Mock-only prototype and cannot validate offline inference.
+The source-fetch scripts verify pinned upstream Git blob hashes and the KleidiAI source archive SHA-256. Source snapshots live in the ignored `.references/` directory; model weights are not fetched by the build. `-PskipNative` produces a Mock-only prototype and cannot validate offline inference.
 
 <details>
 <summary>Run checks and find the technical docs</summary>
@@ -140,7 +143,7 @@ Android instrumentation tests require an ARM64 device or emulator. The real-mode
 Most detailed engineering documents are currently in Chinese:
 
 - [Architecture](docs/architecture.md) and [message protocol](docs/bridge-protocol.md).
-- [Compatibility](docs/compatibility.md), [test records](docs/reports/verification.json), and [performance](docs/performance.md).
+- [Compatibility](docs/compatibility.md), [test records](docs/reports/alpha3-verification.json), and [performance](docs/performance.md).
 - [Whole-document recovery](docs/reports/whole-document-recovery.md) and [remaining work](docs/tasks.md).
 
 </details>
@@ -149,7 +152,7 @@ For newer debug builds, open [Android CI](https://github.com/kejie-tang/pararead
 
 ## Credits and license
 
-Built on [ParaRead](https://github.com/Chuanyunux/pararead) by Chuanyunux, whose upstream notices credit **vscode-pdf** by Mathematic Inc and **Mozilla PDF.js**. The TypeScript/PDF.js reader comes from ParaRead; this adaptation adds or modifies the Android host, file access, persistence, translation scheduling, model management, and JNI integration. Local inference uses [llama.cpp](https://github.com/ggml-org/llama.cpp) and separately downloaded Qwen3 weights.
+Built on [ParaRead](https://github.com/Chuanyunux/pararead) by Chuanyunux, whose upstream notices credit **vscode-pdf** by Mathematic Inc and **Mozilla PDF.js**. The TypeScript/PDF.js reader comes from ParaRead; this adaptation adds or modifies the Android host, file access, persistence, translation scheduling, model management, and JNI integration. Local inference uses [llama.cpp](https://github.com/ggml-org/llama.cpp) with Arm KleidiAI kernels and separately downloaded model weights.
 
 Android-original code and adaptation changes use **[Apache License 2.0](LICENSE)**. Third-party code, fonts, WASM, and model materials retain their own licenses. Keep the [NOTICE](NOTICE), [third-party disclosures](THIRD_PARTY_NOTICES.md), and [license originals](third_party/) with distributions. The project license does not grant rights to imported PDFs or arbitrary models and translations.
 
