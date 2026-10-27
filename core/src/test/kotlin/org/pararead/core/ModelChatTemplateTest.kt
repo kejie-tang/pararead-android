@@ -4,6 +4,14 @@ import org.junit.Test
 import kotlin.test.*
 
 class ModelChatTemplateTest {
+    @Test fun absentSystemMessageMatchesUserOnlyTranslationModelTemplates() {
+        val prompt = ModelPrompt("", "Translate this sentence.")
+        val user = "<|im_start|>user\nTranslate this sentence.<|im_end|>\n<|im_start|>assistant\n"
+        for (architecture in listOf("qwen3", "qwen35"))
+            assertEquals(user + "<think>\n\n</think>\n\n", ModelChatTemplate.render(architecture, prompt))
+        for (architecture in listOf("qwen2", "lfm2")) assertEquals(user, ModelChatTemplate.render(architecture, prompt))
+    }
+
     @Test fun qwenKeepsNoThinkingPrefillWhileLfmUsesItsActualChatmlTemplateAndAutomaticBos() {
         val prompt = ModelPrompt("Translate.", "A sentence.\n/no_think")
         assertEquals(Qwen3ChatTemplate.render(prompt), ModelChatTemplate.render("qwen3", prompt))

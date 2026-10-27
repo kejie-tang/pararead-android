@@ -120,7 +120,7 @@ The [plaintext diagnostic](tiny-translator-plain-probe.json) uses the models’ 
 
 LMT-60-0.6B translates the short, long, protected and negation samples into readable Chinese and preserves the exact protected markers. The long translation nevertheless omits “equations” from its first list. It is a useful candidate for a dedicated sentence-by-sentence plaintext adapter, but does not support the current JSON protocol reliably. A future adapter would need its own Android, cancellation, queue, glossary and placeholder checks.
 
-The publisher-linked Haidass Q8 GGUF produces corrupt text or invalid UTF-8 in the pinned engine even without JSON constraints. This result applies to this exact GGUF/runtime pair; it does not establish the quality of the original Transformers checkpoint. It is not recommended for the app.
+The publisher-linked Haidass Q8 GGUF produces corrupt text or invalid UTF-8 in the pinned engine's default configuration even without JSON constraints. This result applies to this exact GGUF/runtime pair; it does not establish the quality of the original Transformers checkpoint. A [later precision/template investigation](tiny-model-recovery.md) recovers readable output with F32 KV storage and Flash Attention disabled, but still fails protected-content checks in the queue. It is not recommended for the app.
 
 
 ## Release verification

@@ -1,0 +1,34 @@
+[
+  {
+    "repository": "unsloth/Qwen3-0.6B-GGUF",
+    "revision": "50968a4468ef4233ed78cd7c3de230dd1d61a56b",
+    "file": "Qwen3-0.6B-Q4_K_M.gguf",
+    "bytes": 396705472,
+    "sha256": "ac2d97712095a558e31573f62f466a3f9d93990898b0ec79d7c974c1780d524a",
+    "license": "apache-2.0"
+  },
+  {
+    "repository": "LiquidAI/LFM2.5-350M-GGUF",
+    "revision": "657e078c94084481950a2d555a941481f715536b",
+    "file": "LFM2.5-350M-Q4_K_M.gguf",
+    "bytes": 229312224,
+    "sha256": "7e6f72643caafc9a68256686638c4d7916f2cec76d1df478d4c3ddcd95a6aed4",
+    "license": "lfm1.0"
+  },
+  {
+    "repository": "Qwen/Qwen2.5-0.5B-Instruct-GGUF",
+    "revision": "9217f5db79a29953eb74d5343926648285ec7e67",
+    "file": "qwen2.5-0.5b-instruct-q4_k_m.gguf",
+    "bytes": 491400032,
+    "sha256": "74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db",
+    "license": "apache-2.0"
+  },
+  {
+    "repository": "umeiko/Haidass-Translate-143M-GGUF",
+    "revision": "0763c602a8099460a5fc767ee095abbe13f87332",
+    "file": "haidass-translate-143m-q8_0.gguf",
+    "bytes": 188214496,
+    "sha256": "37b8c73c9323fb17687ba286968e92f88387e659f5162526b03bf34b5f3fe990",
+    "license": "apache-2.0"
+  }
+]

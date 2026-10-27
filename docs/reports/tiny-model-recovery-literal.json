@@ -1,0 +1,228 @@
+{
+  "physicalAndroidDevice": false,
+  "models": [
+    {
+      "cases": [
+        {
+          "fixture": "short",
+          "tokensPerSecond": 222.2547372671187,
+          "sourceText": "We propose a memory-efficient method for translating scientific documents.",
+          "restored": "我们提出一种节省存储和处理科学文档的方法。",
+          "raw": "我们提出一种节省存储和处理科学文档的方法。",
+          "user": "Translate the following text from English to Simplified Chinese.\nWe propose a memory-efficient method for translating scientific documents.",
+          "generatedTokens": 15,
+          "status": "passed"
+        },
+        {
+          "fixture": "long",
+          "tokensPerSecond": 232.87040019026009,
+          "sourceText": "Scientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead.",
+          "restored": "科学文献中，文本包含连续的叙述与公式、表格、参考文献和技术术语。一个有用的阅读助手应翻译文本，同时保留原文的意义和文本结构。研究人员往往阅读相同段落多次，理解新颖的方法并比较它与早期研究。当地语言模型可以支持这一过程，避免将文档送往远程服务。它们的实用速度取决于存储带宽、处理器指令、工作者线程和处理的上下文数量。短答案可能会在处理器达到平稳运行状态之前结束，因此重复输出的测量值也很有用。提交提示和生成标记应被测量，因为它们执行不同的计算类型。公平的比较还记录模型文件、推理设置和设备条件。这个实验的目标是制作一个真实的中文翻译，并保留足够的时序信息，以区分发射性能与应用开销。",
+          "raw": "科学文献中，文本包含连续的叙述与公式、表格、参考文献和技术术语。一个有用的阅读助手应翻译文本，同时保留原文的意义和文本结构。研究人员往往阅读相同段落多次，理解新颖的方法并比较它与早期研究。当地语言模型可以支持这一过程，避免将文档送往远程服务。它们的实用速度取决于存储带宽、处理器指令、工作者线程和处理的上下文数量。短答案可能会在处理器达到平稳运行状态之前结束，因此重复输出的测量值也很有用。提交提示和生成标记应被测量，因为它们执行不同的计算类型。公平的比较还记录模型文件、推理设置和设备条件。这个实验的目标是制作一个真实的中文翻译，并保留足够的时序信息，以区分发射性能与应用开销。",
+          "user": "Translate the following text from English to Simplified Chinese.\nScientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead.",
+          "generatedTokens": 235,
+          "status": "passed"
+        },
+        {
+          "fixture": "protected",
+          "tokensPerSecond": 255.42571716477264,
+          "sourceText": "The model processes 100 pages using 4 GB of memory [12]. For $E=mc^2$, see https://example.org/paper.",
+          "raw": "这模型用4GB的存储空间处理100页 [12]。对于E=mc²，请查看https://example.org/paper。",
+          "error": "java.lang.IllegalArgumentException: LITERAL_PROTECTED_CONTENT_MISMATCH",
+          "user": "Translate the following text from English to Simplified Chinese.\nThe model processes 100 pages using 4 GB of memory [12]. For $E=mc^2$, see https://example.org/paper.",
+          "generatedTokens": 32,
+          "status": "failed"
+        },
+        {
+          "fixture": "negation",
+          "tokensPerSecond": 275.0771505445668,
+          "sourceText": "The increase was not statistically significant. The result may indicate an association, but it does not establish causation.",
+          "restored": "增加不显著。结果可能与某个因素相关，但不能证明因果关系。",
+          "raw": "增加不显著。结果可能与某个因素相关，但不能证明因果关系。",
+          "user": "Translate the following text from English to Simplified Chinese.\nThe increase was not statistically significant. The result may indicate an association, but it does not establish causation.",
+          "generatedTokens": 20,
+          "status": "passed"
+        },
+        {
+          "fixture": "protected-numeric-single",
+          "tokensPerSecond": 281.7507662024253,
+          "sourceText": "The model processes 100 pages using 4 GB of memory [12].",
+          "raw": "模型处理100页，使用4GB的存储 [12]",
+          "error": "java.lang.IllegalArgumentException: LITERAL_PROTECTED_CONTENT_MISMATCH",
+          "user": "Translate the following text from English to Simplified Chinese.\nThe model processes 100 pages using 4 GB of memory [12].",
+          "generatedTokens": 15,
+          "status": "failed"
+        },
+        {
+          "fixture": "protected-equation-single",
+          "tokensPerSecond": 229.537544767585,
+          "sourceText": "For $E=mc^2$, retain the equation and see https://example.org/paper.",
+          "raw": "对于E=mc²，保持公式并查看https://example.org/paper",
+          "error": "java.lang.IllegalArgumentException: LITERAL_PROTECTED_CONTENT_MISMATCH",
+          "user": "Translate the following text from English to Simplified Chinese.\nFor $E=mc^2$, retain the equation and see https://example.org/paper.",
+          "generatedTokens": 17,
+          "status": "failed"
+        }
+      ],
+      "source": {
+        "license": "lfm1.0",
+        "file": "LFM2.5-350M-Q4_K_M.gguf",
+        "sha256": "7e6f72643caafc9a68256686638c4d7916f2cec76d1df478d4c3ddcd95a6aed4",
+        "bytes": 229312224,
+        "repository": "LiquidAI/LFM2.5-350M-GGUF",
+        "revision": "657e078c94084481950a2d555a941481f715536b"
+      }
+    },
+    {
+      "cases": [
+        {
+          "fixture": "short",
+          "tokensPerSecond": 156.14867821315008,
+          "sourceText": "We propose a memory-efficient method for translating scientific documents.",
+          "restored": "我们提出了一种高效的翻译方法，用于科学文档。",
+          "raw": "我们提出了一种高效的翻译方法，用于科学文档。",
+          "user": "Translate the following text from English to Simplified Chinese.\nWe propose a memory-efficient method for translating scientific documents.",
+          "generatedTokens": 12,
+          "status": "passed"
+        },
+        {
+          "fixture": "long",
+          "tokensPerSecond": 139.38971877424083,
+          "sourceText": "Scientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead.",
+          "restored": "科学文档结合了连续的段落、方程、表格、参考和技术术语。一个有用的阅读助手应该将段落翻译，同时保持原文的意义和文档的结构。研究人员通常多次阅读同一段落来理解一个不熟悉的方法，并与先前的工作进行比较。本地语言模型可以支持这个过程，而无需将文档发送到远程服务。他们的实际速度取决于内存带宽、处理器指令、线程、以及被处理的上下文数量。一个短的答案可能在处理器稳定运行后才结束，因此多次测量较长的输出是有用的。在处理和生成提示时，应该分别测量它们的计算方式。一个公平的比较也记录了模型文件、推理设置和设备条件。这个实验的目标是生产一个忠实的中文翻译，保留足够的时间信息，以便区分发动机性能和应用开销。",
+          "raw": "科学文档结合了连续的段落、方程、表格、参考和技术术语。一个有用的阅读助手应该将段落翻译，同时保持原文的意义和文档的结构。研究人员通常多次阅读同一段落来理解一个不熟悉的方法，并与先前的工作进行比较。本地语言模型可以支持这个过程，而无需将文档发送到远程服务。他们的实际速度取决于内存带宽、处理器指令、线程、以及被处理的上下文数量。一个短的答案可能在处理器稳定运行后才结束，因此多次测量较长的输出是有用的。在处理和生成提示时，应该分别测量它们的计算方式。一个公平的比较也记录了模型文件、推理设置和设备条件。这个实验的目标是生产一个忠实的中文翻译，保留足够的时间信息，以便区分发动机性能和应用开销。",
+          "user": "Translate the following text from English to Simplified Chinese.\nScientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead.",
+          "generatedTokens": 174,
+          "status": "passed"
+        },
+        {
+          "fixture": "protected",
+          "tokensPerSecond": 145.41827789567748,
+          "sourceText": "The model processes 100 pages using 4 GB of memory [12]. For $E=mc^2$, see https://example.org/paper.",
+          "raw": "该模型使用4GB内存处理100页，[12]。对于E=mc^2，参见https://example.org/paper。",
+          "error": "java.lang.IllegalArgumentException: LITERAL_PROTECTED_CONTENT_MISMATCH",
+          "user": "Translate the following text from English to Simplified Chinese.\nThe model processes 100 pages using 4 GB of memory [12]. For $E=mc^2$, see https://example.org/paper.",
+          "generatedTokens": 33,
+          "status": "failed"
+        },
+        {
+          "fixture": "negation",
+          "sourceText": "The increase was not statistically significant. The result may indicate an association, but it does not establish causation.",
+          "raw": "增加没有显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著性统计显著",
+          "error": "java.lang.IllegalStateException: TRUNCATED_GENERATION",
+          "user": "Translate the following text from English to Simplified Chinese.\nThe increase was not statistically significant. The result may indicate an association, but it does not establish causation.",
+          "status": "failed"
+        },
+        {
+          "fixture": "protected-numeric-single",
+          "tokensPerSecond": 136.99074770483347,
+          "sourceText": "The model processes 100 pages using 4 GB of memory [12].",
+          "raw": "该模型使用4GB内存处理100页，[12]",
+          "error": "java.lang.IllegalArgumentException: LITERAL_PROTECTED_CONTENT_MISMATCH",
+          "user": "Translate the following text from English to Simplified Chinese.\nThe model processes 100 pages using 4 GB of memory [12].",
+          "generatedTokens": 16,
+          "status": "failed"
+        },
+        {
+          "fixture": "protected-equation-single",
+          "tokensPerSecond": 159.7359614253272,
+          "sourceText": "For $E=mc^2$, retain the equation and see https://example.org/paper.",
+          "raw": "对于E=mc²，保留方程，查看 https://example.org/paper。",
+          "error": "java.lang.IllegalArgumentException: LITERAL_PROTECTED_CONTENT_MISMATCH",
+          "user": "Translate the following text from English to Simplified Chinese.\nFor $E=mc^2$, retain the equation and see https://example.org/paper.",
+          "generatedTokens": 18,
+          "status": "failed"
+        }
+      ],
+      "source": {
+        "license": "apache-2.0",
+        "file": "qwen2.5-0.5b-instruct-q4_k_m.gguf",
+        "sha256": "74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db",
+        "bytes": 491400032,
+        "repository": "Qwen/Qwen2.5-0.5B-Instruct-GGUF",
+        "revision": "9217f5db79a29953eb74d5343926648285ec7e67"
+      }
+    },
+    {
+      "cases": [
+        {
+          "fixture": "short",
+          "tokensPerSecond": 120.90902061698301,
+          "sourceText": "We propose a memory-efficient method for translating scientific documents.",
+          "restored": "我们提议一种用于将科学文件翻译成计算机的内存效率。",
+          "raw": "我们提议一种用于将科学文件翻译成计算机的内存效率。",
+          "user": "Translate the following text from English to Simplified Chinese.\nWe propose a memory-efficient method for translating scientific documents.",
+          "generatedTokens": 14,
+          "status": "passed"
+        },
+        {
+          "fixture": "long",
+          "tokensPerSecond": 114.61146203240864,
+          "sourceText": "Scientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead.",
+          "restored": "科学文件综合了连续的叙述和方程式，表、图、参考文献和技术术语。一个有用的阅读助手应该翻译出来的文字，同时保留原始含义和文档的结构。研究人员经常阅读同一段，以了解一个不熟悉的程序，并比较它与先前工作。本地语言模型可以支持这种过程，而不是发送文件到一个遥远的服务。他们的实际速度取决于内存带宽、处理器指令、worker线程、上下文信息和计算量。一个短答案可能会结束，因为它执行不同的类型的计算。一个公平的比较是，在长时间的输出中，应该使用更长的输出。快速的程序和 token generation应该分别记录，因为它们执行不同的计算类型。一个很好的实验是要生成一个忠实的中文翻译和保留足够的时间信息来区分发动机性能和应用程序的负载。",
+          "raw": "科学文件综合了连续的叙述和方程式，表、图、参考文献和技术术语。一个有用的阅读助手应该翻译出来的文字，同时保留原始含义和文档的结构。研究人员经常阅读同一段，以了解一个不熟悉的程序，并比较它与先前工作。本地语言模型可以支持这种过程，而不是发送文件到一个遥远的服务。他们的实际速度取决于内存带宽、处理器指令、worker线程、上下文信息和计算量。一个短答案可能会结束，因为它执行不同的类型的计算。一个公平的比较是，在长时间的输出中，应该使用更长的输出。快速的程序和 token generation应该分别记录，因为它们执行不同的计算类型。一个很好的实验是要生成一个忠实的中文翻译和保留足够的时间信息来区分发动机性能和应用程序的负载。",
+          "user": "Translate the following text from English to Simplified Chinese.\nScientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead.",
+          "generatedTokens": 186,
+          "status": "passed"
+        },
+        {
+          "fixture": "protected",
+          "tokensPerSecond": 121.34887919262805,
+          "sourceText": "The model processes 100 pages using 4 GB of memory [12]. For $E=mc^2$, see https://example.org/paper.",
+          "raw": "模型使用4GB的内存处理100页[12]。对于E=mc^2，请参阅https://example.org/paper.",
+          "error": "java.lang.IllegalArgumentException: LITERAL_PROTECTED_CONTENT_MISMATCH",
+          "user": "Translate the following text from English to Simplified Chinese.\nThe model processes 100 pages using 4 GB of memory [12]. For $E=mc^2$, see https://example.org/paper.",
+          "generatedTokens": 35,
+          "status": "failed"
+        },
+        {
+          "fixture": "negation",
+          "tokensPerSecond": 122.9318911838042,
+          "sourceText": "The increase was not statistically significant. The result may indicate an association, but it does not establish causation.",
+          "restored": "结果没有统计显著性。结果可能表明一个关联，但没有确定因果关系。",
+          "raw": "结果没有统计显著性。结果可能表明一个关联，但没有确定因果关系。",
+          "user": "Translate the following text from English to Simplified Chinese.\nThe increase was not statistically significant. The result may indicate an association, but it does not establish causation.",
+          "generatedTokens": 18,
+          "status": "passed"
+        },
+        {
+          "fixture": "protected-numeric-single",
+          "tokensPerSecond": 121.22730523823186,
+          "sourceText": "The model processes 100 pages using 4 GB of memory [12].",
+          "raw": "模型使用4GB的内存处理100页[12]。",
+          "error": "java.lang.IllegalArgumentException: LITERAL_PROTECTED_CONTENT_MISMATCH",
+          "user": "Translate the following text from English to Simplified Chinese.\nThe model processes 100 pages using 4 GB of memory [12].",
+          "generatedTokens": 15,
+          "status": "failed"
+        },
+        {
+          "fixture": "protected-equation-single",
+          "tokensPerSecond": 120.22150812872718,
+          "sourceText": "For $E=mc^2$, retain the equation and see https://example.org/paper.",
+          "raw": "对于E=mc^2，保留等式，并查看https://example.org/paper。",
+          "error": "java.lang.IllegalArgumentException: LITERAL_PROTECTED_CONTENT_MISMATCH",
+          "user": "Translate the following text from English to Simplified Chinese.\nFor $E=mc^2$, retain the equation and see https://example.org/paper.",
+          "generatedTokens": 24,
+          "status": "failed"
+        }
+      ],
+      "source": {
+        "license": "apache-2.0",
+        "file": "haidass-translate-143m-q8_0.gguf",
+        "fullPrecisionKv": true,
+        "sha256": "37b8c73c9323fb17687ba286968e92f88387e659f5162526b03bf34b5f3fe990",
+        "bytes": 188214496,
+        "greedy": true,
+        "repository": "umeiko/Haidass-Translate-143M-GGUF",
+        "revision": "0763c602a8099460a5fc767ee095abbe13f87332"
+      }
+    }
+  ],
+  "productionJsonProtocol": false,
+  "threads": 6,
+  "literalProtectedContent": true,
+  "diagnosticOnly": true,
+  "platform": "Mac OS X aarch64",
+  "promptTemplate": "empty system turn present; before user-only template correction",
+  "exactLiteralSpanMatchRequired": true
+}

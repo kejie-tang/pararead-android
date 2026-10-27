@@ -13,13 +13,15 @@ import java.util.concurrent.ConcurrentHashMap
 
 /** Real production queue and real model retries; replayed first answers are explicitly labelled. */
 suspend fun runRecoveryCheck(args: List<String>) {
-    require(args.size == 2 || args.size == 3 && args[2] == "text-only") { "recovery report.json manifest.json [text-only]" }
+    require(args.size == 2 || args.size == 3 && args[2] in setOf("text-only", "user-only")) { "recovery report.json manifest.json [text-only|user-only]" }
     val textOnly = args.getOrNull(2) == "text-only"
+    val userOnly = args.getOrNull(2) == "user-only"
     val output = File(args[0]); val manifest = JSONArray(File(args[1]).readText())
     val models = JSONArray()
     val report = JSONObject().put("platform", "${System.getProperty("os.name")} ${System.getProperty("os.arch")}")
         .put("physicalAndroidDevice", false).put("hardware", System.getenv("PARAREAD_HARDWARE") ?: "not recorded").put("threads", 6)
         .put("engine", NativeBridge.version()).put("policy", "partial-row-commit; targeted JSON retry; strict single-text final retry")
+        .put("diagnosticUserOnlyAdapter", userOnly).put("adapterInAndroidApp", false)
         .put("formatPassCertifiesSemanticAccuracy", false).put("models", models)
     fun save() { output.parentFile.mkdirs(); output.writeText(report.toString(2) + "\n") }
     val fixtures = linkedMapOf(
@@ -43,7 +45,7 @@ suspend fun runRecoveryCheck(args: List<String>) {
         val hash = digest.digest().joinToString("") { "%02x".format(it) }
         require(hash == source.getString("sha256") && file.length() == source.getLong("bytes")) { "MODEL_MANIFEST_MISMATCH" }
         val model = JSONObject().put("source", source).put("sha256", hash).put("cases", JSONArray()); models.put(model); save()
-        val provider = LlamaCppProvider(file.path, 6)
+        val provider = LlamaCppProvider(file.path, 6, fullPrecisionKv = source.optBoolean("fullPrecisionKv"), greedy = source.optBoolean("greedy"))
         try {
             suspend fun queueCase(name: String, sentences: List<SourceSentence>, replay: String? = null) {
                 val entry = JSONObject().put("fixture", name).put("replayedFirstAnswer", replay != null).put("attempts", JSONArray())
@@ -51,12 +53,35 @@ suspend fun runRecoveryCheck(args: List<String>) {
                 val values = ConcurrentHashMap<String, String>(); val committed = JSONArray(); entry.put("commits", committed)
                 val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
                 var calls = 0
+                var nativeCalls = 0
                 val wrapped = object : TranslationProvider {
                     override fun generate(prompt: ModelPrompt) = flow {
                         val attempt = JSONObject().put("format", prompt.outputFormat.name).put("system", prompt.system).put("input", prompt.user)
                         entry.getJSONArray("attempts").put(attempt); calls++
                         if (calls == 1 && replay != null) {
                             attempt.put("replayed", true).put("raw", replay); emit(ProviderEvent.Complete(replay))
+                        } else if (userOnly) {
+                            // Research adapter: the program owns IDs/JSON, the model translates one protected text.
+                            // Fixed English -> Simplified Chinese, empty glossary; deliberately not selected by the app.
+                            val rows = if (prompt.outputFormat == ModelOutputFormat.TEXT)
+                                JSONArray().put(JSONObject().put("text", prompt.user.removeSuffix("\n/no_think")))
+                            else JSONObject(prompt.user.removeSuffix("\n/no_think")).getJSONArray("sentences")
+                            val outputs = JSONArray(); val real = JSONArray(); attempt.put("nativeCalls", real)
+                            for (index in 0 until rows.length()) {
+                                val row = rows.getJSONObject(index)
+                                val nativePrompt = ModelPrompt("", "Translate the following text from English to Simplified Chinese.\n" + row.getString("text"), outputFormat = ModelOutputFormat.TEXT)
+                                val record = JSONObject().put("system", nativePrompt.system).put("user", nativePrompt.user)
+                                real.put(record); nativeCalls++
+                                val raw = StringBuilder()
+                                try {
+                                    provider.generate(nativePrompt).collect { if (it is ProviderEvent.Delta) raw.append(it.text) }
+                                } finally { record.put("raw", raw.toString()) }
+                                provider.metrics?.let { record.put("generatedTokens", it.generatedTokens).put("tokensPerSecond", it.tokensPerSecond) }
+                                outputs.put(JSONObject().put("id", row.optString("id")).put("translation", raw.toString()))
+                            }
+                            val raw = if (prompt.outputFormat == ModelOutputFormat.TEXT) outputs.getJSONObject(0).getString("translation")
+                                else JSONObject().put("translations", outputs).toString()
+                            attempt.put("raw", raw); emit(ProviderEvent.Complete(raw))
                         } else provider.generate(prompt).collect { event ->
                             if (event is ProviderEvent.Complete) {
                                 attempt.put("raw", event.text)
@@ -89,7 +114,9 @@ suspend fun runRecoveryCheck(args: List<String>) {
                     reopened.await(); check(calls == before) { "CACHED_SENTENCE_RETRANSLATED" }; entry.put("cacheReopenCalls", calls - before)
                 } } catch (e: Exception) { entry.put("status", "failed").put("error", e.toString()) }
                 finally { scope.cancel() }
-                entry.put("totalMs", (System.nanoTime() - started) / 1e6); save()
+                entry.put("totalMs", (System.nanoTime() - started) / 1e6).put("providerCalls", calls)
+                if (userOnly) entry.put("nativeCalls", nativeCalls)
+                save()
                 println("${file.name} $name: ${entry.optString("status")} calls=$calls")
             }
             if (!textOnly) for ((name, sentences) in fixtures) queueCase(name, sentences)
@@ -100,7 +127,7 @@ suspend fun runRecoveryCheck(args: List<String>) {
                 queueCase("recorded-android-first-answer-real-recovery", fixtures.getValue("protected-batch"), raw)
             }
             val textCases = JSONArray(); model.put("textOnlyDiagnostics", textCases)
-            for (sentence in fixtures.getValue("protected-batch")) {
+            for (sentence in if (userOnly) emptyList() else fixtures.getValue("protected-batch")) {
                 val (prompt, protected) = StructuredTranslation.textPrompt(sentence, config)
                 val entry = JSONObject().put("source", sentence.text).put("system", prompt.system).put("input", prompt.user); textCases.put(entry)
                 var raw = ""

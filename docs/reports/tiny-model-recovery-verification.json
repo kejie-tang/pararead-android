@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-27",
+  "baseCommit": "ebea37aff1d9fcd5591c849de402dcb1fe855a4a",
+  "releaseCreated": false,
+  "releasedAppVersion": "0.2.0-alpha.5",
+  "researchAdapterEnabledInApp": false,
+  "physicalDimensity9400Tested": false,
+  "core": {
+    "tests": 42,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "sourceContractsPassed": 16,
+  "hostDefaultProviderJniRegressionsPassed": 4,
+  "androidDefaultProvider": {
+    "instrumentationTestsPassed": 1,
+    "directFixturesPassed": 4,
+    "protectedQueue": "passed",
+    "cacheReopenCalls": 0,
+    "physicalAndroidDevice": false,
+    "buildNote": "Unreleased diagnostic source based on alpha.5; default runtime controls retained."
+  },
+  "buildAndLint": "passed",
+  "researchAdapterHostResults": [
+    {
+      "file": "LFM2.5-350M-Q4_K_M.gguf",
+      "workloads": 6,
+      "passed": 6,
+      "nativeCalls": 9,
+      "physicalAndroidDevice": false
+    },
+    {
+      "file": "qwen2.5-0.5b-instruct-q4_k_m.gguf",
+      "workloads": 6,
+      "passed": 4,
+      "nativeCalls": 15,
+      "physicalAndroidDevice": false
+    },
+    {
+      "file": "haidass-translate-143m-q8_0.gguf",
+      "workloads": 6,
+      "passed": 4,
+      "nativeCalls": 13,
+      "physicalAndroidDevice": false
+    }
+  ],
+  "formatPassCertifiesSemanticAccuracy": false,
+  "researchFailuresRetained": true,
+  "temporaryAndroidModelRemoved": true,
+  "headlessEmulatorStopped": true
+}

@@ -56,7 +56,7 @@ static std::string utf8(JNIEnv * env, jstring value) {
     env->DeleteLocalRef(bytes); env->DeleteLocalRef(encoding); env->DeleteLocalRef(cls);
     return result;
 }
-extern "C" JNIEXPORT jlong JNICALL Java_org_pararead_llama_NativeBridge_load(JNIEnv * env, jobject, jstring path, jint threads) {
+extern "C" JNIEXPORT jlong JNICALL Java_org_pararead_llama_NativeBridge_load(JNIEnv * env, jobject, jstring path, jint threads, jboolean full_precision_kv) {
     try {
         std::call_once(backend_once, [] { llama_backend_init(); });
         auto engine = std::make_unique<Engine>();
@@ -69,6 +69,10 @@ extern "C" JNIEXPORT jlong JNICALL Java_org_pararead_llama_NativeBridge_load(JNI
         if (engine->architecture != "qwen2" && engine->architecture != "qwen3" && engine->architecture != "qwen35" && engine->architecture != "lfm2")
             throw std::runtime_error("MODEL_TEMPLATE_UNSUPPORTED: supported architectures: qwen2 / qwen3 / qwen35 / lfm2");
         auto cp = llama_context_default_params(); cp.n_ctx = 4096; cp.n_batch = 512; cp.n_ubatch = 128;
+        if (full_precision_kv) {
+            cp.type_k = GGML_TYPE_F32; cp.type_v = GGML_TYPE_F32;
+            cp.flash_attn_type = LLAMA_FLASH_ATTN_TYPE_DISABLED;
+        }
         cp.n_threads = threads; cp.n_threads_batch = threads;
         cp.abort_callback = abort_decode; cp.abort_callback_data = engine.get();
         engine->context = llama_init_from_model(engine->model, cp);
@@ -76,7 +80,7 @@ extern "C" JNIEXPORT jlong JNICALL Java_org_pararead_llama_NativeBridge_load(JNI
         return reinterpret_cast<jlong>(engine.release());
     } catch (const std::exception & e) { fail(env, e.what()); return 0; }
 }
-extern "C" JNIEXPORT jlongArray JNICALL Java_org_pararead_llama_NativeBridge_generate(JNIEnv * env, jobject, jlong handle, jstring input, jobject callback, jint expected_results, jboolean constrain_json) {
+extern "C" JNIEXPORT jlongArray JNICALL Java_org_pararead_llama_NativeBridge_generate(JNIEnv * env, jobject, jlong handle, jstring input, jobject callback, jint expected_results, jboolean constrain_json, jboolean greedy) {
     auto * engine = reinterpret_cast<Engine *>(handle);
     if (!engine) { fail(env, "MODEL_NOT_LOADED"); return nullptr; }
     try {
@@ -111,10 +115,13 @@ extern "C" JNIEXPORT jlongArray JNICALL Java_org_pararead_llama_NativeBridge_gen
         auto * grammar = constrain_json ? llama_sampler_init_grammar(vocab, output_grammar.c_str(), "root") : nullptr;
         std::unique_ptr<llama_sampler, decltype(&llama_sampler_free)> grammar_holder(grammar, llama_sampler_free);
         if (constrain_json && !grammar) throw std::runtime_error("TRANSLATION_GRAMMAR_INIT_FAILED");
-        llama_sampler_chain_add(sampler, llama_sampler_init_top_k(20));
-        llama_sampler_chain_add(sampler, llama_sampler_init_top_p(0.8f, 1));
-        llama_sampler_chain_add(sampler, llama_sampler_init_temp(0.2f));
-        llama_sampler_chain_add(sampler, llama_sampler_init_dist(42));
+        if (greedy) llama_sampler_chain_add(sampler, llama_sampler_init_greedy());
+        else {
+            llama_sampler_chain_add(sampler, llama_sampler_init_top_k(20));
+            llama_sampler_chain_add(sampler, llama_sampler_init_top_p(0.8f, 1));
+            llama_sampler_chain_add(sampler, llama_sampler_init_temp(0.2f));
+            llama_sampler_chain_add(sampler, llama_sampler_init_dist(42));
+        }
         std::vector<char> piece(256);
         std::vector<llama_token_data> candidates(llama_vocab_n_tokens(vocab));
         auto sample = [&]() -> llama_token {
@@ -236,4 +243,4 @@ extern "C" JNIEXPORT void JNICALL Java_org_pararead_llama_NativeBridge_cancel(JN
     if (handle) reinterpret_cast<Engine *>(handle)->cancelled.store(true);
 }
 extern "C" JNIEXPORT void JNICALL Java_org_pararead_llama_NativeBridge_free(JNIEnv *, jobject, jlong handle) { delete reinterpret_cast<Engine *>(handle); }
-extern "C" JNIEXPORT jstring JNICALL Java_org_pararead_llama_NativeBridge_version(JNIEnv * env, jobject) { return env->NewStringUTF("llama.cpp@2280f0fd163b03d4331d49e08460f66502e35854;cpu;arm64;ctx4096;proposal-exact-grammar-v3;templates-qwen2-qwen3-qwen35-lfm2"); }
+extern "C" JNIEXPORT jstring JNICALL Java_org_pararead_llama_NativeBridge_version(JNIEnv * env, jobject) { return env->NewStringUTF("llama.cpp@2280f0fd163b03d4331d49e08460f66502e35854;cpu;arm64;ctx4096;proposal-exact-grammar-v3;templates-qwen2-qwen3-qwen35-lfm2;diagnostic-f32kv-flashoff-greedy-v1"); }

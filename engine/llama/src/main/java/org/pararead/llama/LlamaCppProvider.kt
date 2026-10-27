@@ -16,9 +16,14 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
 
-/** All model/context operations share one executor. cancel() only sets the native atomic abort flag. */
+/**
+ * All model/context operations share one executor. cancel() only sets the native atomic abort flag.
+ * fullPrecisionKv opts into F32 KV storage with Flash Attention disabled; greedy opts into temperature 0.
+ * Both options are explicit research controls. App model selection does not enable them automatically.
+ */
 class LlamaCppProvider(private val path: String, requestedThreads: Int = 0, private val singleResult: Boolean = false,
-    private val constrainJson: Boolean = true) : MeasuredTranslationProvider {
+    private val constrainJson: Boolean = true, private val fullPrecisionKv: Boolean = false,
+    private val greedy: Boolean = false) : MeasuredTranslationProvider {
     val threadCount = CpuThreads.resolve(requestedThreads)
     @Volatile override var metrics: GenerationMetrics? = null
         private set
@@ -38,7 +43,7 @@ class LlamaCppProvider(private val path: String, requestedThreads: Int = 0, priv
                 metrics = null
                 check(!closed.get() && !cancelled.get())
                 if (handle.get() == 0L) {
-                    handle.set(NativeBridge.load(path, threadCount))
+                    handle.set(NativeBridge.load(path, threadCount, fullPrecisionKv))
                     architecture = NativeBridge.architecture(handle.get())
                 }
                 if (cancelled.get() || closed.get()) return@execute
@@ -59,7 +64,7 @@ class LlamaCppProvider(private val path: String, requestedThreads: Int = 0, priv
                     }
                 }
                 val measured = NativeBridge.generate(handle.get(), input, callback, if (singleResult) 1 else prompt.expectedResults,
-                    constrainJson && prompt.outputFormat == ModelOutputFormat.TRANSLATION_JSON)
+                    constrainJson && prompt.outputFormat == ModelOutputFormat.TRANSLATION_JSON, greedy)
                 check(!cancelled.get()) { "INFERENCE_CANCELLED" }
                 check(pending.isEmpty()) { "INCOMPLETE_UTF8_TOKEN" }
                 check(measured.size == 7) { "INVALID_NATIVE_TOKEN_METRICS" }
@@ -96,7 +101,7 @@ class LlamaCppProvider(private val path: String, requestedThreads: Int = 0, priv
             try {
                 check(!closed.get()) { "MODEL_CLOSED" }
                 if (handle.get() == 0L) {
-                    handle.set(NativeBridge.load(path, threadCount)); architecture = NativeBridge.architecture(handle.get())
+                    handle.set(NativeBridge.load(path, threadCount, fullPrecisionKv)); architecture = NativeBridge.architecture(handle.get())
                 }
                 val callback = object : TokenCallback { override fun onBytes(bytes: ByteArray) = !result.isCancelled && !closed.get() }
                 if (!result.isCancelled && !closed.get()) result.complete(NativeBridge.benchmark(handle.get(), promptTokens, generatedTokens, callback))
@@ -116,8 +121,8 @@ private fun java.nio.charset.CoderResult.throwIfError() { if (isError) throwExce
 interface TokenCallback { fun onBytes(bytes: ByteArray): Boolean }
 object NativeBridge {
     init { System.loadLibrary("pararead-llama") }
-    external fun load(path: String, threads: Int): Long
-    external fun generate(handle: Long, prompt: String, callback: TokenCallback, expectedResults: Int, constrainJson: Boolean): LongArray
+    external fun load(path: String, threads: Int, fullPrecisionKv: Boolean): Long
+    external fun generate(handle: Long, prompt: String, callback: TokenCallback, expectedResults: Int, constrainJson: Boolean, greedy: Boolean): LongArray
     external fun architecture(handle: Long): String
     external fun systemInfo(): String
     external fun benchmark(handle: Long, promptTokens: Int, generatedTokens: Int, callback: TokenCallback): DoubleArray
