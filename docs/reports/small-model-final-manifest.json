@@ -1,0 +1,50 @@
+[
+  {
+    "file": "Qwen3-1.7B-Q4_K_M.gguf",
+    "bytes": 1359279776,
+    "sha256": "3d0b790534fe4b79525fc3692950408dca41171676ed7e21db57af5c65ef6ab6",
+    "repository": "Ollama/library/qwen3:1.7b",
+    "license": "apache-2.0",
+    "url": "https://registry.ollama.ai/v2/library/qwen3/blobs/sha256:3d0b790534fe4b79525fc3692950408dca41171676ed7e21db57af5c65ef6ab6"
+  },
+  {
+    "repository": "unsloth/Qwen3-0.6B-GGUF",
+    "revision": "50968a4468ef4233ed78cd7c3de230dd1d61a56b",
+    "file": "Qwen3-0.6B-Q4_K_M.gguf",
+    "bytes": 396705472,
+    "sha256": "ac2d97712095a558e31573f62f466a3f9d93990898b0ec79d7c974c1780d524a",
+    "license": "apache-2.0"
+  },
+  {
+    "repository": "unsloth/Qwen3-0.6B-GGUF",
+    "revision": "50968a4468ef4233ed78cd7c3de230dd1d61a56b",
+    "file": "Qwen3-0.6B-Q4_0.gguf",
+    "bytes": 382156480,
+    "sha256": "33bcc57074ec7b6eada5a90651ee546ec0c2b271002c22baf9f1b2dd1e8f75cb",
+    "license": "apache-2.0"
+  },
+  {
+    "repository": "Qwen/Qwen3-0.6B-GGUF",
+    "revision": "23749fefcc72300e3a2ad315e1317431b06b590a",
+    "file": "Qwen3-0.6B-Q8_0.gguf",
+    "bytes": 639446688,
+    "sha256": "9465e63a22add5354d9bb4b99e90117043c7124007664907259bd16d043bb031",
+    "license": "apache-2.0"
+  },
+  {
+    "repository": "Qwen/Qwen2.5-0.5B-Instruct-GGUF",
+    "revision": "9217f5db79a29953eb74d5343926648285ec7e67",
+    "file": "qwen2.5-0.5b-instruct-q4_k_m.gguf",
+    "bytes": 491400032,
+    "sha256": "74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db",
+    "license": "apache-2.0"
+  },
+  {
+    "file": "Qwen3.5-0.8B-Q4_0.gguf",
+    "bytes": 563036064,
+    "sha256": "57d1997790d1744fba5b40a7317df71ea5e2acee28c47e78f0cce39c0703f8cf",
+    "repository": "ggml-org/Qwen3.5-0.8B-GGUF",
+    "revision": "807dfd9a6fadbf703207aac3bfb0b2b3040d077c",
+    "license": "apache-2.0"
+  }
+]

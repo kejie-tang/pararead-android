@@ -1,0 +1,71 @@
+{
+  "device": "Google sdk_gphone64_arm64",
+  "model": "Qwen3-0.6B-Q8_0.gguf",
+  "threads": 6,
+  "cases": [
+    {
+      "fixture": "short",
+      "status": "passed",
+      "translations": [
+        {
+          "source": "We propose a memory-efficient method for translating scientific documents.",
+          "translation": "我们提出了一种高效存储的科学文档翻译方法"
+        }
+      ],
+      "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"我们提出了一种高效存储的科学文档翻译方法\"\n    }\n  ]\n}",
+      "generatedTokens": 38,
+      "tokensPerSecond": 70.00317235955247
+    },
+    {
+      "fixture": "protected-batch",
+      "status": "passed",
+      "translations": [
+        {
+          "source": "The model processes 100 pages using 4 GB of memory [12].",
+          "translation": "模型使用 100 页的 4 GB 内存 [12] 处理。"
+        },
+        {
+          "source": "For $E=mc^2$, retain the equation and see https://example.org/paper.",
+          "translation": "对于 $E=mc^2$，保留方程并查看 https://example.org/paper.。"
+        }
+      ],
+      "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"模型使用 __PR0__ 页的 __PR1__ 内存 __PR2__ 处理。\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"对于 __PR3__，保留方程并查看 __PR4__。\"\n    }\n  ]\n}",
+      "generatedTokens": 85,
+      "tokensPerSecond": 73.42769173545337
+    },
+    {
+      "fixture": "negation",
+      "status": "passed",
+      "translations": [
+        {
+          "source": "The increase was not statistically significant.",
+          "translation": "该增加不具有统计学意义"
+        },
+        {
+          "source": "The result may indicate an association, but it does not establish causation.",
+          "translation": "结果可能表明存在关联，但并未建立因果关系"
+        }
+      ],
+      "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"该增加不具有统计学意义\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"结果可能表明存在关联，但并未建立因果关系\"\n    }\n  ]\n}",
+      "generatedTokens": 63,
+      "tokensPerSecond": 77.21733635246255
+    },
+    {
+      "fixture": "escaped-text",
+      "status": "passed",
+      "translations": [
+        {
+          "source": "The author calls this a \"reading assistant\".\nKeep the meaning of both sentences.",
+          "translation": "作者将此称为‘阅读助手’。保持两个句子的原意。"
+        }
+      ],
+      "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"作者将此称为‘阅读助手’。保持两个句子的原意。\"\n    }\n  ]\n}",
+      "generatedTokens": 43,
+      "tokensPerSecond": 73.25967797359206
+    }
+  ],
+  "systemInfo": "CPU : NEON = 1 | ARM_FMA = 1 | LLAMAFILE = 1 | KLEIDIAI = 1 | REPACK = 1 | ",
+  "bytes": 639446688,
+  "sha256": "9465e63a22add5354d9bb4b99e90117043c7124007664907259bd16d043bb031",
+  "architecture": "qwen3"
+}

@@ -1,0 +1,90 @@
+{
+  "device": "Google sdk_gphone64_arm64",
+  "model": "Qwen3-0.6B-Q4_0.gguf",
+  "threads": 6,
+  "cases": [
+    {
+      "fixture": "short",
+      "status": "passed",
+      "translations": [
+        {
+          "source": "We propose a memory-efficient method for translating scientific documents.",
+          "translation": "我们提出了一种内存高效的方法，用于翻译科学文档。"
+        }
+      ],
+      "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"我们提出了一种内存高效的方法，用于翻译科学文档。\"\n    }\n  ]\n}",
+      "generatedTokens": 40,
+      "tokensPerSecond": 82.56837177235074
+    },
+    {
+      "fixture": "protected-batch",
+      "status": "failed",
+      "error": "java.lang.IllegalArgumentException: PROTECTED_TOKEN_MISMATCH",
+      "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"模型使用了 __PR0__ 页，其中 __PR1__ 页。\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"对于 __PR3__，保留方程并查看 __PR4__\"\n    }\n  ]\n}",
+      "generatedTokens": 78,
+      "tokensPerSecond": 88.94056807202867
+    },
+    {
+      "fixture": "negation",
+      "status": "passed",
+      "translations": [
+        {
+          "source": "The increase was not statistically significant.",
+          "translation": "增加并不具有统计学意义。"
+        },
+        {
+          "source": "The result may indicate an association, but it does not establish causation.",
+          "translation": "结果可能暗示存在关联，但并未建立因果关系。"
+        }
+      ],
+      "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"增加并不具有统计学意义。\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"结果可能暗示存在关联，但并未建立因果关系。\"\n    }\n  ]\n}",
+      "generatedTokens": 64,
+      "tokensPerSecond": 91.86850674022368
+    },
+    {
+      "fixture": "escaped-text",
+      "status": "passed",
+      "translations": [
+        {
+          "source": "The author calls this a \"reading assistant\".\nKeep the meaning of both sentences.",
+          "translation": "作者称此为‘阅读助手’。"
+        }
+      ],
+      "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"作者称此为‘阅读助手’。\"\n    }\n  ]\n}",
+      "generatedTokens": 36,
+      "tokensPerSecond": 85.66533409480297
+    }
+  ],
+  "systemInfo": "CPU : NEON = 1 | ARM_FMA = 1 | LLAMAFILE = 1 | KLEIDIAI = 1 | REPACK = 1 | ",
+  "bytes": 382156480,
+  "sha256": "33bcc57074ec7b6eada5a90651ee546ec0c2b271002c22baf9f1b2dd1e8f75cb",
+  "architecture": "qwen3",
+  "productionQueue": {
+    "attempts": [
+      {
+        "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes __PR0__ pages using __PR1__ of memory __PR2__.\"},{\"id\":\"s2\",\"text\":\"For __PR3__, retain the equation and see __PR4__\"}]}\n/no_think",
+        "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"模型使用了 __PR0__ 页，其中 __PR1__ 页。\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"对于 __PR3__，保留方程并查看 __PR4__\"\n    }\n  ]\n}"
+      },
+      {
+        "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes __PR0__ pages using __PR1__ of memory __PR2__.\"}]}\n/no_think",
+        "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"模型使用了 __PR0__ 页，其中 __PR1__ 页。\"\n    }\n  ]\n}"
+      },
+      {
+        "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes __PR0__ pages using __PR1__ of memory __PR2__.\"}]}\n/no_think",
+        "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"模型使用了 __PR0__ 页，其中 __PR1__ 页。\"\n    }\n  ]\n}"
+      }
+    ],
+    "status": "failed",
+    "failures": [
+      {
+        "id": "a",
+        "reason": "PROTECTED_TOKEN_MISMATCH"
+      },
+      {
+        "id": "b",
+        "reason": "PROTECTED_TOKEN_MISMATCH"
+      }
+    ],
+    "translations": {}
+  }
+}

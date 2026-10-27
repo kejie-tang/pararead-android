@@ -2,6 +2,52 @@
 
 Test date: 2026-10-27. Real downloaded GGUF weights, the production CPU/JNI runtime, six CPU threads, no GPU. Host: **Apple M1 Pro / macOS ARM64**. These measurements are not Dimensity 9400 results and cannot be converted into a promised tablet token/s.
 
+
+## Alpha.4 result and practical choice
+
+For **faster preview reading**, try **Qwen3-0.6B Q4_K_M**, `Qwen3-0.6B-Q4_K_M.gguf` from [Unsloth](https://huggingface.co/unsloth/Qwen3-0.6B-GGUF), 396,705,472 bytes. It is not a quality-equivalent replacement for 1.7B. The [official Q8_0](https://huggingface.co/Qwen/Qwen3-0.6B-GGUF) is a larger tested alternative, not a guarantee of better translation. The default download remains 1.7B.
+
+The app now uses the successful ASCII protocol directly: `__PR0__` markers in prompts, drafts and strict per-row validation, plus JSON field instructions without an example answer. Duplicate, missing, mutated and cross-row markers are still rejected. Prompt/validator/cache versions advance to 6/5; upgrading regenerates translations rather than reusing old prompt results. Text-only Qwen2.5/`qwen2` ChatML is also supported.
+
+[Final production matrix](small-model-final.json), **Apple M1 Pro CPU / six threads**, no GPU:
+
+| Exact file | MB | Guided check | Protected-row queue | Warm output token/s | Warm completion seconds | Raw tg128 token/s |
+| --- | ---: | --- | --- | ---: | ---: | ---: |
+| Qwen3-1.7B-Q4_K_M.gguf | 1359.3 | 8/8 | passed | 56.7 | 4.38 | 52.4 |
+| Qwen3-0.6B-Q4_K_M.gguf | 396.7 | 8/8 | passed | 113.9 | 2.08 | 107.2 |
+| Qwen3-0.6B-Q4_0.gguf | 382.2 | 8/8 | passed | 108.2 | 2.10 | 107.5 |
+| Qwen3-0.6B-Q8_0.gguf | 639.4 | 8/8 | passed | 93.1 | 2.46 | 90.8 |
+| qwen2.5-0.5b-instruct-q4_k_m.gguf | 491.4 | 8/8 | passed | 133.3 | 2.08 | 127.6 |
+| Qwen3.5-0.8B-Q4_0.gguf | 563.0 | 7/8 | passed | 85.1 | 2.80 | 81.7 |
+
+Each warm row is the median of three calls with the fixed 158-word source. Raw engine results are also three-run medians. These were sequential, exploratory measurements in one ordered run, not randomized statistical rankings. Qwen3 0.6B Q4_K_M and 1.7B use the same tokenizer family; the measured raw ratio is about **2.05×**, while paragraph completion takes **2.08 vs 4.38 seconds**. This is not a measured Dimensity 9400 speedup.
+
+The final six-model sweep uses the real production prompt, template, grammar and validator, with no response-marker adapter. Its system/user strings were checked against the successful ASCII diagnostic. All five Qwen3/Qwen2.5 configurations pass 8/8 structural/Chinese-text fixtures and the protected-row queue. Qwen3.5 0.8B passes **7/8**, losing the total-document marker in the numeric fixture; it is not the first recommendation in this revision.
+
+**Meaning remains the limit:** several Qwen models, including 1.7B, mistranslate the direction of a latency change. Qwen3 0.6B can omit technical detail and confuse numeric roles even while preserving every marker. Qwen2.5 0.5B is fast but omits a sentence, drops memory efficiency, and uses incorrect terminology such as “发动机性能” for engine performance; it is not recommended for scientific reading. No structural-pass count is presented as an accuracy score.
+
+LMT-60-0.6B was rechecked with the **new** production protocol: [0/3 smoke fixtures](lmt-current-protocol.json), copying English or renumbering markers. Its readable plaintext results still require a separate adapter. Hy-MT2 needs unavailable STQ support; the tested Haidass GGUF has runtime/output problems. Neither is offered as a drop-in app model.
+
+
+
+## Android verification and final selection
+
+API 36 ARM64 emulator (`Google sdk_gphone64_arm64`, 8 virtual CPUs, 6 GiB RAM), **six inference threads**, no GPU. This is not a physical Dimensity 9400 test. Android fixtures use two protected rows and the app’s empty glossary; the host’s four-row case uses a two-term glossary. These are additional workloads, not a controlled attribution of host/Android differences to the CPU backend.
+
+| Exact variant | Direct Android checks | Actual queue | Warm translation token/s | Raw tg128 token/s |
+| --- | --- | --- | ---: | ---: |
+| [Qwen3 0.6B Q4_K_M](android-small-Qwen3-0.6B-Q4_K_M.json) | 4/4 | passed | 74.9 | 68.9 |
+| [Qwen3 0.6B Q8_0](android-small-Qwen3-0.6B-Q8_0.json) | 4/4 | passed | 60.8 | 62.1 |
+| [Qwen3 0.6B Q4_0](android-small-Qwen3-0.6B-Q4_0.json) | 3/4 | failed | 76.1 | 68.9 |
+| [Qwen3 1.7B Q4_K_M](android-small-initial-Qwen3-1.7B-Q4_K_M.json) | 4/4 | not measured in this run | 36.1 | 35.4 |
+
+Each speed is the median of three warm samples, using the same production benchmark code as the app. **Q4_K_M is the final fast-preview recommendation:** 4/4 direct Android checks and a one-call protected queue pass, around twice the baseline’s measured raw speed in this emulator. Q8_0 also passes both and is the official-source alternative.
+
+**Q4_0 is not recommended after Android testing.** Despite 8/8 host checks, the Android workload drops a citation, and the actual queue’s bounded single-sentence repair fails. All failed outputs are retained; they are not counted as passes. Initial Android runs are kept separately as `android-small-initial-*.json`. Qwen3.5 0.8B similarly fails the protected Android case. Qwen2.5 0.5B passes the initial four structural checks but remains excluded for translation quality.
+
+Passing the protocol does not mean faithful translation: the Q4_K_M Android short output calls memory efficiency “高效记忆”, and several variants confuse the roles of pages and memory. Read important claims alongside the source. These results establish a usable experimental speed option, not a reliable autonomous scientific translator.
+
+
 ## Original app prompt (v5)
 
 Eight original fixtures cover a short sentence, the 158-word benchmark paragraph, four protected rows, quotes/newlines, negation/hedging, numeric contrasts, technical contrasts, and a two-sentence discourse. Each guided pass requires valid JSON, exact result IDs/count, exact per-row placeholders, and Chinese text. It does not certify meaning or completeness. Without-grammar diagnostics cover three fixtures.
@@ -45,12 +91,14 @@ Raw outputs and failures: [main sweep](small-model-matrix.json), [translation-sp
 
 ## Reproduction
 
+Historical v5, compact and ASCII-adapter experiments are reproducible at commit `0f36d5a`. The current runner uses the production v6 protocol. For the final six-model sweep, use `small-model-final-manifest.json` in the command below.
+
 Download each exact revision/file in the manifest and verify the SHA-256. Weights belong under `artifacts/models/` and are excluded from Git. The host runner verifies the manifest again before inference.
 
 ```sh
 PARAREAD_CPU_THREADS=6 scripts/gradle.sh -PhostLlama=true \
   -PcmakePath=/absolute/path/to/cmake :tools:host-llama:run \
-  --args='matrix docs/reports/local-small-models.json docs/reports/small-model-manifest.json'
+  --args='matrix docs/reports/local-small-models.json docs/reports/small-model-final-manifest.json'
 ```
 
 The matrix keeps failures as failures. A test-process exit code of zero means the report completed, not that every model passed.
@@ -71,3 +119,10 @@ The [plaintext diagnostic](tiny-translator-plain-probe.json) uses the models’ 
 LMT-60-0.6B translates the short, long, protected and negation samples into readable Chinese and preserves the exact protected markers. The long translation nevertheless omits “equations” from its first list. It is a useful candidate for a dedicated sentence-by-sentence plaintext adapter, but does not support the current JSON protocol reliably. A future adapter would need its own Android, cancellation, queue, glossary and placeholder checks.
 
 The publisher-linked Haidass Q8 GGUF produces corrupt text or invalid UTF-8 in the pinned engine even without JSON constraints. This result applies to this exact GGUF/runtime pair; it does not establish the quality of the original Transformers checkpoint. It is not recommended for the app.
+
+
+## Release verification
+
+[Verification record](alpha4-verification.json): 34 core tests, 16 source contracts, 13 Android bridge/web checks, reader typecheck, and four real JNI regression cases passed. Android regression ran 12 cases: 11 passed and one unchanged opt-in live-download case was skipped. All three native speed/lifecycle UI cases passed, including rotation, cancellation, model release, persistence, export entry and reader resume; [raw UI benchmark report](app-speed-test-android-alpha4.json). Model compatibility failures remain explicit in their individual reports and are not included in this regression pass claim.
+
+Android debug assembly, lint, distribution-content checks, model exclusion, notices, signature and 16 KiB alignment passed. The alpha.4 debug APK has the same certificate as alpha.3. We restored the emulator display settings and stopped the headless emulator used for these tests.

@@ -53,10 +53,11 @@ fun ModelCatalogDialog(state: ModelCatalogState, installedHash: String?, onQuery
             if (details == null) {
                 OutlinedTextField(state.query, onQuery, label = { Text("模型名称或 org/repo") }, singleLine = true)
                 Button(onClick = onSearch, enabled = !state.loading) { Text("搜索 GGUF") }
-                Text("选择公开、单文件的文本 GGUF。当前适配 Qwen3、Qwen3.5 和 LFM2.5；其他架构暂不支持。", style = MaterialTheme.typography.bodySmall)
+                Text("选择公开、单文件的文本 GGUF。当前适配 Qwen2.5、Qwen3、Qwen3.5 和 LFM2/2.5。", style = MaterialTheme.typography.bodySmall)
                 if (state.repositories.isEmpty()) {
                     Text("快速查找", style = MaterialTheme.typography.titleSmall)
-                    listOf("LiquidAI/LFM2.5-1.2B-Instruct-GGUF", "LiquidAI/LFM2.5-350M-GGUF", "ggml-org/Qwen3.5-0.8B-GGUF").forEach { id ->
+                    Text("轻量快读：Qwen3-0.6B Q4_K_M；官方备选 Q8_0。重要结论仍需对照原文。", style = MaterialTheme.typography.bodySmall)
+                    listOf("unsloth/Qwen3-0.6B-GGUF", "Qwen/Qwen3-0.6B-GGUF", "ggml-org/Qwen3.5-0.8B-GGUF", "Qwen/Qwen2.5-0.5B-Instruct-GGUF").forEach { id ->
                         TextButton(onClick = { onDetails(id) }, enabled = !state.loading) { Text(id) }
                     }
                 } else state.repositories.forEach { repo ->

@@ -14,10 +14,10 @@ class TranslationTest {
     @Test fun batchPlaceholdersCannotReferToAnotherSentence() {
         val sentences = listOf(SourceSentence("first", "Use 4 GB [12].", "g"), SourceSentence("second", "Preserve `cache.get(key)`.", "g"))
         val (prompt, values) = StructuredTranslation.prompt(sentences, TranslationConfig())
-        assertTrue(prompt.user.contains("⟦P2⟧"))
-        assertEquals("保留 `cache.get(key)`。", values[1].restore("保留 ⟦P2⟧。"))
-        assertFails { values[1].restore("保留 ⟦P0⟧。") }
-        val draft = StructuredTranslation.drafts("{\"id\":\"s2\",\"translation\":\"保留 ⟦P2⟧。", sentences, values)
+        assertTrue(prompt.user.contains("__PR2__"))
+        assertEquals("保留 `cache.get(key)`。", values[1].restore("保留 __PR2__。"))
+        assertFails { values[1].restore("保留 __PR0__。") }
+        val draft = StructuredTranslation.drafts("{\"id\":\"s2\",\"translation\":\"保留 __PR2__。", sentences, values)
         assertEquals("保留 `cache.get(key)`。", draft.single().second)
     }
     @Test fun trailingOutputCannotHideBehindAValidJsonPrefix() {
@@ -32,13 +32,29 @@ class TranslationTest {
     @Test fun exactIdsAndProtectedTokens() {
         val s = listOf(SourceSentence("p1-b0-s0", "Use 10 kg and $" + "x+y$ [12] https://a.example/x", "p1-b0"))
         val (prompt, protected) = StructuredTranslation.prompt(s, TranslationConfig())
-        assertTrue(prompt.user.contains("⟦P0⟧"))
+        assertTrue(prompt.user.contains("__PR0__"))
         val translated = "使用 " + protected[0].text
         val result = JSONObject().put("translations", JSONArray().put(JSONObject().put("id", "s1").put("translation", translated))).toString()
         assertTrue(StructuredTranslation.validate(result, s, protected).single().second.contains("10 kg"))
-        assertFails { StructuredTranslation.validate(result.replace("⟦P0⟧", "10"), s, protected) }
+        assertFails { StructuredTranslation.validate(result.replace("__PR0__", "10"), s, protected) }
         assertFails { StructuredTranslation.validate(result.replace("s1", "s2"), s, protected) }
         assertFails { StructuredTranslation.validate("{\"translations\":[]}", s, protected) }
+    }
+    @Test fun asciiMarkerProtocolRejectsMutationsAndReservedInput() {
+        val protected = StructuredTranslation.protect("Use 4 GB [12].")
+        assertEquals("Use __PR0__ __PR1__.", protected.text)
+        assertEquals("使用 4 GB [12]。", protected.restore("使用 __PR0__ __PR1__。"))
+        for (bad in listOf("使用 __PR0_ __PR1__。", "使用 __PR0__ __PR0__。", "使用 ⟦P0⟧ ⟦P1⟧。")) {
+            assertFails { protected.restore(bad) }
+        }
+        assertFails { StructuredTranslation.protect("A literal __PR0__ is reserved.") }
+        val (prompt, _) = StructuredTranslation.prompt(listOf(SourceSentence("a", "Use 4 GB.", "g")), TranslationConfig())
+        assertFalse(prompt.system.contains("\"translation\":\"...\""))
+        assertTrue(prompt.user.contains("__PR0__"))
+        assertTrue(prompt.system.contains("下划线"))
+        val english = StructuredTranslation.prompt(listOf(SourceSentence("a", "测试 4 GB。", "g")), TranslationConfig(targetLanguage = "en")).first
+        assertTrue(english.system.contains("__PRnumber__"))
+        assertTrue(english.system.contains("to en"))
     }
     @Test fun duplicateIdsCannotOverwrite() {
         val s = listOf(SourceSentence("p1-b0-s0", "One.", "g"), SourceSentence("p1-b0-s1", "Two.", "g"))
@@ -49,14 +65,14 @@ class TranslationTest {
         val s = listOf(SourceSentence("p1-b0-s0", "Equation $" + "x=2$.", "p1-b0"))
         val (_, protected) = StructuredTranslation.prompt(s, TranslationConfig())
         for (raw in listOf("{", "{\"translations\":[]}", "[{\"id\":\"s1\",\"translation\":\"\"}]", "<think>reason</think>[]",
-            "[{\"id\":\"s1\",\"translation\":\"⟦P0⟧ ⟦P0⟧\"}]")) {
+            "[{\"id\":\"s1\",\"translation\":\"__PR0__ __PR0__\"}]")) {
             assertFails(raw) { StructuredTranslation.validate(raw, s, protected) }
         }
     }
     @Test fun draftsAreDecodedAndFragmentsRetainOriginalProtectedSpans() {
         val s = listOf(SourceSentence("p1-b0-s0", "Read 10 kg.", "g"))
         val (_, protected) = StructuredTranslation.prompt(s, TranslationConfig())
-        val draft = StructuredTranslation.drafts("{\"translations\":[{\"id\":\"s1\",\"translation\":\"译文 ⟦P0⟧ \\\"quoted\\\"", s, protected)
+        val draft = StructuredTranslation.drafts("{\"translations\":[{\"id\":\"s1\",\"translation\":\"译文 __PR0__ \\\"quoted\\\"", s, protected)
         assertEquals("译文 10 kg \"quoted\"", draft.single().second)
         val formula = "$" + "x+y=42$"
         val original = "a".repeat(1198) + formula + " trailing text".repeat(150)

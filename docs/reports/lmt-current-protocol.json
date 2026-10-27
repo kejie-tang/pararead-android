@@ -1,0 +1,82 @@
+{
+  "date": "2026-10-27",
+  "physicalAndroidDevice": false,
+  "models": [{
+    "file": "LMT-60-0.6B.Q4_K_M.gguf",
+    "cases": [
+      {
+        "tokensPerSecond": 65.14341297691332,
+        "totalMs": 2143.351791,
+        "samplingNanos": 88031670,
+        "raw": "{\"translations\": [{\"id\": \"s1\", \"translation\": \"We propose a memory-efficient method for translating scientific documents.\"}]}",
+        "error": "java.lang.IllegalStateException: NO_CHINESE_TRANSLATION",
+        "generatedTokens": 33,
+        "fixture": "short",
+        "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"We propose a memory-efficient method for translating scientific documents.\"}]}\n/no_think",
+        "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。术语表：{\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}",
+        "jsonGrammar": true,
+        "callbackNanos": 10767584,
+        "promptTokens": 127,
+        "decodeNanos": 407741416,
+        "status": "failed"
+      },
+      {
+        "tokensPerSecond": 95.35210478355792,
+        "totalMs": 1449.158833,
+        "samplingNanos": 100459500,
+        "raw": "{\"translations\":[{\"id\":\"s1\",\"translation\":\"模型使用 __PR1__ 的内存 __PR2__ 处理 __PR3__ 页。\"},{\"id\":\"s2\",\"translation\":\"对于 __PR4__，保留方程并查看 __PR5__.\"},{\"id\":\"s3\",\"translation\":\"注意力机制使用键值缓存；代码是 __PR6__.\"},{\"id\":\"s4\",\"translation\":\"提议的方法通过 __PR7__ 无需改变输入顺序就能减少延迟。\"}]}",
+        "error": "java.lang.IllegalArgumentException: PROTECTED_TOKEN_MISMATCH",
+        "generatedTokens": 107,
+        "fixture": "protected-batch",
+        "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes __PR0__ pages using __PR1__ of memory __PR2__.\"},{\"id\":\"s2\",\"text\":\"For __PR3__, retain the equation and see __PR4__\"},{\"id\":\"s3\",\"text\":\"The attention mechanism uses a key-value cache; the code is __PR5__.\"},{\"id\":\"s4\",\"text\":\"The proposed method reduces latency by __PR6__ without changing the input order.\"}]}\n/no_think",
+        "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}",
+        "jsonGrammar": true,
+        "callbackNanos": 10855913,
+        "promptTokens": 233,
+        "decodeNanos": 1010737124,
+        "status": "failed"
+      },
+      {
+        "tokensPerSecond": 95.92554600771511,
+        "totalMs": 1090.893334,
+        "samplingNanos": 80532501,
+        "raw": "{\"translations\": [{\"id\":\"s1\",\"translation\":\"The increase was not statistically significant.\"},{\"id\":\"s2\",\"translation\":\"The result may indicate an association, but it does not establish causation.\"},{\"id\":\"s3\",\"translation\":\"We did not observe a reduction in memory use.\"}]}",
+        "error": "java.lang.IllegalStateException: NO_CHINESE_TRANSLATION",
+        "generatedTokens": 73,
+        "fixture": "negation-and-hedging",
+        "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The increase was not statistically significant.\"},{\"id\":\"s2\",\"text\":\"The result may indicate an association, but it does not establish causation.\"},{\"id\":\"s3\",\"text\":\"We did not observe a reduction in memory use.\"}]}\n/no_think",
+        "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。术语表：{\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}",
+        "jsonGrammar": true,
+        "callbackNanos": 6407665,
+        "promptTokens": 164,
+        "decodeNanos": 673994001,
+        "status": "failed"
+      }
+    ],
+    "sha256": "743c6cdc13294b5c470ec0e89e79d64f96ef0cab94ce1285c78da4dc0f56be5c",
+    "bytes": 484220000,
+    "source": {
+      "license": "apache-2.0",
+      "file": "LMT-60-0.6B.Q4_K_M.gguf",
+      "sha256": "743c6cdc13294b5c470ec0e89e79d64f96ef0cab94ce1285c78da4dc0f56be5c",
+      "bytes": 484220000,
+      "repository": "mradermacher/LMT-60-0.6B-GGUF",
+      "revision": "86942b9f925bfccd4196d4982578b46413a1f73f"
+    },
+    "architecture": "qwen3"
+  }],
+  "batch": 512,
+  "threads": 6,
+  "promptVariant": "production-v6-ascii",
+  "gpuLayers": 0,
+  "platform": "Mac OS X aarch64",
+  "systemInfo": "CPU : NEON = 1 | ARM_FMA = 1 | FP16_VA = 1 | DOTPROD = 1 | LLAMAFILE = 1 | KLEIDIAI = 1 | REPACK = 1 | ",
+  "engine": "llama.cpp@2280f0fd163b03d4331d49e08460f66502e35854;cpu;arm64;ctx4096;proposal-exact-grammar-v3;templates-qwen2-qwen3-qwen35-lfm2",
+  "extendedFixtures": true,
+  "promptVersion": 6,
+  "context": 4096,
+  "diagnosticSmoke": true,
+  "formatPassCertifiesSemanticAccuracy": false,
+  "ubatch": 128,
+  "hardware": "Apple M1 Pro"
+}

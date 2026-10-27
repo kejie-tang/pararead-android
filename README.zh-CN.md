@@ -6,7 +6,7 @@
 
 [![Android CI](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml/badge.svg?branch=main)](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml) [![Android 9+](https://img.shields.io/badge/Android-9%2B-3DDC84?logo=android&logoColor=white)](#快速开始) [![代码许可：Apache-2.0](https://img.shields.io/badge/Code-Apache--2.0-blue)](LICENSE)
 
-**[下载预览版 APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.3/ParaRead-0.2.0-alpha.3-android-arm64-debug.apk)** · [全部版本](https://github.com/kejie-tang/pararead-android/releases) · [快速开始](#快速开始) · [English](README.md)
+**[下载预览版 APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.4/ParaRead-0.2.0-alpha.4-android-arm64-debug.apk)** · [全部版本](https://github.com/kejie-tang/pararead-android/releases) · [快速开始](#快速开始) · [English](README.md)
 
 基于 [ParaRead](https://github.com/Chuanyunux/pararead) 0.6.1 的独立、非官方 Android 移植与扩展。**当前为开发预览版，仅支持 ARM64；应用界面目前主要使用中文。**
 
@@ -21,7 +21,7 @@
 | 功能 | 阅读时能做什么 |
 | --- | --- |
 | 句子级对齐 | 点击原句或译文，双向定位对应内容；支持高亮、同高对齐与同步滚动。 |
-| 本地离线翻译 | llama.cpp 在设备上运行支持的 Qwen3、Qwen3.5 或 LFM2.5 GGUF，下载模型后即可使用本地翻译。 |
+| 本地离线翻译 | llama.cpp 在设备上运行支持的 Qwen2.5、Qwen3、Qwen3.5 或 LFM2/2.5 GGUF，下载模型后即可使用本地翻译。 |
 | 按自己的节奏阅读 | 翻译选中段落、当前页、邻近页或全篇，需要时随时取消。 |
 | 保存阅读成果 | 复用译文缓存与阅读位置；全篇逐页保存进度，同一文档和配置重开后可继续。 |
 | 批注与导出 | 保留本地批注草稿，另存带批注的 PDF 副本。 |
@@ -32,7 +32,7 @@
 
 **设备要求：** Android 9 / API 28 及以上、ARM64，以及支持 `WebMessageListener` 的 Android System WebView。布局面向平板设计。
 
-1. **安装[预览版 APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.3/ParaRead-0.2.0-alpha.3-android-arm64-debug.apk)。** 当前下载为 debug 签名的 `0.2.0-alpha.3`。若旧版签名不同，可能需要卸载后安装；卸载会清除应用数据，请先另存重要的批注 PDF。
+1. **安装[预览版 APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.4/ParaRead-0.2.0-alpha.4-android-arm64-debug.apk)。** 当前下载为 debug 签名的 `0.2.0-alpha.4`。若旧版签名不同，可能需要卸载后安装；卸载会清除应用数据，请先另存重要的批注 PDF。
 2. **打开文档。** 点击“打开示例文档”，或通过系统文件选择器导入有可选中文字的 PDF。
 3. **下载本地模型。** 点击书库的“下载默认模型”，或进入“设置 → 离线 GGUF”。应用会在完整大小与 SHA-256 校验通过后启用模型。
 4. **开始阅读。** 点击句子，翻译本页，或启动全篇任务；在“目标语言”中调整译文语言。主动取消后，点击“全篇 / 继续”接续任务。
@@ -46,9 +46,13 @@
 | 可用空间 | 下载与校验阶段约需 **2.8 GB**，另需预留 PDF 空间 |
 | 推理方式 | llama.cpp CPU 推理，可自动或手动设置线程数 |
 | 来源 | Ollama registry 的固定 GGUF 层，以 SHA-256 校验；**无需安装 Ollama** |
-| 搜索与导入 | Hugging Face 搜索、单文件 GGUF 下载；Qwen3、Qwen3.5、LFM2.5 文本模板 |
+| 搜索与导入 | Hugging Face 搜索、单文件 GGUF 下载；Qwen2.5、Qwen3、Qwen3.5、LFM2/2.5 文本模板 |
 
 **更换模型：**进入 **设置 → 离线 GGUF → 从 Hugging Face 搜索下载**，搜索模型名或输入 `org/repo`，查看模型许可后选择量化文件。下载固定到仓库提交，并按 LFS SHA-256 校验；成功后替换当前本机模型。LFM2.5 暂属实验支持，小模型存在格式与漏译问题，见[模型实测与性能排查](docs/reports/model-compatibility.md)。
+
+**想更小、更快？**可以尝试 [Unsloth](https://huggingface.co/unsloth/Qwen3-0.6B-GGUF) 的 `Qwen3-0.6B-Q4_K_M.gguf`（**397 MB**）；官方 [Qwen Q8_0](https://huggingface.co/Qwen/Qwen3-0.6B-GGUF) 为 **639 MB**。它们适合快速浏览，小模型仍可能漏掉细节或翻错数字关系。具体结论、文件哈希和原始输出见[小模型实测与推荐](docs/reports/small-model-evaluation.md)。
+
+Alpha.4 改用 ASCII 占位符，并移除提示词中可被照抄的示例答案，改善小模型的协议兼容性。升级后会按新的缓存版本重新生成译文；默认下载仍为 Qwen3 1.7B。
 
 下载通过 Android 系统队列执行，支持进度、取消、重试和重开后继续监控。删除模型会保留文档、阅读进度与译文缓存。实现和测试细节见[模型管理](docs/reports/model-management.md)与 [CPU 线程设置](docs/reports/cpu-threads.md)。
 

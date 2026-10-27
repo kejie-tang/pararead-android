@@ -1,0 +1,121 @@
+{
+  "date": "2026-10-27",
+  "appVersion": "0.2.0-alpha.4",
+  "host": "Apple M1 Pro / macOS ARM64",
+  "android": "API 36 ARM64 emulator / 8 virtual CPUs / 6 GiB / 1600x1000 at 160 dpi",
+  "physicalDimensity9400Tested": false,
+  "cpuInferenceThreads": 6,
+  "core": {
+    "tests": 34,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "sourceContracts": {
+    "passed": 16,
+    "failed": 0
+  },
+  "androidWeb": {
+    "passed": 13,
+    "failed": 0
+  },
+  "readerTypecheck": "passed",
+  "hostJniRegression": {
+    "passed": 4,
+    "report": "alpha4-host-regression.json"
+  },
+  "androidRegression": {
+    "run": 12,
+    "passed": 11,
+    "skipped": 1,
+    "skipReason": "optional hfLive download; downloader unchanged and real download verified in alpha.3"
+  },
+  "androidSpeedUi": {
+    "passed": 3,
+    "checks": "real native generation, rotation, persistence, export entry, cancellation/model release and reader resume"
+  },
+  "androidModelDiagnostics": [
+    {
+      "report": "android-small-Qwen3-0.6B-Q4_0.json",
+      "model": "Qwen3-0.6B-Q4_0.gguf",
+      "directCasesPassed": 3,
+      "directCases": 4,
+      "queueStatus": "failed",
+      "modelSha256": "33bcc57074ec7b6eada5a90651ee546ec0c2b271002c22baf9f1b2dd1e8f75cb"
+    },
+    {
+      "report": "android-small-Qwen3-0.6B-Q4_K_M.json",
+      "model": "Qwen3-0.6B-Q4_K_M.gguf",
+      "directCasesPassed": 4,
+      "directCases": 4,
+      "queueStatus": "passed",
+      "modelSha256": "ac2d97712095a558e31573f62f466a3f9d93990898b0ec79d7c974c1780d524a"
+    },
+    {
+      "report": "android-small-Qwen3-0.6B-Q8_0.json",
+      "model": "Qwen3-0.6B-Q8_0.gguf",
+      "directCasesPassed": 4,
+      "directCases": 4,
+      "queueStatus": "passed",
+      "modelSha256": "9465e63a22add5354d9bb4b99e90117043c7124007664907259bd16d043bb031"
+    },
+    {
+      "report": "android-small-initial-Qwen3-0.6B-Q4_0.json",
+      "model": "Qwen3-0.6B-Q4_0.gguf",
+      "directCasesPassed": 3,
+      "directCases": 4,
+      "queueStatus": null,
+      "modelSha256": "33bcc57074ec7b6eada5a90651ee546ec0c2b271002c22baf9f1b2dd1e8f75cb"
+    },
+    {
+      "report": "android-small-initial-Qwen3-0.6B-Q8_0.json",
+      "model": "Qwen3-0.6B-Q8_0.gguf",
+      "directCasesPassed": 4,
+      "directCases": 4,
+      "queueStatus": null,
+      "modelSha256": "9465e63a22add5354d9bb4b99e90117043c7124007664907259bd16d043bb031"
+    },
+    {
+      "report": "android-small-initial-Qwen3-1.7B-Q4_K_M.json",
+      "model": "Qwen3-1.7B-Q4_K_M.gguf",
+      "directCasesPassed": 4,
+      "directCases": 4,
+      "queueStatus": null,
+      "modelSha256": "3d0b790534fe4b79525fc3692950408dca41171676ed7e21db57af5c65ef6ab6"
+    },
+    {
+      "report": "android-small-initial-Qwen3.5-0.8B-Q4_0.json",
+      "model": "Qwen3.5-0.8B-Q4_0.gguf",
+      "directCasesPassed": 3,
+      "directCases": 4,
+      "queueStatus": null,
+      "modelSha256": "57d1997790d1744fba5b40a7317df71ea5e2acee28c47e78f0cce39c0703f8cf"
+    },
+    {
+      "report": "android-small-initial-qwen2.5-0.5b-instruct-q4_k_m.json",
+      "model": "qwen2.5-0.5b-instruct-q4_k_m.gguf",
+      "directCasesPassed": 4,
+      "directCases": 4,
+      "queueStatus": null,
+      "modelSha256": "74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db"
+    }
+  ],
+  "modelDiagnosticsAreNotAllPassing": true,
+  "buildAndLint": "passed",
+  "distributionChecks": "sole original PDF; no GGUF; all notices; ARM64; ELF and ZIP 16 KiB alignment",
+  "debugCertificateSha256": "e044c8f329f42465866add4d041f29c498009361241610c8ee2de43ae6e87a45",
+  "sameCertificateAsAlpha3": true,
+  "artifacts": [
+    {
+      "file": "ParaRead-0.2.0-alpha.4-android-arm64-debug-notices.zip",
+      "bytes": 54810,
+      "sha256": "0bc2fd0854dc9399cafb4fea5c14b42f77c1810fb8a472e2afb2fffdd953f19b"
+    },
+    {
+      "file": "ParaRead-0.2.0-alpha.4-android-arm64-debug.apk",
+      "bytes": 43539617,
+      "sha256": "85e4f940b90d343312b287cfaa208934d30f266a66c30f63b4805ec9b7ee60d8"
+    }
+  ],
+  "notes": "Compatibility failures are retained and excluded from recommendations. Structural checks do not certify translation accuracy."
+}

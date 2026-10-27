@@ -1,0 +1,71 @@
+{
+  "device": "Google sdk_gphone64_arm64",
+  "model": "qwen2.5-0.5b-instruct-q4_k_m.gguf",
+  "threads": 6,
+  "cases": [
+    {
+      "fixture": "short",
+      "status": "passed",
+      "translations": [
+        {
+          "source": "We propose a memory-efficient method for translating scientific documents.",
+          "translation": "我们提出了一种高效的翻译方法来处理科学文档."
+        }
+      ],
+      "raw": "{\"translations\":[{\"id\":\"s1\",\"translation\":\"我们提出了一种高效的翻译方法来处理科学文档.\"}]}",
+      "generatedTokens": 24,
+      "tokensPerSecond": 89.64532644605224
+    },
+    {
+      "fixture": "protected-batch",
+      "status": "passed",
+      "translations": [
+        {
+          "source": "The model processes 100 pages using 4 GB of memory [12].",
+          "translation": "模型处理100页，使用4 GB的内存[12]."
+        },
+        {
+          "source": "For $E=mc^2$, retain the equation and see https://example.org/paper.",
+          "translation": "对于$E=mc^2$，保留方程，看看https://example.org/paper."
+        }
+      ],
+      "raw": "{\"translations\": [{\"id\": \"s1\", \"translation\": \"模型处理__PR0__页，使用__PR1__的内存__PR2__.\"}, {\"id\": \"s2\", \"translation\": \"对于__PR3__，保留方程，看看__PR4__\"}]}",
+      "generatedTokens": 63,
+      "tokensPerSecond": 95.44995966246827
+    },
+    {
+      "fixture": "negation",
+      "status": "passed",
+      "translations": [
+        {
+          "source": "The increase was not statistically significant.",
+          "translation": "增加不是显著性统计学显著的"
+        },
+        {
+          "source": "The result may indicate an association, but it does not establish causation.",
+          "translation": "结果可能表明有关联，但不能得出因果关系"
+        }
+      ],
+      "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"增加不是显著性统计学显著的\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"结果可能表明有关联，但不能得出因果关系\"\n    }\n  ]\n}",
+      "generatedTokens": 64,
+      "tokensPerSecond": 98.55491287332234
+    },
+    {
+      "fixture": "escaped-text",
+      "status": "passed",
+      "translations": [
+        {
+          "source": "The author calls this a \"reading assistant\".\nKeep the meaning of both sentences.",
+          "translation": "作者称这是一本\"阅读助手\"。"
+        }
+      ],
+      "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"作者称这是一本\\\"阅读助手\\\"。\"\n    }\n  ]\n}",
+      "generatedTokens": 37,
+      "tokensPerSecond": 84.70154640941034
+    }
+  ],
+  "systemInfo": "CPU : NEON = 1 | ARM_FMA = 1 | LLAMAFILE = 1 | KLEIDIAI = 1 | REPACK = 1 | ",
+  "bytes": 491400032,
+  "sha256": "74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db",
+  "architecture": "qwen2"
+}

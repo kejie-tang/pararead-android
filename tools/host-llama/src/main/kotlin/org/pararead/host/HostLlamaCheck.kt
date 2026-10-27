@@ -28,7 +28,7 @@ fun main(args: Array<String>) = runBlocking {
     }
     val hash = digest.digest().joinToString("") { "%02x".format(it) }
     val endpoint = System.getenv("PARAREAD_LLAMA_URL") ?: "http://127.0.0.1:18080/v1"
-    val config = TranslationConfig(provider = mode, model = "qwen3:1.7b", modelHash = hash,
+    val config = TranslationConfig(provider = mode, model = if (mode == "jni") file.name else "qwen3:1.7b", modelHash = hash,
         sourceLanguage = "en", targetLanguage = "zh-CN", batchSize = 4,
         glossary = "{\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}")
     val cases = JSONArray()

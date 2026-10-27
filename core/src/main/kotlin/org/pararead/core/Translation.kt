@@ -17,7 +17,7 @@ data class TranslationConfig(
 ) {
     // Preserve native cache keys written before the default display name became the Ollama tag.
     fun fingerprint() = listOf(provider, if (provider == "llama" && model == "qwen3:1.7b") "Qwen3-1.7B" else model, modelHash, sourceLanguage, targetLanguage, canonicalGlossary(glossary),
-        "prompt=5", "validator=4", "template=qwen3-no-think-v1", "nativeGrammar=exact-translation-json-v3").joinToString("\u0000")
+        "prompt=6", "validator=5", "template=model-chat-v2", "nativeGrammar=exact-translation-json-v3").joinToString("\u0000")
 }
 fun sha256(text: String): String = MessageDigest.getInstance("SHA-256").digest(text.toByteArray()).joinToString("") { "%02x".format(it) }
 fun contentKey(text: String, config: TranslationConfig): String = sha256(Normalizer.normalize(text, Normalizer.Form.NFC).replace(Regex("\\s+"), " ").trim() + "\u0000" + config.fingerprint())
@@ -51,10 +51,10 @@ class MockTranslationProvider : TranslationProvider {
 }
 data class ProtectedText(val text: String, val tokens: List<String>, val firstToken: Int = 0) {
     fun restore(value: String): String {
-        val placeholders = Regex("⟦P(\\d+)⟧").findAll(value).map { it.groupValues[1].toInt() }.toList()
+        val placeholders = Regex("__PR(\\d+)__").findAll(value).map { it.groupValues[1].toInt() }.toList()
         require(placeholders.sorted() == tokens.indices.map { it + firstToken }) { "PROTECTED_TOKEN_MISMATCH" }
         var restored = value
-        tokens.forEachIndexed { i, t -> restored = restored.replace("⟦P${i + firstToken}⟧", t) }
+        tokens.forEachIndexed { i, t -> restored = restored.replace("__PR${i + firstToken}__", t) }
         return restored
     }
 }
@@ -62,12 +62,12 @@ object StructuredTranslation {
     fun fragments(text: String, limit: Int = 1200): List<String> {
         val protected = protect(text)
         val chunks = mutableListOf<String>(); val current = StringBuilder()
-        for (unit in Regex("⟦P[0-9]+⟧|.", RegexOption.DOT_MATCHES_ALL).findAll(protected.text)) {
+        for (unit in Regex("__PR[0-9]+__|.", RegexOption.DOT_MATCHES_ALL).findAll(protected.text)) {
             if (current.isNotEmpty() && current.length + unit.value.length > limit) { chunks += current.toString(); current.setLength(0) }
             current.append(unit.value)
         }
         if (current.isNotEmpty()) chunks += current.toString()
-        return chunks.map { chunk -> var value = chunk; protected.tokens.forEachIndexed { i, token -> value = value.replace("⟦P$i⟧", token) }; value }
+        return chunks.map { chunk -> var value = chunk; protected.tokens.forEachIndexed { i, token -> value = value.replace("__PR${i}__", token) }; value }
     }
     fun drafts(raw: String, sentences: List<SourceSentence>, values: List<ProtectedText>): List<Pair<SourceSentence, String>> {
         val pattern = Regex("\"id\"\\s*:\\s*\"s([0-9]+)\"\\s*,\\s*\"translation\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)")
@@ -76,16 +76,16 @@ object StructuredTranslation {
             if (index !in sentences.indices) return@mapNotNull null
             runCatching {
                 var text = JSONObject("{\"value\":\"${match.groupValues[2]}\"}").getString("value")
-                values[index].tokens.forEachIndexed { i, token -> text = text.replace("⟦P${i + values[index].firstToken}⟧", token) }
+                values[index].tokens.forEachIndexed { i, token -> text = text.replace("__PR${i + values[index].firstToken}__", token) }
                 sentences[index] to text
             }.getOrNull()
         }.toList()
     }
     private val protected = Regex("```[\\s\\S]*?```|`[^`]+`|\\$\\$[\\s\\S]*?\\$\\$|\\$[^$\\n]+\\$|https?://[^\\s<>]+|\\[[0-9][0-9,; \\u2013-]*]|(?<![\\p{L}])[-+]?\\d+(?:[.,]\\d+)*(?:%|\\s?(?:kg|mg|km|cm|mm|ms|Hz|GHz|MHz|MB|GB|K|°C|m/s))?")
     fun protect(text: String, firstToken: Int = 0): ProtectedText {
-        require(!text.contains(Regex("⟦P\\d+⟧"))) { "RESERVED_TOKEN_IN_SOURCE" }
+        require(!text.contains(Regex("__PR\\d+__"))) { "RESERVED_TOKEN_IN_SOURCE" }
         val tokens = mutableListOf<String>()
-        return ProtectedText(protected.replace(text) { m -> "⟦P${firstToken + tokens.size}⟧".also { tokens += m.value } }, tokens, firstToken)
+        return ProtectedText(protected.replace(text) { m -> "__PR${firstToken + tokens.size}__".also { tokens += m.value } }, tokens, firstToken)
     }
     fun prompt(sentences: List<SourceSentence>, c: TranslationConfig): Pair<ModelPrompt, List<ProtectedText>> {
         var nextToken = 0
@@ -96,9 +96,15 @@ object StructuredTranslation {
         val terms = JSONObject()
         glossary.keys().forEach { k -> if (glossary.opt(k) is String) terms.put(k, glossary.getString(k)) }
         glossary.optJSONObject(c.targetLanguage)?.let { lang -> lang.keys().forEach { terms.put(it, lang.getString(it)) } }
-        val system = "Translate from ${c.sourceLanguage} to ${c.targetLanguage}. Return only JSON: {\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}. " +
-            "Exactly one entry per provided id. Copy ALL ⟦Pn⟧ placeholders from EACH input sentence exactly once, including citations. " +
-            "Preserve terms, code, equations and references. No reasoning. Glossary: $terms"
+        val system = if (c.targetLanguage.lowercase() in setOf("zh-cn", "zh-hans", "zh", "简体中文"))
+            "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。" +
+            "只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。" +
+            (if (values.any { it.tokens.isNotEmpty() }) "所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。" else "") +
+            "术语表：$terms"
+        else "Translate every complete text from ${c.sourceLanguage} to ${c.targetLanguage}, including every sentence. Do not summarize. " +
+            "Return only a JSON object containing a translations array. Each entry must have id and translation fields; keep each input id and fill translation with the actual translated text. " +
+            (if (values.any { it.tokens.isNotEmpty() }) "Copy every __PRnumber__ marker from EACH input sentence exactly once, including both pairs of underscores. " else "") +
+            "Preserve terms, code, equations, references, negation and contrasts. No reasoning. Glossary: $terms"
         return ModelPrompt(system, JSONObject().put("sentences", rows).toString() + "\n/no_think", sentences.size) to values
     }
     fun validate(raw: String, sentences: List<SourceSentence>, protected: List<ProtectedText>): List<Pair<SourceSentence, String>> {

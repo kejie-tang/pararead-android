@@ -236,4 +236,4 @@ extern "C" JNIEXPORT void JNICALL Java_org_pararead_llama_NativeBridge_cancel(JN
     if (handle) reinterpret_cast<Engine *>(handle)->cancelled.store(true);
 }
 extern "C" JNIEXPORT void JNICALL Java_org_pararead_llama_NativeBridge_free(JNIEnv *, jobject, jlong handle) { delete reinterpret_cast<Engine *>(handle); }
-extern "C" JNIEXPORT jstring JNICALL Java_org_pararead_llama_NativeBridge_version(JNIEnv * env, jobject) { return env->NewStringUTF("llama.cpp@2280f0fd163b03d4331d49e08460f66502e35854;cpu;arm64;ctx4096;proposal-exact-grammar-v3"); }
+extern "C" JNIEXPORT jstring JNICALL Java_org_pararead_llama_NativeBridge_version(JNIEnv * env, jobject) { return env->NewStringUTF("llama.cpp@2280f0fd163b03d4331d49e08460f66502e35854;cpu;arm64;ctx4096;proposal-exact-grammar-v3;templates-qwen2-qwen3-qwen35-lfm2"); }

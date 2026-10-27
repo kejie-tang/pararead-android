@@ -62,6 +62,8 @@ Size:    1,359,279,776 bytes
 
 Hugging Face 搜索展示各仓库模型卡声明的许可，模型权重仍由用户单独下载。LFM2.5 官方模型使用自定义 LFM1.0 许可；Qwen3.5 官方 GGUF 使用 Apache-2.0。应用代码的许可证不替代模型许可；分发或商用前应查看所选仓库的实际条款。
 
+Alpha.4 的轻量快读候选为 [Unsloth/Qwen3-0.6B-GGUF](https://huggingface.co/unsloth/Qwen3-0.6B-GGUF) 的 `Qwen3-0.6B-Q4_K_M.gguf`，官方来源备选为 [Qwen/Qwen3-0.6B-GGUF](https://huggingface.co/Qwen/Qwen3-0.6B-GGUF) 的 `Qwen3-0.6B-Q8_0.gguf`；所测仓库模型卡声明 Apache-2.0。Qwen2.5 官方 Instruct GGUF 同样声明 Apache-2.0。精确仓库提交、文件大小、SHA-256 和各测试模型的许可标识见[模型清单](docs/reports/small-model-manifest.json)，兼容性与已知译文问题见[测试报告](docs/reports/small-model-evaluation.md)。这些可选权重不随源码、APK 或 Release 附件分发；默认 Ollama 权重的许可副本不用于代替其他模型仓库的实际许可文件。
+
 内置 `reader/sample.pdf` 来自本仓库的 [samples/pararead-reading-guide.pdf](samples/pararead-reading-guide.pdf)，是本项目自编的六页操作示例，文字、表格、矢量图采用 Apache-2.0；署名与范围见 [samples/NOTICE](samples/NOTICE)。使用 PDF 标准基础字体，不嵌入外部字体文件。
 
 Android 构建排除上游 PDF.js 目录中的全部 PDF，避免同时把原 tracemonkey 论文隐藏复制到 `reader/pdfjs/web/`。公开的阅读器截图由自编示例重新生成；旧论文的 Android 原型截图已移出公开源码。

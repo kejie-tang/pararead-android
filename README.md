@@ -6,7 +6,7 @@ Keep the original page in view, tap a sentence to follow its translation, and us
 
 [![Android CI](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml/badge.svg?branch=main)](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml) [![Android 9+](https://img.shields.io/badge/Android-9%2B-3DDC84?logo=android&logoColor=white)](#quick-start) [![Code license: Apache-2.0](https://img.shields.io/badge/Code-Apache--2.0-blue)](LICENSE)
 
-**[Download preview APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.3/ParaRead-0.2.0-alpha.3-android-arm64-debug.apk)** · [All releases](https://github.com/kejie-tang/pararead-android/releases) · [Quick start](#quick-start) · [简体中文](README.zh-CN.md)
+**[Download preview APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.4/ParaRead-0.2.0-alpha.4-android-arm64-debug.apk)** · [All releases](https://github.com/kejie-tang/pararead-android/releases) · [Quick start](#quick-start) · [简体中文](README.zh-CN.md)
 
 An independent, unofficial Android adaptation of [ParaRead](https://github.com/Chuanyunux/pararead) 0.6.1. **Development preview:** ARM64 only; the app interface currently uses Chinese labels.
 
@@ -21,7 +21,7 @@ A translation is easier to check when the source is right beside it. ParaRead An
 | Feature | What you can do |
 | --- | --- |
 | Sentence alignment | Tap the source or translation to find the matching sentence, with highlighting, vertical alignment, and linked scrolling. |
-| On-device translation | Run a supported Qwen3, Qwen3.5, or LFM2.5 GGUF locally through llama.cpp. After downloading the model, translate without a remote translation service. |
+| On-device translation | Run a supported Qwen2.5, Qwen3, Qwen3.5, or LFM2/2.5 GGUF locally through llama.cpp. After downloading the model, translate without a remote translation service. |
 | Flexible reading pace | Translate a selected passage, the current page, nearby pages, or the whole document. Cancel when needed. |
 | Saved progress | Reuse cached translations and reading positions. Whole-document jobs save a checkpoint after each page and can continue when reopened with matching settings. |
 | Notes and PDF export | Keep local annotation drafts and save an annotated PDF copy. |
@@ -32,7 +32,7 @@ A translation is easier to check when the source is right beside it. ParaRead An
 
 **You need:** Android 9 / API 28 or newer, an ARM64 device, and an Android System WebView with `WebMessageListener` support. The layout is designed for tablets.
 
-1. **Install the [preview APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.3/ParaRead-0.2.0-alpha.3-android-arm64-debug.apk).** The current download is debug-signed (`0.2.0-alpha.3`). If upgrading from a differently signed build, you may need to uninstall first; export important annotated PDFs before uninstalling, which removes app data.
+1. **Install the [preview APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.4/ParaRead-0.2.0-alpha.4-android-arm64-debug.apk).** The current download is debug-signed (`0.2.0-alpha.4`). If upgrading from a differently signed build, you may need to uninstall first; export important annotated PDFs before uninstalling, which removes app data.
 2. **Open a PDF.** Try **打开示例文档** (Open sample document), or import a PDF with selectable text through the system file picker.
 3. **Download the local model.** Tap **下载默认模型** (Download default model), or open **设置 → 离线 GGUF** (Settings → Offline GGUF). The app checks the full file size and SHA-256 before enabling it.
 4. **Start reading.** Tap a sentence, translate a page, or start a whole-document job. Change the target language in **目标语言** (Target language). After an explicit cancellation, use **全篇 / 继续** (Whole document / Continue) to resume.
@@ -46,9 +46,13 @@ A translation is easier to check when the source is right beside it. ParaRead An
 | Storage | About **2.8 GB free during download and verification**, plus space for PDFs |
 | Runtime | llama.cpp on the CPU; automatic or manual thread count |
 | Source | A fixed, SHA-256-verified GGUF layer from the Ollama registry; **no Ollama app required** |
-| Model search / imports | Hugging Face search and single-file GGUF downloads; Qwen3, Qwen3.5 and LFM2.5 text templates |
+| Model search / imports | Hugging Face search and single-file GGUF downloads; Qwen2.5, Qwen3, Qwen3.5 and LFM2/2.5 text templates |
 
 **Choose another model:** open **设置 → 离线 GGUF → 从 Hugging Face 搜索下载**. Search a model name or enter `org/repo`, inspect its license, and choose a quantization. Downloads are pinned to a repository commit and checked against its LFS SHA-256. A successful download replaces the current local model. LFM2.5 is experimental: small-model formatting and translation completeness have known failures. See the [actual model compatibility results](docs/reports/model-compatibility.md).
+
+**Want a smaller, faster model?** Try `Qwen3-0.6B-Q4_K_M.gguf` (**397 MB**) from [Unsloth](https://huggingface.co/unsloth/Qwen3-0.6B-GGUF). The official [Qwen Q8_0](https://huggingface.co/Qwen/Qwen3-0.6B-GGUF) is **639 MB**. These are candidates for fast preview reading; small models still miss details and can mistranslate numerical relations. See the [small-model tests, exact files and recommendations](docs/reports/small-model-evaluation.md).
+
+Alpha.4 uses ASCII placeholders and translation instructions without a sample answer, improving small-model protocol compatibility. Translation cache keys are versioned, so translations will be regenerated after upgrading. The default download remains Qwen3 1.7B.
 
 Downloads use Android's system queue, with progress, cancellation, retry, and monitoring after reopening the app. Removing the model keeps your documents, reading progress, and translation cache. See [model management](docs/reports/model-management.md) and [CPU thread settings](docs/reports/cpu-threads.md) for implementation and test details (Chinese).
 

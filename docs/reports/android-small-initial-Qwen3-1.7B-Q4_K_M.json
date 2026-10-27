@@ -1,0 +1,146 @@
+{
+  "device": "Google sdk_gphone64_arm64",
+  "model": "Qwen3-1.7B-Q4_K_M.gguf",
+  "threads": 6,
+  "cases": [
+    {
+      "fixture": "short",
+      "status": "passed",
+      "translations": [
+        {
+          "source": "We propose a memory-efficient method for translating scientific documents.",
+          "translation": "我们提出一种内存高效的方法用于翻译科学文档。"
+        }
+      ],
+      "raw": "{\"translations\": [{\"id\": \"s1\", \"translation\": \"我们提出一种内存高效的方法用于翻译科学文档。\"}]}",
+      "generatedTokens": 27,
+      "tokensPerSecond": 37.21767765584121
+    },
+    {
+      "fixture": "protected-batch",
+      "status": "passed",
+      "translations": [
+        {
+          "source": "The model processes 100 pages using 4 GB of memory [12].",
+          "translation": "模型使用 100 页内存 4 GB 处理 [12] 。"
+        },
+        {
+          "source": "For $E=mc^2$, retain the equation and see https://example.org/paper.",
+          "translation": "对于 $E=mc^2$ ，保留方程并查看 https://example.org/paper. 。"
+        }
+      ],
+      "raw": "{\"translations\": [{\"id\": \"s1\", \"translation\": \"模型使用 __PR0__ 页内存 __PR1__ 处理 __PR2__ 。\"}, {\"id\": \"s2\", \"translation\": \"对于 __PR3__ ，保留方程并查看 __PR4__ 。\"}]}",
+      "generatedTokens": 65,
+      "tokensPerSecond": 36.72255092790988
+    },
+    {
+      "fixture": "negation",
+      "status": "passed",
+      "translations": [
+        {
+          "source": "The increase was not statistically significant.",
+          "translation": "该增加并不具有统计学意义。"
+        },
+        {
+          "source": "The result may indicate an association, but it does not establish causation.",
+          "translation": "结果可能表明存在关联，但并不能证明因果关系。"
+        }
+      ],
+      "raw": "{\"translations\": [{\"id\": \"s1\", \"translation\": \"该增加并不具有统计学意义。\"}, {\"id\": \"s2\", \"translation\": \"结果可能表明存在关联，但并不能证明因果关系。\"}]}",
+      "generatedTokens": 48,
+      "tokensPerSecond": 38.342179992571204
+    },
+    {
+      "fixture": "escaped-text",
+      "status": "passed",
+      "translations": [
+        {
+          "source": "The author calls this a \"reading assistant\".\nKeep the meaning of both sentences.",
+          "translation": "作者将此称为\"阅读助手\"。\n保持两个句子的原意。"
+        }
+      ],
+      "raw": "{\"translations\": [{\"id\": \"s1\", \"translation\": \"作者将此称为\\\"阅读助手\\\"。\\n保持两个句子的原意。\"}]}",
+      "generatedTokens": 33,
+      "tokensPerSecond": 35.534174444183975
+    }
+  ],
+  "systemInfo": "CPU : NEON = 1 | ARM_FMA = 1 | LLAMAFILE = 1 | KLEIDIAI = 1 | REPACK = 1 | ",
+  "bytes": 1359279776,
+  "sha256": "3d0b790534fe4b79525fc3692950408dca41171676ed7e21db57af5c65ef6ab6",
+  "architecture": "qwen3",
+  "speedTest": {
+    "methodVersion": 2,
+    "source": "Scientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead.",
+    "sourceLanguage": "en",
+    "targetLanguage": "zh-CN",
+    "translationCache": false,
+    "samples": [
+      {
+        "firstResponseMs": 5002.927044,
+        "totalMs": 11019.085255,
+        "promptTokens": 278,
+        "generatedTokens": 209,
+        "prefillNanos": 2856503043,
+        "generationNanos": 6016114753,
+        "samplingNanos": 32052038,
+        "decodeNanos": 5941360666,
+        "callbackNanos": 42273002,
+        "tokensPerSecond": 34.74002883601579,
+        "translation": "科学文档结合连续的叙述文与公式、表格、参考文献和技术术语。一个有用的阅读助手应翻译叙述文，同时保留文档的原意和结构。研究人员经常多次阅读同一段文字，以理解一个陌生的方法，并将其与先前的工作进行比较。本地语言模型可以支持这一过程，而无需将文档发送到远程服务。其实际速度取决于内存带宽、处理器指令、工作者线程以及正在处理的上下文量。一个简短的答案可能在处理器达到稳定工作状态之前就完成了，因此重复测量具有较长输出的测量结果是有用的。提示处理和令牌生成应分别进行测量，因为它们执行不同的计算类型。公平的比较还应记录精确的模型文件、推理设置和设备条件。本实验的目标是生成一个忠实的中文翻译，并保留足够的定时信息，以区分引擎性能和应用程序开销。"
+      },
+      {
+        "firstResponseMs": 2849.410084,
+        "totalMs": 8642.693587,
+        "promptTokens": 278,
+        "generatedTokens": 209,
+        "prefillNanos": 2848544334,
+        "generationNanos": 5793238003,
+        "samplingNanos": 32564328,
+        "decodeNanos": 5720916835,
+        "callbackNanos": 39291962,
+        "tokensPerSecond": 36.076543013038716,
+        "translation": "科学文档结合连续的叙述文与公式、表格、参考文献和技术术语。一个有用的阅读助手应翻译叙述文，同时保留文档的原意和结构。研究人员经常多次阅读同一段文字，以理解一个陌生的方法，并将其与先前的工作进行比较。本地语言模型可以支持这一过程，而无需将文档发送到远程服务。其实际速度取决于内存带宽、处理器指令、工作者线程以及正在处理的上下文量。一个简短的答案可能在处理器达到稳定工作状态之前就完成了，因此重复测量具有较长输出的测量结果是有用的。提示处理和令牌生成应分别进行测量，因为它们执行不同的计算类型。公平的比较还应记录精确的模型文件、推理设置和设备条件。本实验的目标是生成一个忠实的中文翻译，并保留足够的定时信息，以区分引擎性能和应用程序开销。"
+      },
+      {
+        "firstResponseMs": 2869.489376,
+        "totalMs": 8586.821379,
+        "promptTokens": 278,
+        "generatedTokens": 209,
+        "prefillNanos": 2868363835,
+        "generationNanos": 5717199128,
+        "samplingNanos": 32334890,
+        "decodeNanos": 5640176002,
+        "callbackNanos": 44261711,
+        "tokensPerSecond": 36.5563618339655,
+        "translation": "科学文档结合连续的叙述文与公式、表格、参考文献和技术术语。一个有用的阅读助手应翻译叙述文，同时保留文档的原意和结构。研究人员经常多次阅读同一段文字，以理解一个陌生的方法，并将其与先前的工作进行比较。本地语言模型可以支持这一过程，而无需将文档发送到远程服务。其实际速度取决于内存带宽、处理器指令、工作者线程以及正在处理的上下文量。一个简短的答案可能在处理器达到稳定工作状态之前就完成了，因此重复测量具有较长输出的测量结果是有用的。提示处理和令牌生成应分别进行测量，因为它们执行不同的计算类型。公平的比较还应记录精确的模型文件、推理设置和设备条件。本实验的目标是生成一个忠实的中文翻译，并保留足够的定时信息，以区分引擎性能和应用程序开销。"
+      },
+      {
+        "firstResponseMs": 2865.065793,
+        "totalMs": 8682.51142,
+        "promptTokens": 278,
+        "generatedTokens": 209,
+        "prefillNanos": 2864193668,
+        "generationNanos": 5817436003,
+        "samplingNanos": 31152041,
+        "decodeNanos": 5744049298,
+        "callbackNanos": 41814044,
+        "tokensPerSecond": 35.92648030716978,
+        "translation": "科学文档结合连续的叙述文与公式、表格、参考文献和技术术语。一个有用的阅读助手应翻译叙述文，同时保留文档的原意和结构。研究人员经常多次阅读同一段文字，以理解一个陌生的方法，并将其与先前的工作进行比较。本地语言模型可以支持这一过程，而无需将文档发送到远程服务。其实际速度取决于内存带宽、处理器指令、工作者线程以及正在处理的上下文量。一个简短的答案可能在处理器达到稳定工作状态之前就完成了，因此重复测量具有较长输出的测量结果是有用的。提示处理和令牌生成应分别进行测量，因为它们执行不同的计算类型。公平的比较还应记录精确的模型文件、推理设置和设备条件。本实验的目标是生成一个忠实的中文翻译，并保留足够的定时信息，以区分引擎性能和应用程序开销。"
+      }
+    ]
+  },
+  "engineSamples": [
+    {
+      "pp512": 94.90802968525048,
+      "tg128": 35.40962567180909
+    },
+    {
+      "pp512": 90.7378946341721,
+      "tg128": 35.95959024976241
+    },
+    {
+      "pp512": 95.00081330066382,
+      "tg128": 34.04232381322505
+    }
+  ]
+}

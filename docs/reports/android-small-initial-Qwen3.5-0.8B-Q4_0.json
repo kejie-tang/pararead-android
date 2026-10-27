@@ -1,0 +1,62 @@
+{
+  "device": "Google sdk_gphone64_arm64",
+  "model": "Qwen3.5-0.8B-Q4_0.gguf",
+  "threads": 6,
+  "cases": [
+    {
+      "fixture": "short",
+      "status": "passed",
+      "translations": [
+        {
+          "source": "We propose a memory-efficient method for translating scientific documents.",
+          "translation": "我们提出一种用于翻译科学文档的方法，以使其内存效率更高。"
+        }
+      ],
+      "raw": "{\n  \"translations\": [\n    {\n    \"id\": \"s1\",\n    \"translation\": \"我们提出一种用于翻译科学文档的方法，以使其内存效率更高。\"\n  }\n]\n}",
+      "generatedTokens": 48,
+      "tokensPerSecond": 69.52054530247243
+    },
+    {
+      "fixture": "protected-batch",
+      "status": "failed",
+      "error": "java.lang.IllegalArgumentException: PROTECTED_TOKEN_MISMATCH",
+      "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"模型使用__PR0__个页面，__PR1__个内存中处理。\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"对于__PR3__，保留方程并查看__PR4__\"\n    }\n  ]\n}",
+      "generatedTokens": 88,
+      "tokensPerSecond": 67.6402485311186
+    },
+    {
+      "fixture": "negation",
+      "status": "passed",
+      "translations": [
+        {
+          "source": "The increase was not statistically significant.",
+          "translation": "这种增加在统计学上并未显著。"
+        },
+        {
+          "source": "The result may indicate an association, but it does not establish causation.",
+          "translation": "结果可能表明存在关联，但并未建立因果关系。"
+        }
+      ],
+      "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"这种增加在统计学上并未显著。\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"结果可能表明存在关联，但并未建立因果关系。\"\n    }\n  ]\n}",
+      "generatedTokens": 75,
+      "tokensPerSecond": 67.67339363539205
+    },
+    {
+      "fixture": "escaped-text",
+      "status": "passed",
+      "translations": [
+        {
+          "source": "The author calls this a \"reading assistant\".\nKeep the meaning of both sentences.",
+          "translation": "该作者称这种叫做‘阅读助手’。"
+        }
+      ],
+      "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"该作者称这种叫做‘阅读助手’。\"\n    }\n  ]\n}",
+      "generatedTokens": 43,
+      "tokensPerSecond": 68.52521836959227
+    }
+  ],
+  "systemInfo": "CPU : NEON = 1 | ARM_FMA = 1 | LLAMAFILE = 1 | KLEIDIAI = 1 | REPACK = 1 | ",
+  "bytes": 563036064,
+  "sha256": "57d1997790d1744fba5b40a7317df71ea5e2acee28c47e78f0cce39c0703f8cf",
+  "architecture": "qwen35"
+}
