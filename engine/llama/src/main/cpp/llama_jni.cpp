@@ -66,8 +66,8 @@ extern "C" JNIEXPORT jlong JNICALL Java_org_pararead_llama_NativeBridge_load(JNI
         char architecture[128]{};
         llama_model_meta_val_str(engine->model, "general.architecture", architecture, sizeof(architecture));
         engine->architecture = architecture;
-        if (engine->architecture != "qwen3" && engine->architecture != "qwen35" && engine->architecture != "lfm2")
-            throw std::runtime_error("MODEL_TEMPLATE_UNSUPPORTED: supported architectures: qwen3 / qwen35 / lfm2");
+        if (engine->architecture != "qwen2" && engine->architecture != "qwen3" && engine->architecture != "qwen35" && engine->architecture != "lfm2")
+            throw std::runtime_error("MODEL_TEMPLATE_UNSUPPORTED: supported architectures: qwen2 / qwen3 / qwen35 / lfm2");
         auto cp = llama_context_default_params(); cp.n_ctx = 4096; cp.n_batch = 512; cp.n_ubatch = 128;
         cp.n_threads = threads; cp.n_threads_batch = threads;
         cp.abort_callback = abort_decode; cp.abort_callback_data = engine.get();

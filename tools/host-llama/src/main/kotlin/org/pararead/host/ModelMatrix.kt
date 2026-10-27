@@ -16,12 +16,18 @@ suspend fun runModelMatrix(args: List<String>) {
     val output = File(args.firstOrNull() ?: "docs/reports/model-matrix.json")
     val threads = System.getenv("PARAREAD_CPU_THREADS")?.toInt() ?: 6
     val root = File("artifacts/models")
-    val files = listOf("Qwen3-1.7B-Q4_K_M.gguf", "LFM2.5-1.2B-Instruct-Q4_K_M.gguf", "LFM2.5-350M-Q4_K_M.gguf", "Qwen3.5-0.8B-Q4_0.gguf")
+    val manifest = args.getOrNull(1)?.let { JSONArray(File(it).readText()) }
+    val extended = manifest != null
+    val promptVariant = args.getOrNull(2) ?: "production"
+    require(promptVariant in setOf("production", "compact-zh", "ascii"))
+    val files = (manifest?.let { rows -> (0 until rows.length()).map { rows.getJSONObject(it).getString("file") } }
+        ?: listOf("Qwen3-1.7B-Q4_K_M.gguf", "LFM2.5-1.2B-Instruct-Q4_K_M.gguf", "LFM2.5-350M-Q4_K_M.gguf", "Qwen3.5-0.8B-Q4_0.gguf"))
         .filter { System.getenv("PARAREAD_MATRIX_MODEL")?.let(it::contains) ?: true }
     val results = JSONArray()
     val report = JSONObject().put("date", java.time.LocalDate.now().toString()).put("platform", System.getProperty("os.name") + " " + System.getProperty("os.arch"))
         .put("physicalAndroidDevice", false).put("threads", threads).put("engine", NativeBridge.version()).put("systemInfo", NativeBridge.systemInfo())
         .put("context", 4096).put("batch", 512).put("ubatch", 128).put("gpuLayers", 0).put("models", results)
+        .put("extendedFixtures", extended).put("formatPassCertifiesSemanticAccuracy", false).put("promptVariant", promptVariant)
     fun save() { output.parentFile.mkdirs(); output.writeText(report.toString(2) + "\n") }
     val fixtures = linkedMapOf(
         "short" to listOf(SourceSentence("a", SpeedTest.SOURCE, "p1")),
@@ -32,31 +38,68 @@ suspend fun runModelMatrix(args: List<String>) {
             SourceSentence("c", "The attention mechanism uses a key-value cache; the code is `cache.get(key)`.", "p1"),
             SourceSentence("d", "The proposed method reduces latency by 12.5% without changing the input order.", "p1")),
         "escaped-text" to listOf(SourceSentence("a", "The author calls this a \"reading assistant\".\nKeep the meaning of both sentences.", "p1")))
+    if (extended) fixtures.putAll(linkedMapOf(
+        "negation-and-hedging" to listOf(
+            SourceSentence("a", "The increase was not statistically significant.", "p1"),
+            SourceSentence("b", "The result may indicate an association, but it does not establish causation.", "p1"),
+            SourceSentence("c", "We did not observe a reduction in memory use.", "p1")),
+        "numeric-contrast" to listOf(
+            SourceSentence("a", "Accuracy fell from 91.2% to 87.6%, whereas latency improved from 120 ms to 80 ms.", "p1"),
+            SourceSentence("b", "Only 3 of the 50 documents failed; the other 47 were translated successfully.", "p1")),
+        "technical-contrast" to listOf(
+            SourceSentence("a", "The ablation study removes cross-attention while keeping the key-value cache unchanged.", "p1"),
+            SourceSentence("b", "Unlike prior work, we evaluate on unseen documents rather than on the training set.", "p1")),
+        "two-sentence-discourse" to listOf(SourceSentence("a", "The baseline uses more memory. However, the proposed method is slower on short inputs.", "p1"))))
     val config = TranslationConfig(sourceLanguage = "en", targetLanguage = "zh-CN", glossary = "{\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}")
+    fun adapt(prompt: ModelPrompt): ModelPrompt = if (promptVariant == "production") prompt else if (promptVariant == "ascii") prompt.copy(
+        system = "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。" +
+            "只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。" +
+            (if (prompt.user.contains("⟦P")) "所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。" else "") +
+            "术语表：${JSONObject(config.glossary)}",
+        user = prompt.user.replace(Regex("⟦P(\\d+)⟧")) { "__PR${it.groupValues[1]}__" })
+    else prompt.copy(system =
+        "将用户 JSON 中每个 text 的全部内容翻译为简体中文，保留原意、否定和转折，不要漏译。只返回 JSON：{\"translations\":[{\"id\":\"s1\",\"translation\":\"中文译文\"}]}。" +
+        "每个输入 id 对应一条译文，id 不变，不要解释。" +
+        (if (prompt.user.contains("⟦P")) "原样保留每一个 ⟦P数字⟧ 标记，不得遗漏、重复、改写。" else "") +
+        "术语表：${prompt.system.substringAfter("Glossary: ", "{}")}")
+    // A strict diagnostic wire adapter: exact ASCII markers map one-to-one to the legacy validator.
+    // Unicode markers in an ASCII-mode response are rejected, rather than accepted as an alias.
+    fun validationText(raw: String): String {
+        if (promptVariant != "ascii") return raw
+        require(!raw.contains(Regex("⟦P\\d+⟧"))) { "WRONG_PROTOCOL_MARKER" }
+        return raw.replace(Regex("__PR(\\d+)__")) { "⟦P${it.groupValues[1]}⟧" }
+    }
     for (name in files) {
         val file = File(root, name); require(file.isFile) { file.path }
         val digest = java.security.MessageDigest.getInstance("SHA-256")
         file.inputStream().buffered().use { input -> val bytes = ByteArray(262144); while (true) { val n = input.read(bytes); if (n < 0) break; digest.update(bytes, 0, n) } }
         val model = JSONObject().put("file", name).put("bytes", file.length()).put("sha256", digest.digest().joinToString("") { "%02x".format(it) }).put("cases", JSONArray())
+        manifest?.let { rows -> (0 until rows.length()).map { rows.getJSONObject(it) }.first { it.getString("file") == name }.let { source ->
+            require(source.getLong("bytes") == file.length() && source.getString("sha256") == model.getString("sha256")) { "MODEL_MANIFEST_MISMATCH: $name" }
+            model.put("source", source)
+        } }
         results.put(model); save()
         for (guided in listOf(true, false)) {
+            if (promptVariant != "production" && !guided) continue
             val provider = LlamaCppProvider(file.path, threads, constrainJson = guided)
             try {
                 for ((fixture, sentences) in fixtures) {
+                    if (extended && !guided && fixture !in setOf("short", "protected-batch", "escaped-text")) continue
                     val entry = JSONObject().put("fixture", fixture).put("jsonGrammar", guided)
                     model.getJSONArray("cases").put(entry)
                     val start = System.nanoTime()
                     val streamed = StringBuilder()
                     try {
                         withTimeout(120000) {
-                            val (prompt, protected) = StructuredTranslation.prompt(sentences, config)
-                            entry.put("input", prompt.user)
+                            val (original, protected) = StructuredTranslation.prompt(sentences, config)
+                            val prompt = adapt(original)
+                            entry.put("input", prompt.user).put("system", prompt.system)
                             var raw: String? = null
                             provider.generate(prompt).collect { if (it is ProviderEvent.Complete) raw = it.text; if (it is ProviderEvent.Delta) streamed.append(it.text) }
                             entry.put("raw", raw)
                             provider.metrics?.let { m -> entry.put("promptTokens", m.promptTokens).put("generatedTokens", m.generatedTokens)
                                 .put("tokensPerSecond", m.tokensPerSecond).put("samplingNanos", m.samplingNanos).put("decodeNanos", m.decodeNanos).put("callbackNanos", m.callbackNanos) }
-                            val translated = StructuredTranslation.validate(checkNotNull(raw), sentences, protected)
+                            val translated = StructuredTranslation.validate(validationText(checkNotNull(raw)), sentences, protected)
                             check(translated.all { (_, value) -> value.any { it in '\u4e00'..'\u9fff' } }) { "NO_CHINESE_TRANSLATION" }
                             entry.put("translations", JSONArray(translated.map { (s, t) -> JSONObject().put("source", s.text).put("translation", t) }))
                             entry.put("status", "passed")
@@ -65,17 +108,40 @@ suspend fun runModelMatrix(args: List<String>) {
                     entry.put("totalMs", (System.nanoTime() - start) / 1e6)
                     model.put("architecture", provider.architecture); save()
                     println("$name grammar=$guided $fixture: ${entry.optString("status")} ${entry.optString("error")} ${entry.optDouble("tokensPerSecond")}")
+                    if (provider.architecture == "unloaded") { model.put("loadError", entry.optString("error")); save(); break }
+                }
+                if (model.has("loadError")) break
+                if (guided && extended && promptVariant == "production") {
+                    val samples = JSONArray(); model.put("longWarmSamples", samples)
+                    repeat(3) {
+                        val sample = JSONObject(); samples.put(sample)
+                        try { withTimeout(120000) {
+                            val (original, protected) = StructuredTranslation.prompt(fixtures.getValue("long"), config)
+                            val prompt = adapt(original)
+                            var raw = ""; val started = System.nanoTime()
+                            provider.generate(prompt).collect { if (it is ProviderEvent.Complete) raw = it.text }
+                            sample.put("totalMs", (System.nanoTime() - started) / 1e6).put("raw", raw)
+                            provider.metrics?.let { m -> sample.put("promptTokens", m.promptTokens).put("generatedTokens", m.generatedTokens)
+                                .put("tokensPerSecond", m.tokensPerSecond).put("prefillNanos", m.prefillNanos).put("generationNanos", m.generationNanos) }
+                            StructuredTranslation.validate(raw, fixtures.getValue("long"), protected)
+                            sample.put("status", "passed")
+                        } } catch (e: Exception) { sample.put("status", "failed").put("error", e.toString()) }
+                        save()
+                    }
                 }
                 if (guided) {
-                    val queueResult = JSONObject(); model.put("productionQueue", queueResult)
+                    val queueResult = JSONObject(); model.put(if (promptVariant == "production") "productionQueue" else "adaptedQueue", queueResult)
                     val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
                     val attempts = JSONArray(); queueResult.put("attempts", attempts)
                     val committed = java.util.concurrent.ConcurrentHashMap<String, String>()
                     val wrapped = object : TranslationProvider {
                         override fun generate(prompt: ModelPrompt) = flow {
-                            provider.generate(prompt).collect { event ->
-                                if (event is ProviderEvent.Complete) attempts.put(JSONObject().put("input", prompt.user).put("raw", event.text))
-                                emit(event)
+                            val wire = adapt(prompt)
+                            provider.generate(wire).collect { event ->
+                                if (event is ProviderEvent.Complete) {
+                                    attempts.put(JSONObject().put("input", wire.user).put("system", wire.system).put("raw", event.text))
+                                    emit(ProviderEvent.Complete(validationText(event.text)))
+                                } else emit(event)
                             }
                         }
                     }
@@ -100,7 +166,7 @@ suspend fun runModelMatrix(args: List<String>) {
                     finally { scope.cancel() }
                     save()
                     val engine = JSONArray(); model.put("engineSamples", engine)
-                    repeat(3) {
+                    repeat(if (promptVariant == "production") 3 else 0) {
                         try { withTimeout(120000) {
                             val v = provider.benchmark()
                             engine.put(JSONObject().put("pp512", v[0]).put("tg128", v[1]).put("prefillMs", v[2]).put("decodeMs", v[3]))

@@ -1,0 +1,739 @@
+{
+  "date": "2026-10-27",
+  "physicalAndroidDevice": false,
+  "models": [
+    {
+      "file": "LMT-60-0.6B.Q4_K_M.gguf",
+      "cases": [
+        {
+          "tokensPerSecond": 89.32746747078062,
+          "totalMs": 1417.445292,
+          "samplingNanos": 46887585,
+          "raw": "{\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}] }",
+          "error": "java.lang.IllegalStateException: NO_CHINESE_TRANSLATION",
+          "generatedTokens": 14,
+          "fixture": "short",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"We propose a memory-efficient method for translating scientific documents.\"}]}\n/no_think",
+          "system": "Translate from en to zh-CN. Return only JSON: {\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}. Exactly one entry per provided id. Copy ALL ⟦Pn⟧ placeholders from EACH input sentence exactly once, including citations. Preserve terms, code, equations and references. No reasoning. Glossary: {\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}",
+          "jsonGrammar": true,
+          "callbackNanos": 3011294,
+          "promptTokens": 125,
+          "decodeNanos": 106807083,
+          "status": "failed"
+        },
+        {
+          "fixture": "long",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"Scientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead.\"}]}\n/no_think",
+          "system": "Translate from en to zh-CN. Return only JSON: {\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}. Exactly one entry per provided id. Copy ALL ⟦Pn⟧ placeholders from EACH input sentence exactly once, including citations. Preserve terms, code, equations and references. No reasoning. Glossary: {\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}",
+          "jsonGrammar": true,
+          "totalMs": 19242.211083,
+          "raw": "{\"translations\":[{\"id\":\"s1\",\"translation\":\"科学文献结合连续的文本和方程式、表格、参考和技术术语。一个有用的阅读助手应该在保留原始含义和文档结构的同时翻译文本。研究人员经常多次阅读同一段落，以理解陌生的方法并将其与先前的工作进行比较。本地语言模型可以支持这一过程，而无需将文档发送到远程服务。他们的实际速度取决于内存带宽、处理器指令、工作线程和正在处理上下文的数量。短答案可能在处理器达到稳定运行状态之前就结束，因此重复测量较长输出是有用的。提示处理和生成令牌应该分开测量，因为它们执行不同类型计算。公平比较也记录了确切的模型文件、推理设置和设备条件。本实验的目标是生成忠实的中文翻译，并保留足够的时间信息，以区分引擎性能与应用开销。\u201d}]}。/no_think/ 指定的句子的模型文件、推理设置和设备条件。/no_think/。/no_think/本实验的目标是生成忠实的中文翻译，并保留足够的时间信息，以区分引擎性能与应用开销。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_think/。/no_th",
+          "error": "java.lang.IllegalStateException: TRUNCATED_GENERATION",
+          "status": "failed"
+        },
+        {
+          "tokensPerSecond": 108.13117630301414,
+          "totalMs": 1304.300542,
+          "samplingNanos": 30524123,
+          "raw": "{\"translations\":[{\"id\":\"s1\",\"translation\":\"The model processes ⟦P0⟧ pages using ⟦P1⟧ of memory ⟦P2⟧.\"},{\"id\":\"s2\",\"translation\":\"For ⟦P3⟧, retain the equation and see ⟦P4⟧\"},{\"id\":\"s3\",\"translation\":\"The attention mechanism uses a key-value cache; the code is ⟦P5⟧.\"},{\"id\":\"s4\",\"translation\":\"The proposed method reduces latency by ⟦P6⟧ without changing the input order.\"}]}",
+          "error": "java.lang.IllegalStateException: NO_CHINESE_TRANSLATION",
+          "generatedTokens": 111,
+          "fixture": "protected-batch",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes ⟦P0⟧ pages using ⟦P1⟧ of memory ⟦P2⟧.\"},{\"id\":\"s2\",\"text\":\"For ⟦P3⟧, retain the equation and see ⟦P4⟧\"},{\"id\":\"s3\",\"text\":\"The attention mechanism uses a key-value cache; the code is ⟦P5⟧.\"},{\"id\":\"s4\",\"text\":\"The proposed method reduces latency by ⟦P6⟧ without changing the input order.\"}]}\n/no_think",
+          "system": "Translate from en to zh-CN. Return only JSON: {\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}. Exactly one entry per provided id. Copy ALL ⟦Pn⟧ placeholders from EACH input sentence exactly once, including citations. Preserve terms, code, equations and references. No reasoning. Glossary: {\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}",
+          "jsonGrammar": true,
+          "callbackNanos": 5084165,
+          "promptTokens": 213,
+          "decodeNanos": 990808008,
+          "status": "failed"
+        },
+        {
+          "tokensPerSecond": 98.83925648169311,
+          "totalMs": 324.166625,
+          "samplingNanos": 33216877,
+          "raw": "{\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}] }",
+          "error": "java.lang.IllegalStateException: NO_CHINESE_TRANSLATION",
+          "generatedTokens": 14,
+          "fixture": "escaped-text",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The author calls this a \\\"reading assistant\\\".\\nKeep the meaning of both sentences.\"}]}\n/no_think",
+          "system": "Translate from en to zh-CN. Return only JSON: {\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}. Exactly one entry per provided id. Copy ALL ⟦Pn⟧ placeholders from EACH input sentence exactly once, including citations. Preserve terms, code, equations and references. No reasoning. Glossary: {\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}",
+          "jsonGrammar": true,
+          "callbackNanos": 681791,
+          "promptTokens": 132,
+          "decodeNanos": 107728539,
+          "status": "failed"
+        },
+        {
+          "fixture": "negation-and-hedging",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The increase was not statistically significant.\"},{\"id\":\"s2\",\"text\":\"The result may indicate an association, but it does not establish causation.\"},{\"id\":\"s3\",\"text\":\"We did not observe a reduction in memory use.\"}]}\n/no_think",
+          "system": "Translate from en to zh-CN. Return only JSON: {\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}. Exactly one entry per provided id. Copy ALL ⟦Pn⟧ placeholders from EACH input sentence exactly once, including citations. Preserve terms, code, equations and references. No reasoning. Glossary: {\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}",
+          "jsonGrammar": true,
+          "totalMs": 18338.733208,
+          "raw": "{\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    ",
+          "error": "java.lang.IllegalStateException: TRUNCATED_GENERATION",
+          "status": "failed"
+        },
+        {
+          "tokensPerSecond": 97.79168071236724,
+          "totalMs": 1035.634583,
+          "samplingNanos": 46524876,
+          "raw": "{\"translations\":[{\"id\":\"s1\",\"translation\":\"准确性从 ⟦P0⟧下降到 ⟦P1⟧，而延迟从 ⟦P2⟧提高到 ⟦P3⟧.\"},{\"id\":\"s2\",\"translation\":\"只有 ⟦P4⟧ 的 ⟦P5⟧ 文档失败，其余 ⟦P6⟧ 成功翻译.\"}]}",
+          "generatedTokens": 77,
+          "fixture": "numeric-contrast",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"Accuracy fell from ⟦P0⟧ to ⟦P1⟧, whereas latency improved from ⟦P2⟧ to ⟦P3⟧.\"},{\"id\":\"s2\",\"text\":\"Only ⟦P4⟧ of the ⟦P5⟧ documents failed; the other ⟦P6⟧ were translated successfully.\"}]}\n/no_think",
+          "system": "Translate from en to zh-CN. Return only JSON: {\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}. Exactly one entry per provided id. Copy ALL ⟦Pn⟧ placeholders from EACH input sentence exactly once, including citations. Preserve terms, code, equations and references. No reasoning. Glossary: {\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}",
+          "jsonGrammar": true,
+          "callbackNanos": 3556288,
+          "translations": [
+            {
+              "translation": "准确性从 91.2%下降到 87.6%，而延迟从 120 ms提高到 80 ms.",
+              "source": "Accuracy fell from 91.2% to 87.6%, whereas latency improved from 120 ms to 80 ms."
+            },
+            {
+              "translation": "只有 3 的 50 文档失败，其余 47 成功翻译.",
+              "source": "Only 3 of the 50 documents failed; the other 47 were translated successfully."
+            }
+          ],
+          "promptTokens": 180,
+          "decodeNanos": 737216128,
+          "status": "passed"
+        },
+        {
+          "fixture": "technical-contrast",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The ablation study removes cross-attention while keeping the key-value cache unchanged.\"},{\"id\":\"s2\",\"text\":\"Unlike prior work, we evaluate on unseen documents rather than on the training set.\"}]}\n/no_think",
+          "system": "Translate from en to zh-CN. Return only JSON: {\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}. Exactly one entry per provided id. Copy ALL ⟦Pn⟧ placeholders from EACH input sentence exactly once, including citations. Preserve terms, code, equations and references. No reasoning. Glossary: {\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}",
+          "jsonGrammar": true,
+          "totalMs": 19166.701792,
+          "raw": "{\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    ",
+          "error": "java.lang.IllegalStateException: TRUNCATED_GENERATION",
+          "status": "failed"
+        },
+        {
+          "tokensPerSecond": 97.15657945882842,
+          "totalMs": 306.097125,
+          "samplingNanos": 21431875,
+          "raw": "{\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}] }",
+          "error": "java.lang.IllegalStateException: NO_CHINESE_TRANSLATION",
+          "generatedTokens": 14,
+          "fixture": "two-sentence-discourse",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The baseline uses more memory. However, the proposed method is slower on short inputs.\"}]}\n/no_think",
+          "system": "Translate from en to zh-CN. Return only JSON: {\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}. Exactly one entry per provided id. Copy ALL ⟦Pn⟧ placeholders from EACH input sentence exactly once, including citations. Preserve terms, code, equations and references. No reasoning. Glossary: {\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}",
+          "jsonGrammar": true,
+          "callbackNanos": 758414,
+          "promptTokens": 131,
+          "decodeNanos": 121891624,
+          "status": "failed"
+        },
+        {
+          "tokensPerSecond": 121.94259316045945,
+          "totalMs": 1271.577791,
+          "samplingNanos": 1370252,
+          "raw": "\"我们提出了一种内存高效的科学文档翻译方法。\"",
+          "error": "java.lang.IllegalStateException: INVALID_RESULT_ROOT",
+          "generatedTokens": 13,
+          "fixture": "short",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"We propose a memory-efficient method for translating scientific documents.\"}]}\n/no_think",
+          "system": "Translate from en to zh-CN. Return only JSON: {\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}. Exactly one entry per provided id. Copy ALL ⟦Pn⟧ placeholders from EACH input sentence exactly once, including citations. Preserve terms, code, equations and references. No reasoning. Glossary: {\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}",
+          "jsonGrammar": false,
+          "callbackNanos": 1050249,
+          "promptTokens": 125,
+          "decodeNanos": 104161875,
+          "status": "failed"
+        },
+        {
+          "tokensPerSecond": 116.04908306329688,
+          "totalMs": 1222.58075,
+          "samplingNanos": 10809136,
+          "raw": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes ⟦P0⟧ pages using ⟦P1⟧ of memory ⟦P2⟧.\"},{\"id\":\"s2\",\"text\":\"For ⟦P3⟧, retain the equation and see ⟦P4⟧\"},{\"id\":\"s3\",\"text\":\"The attention mechanism uses a key-value cache; the code is ⟦P5⟧.\"},{\"id\":\"s4\",\"text\":\"The proposed method reduces latency by ⟦P6⟧ without changing the input order.\"}]}",
+          "error": "org.json.JSONException: JSONObject[\"translations\"] not found.",
+          "generatedTokens": 112,
+          "fixture": "protected-batch",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes ⟦P0⟧ pages using ⟦P1⟧ of memory ⟦P2⟧.\"},{\"id\":\"s2\",\"text\":\"For ⟦P3⟧, retain the equation and see ⟦P4⟧\"},{\"id\":\"s3\",\"text\":\"The attention mechanism uses a key-value cache; the code is ⟦P5⟧.\"},{\"id\":\"s4\",\"text\":\"The proposed method reduces latency by ⟦P6⟧ without changing the input order.\"}]}\n/no_think",
+          "system": "Translate from en to zh-CN. Return only JSON: {\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}. Exactly one entry per provided id. Copy ALL ⟦Pn⟧ placeholders from EACH input sentence exactly once, including citations. Preserve terms, code, equations and references. No reasoning. Glossary: {\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}",
+          "jsonGrammar": false,
+          "callbackNanos": 3718546,
+          "promptTokens": 213,
+          "decodeNanos": 950384168,
+          "status": "failed"
+        },
+        {
+          "tokensPerSecond": 105.42680501340686,
+          "totalMs": 378.539916,
+          "samplingNanos": 2185167,
+          "raw": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The author calls this a \"\"reading assistant\"\".\"}",
+          "error": "org.json.JSONException: Expected a ',' or '}' at 59 [character 60 line 1]",
+          "generatedTokens": 22,
+          "fixture": "escaped-text",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The author calls this a \\\"reading assistant\\\".\\nKeep the meaning of both sentences.\"}]}\n/no_think",
+          "system": "Translate from en to zh-CN. Return only JSON: {\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}. Exactly one entry per provided id. Copy ALL ⟦Pn⟧ placeholders from EACH input sentence exactly once, including citations. Preserve terms, code, equations and references. No reasoning. Glossary: {\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}",
+          "jsonGrammar": false,
+          "callbackNanos": 570042,
+          "promptTokens": 132,
+          "decodeNanos": 205877130,
+          "status": "failed"
+        }
+      ],
+      "sha256": "743c6cdc13294b5c470ec0e89e79d64f96ef0cab94ce1285c78da4dc0f56be5c",
+      "bytes": 484220000,
+      "source": {
+        "license": "apache-2.0",
+        "file": "LMT-60-0.6B.Q4_K_M.gguf",
+        "sha256": "743c6cdc13294b5c470ec0e89e79d64f96ef0cab94ce1285c78da4dc0f56be5c",
+        "bytes": 484220000,
+        "repository": "mradermacher/LMT-60-0.6B-GGUF",
+        "revision": "86942b9f925bfccd4196d4982578b46413a1f73f"
+      },
+      "productionQueue": {
+        "failures": [],
+        "translations": {
+          "a": "The model processes 100 pages using 4 GB of memory [12].",
+          "b": "For $E=mc^2$, retain the equation and see https://example.org/paper.",
+          "c": "The attention mechanism uses a key-value cache; the code is `cache.get(key)`.",
+          "d": "The proposed method reduces latency by 12.5% without changing the input order."
+        },
+        "cancelled": false,
+        "attempts": [{
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes ⟦P0⟧ pages using ⟦P1⟧ of memory ⟦P2⟧.\"},{\"id\":\"s2\",\"text\":\"For ⟦P3⟧, retain the equation and see ⟦P4⟧\"},{\"id\":\"s3\",\"text\":\"The attention mechanism uses a key-value cache; the code is ⟦P5⟧.\"},{\"id\":\"s4\",\"text\":\"The proposed method reduces latency by ⟦P6⟧ without changing the input order.\"}]}\n/no_think",
+          "raw": "{\"translations\":[{\"id\":\"s1\",\"translation\":\"The model processes ⟦P0⟧ pages using ⟦P1⟧ of memory ⟦P2⟧.\"},{\"id\":\"s2\",\"translation\":\"For ⟦P3⟧, retain the equation and see ⟦P4⟧\"},{\"id\":\"s3\",\"translation\":\"The attention mechanism uses a key-value cache; the code is ⟦P5⟧.\"},{\"id\":\"s4\",\"translation\":\"The proposed method reduces latency by ⟦P6⟧ without changing the input order.\"}]}"
+        }],
+        "status": "passed"
+      },
+      "architecture": "qwen3",
+      "longWarmSamples": [
+        {
+          "error": "java.lang.IllegalStateException: TRUNCATED_GENERATION",
+          "status": "failed"
+        },
+        {
+          "error": "java.lang.IllegalStateException: TRUNCATED_GENERATION",
+          "status": "failed"
+        },
+        {
+          "error": "java.lang.IllegalStateException: TRUNCATED_GENERATION",
+          "status": "failed"
+        }
+      ],
+      "engineSamples": [
+        {
+          "decodeMs": 1158.4711670000002,
+          "tg128": 110.49044952190854,
+          "prefillMs": 695.2636669999999,
+          "pp512": 736.4112699995296
+        },
+        {
+          "decodeMs": 1143.587917,
+          "tg128": 111.92842989788252,
+          "prefillMs": 672.9415,
+          "pp512": 760.8387950512787
+        },
+        {
+          "decodeMs": 1200.6219170000002,
+          "tg128": 106.61141379114103,
+          "prefillMs": 674.0956249999999,
+          "pp512": 759.5361563131344
+        }
+      ]
+    },
+    {
+      "file": "haidass-translate-143m-q8_0.gguf",
+      "cases": [
+        {
+          "fixture": "short",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"We propose a memory-efficient method for translating scientific documents.\"}]}\n/no_think",
+          "system": "Translate from en to zh-CN. Return only JSON: {\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}. Exactly one entry per provided id. Copy ALL ⟦Pn⟧ placeholders from EACH input sentence exactly once, including citations. Preserve terms, code, equations and references. No reasoning. Glossary: {\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}",
+          "jsonGrammar": true,
+          "totalMs": 19918.089292,
+          "raw": "                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ",
+          "error": "java.lang.IllegalStateException: TRUNCATED_GENERATION",
+          "status": "failed"
+        },
+        {
+          "fixture": "long",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"Scientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead.\"}]}\n/no_think",
+          "system": "Translate from en to zh-CN. Return only JSON: {\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}. Exactly one entry per provided id. Copy ALL ⟦Pn⟧ placeholders from EACH input sentence exactly once, including citations. Preserve terms, code, equations and references. No reasoning. Glossary: {\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}",
+          "jsonGrammar": true,
+          "totalMs": 20348.819834,
+          "raw": "                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ",
+          "error": "java.lang.IllegalStateException: TRUNCATED_GENERATION",
+          "status": "failed"
+        },
+        {
+          "fixture": "protected-batch",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes ⟦P0⟧ pages using ⟦P1⟧ of memory ⟦P2⟧.\"},{\"id\":\"s2\",\"text\":\"For ⟦P3⟧, retain the equation and see ⟦P4⟧\"},{\"id\":\"s3\",\"text\":\"The attention mechanism uses a key-value cache; the code is ⟦P5⟧.\"},{\"id\":\"s4\",\"text\":\"The proposed method reduces latency by ⟦P6⟧ without changing the input order.\"}]}\n/no_think",
+          "system": "Translate from en to zh-CN. Return only JSON: {\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}. Exactly one entry per provided id. Copy ALL ⟦Pn⟧ placeholders from EACH input sentence exactly once, including citations. Preserve terms, code, equations and references. No reasoning. Glossary: {\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}",
+          "jsonGrammar": true,
+          "totalMs": 19776.009542,
+          "raw": "                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ",
+          "error": "java.lang.IllegalStateException: TRUNCATED_GENERATION",
+          "status": "failed"
+        },
+        {
+          "fixture": "escaped-text",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The author calls this a \\\"reading assistant\\\".\\nKeep the meaning of both sentences.\"}]}\n/no_think",
+          "system": "Translate from en to zh-CN. Return only JSON: {\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}. Exactly one entry per provided id. Copy ALL ⟦Pn⟧ placeholders from EACH input sentence exactly once, including citations. Preserve terms, code, equations and references. No reasoning. Glossary: {\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}",
+          "jsonGrammar": true,
+          "totalMs": 20601.303583,
+          "raw": "                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ",
+          "error": "java.lang.IllegalStateException: TRUNCATED_GENERATION",
+          "status": "failed"
+        },
+        {
+          "fixture": "negation-and-hedging",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The increase was not statistically significant.\"},{\"id\":\"s2\",\"text\":\"The result may indicate an association, but it does not establish causation.\"},{\"id\":\"s3\",\"text\":\"We did not observe a reduction in memory use.\"}]}\n/no_think",
+          "system": "Translate from en to zh-CN. Return only JSON: {\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}. Exactly one entry per provided id. Copy ALL ⟦Pn⟧ placeholders from EACH input sentence exactly once, including citations. Preserve terms, code, equations and references. No reasoning. Glossary: {\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}",
+          "jsonGrammar": true,
+          "totalMs": 20112.9795,
+          "raw": "                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ",
+          "error": "java.lang.IllegalStateException: TRUNCATED_GENERATION",
+          "status": "failed"
+        },
+        {
+          "fixture": "numeric-contrast",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"Accuracy fell from ⟦P0⟧ to ⟦P1⟧, whereas latency improved from ⟦P2⟧ to ⟦P3⟧.\"},{\"id\":\"s2\",\"text\":\"Only ⟦P4⟧ of the ⟦P5⟧ documents failed; the other ⟦P6⟧ were translated successfully.\"}]}\n/no_think",
+          "system": "Translate from en to zh-CN. Return only JSON: {\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}. Exactly one entry per provided id. Copy ALL ⟦Pn⟧ placeholders from EACH input sentence exactly once, including citations. Preserve terms, code, equations and references. No reasoning. Glossary: {\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}",
+          "jsonGrammar": true,
+          "totalMs": 19716.35875,
+          "raw": "                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ",
+          "error": "java.lang.IllegalStateException: TRUNCATED_GENERATION",
+          "status": "failed"
+        },
+        {
+          "fixture": "technical-contrast",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The ablation study removes cross-attention while keeping the key-value cache unchanged.\"},{\"id\":\"s2\",\"text\":\"Unlike prior work, we evaluate on unseen documents rather than on the training set.\"}]}\n/no_think",
+          "system": "Translate from en to zh-CN. Return only JSON: {\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}. Exactly one entry per provided id. Copy ALL ⟦Pn⟧ placeholders from EACH input sentence exactly once, including citations. Preserve terms, code, equations and references. No reasoning. Glossary: {\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}",
+          "jsonGrammar": true,
+          "totalMs": 19622.560875,
+          "raw": "                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ",
+          "error": "java.lang.IllegalStateException: TRUNCATED_GENERATION",
+          "status": "failed"
+        },
+        {
+          "fixture": "two-sentence-discourse",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The baseline uses more memory. However, the proposed method is slower on short inputs.\"}]}\n/no_think",
+          "system": "Translate from en to zh-CN. Return only JSON: {\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}. Exactly one entry per provided id. Copy ALL ⟦Pn⟧ placeholders from EACH input sentence exactly once, including citations. Preserve terms, code, equations and references. No reasoning. Glossary: {\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}",
+          "jsonGrammar": true,
+          "totalMs": 20121.870667,
+          "raw": "                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ",
+          "error": "java.lang.IllegalStateException: TRUNCATED_GENERATION",
+          "status": "failed"
+        },
+        {
+          "fixture": "short",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"We propose a memory-efficient method for translating scientific documents.\"}]}\n/no_think",
+          "system": "Translate from en to zh-CN. Return only JSON: {\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}. Exactly one entry per provided id. Copy ALL ⟦Pn⟧ placeholders from EACH input sentence exactly once, including citations. Preserve terms, code, equations and references. No reasoning. Glossary: {\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}",
+          "jsonGrammar": false,
+          "totalMs": 549.624042,
+          "raw": "Specess.The.The.The.The.The",
+          "error": "java.nio.charset.MalformedInputException: Input length = 1",
+          "status": "failed"
+        },
+        {
+          "fixture": "protected-batch",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes ⟦P0⟧ pages using ⟦P1⟧ of memory ⟦P2⟧.\"},{\"id\":\"s2\",\"text\":\"For ⟦P3⟧, retain the equation and see ⟦P4⟧\"},{\"id\":\"s3\",\"text\":\"The attention mechanism uses a key-value cache; the code is ⟦P5⟧.\"},{\"id\":\"s4\",\"text\":\"The proposed method reduces latency by ⟦P6⟧ without changing the input order.\"}]}\n/no_think",
+          "system": "Translate from en to zh-CN. Return only JSON: {\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}. Exactly one entry per provided id. Copy ALL ⟦Pn⟧ placeholders from EACH input sentence exactly once, including citations. Preserve terms, code, equations and references. No reasoning. Glossary: {\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}",
+          "jsonGrammar": false,
+          "totalMs": 95.854667,
+          "raw": " the",
+          "error": "java.lang.IllegalStateException: INCOMPLETE_UTF8_TOKEN",
+          "status": "failed"
+        },
+        {
+          "fixture": "escaped-text",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The author calls this a \\\"reading assistant\\\".\\nKeep the meaning of both sentences.\"}]}\n/no_think",
+          "system": "Translate from en to zh-CN. Return only JSON: {\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}. Exactly one entry per provided id. Copy ALL ⟦Pn⟧ placeholders from EACH input sentence exactly once, including citations. Preserve terms, code, equations and references. No reasoning. Glossary: {\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}",
+          "jsonGrammar": false,
+          "totalMs": 117.667833,
+          "raw": "aspberry.aspberry.The.The,",
+          "error": "java.nio.charset.MalformedInputException: Input length = 1",
+          "status": "failed"
+        }
+      ],
+      "sha256": "37b8c73c9323fb17687ba286968e92f88387e659f5162526b03bf34b5f3fe990",
+      "bytes": 188214496,
+      "source": {
+        "license": "apache-2.0",
+        "file": "haidass-translate-143m-q8_0.gguf",
+        "sha256": "37b8c73c9323fb17687ba286968e92f88387e659f5162526b03bf34b5f3fe990",
+        "bytes": 188214496,
+        "repository": "umeiko/Haidass-Translate-143M-GGUF",
+        "revision": "0763c602a8099460a5fc767ee095abbe13f87332"
+      },
+      "productionQueue": {
+        "failures": [
+          {
+            "reason": "TRUNCATED_GENERATION",
+            "id": "a"
+          },
+          {
+            "reason": "TRUNCATED_GENERATION",
+            "id": "b"
+          },
+          {
+            "reason": "TRUNCATED_GENERATION",
+            "id": "c"
+          },
+          {
+            "reason": "TRUNCATED_GENERATION",
+            "id": "d"
+          }
+        ],
+        "translations": {},
+        "cancelled": false,
+        "attempts": [],
+        "status": "failed"
+      },
+      "architecture": "qwen3",
+      "longWarmSamples": [
+        {
+          "error": "java.lang.IllegalStateException: TRUNCATED_GENERATION",
+          "status": "failed"
+        },
+        {
+          "error": "java.lang.IllegalStateException: TRUNCATED_GENERATION",
+          "status": "failed"
+        },
+        {
+          "error": "java.lang.IllegalStateException: TRUNCATED_GENERATION",
+          "status": "failed"
+        }
+      ],
+      "engineSamples": [
+        {
+          "decodeMs": 1051.2619590000002,
+          "tg128": 121.75842462877513,
+          "prefillMs": 156.186209,
+          "pp512": 3278.1383406264763
+        },
+        {
+          "decodeMs": 1052.2325830000002,
+          "tg128": 121.64610948946445,
+          "prefillMs": 174.986584,
+          "pp512": 2925.93859652692
+        },
+        {
+          "decodeMs": 1041.968416,
+          "tg128": 122.84441450862556,
+          "prefillMs": 157.721208,
+          "pp512": 3246.2343301352344
+        }
+      ]
+    },
+    {
+      "file": "Qwen3-0.6B-Q8_0.gguf",
+      "cases": [
+        {
+          "tokensPerSecond": 96.19779212647478,
+          "totalMs": 2547.508083,
+          "samplingNanos": 16875333,
+          "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"我们提出了一种内存高效的方法，用于翻译科学文档。\"\n    }\n  ]\n}",
+          "generatedTokens": 40,
+          "fixture": "short",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"We propose a memory-efficient method for translating scientific documents.\"}]}\n/no_think",
+          "system": "Translate from en to zh-CN. Return only JSON: {\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}. Exactly one entry per provided id. Copy ALL ⟦Pn⟧ placeholders from EACH input sentence exactly once, including citations. Preserve terms, code, equations and references. No reasoning. Glossary: {\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}",
+          "jsonGrammar": true,
+          "callbackNanos": 1623711,
+          "translations": [{
+            "translation": "我们提出了一种内存高效的方法，用于翻译科学文档。",
+            "source": "We propose a memory-efficient method for translating scientific documents."
+          }],
+          "promptTokens": 125,
+          "decodeNanos": 397272999,
+          "status": "passed"
+        },
+        {
+          "tokensPerSecond": 86.21926753743577,
+          "totalMs": 2587.174958,
+          "samplingNanos": 34652750,
+          "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"科学文档结合连续的叙述与方程式、表格、参考文献和专业术语。一个有用的阅读助手应将叙述翻译，同时保留文档的原意和结构。研究人员常阅读同一段落多次，以理解一种新方法并将其与之前的研究进行比较。本地语言模型可以支持这一过程，无需将文档上传到远程服务。其实际速度取决于内存带宽、处理器指令、工作线程以及被处理的上下文量。短答案可能在处理器达到稳定运行状态之前结束，因此重复测量并使用更长的输出是有效的。提示处理和token生成应分别测量，因为它们执行不同的计算类型。公平的比较也记录了模型文件、推理设置和设备条件。本实验的目标是生成一个忠实的中文翻译，并保留足够的时间信息，以便区分引擎性能与应用开销。\"\n    }\n  ]\n}",
+          "generatedTokens": 202,
+          "fixture": "long",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"Scientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead.\"}]}\n/no_think",
+          "system": "Translate from en to zh-CN. Return only JSON: {\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}. Exactly one entry per provided id. Copy ALL ⟦Pn⟧ placeholders from EACH input sentence exactly once, including citations. Preserve terms, code, equations and references. No reasoning. Glossary: {\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}",
+          "jsonGrammar": true,
+          "callbackNanos": 6981499,
+          "translations": [{
+            "translation": "科学文档结合连续的叙述与方程式、表格、参考文献和专业术语。一个有用的阅读助手应将叙述翻译，同时保留文档的原意和结构。研究人员常阅读同一段落多次，以理解一种新方法并将其与之前的研究进行比较。本地语言模型可以支持这一过程，无需将文档上传到远程服务。其实际速度取决于内存带宽、处理器指令、工作线程以及被处理的上下文量。短答案可能在处理器达到稳定运行状态之前结束，因此重复测量并使用更长的输出是有效的。提示处理和token生成应分别测量，因为它们执行不同的计算类型。公平的比较也记录了模型文件、推理设置和设备条件。本实验的目标是生成一个忠实的中文翻译，并保留足够的时间信息，以便区分引擎性能与应用开销。",
+            "source": "Scientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead."
+          }],
+          "promptTokens": 291,
+          "decodeNanos": 2301024453,
+          "status": "passed"
+        },
+        {
+          "tokensPerSecond": 89.76472618433316,
+          "totalMs": 1753.337209,
+          "samplingNanos": 26777622,
+          "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"模型使用了P0页，通过P1内存和P2进行处理。\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"对于P3，保留方程并查看P4。\"\n    },\n    {\n      \"id\": \"s3\",\n      \"translation\": \"注意力机制使用了键值缓存；代码是P5。\"\n    },\n    {\n      \"id\": \"s4\",\n      \"translation\": \"该方法通过P6减少延迟，而无需改变输入顺序。\"\n    }\n  ]\n}",
+          "error": "java.lang.IllegalArgumentException: PROTECTED_TOKEN_MISMATCH",
+          "generatedTokens": 138,
+          "fixture": "protected-batch",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes ⟦P0⟧ pages using ⟦P1⟧ of memory ⟦P2⟧.\"},{\"id\":\"s2\",\"text\":\"For ⟦P3⟧, retain the equation and see ⟦P4⟧\"},{\"id\":\"s3\",\"text\":\"The attention mechanism uses a key-value cache; the code is ⟦P5⟧.\"},{\"id\":\"s4\",\"text\":\"The proposed method reduces latency by ⟦P6⟧ without changing the input order.\"}]}\n/no_think",
+          "system": "Translate from en to zh-CN. Return only JSON: {\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}. Exactly one entry per provided id. Copy ALL ⟦Pn⟧ placeholders from EACH input sentence exactly once, including citations. Preserve terms, code, equations and references. No reasoning. Glossary: {\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}",
+          "jsonGrammar": true,
+          "callbackNanos": 3750634,
+          "promptTokens": 213,
+          "decodeNanos": 1506673874,
+          "status": "failed"
+        },
+        {
+          "tokensPerSecond": 92.54125551044169,
+          "totalMs": 573.914708,
+          "samplingNanos": 15720837,
+          "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"作者将此称为\u2018阅读助手\u2019。保持两句话的原意。\"\n    }\n  ]\n}",
+          "generatedTokens": 43,
+          "fixture": "escaped-text",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The author calls this a \\\"reading assistant\\\".\\nKeep the meaning of both sentences.\"}]}\n/no_think",
+          "system": "Translate from en to zh-CN. Return only JSON: {\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}. Exactly one entry per provided id. Copy ALL ⟦Pn⟧ placeholders from EACH input sentence exactly once, including citations. Preserve terms, code, equations and references. No reasoning. Glossary: {\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}",
+          "jsonGrammar": true,
+          "callbackNanos": 1171333,
+          "translations": [{
+            "translation": "作者将此称为\u2018阅读助手\u2019。保持两句话的原意。",
+            "source": "The author calls this a \"reading assistant\".\nKeep the meaning of both sentences."
+          }],
+          "promptTokens": 132,
+          "decodeNanos": 447724335,
+          "status": "passed"
+        },
+        {
+          "tokensPerSecond": 88.33177644896851,
+          "totalMs": 1260.431167,
+          "samplingNanos": 22558246,
+          "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"该增加不具有统计学意义。\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"结果可能暗示关联，但并未建立因果关系。\"\n    },\n    {\n      \"id\": \"s3\",\n      \"translation\": \"我们未观察到记忆使用量的减少。\"\n    }\n  ]\n}",
+          "generatedTokens": 92,
+          "fixture": "negation-and-hedging",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The increase was not statistically significant.\"},{\"id\":\"s2\",\"text\":\"The result may indicate an association, but it does not establish causation.\"},{\"id\":\"s3\",\"text\":\"We did not observe a reduction in memory use.\"}]}\n/no_think",
+          "system": "Translate from en to zh-CN. Return only JSON: {\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}. Exactly one entry per provided id. Copy ALL ⟦Pn⟧ placeholders from EACH input sentence exactly once, including citations. Preserve terms, code, equations and references. No reasoning. Glossary: {\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}",
+          "jsonGrammar": true,
+          "callbackNanos": 2393081,
+          "translations": [
+            {
+              "translation": "该增加不具有统计学意义。",
+              "source": "The increase was not statistically significant."
+            },
+            {
+              "translation": "结果可能暗示关联，但并未建立因果关系。",
+              "source": "The result may indicate an association, but it does not establish causation."
+            },
+            {
+              "translation": "我们未观察到记忆使用量的减少。",
+              "source": "We did not observe a reduction in memory use."
+            }
+          ],
+          "promptTokens": 162,
+          "decodeNanos": 1016487589,
+          "status": "passed"
+        },
+        {
+          "tokensPerSecond": 86.47970912773171,
+          "totalMs": 1331.579625,
+          "samplingNanos": 56312419,
+          "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"准确率从 [P0] 下降到 [P1]，而延迟从 [P2] 提高到 [P3]。\"\n    }\n \n  ,\n  {\n    \"id\": \"s2\",\n    \"translation\": \"只有 [P4] 个 [P5] 文档失败，其他 [P6] 文档成功翻译。\"\n  }\n]\n}",
+          "error": "java.lang.IllegalArgumentException: PROTECTED_TOKEN_MISMATCH",
+          "generatedTokens": 103,
+          "fixture": "numeric-contrast",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"Accuracy fell from ⟦P0⟧ to ⟦P1⟧, whereas latency improved from ⟦P2⟧ to ⟦P3⟧.\"},{\"id\":\"s2\",\"text\":\"Only ⟦P4⟧ of the ⟦P5⟧ documents failed; the other ⟦P6⟧ were translated successfully.\"}]}\n/no_think",
+          "system": "Translate from en to zh-CN. Return only JSON: {\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}. Exactly one entry per provided id. Copy ALL ⟦Pn⟧ placeholders from EACH input sentence exactly once, including citations. Preserve terms, code, equations and references. No reasoning. Glossary: {\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}",
+          "jsonGrammar": true,
+          "callbackNanos": 2749202,
+          "promptTokens": 180,
+          "decodeNanos": 1131870288,
+          "status": "failed"
+        },
+        {
+          "fixture": "technical-contrast",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The ablation study removes cross-attention while keeping the key-value cache unchanged.\"},{\"id\":\"s2\",\"text\":\"Unlike prior work, we evaluate on unseen documents rather than on the training set.\"}]}\n/no_think",
+          "system": "Translate from en to zh-CN. Return only JSON: {\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}. Exactly one entry per provided id. Copy ALL ⟦Pn⟧ placeholders from EACH input sentence exactly once, including citations. Preserve terms, code, equations and references. No reasoning. Glossary: {\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}",
+          "jsonGrammar": true,
+          "totalMs": 22113.811542,
+          "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"消除了交叉注意力，同时保持了关键-值缓存不变。\"\n    }\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n  \t\t\t\n",
+          "error": "java.lang.IllegalStateException: TRUNCATED_GENERATION",
+          "status": "failed"
+        },
+        {
+          "tokensPerSecond": 91.92599744087778,
+          "totalMs": 636.648083,
+          "samplingNanos": 16887586,
+          "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"该基线方法使用了更多的内存。然而，该方法在短输入上运行得较慢。\"\n    }\n  ]\n}",
+          "generatedTokens": 49,
+          "fixture": "two-sentence-discourse",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The baseline uses more memory. However, the proposed method is slower on short inputs.\"}]}\n/no_think",
+          "system": "Translate from en to zh-CN. Return only JSON: {\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}. Exactly one entry per provided id. Copy ALL ⟦Pn⟧ placeholders from EACH input sentence exactly once, including citations. Preserve terms, code, equations and references. No reasoning. Glossary: {\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}",
+          "jsonGrammar": true,
+          "callbackNanos": 1208046,
+          "translations": [{
+            "translation": "该基线方法使用了更多的内存。然而，该方法在短输入上运行得较慢。",
+            "source": "The baseline uses more memory. However, the proposed method is slower on short inputs."
+          }],
+          "promptTokens": 131,
+          "decodeNanos": 514895040,
+          "status": "passed"
+        },
+        {
+          "tokensPerSecond": 101.0906753134936,
+          "totalMs": 2397.601375,
+          "samplingNanos": 2931254,
+          "raw": "```json\n{\"translations\":[{\"id\":\"s1\",\"translation\":\"我们提出了一种内存高效的方法，用于翻译科学文档。\"}]}\n```",
+          "generatedTokens": 29,
+          "fixture": "short",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"We propose a memory-efficient method for translating scientific documents.\"}]}\n/no_think",
+          "system": "Translate from en to zh-CN. Return only JSON: {\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}. Exactly one entry per provided id. Copy ALL ⟦Pn⟧ placeholders from EACH input sentence exactly once, including citations. Preserve terms, code, equations and references. No reasoning. Glossary: {\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}",
+          "jsonGrammar": false,
+          "callbackNanos": 744043,
+          "translations": [{
+            "translation": "我们提出了一种内存高效的方法，用于翻译科学文档。",
+            "source": "We propose a memory-efficient method for translating scientific documents."
+          }],
+          "promptTokens": 125,
+          "decodeNanos": 283072959,
+          "status": "passed"
+        },
+        {
+          "tokensPerSecond": 85.70521430110266,
+          "totalMs": 1875.718209,
+          "samplingNanos": 14256408,
+          "raw": "```json\n{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"模型使用了P0页，利用了P1内存和P2的值。\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"对于P3，保留方程并查看P4。\"\n    },\n    {\n      \"id\": \"s3\",\n      \"translation\": \"注意力机制使用了键值缓存；代码是P5。\"\n    },\n    {\n      \"id\": \"s4\",\n      \"translation\": \"该方法通过P6减少延迟，而无需改变输入顺序。\"\n    }\n  ]\n}\n```",
+          "error": "java.lang.IllegalArgumentException: PROTECTED_TOKEN_MISMATCH",
+          "generatedTokens": 143,
+          "fixture": "protected-batch",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes ⟦P0⟧ pages using ⟦P1⟧ of memory ⟦P2⟧.\"},{\"id\":\"s2\",\"text\":\"For ⟦P3⟧, retain the equation and see ⟦P4⟧\"},{\"id\":\"s3\",\"text\":\"The attention mechanism uses a key-value cache; the code is ⟦P5⟧.\"},{\"id\":\"s4\",\"text\":\"The proposed method reduces latency by ⟦P6⟧ without changing the input order.\"}]}\n/no_think",
+          "system": "Translate from en to zh-CN. Return only JSON: {\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}. Exactly one entry per provided id. Copy ALL ⟦Pn⟧ placeholders from EACH input sentence exactly once, including citations. Preserve terms, code, equations and references. No reasoning. Glossary: {\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}",
+          "jsonGrammar": false,
+          "callbackNanos": 3586298,
+          "promptTokens": 213,
+          "decodeNanos": 1650337204,
+          "status": "failed"
+        },
+        {
+          "tokensPerSecond": 100.10601048544167,
+          "totalMs": 571.760542,
+          "samplingNanos": 4447210,
+          "raw": "```json\n{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"作者将此视为\u2018阅读助手\u2019。保持两句话的意思。\"\n    }\n  ]\n}\n```",
+          "generatedTokens": 45,
+          "fixture": "escaped-text",
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The author calls this a \\\"reading assistant\\\".\\nKeep the meaning of both sentences.\"}]}\n/no_think",
+          "system": "Translate from en to zh-CN. Return only JSON: {\"translations\":[{\"id\":\"s1\",\"translation\":\"...\"}]}. Exactly one entry per provided id. Copy ALL ⟦Pn⟧ placeholders from EACH input sentence exactly once, including citations. Preserve terms, code, equations and references. No reasoning. Glossary: {\"key-value cache\":\"键值缓存\",\"attention mechanism\":\"注意力机制\"}",
+          "jsonGrammar": false,
+          "callbackNanos": 1049002,
+          "translations": [{
+            "translation": "作者将此视为\u2018阅读助手\u2019。保持两句话的意思。",
+            "source": "The author calls this a \"reading assistant\".\nKeep the meaning of both sentences."
+          }],
+          "promptTokens": 132,
+          "decodeNanos": 443921796,
+          "status": "passed"
+        }
+      ],
+      "sha256": "9465e63a22add5354d9bb4b99e90117043c7124007664907259bd16d043bb031",
+      "bytes": 639446688,
+      "source": {
+        "license": "apache-2.0",
+        "file": "Qwen3-0.6B-Q8_0.gguf",
+        "sha256": "9465e63a22add5354d9bb4b99e90117043c7124007664907259bd16d043bb031",
+        "bytes": 639446688,
+        "repository": "Qwen/Qwen3-0.6B-GGUF",
+        "revision": "23749fefcc72300e3a2ad315e1317431b06b590a"
+      },
+      "productionQueue": {
+        "failures": [
+          {
+            "reason": "PROTECTED_TOKEN_MISMATCH",
+            "id": "a"
+          },
+          {
+            "reason": "PROTECTED_TOKEN_MISMATCH",
+            "id": "b"
+          },
+          {
+            "reason": "PROTECTED_TOKEN_MISMATCH",
+            "id": "c"
+          },
+          {
+            "reason": "PROTECTED_TOKEN_MISMATCH",
+            "id": "d"
+          }
+        ],
+        "translations": {},
+        "cancelled": false,
+        "attempts": [
+          {
+            "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes ⟦P0⟧ pages using ⟦P1⟧ of memory ⟦P2⟧.\"},{\"id\":\"s2\",\"text\":\"For ⟦P3⟧, retain the equation and see ⟦P4⟧\"},{\"id\":\"s3\",\"text\":\"The attention mechanism uses a key-value cache; the code is ⟦P5⟧.\"},{\"id\":\"s4\",\"text\":\"The proposed method reduces latency by ⟦P6⟧ without changing the input order.\"}]}\n/no_think",
+            "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"模型使用了P0页，通过P1内存和P2进行处理。\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"对于P3，保留方程并查看P4。\"\n    },\n    {\n      \"id\": \"s3\",\n      \"translation\": \"注意力机制使用了键值缓存；代码是P5。\"\n    },\n    {\n      \"id\": \"s4\",\n      \"translation\": \"该方法通过P6减少延迟，而无需改变输入顺序。\"\n    }\n  ]\n}"
+          },
+          {
+            "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes ⟦P0⟧ pages using ⟦P1⟧ of memory ⟦P2⟧.\"}]}\n/no_think",
+            "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"模型使用P0页中的P1内存和P2内容进行处理。\"\n    }\n  ]\n}"
+          },
+          {
+            "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes ⟦P0⟧ pages using ⟦P1⟧ of memory ⟦P2⟧.\"}]}\n/no_think",
+            "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"模型使用P0页中的P1内存和P2内容进行处理。\"\n    }\n  ]\n}"
+          }
+        ],
+        "status": "failed"
+      },
+      "architecture": "qwen3",
+      "longWarmSamples": [
+        {
+          "generationNanos": 2369764292,
+          "tokensPerSecond": 85.24054509637281,
+          "totalMs": 2625.83175,
+          "prefillNanos": 255678083,
+          "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"科学文档结合连续的叙述与方程式、表格、参考文献和专业术语。一个有用的阅读助手应将叙述翻译，同时保留文档的原意和结构。研究人员常阅读同一段落多次，以理解一种新方法并将其与之前的研究进行比较。本地语言模型可以支持这一过程，无需将文档上传到远程服务。其实际速度取决于内存带宽、处理器指令、工作线程以及被处理的上下文量。短答案可能在处理器达到稳定运行状态之前结束，因此重复测量并使用更长的输出是有效的。提示处理和token生成应分别测量，因为它们执行不同的计算类型。公平的比较也记录了模型文件、推理设置和设备条件。本实验的目标是生成一个忠实的中文翻译，并保留足够的时间信息，以便区分引擎性能与应用开销。\"\n    }\n  ]\n}",
+          "promptTokens": 291,
+          "generatedTokens": 202,
+          "status": "passed"
+        },
+        {
+          "generationNanos": 2204494791,
+          "tokensPerSecond": 91.63097178758541,
+          "totalMs": 2442.498,
+          "prefillNanos": 237666875,
+          "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"科学文档结合连续的叙述与方程式、表格、参考文献和专业术语。一个有用的阅读助手应将叙述翻译，同时保留文档的原意和结构。研究人员常阅读同一段落多次，以理解一种新方法并将其与之前的研究进行比较。本地语言模型可以支持这一过程，无需将文档上传到远程服务。其实际速度取决于内存带宽、处理器指令、工作线程以及被处理的上下文量。短答案可能在处理器达到稳定运行状态之前结束，因此重复测量并使用更长的输出是有效的。提示处理和token生成应分别测量，因为它们执行不同的计算类型。公平的比较也记录了模型文件、推理设置和设备条件。本实验的目标是生成一个忠实的中文翻译，并保留足够的时间信息，以便区分引擎性能与应用开销。\"\n    }\n  ]\n}",
+          "promptTokens": 291,
+          "generatedTokens": 202,
+          "status": "passed"
+        },
+        {
+          "generationNanos": 2269869333,
+          "tokensPerSecond": 88.99190674250147,
+          "totalMs": 2526.990875,
+          "prefillNanos": 256758000,
+          "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"科学文档结合连续的叙述与方程式、表格、参考文献和专业术语。一个有用的阅读助手应将叙述翻译，同时保留文档的原意和结构。研究人员常阅读同一段落多次，以理解一种新方法并将其与之前的研究进行比较。本地语言模型可以支持这一过程，无需将文档上传到远程服务。其实际速度取决于内存带宽、处理器指令、工作线程以及被处理的上下文量。短答案可能在处理器达到稳定运行状态之前结束，因此重复测量并使用更长的输出是有效的。提示处理和token生成应分别测量，因为它们执行不同的计算类型。公平的比较也记录了模型文件、推理设置和设备条件。本实验的目标是生成一个忠实的中文翻译，并保留足够的时间信息，以便区分引擎性能与应用开销。\"\n    }\n  ]\n}",
+          "promptTokens": 291,
+          "generatedTokens": 202,
+          "status": "passed"
+        }
+      ],
+      "engineSamples": [
+        {
+          "decodeMs": 1476.1919169999999,
+          "tg128": 86.70959278799519,
+          "prefillMs": 466.040459,
+          "pp512": 1098.6170623439368
+        },
+        {
+          "decodeMs": 1424.827208,
+          "tg128": 89.83545463008873,
+          "prefillMs": 459.77225,
+          "pp512": 1113.594828744014
+        },
+        {
+          "decodeMs": 1479.583,
+          "tg128": 86.51086150624872,
+          "prefillMs": 454.444083,
+          "pp512": 1126.6512628353444
+        }
+      ]
+    }
+  ],
+  "batch": 512,
+  "threads": 6,
+  "promptVariant": "production",
+  "gpuLayers": 0,
+  "platform": "Mac OS X aarch64",
+  "systemInfo": "CPU : NEON = 1 | ARM_FMA = 1 | FP16_VA = 1 | DOTPROD = 1 | LLAMAFILE = 1 | KLEIDIAI = 1 | REPACK = 1 | ",
+  "engine": "llama.cpp@2280f0fd163b03d4331d49e08460f66502e35854;cpu;arm64;ctx4096;proposal-exact-grammar-v3",
+  "extendedFixtures": true,
+  "context": 4096,
+  "formatPassCertifiesSemanticAccuracy": false,
+  "ubatch": 128
+}

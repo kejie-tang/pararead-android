@@ -1,0 +1,105 @@
+{
+  "physicalAndroidDevice": false,
+  "models": [
+    {
+      "cases": [
+        {
+          "fixture": "short",
+          "tokensPerSecond": 130.4546344008871,
+          "sourceText": "We propose a memory-efficient method for translating scientific documents.",
+          "restored": "我们提出了一种用于翻译科学文档的内存高效方法。",
+          "raw": "我们提出了一种用于翻译科学文档的内存高效方法。",
+          "user": "Translate the following text from English into Chinese:\nEnglish: We propose a memory-efficient method for translating scientific documents.\nChinese:",
+          "generatedTokens": 13,
+          "status": "passed"
+        },
+        {
+          "fixture": "long",
+          "tokensPerSecond": 101.01714314488866,
+          "sourceText": "Scientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead.",
+          "restored": "科学文献结合了连续的散文、表格、参考文献和技术术语。一个好的阅读助手应该在保留原始含义和文档结构的同时翻译散文。研究人员经常反复阅读同一段落，以了解陌生的方法，并将其与先前的工作进行比较。本地语言模型可以支持这一过程，而无需将文档发送到远程服务。他们的实际速度取决于内存带宽、处理器指令、工作线程以及处理上下文的数量。短答案可能在处理器达到稳定运行状态之前就结束，因此重复测量较长输出是有用的。提示处理和生成标记应该分开测量，因为它们执行不同类型计算。公平的比较还记录了确切的模型文件、推理设置和设备条件。本实验的目的是生成忠实的中文翻译，并保留足够的时间信息，区分引擎性能和应用程序开销。",
+          "raw": "科学文献结合了连续的散文、表格、参考文献和技术术语。一个好的阅读助手应该在保留原始含义和文档结构的同时翻译散文。研究人员经常反复阅读同一段落，以了解陌生的方法，并将其与先前的工作进行比较。本地语言模型可以支持这一过程，而无需将文档发送到远程服务。他们的实际速度取决于内存带宽、处理器指令、工作线程以及处理上下文的数量。短答案可能在处理器达到稳定运行状态之前就结束，因此重复测量较长输出是有用的。提示处理和生成标记应该分开测量，因为它们执行不同类型计算。公平的比较还记录了确切的模型文件、推理设置和设备条件。本实验的目的是生成忠实的中文翻译，并保留足够的时间信息，区分引擎性能和应用程序开销。",
+          "user": "Translate the following text from English into Chinese:\nEnglish: Scientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead.\nChinese:",
+          "generatedTokens": 165,
+          "status": "passed"
+        },
+        {
+          "fixture": "protected",
+          "tokensPerSecond": 123.74897520379909,
+          "sourceText": "The model processes 100 pages using 4 GB of memory [12]. For $E=mc^2$, see https://example.org/paper.",
+          "restored": "模型使用内存 4 GB 对 100 页面进行处理 [12]。对于 $E=mc^2$，见 https://example.org/paper.",
+          "raw": "模型使用内存 ⟦P1⟧ 对 ⟦P0⟧ 页面进行处理 ⟦P2⟧。对于 ⟦P3⟧，见 ⟦P4⟧",
+          "user": "Translate the following text from English into Chinese:\nEnglish: The model processes ⟦P0⟧ pages using ⟦P1⟧ of memory ⟦P2⟧. For ⟦P3⟧, see ⟦P4⟧\nChinese:",
+          "generatedTokens": 36,
+          "status": "passed"
+        },
+        {
+          "fixture": "negation",
+          "tokensPerSecond": 133.19084027564162,
+          "sourceText": "The increase was not statistically significant. The result may indicate an association, but it does not establish causation.",
+          "restored": "统计学上，这种增加并不显著。结果可能表明存在关联，但并不确定因果关系。",
+          "raw": "统计学上，这种增加并不显著。结果可能表明存在关联，但并不确定因果关系。",
+          "user": "Translate the following text from English into Chinese:\nEnglish: The increase was not statistically significant. The result may indicate an association, but it does not establish causation.\nChinese:",
+          "generatedTokens": 21,
+          "status": "passed"
+        }
+      ],
+      "source": {
+        "license": "apache-2.0",
+        "file": "LMT-60-0.6B.Q4_K_M.gguf",
+        "sha256": "743c6cdc13294b5c470ec0e89e79d64f96ef0cab94ce1285c78da4dc0f56be5c",
+        "bytes": 484220000,
+        "repository": "mradermacher/LMT-60-0.6B-GGUF",
+        "revision": "86942b9f925bfccd4196d4982578b46413a1f73f"
+      }
+    },
+    {
+      "cases": [
+        {
+          "fixture": "short",
+          "sourceText": "We propose a memory-efficient method for translating scientific documents.",
+          "raw": "Specess.The.",
+          "error": "java.nio.charset.MalformedInputException: Input length = 1",
+          "user": "Translate the following text from English to Simplified Chinese.\nWe propose a memory-efficient method for translating scientific documents.",
+          "status": "failed"
+        },
+        {
+          "fixture": "long",
+          "sourceText": "Scientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead.",
+          "raw": "科学i.The",
+          "error": "java.nio.charset.MalformedInputException: Input length = 1",
+          "user": "Translate the following text from English to Simplified Chinese.\nScientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead.",
+          "status": "failed"
+        },
+        {
+          "fixture": "protected",
+          "sourceText": "The model processes 100 pages using 4 GB of memory [12]. For $E=mc^2$, see https://example.org/paper.",
+          "raw": "模型心uffix  our千瓦S,",
+          "error": "java.nio.charset.MalformedInputException: Input length = 1",
+          "user": "Translate the following text from English to Simplified Chinese.\nThe model processes ⟦P0⟧ pages using ⟦P1⟧ of memory ⟦P2⟧. For ⟦P3⟧, see ⟦P4⟧",
+          "status": "failed"
+        },
+        {
+          "fixture": "negation",
+          "sourceText": "The increase was not statistically significant. The result may indicate an association, but it does not establish causation.",
+          "raw": " The.The.The.The..................es.es........  Our-The  ouruffix  Ourc...es-The isw.es..es...es-",
+          "error": "java.nio.charset.MalformedInputException: Input length = 1",
+          "user": "Translate the following text from English to Simplified Chinese.\nThe increase was not statistically significant. The result may indicate an association, but it does not establish causation.",
+          "status": "failed"
+        }
+      ],
+      "source": {
+        "license": "apache-2.0",
+        "file": "haidass-translate-143m-q8_0.gguf",
+        "sha256": "37b8c73c9323fb17687ba286968e92f88387e659f5162526b03bf34b5f3fe990",
+        "bytes": 188214496,
+        "repository": "umeiko/Haidass-Translate-143M-GGUF",
+        "revision": "0763c602a8099460a5fc767ee095abbe13f87332"
+      }
+    }
+  ],
+  "productionJsonProtocol": false,
+  "threads": 6,
+  "diagnosticOnly": true,
+  "platform": "Mac OS X aarch64"
+}

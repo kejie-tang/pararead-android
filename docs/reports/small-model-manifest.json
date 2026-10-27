@@ -1,0 +1,98 @@
+[
+  {
+    "repository": "unsloth/Qwen3-0.6B-GGUF",
+    "revision": "50968a4468ef4233ed78cd7c3de230dd1d61a56b",
+    "file": "Qwen3-0.6B-Q4_K_M.gguf",
+    "bytes": 396705472,
+    "sha256": "ac2d97712095a558e31573f62f466a3f9d93990898b0ec79d7c974c1780d524a",
+    "license": "apache-2.0"
+  },
+  {
+    "repository": "unsloth/Qwen3-0.6B-GGUF",
+    "revision": "50968a4468ef4233ed78cd7c3de230dd1d61a56b",
+    "file": "Qwen3-0.6B-Q4_0.gguf",
+    "bytes": 382156480,
+    "sha256": "33bcc57074ec7b6eada5a90651ee546ec0c2b271002c22baf9f1b2dd1e8f75cb",
+    "license": "apache-2.0"
+  },
+  {
+    "repository": "Qwen/Qwen2.5-0.5B-Instruct-GGUF",
+    "revision": "9217f5db79a29953eb74d5343926648285ec7e67",
+    "file": "qwen2.5-0.5b-instruct-q4_k_m.gguf",
+    "bytes": 491400032,
+    "sha256": "74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db",
+    "license": "apache-2.0"
+  },
+  {
+    "repository": "Qwen/Qwen2.5-1.5B-Instruct-GGUF",
+    "revision": "91cad51170dc346986eccefdc2dd33a9da36ead9",
+    "file": "qwen2.5-1.5b-instruct-q4_k_m.gguf",
+    "bytes": 1117320736,
+    "sha256": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e",
+    "license": "apache-2.0"
+  },
+  {
+    "repository": "LiquidAI/LFM2-700M-GGUF",
+    "revision": "fd39e80d7a5ac61494ffff577e61bbbfddbd0d02",
+    "file": "LFM2-700M-Q4_K_M.gguf",
+    "bytes": 468624320,
+    "sha256": "684e8406dc13321452b3f6aeca432776e2a6a7e1ad6c23f7887b8fe3efbe2efa",
+    "license": "other"
+  },
+  {
+    "repository": "LiquidAI/LFM2.5-1.2B-Instruct-GGUF",
+    "revision": "8ed288026e23958ad9dfa92d53ed773a8eee7125",
+    "file": "LFM2.5-1.2B-Instruct-QAD-Q4_0.gguf",
+    "bytes": 695755488,
+    "sha256": "bb741ebb106d543e9de114b843a3d3d73d51c74b5801e69da2abde821a0cb3e1",
+    "license": "other"
+  },
+  {
+    "repository": "tencent/Hy-MT2-1.8B-2Bit-GGUF",
+    "revision": "b630487d19ab7f336664a15b07c638d0d1071471",
+    "file": "Hy-MT2-1.8B-2Bit.gguf",
+    "bytes": 600534880,
+    "sha256": "dcc33bbae9b28d923c8c76a64f6157840841d26f8774f3dfd770d5fabeeb1cd7",
+    "license": "apache-2.0"
+  },
+  {
+    "file": "Qwen3-1.7B-Q4_K_M.gguf",
+    "bytes": 1359279776,
+    "sha256": "3d0b790534fe4b79525fc3692950408dca41171676ed7e21db57af5c65ef6ab6",
+    "repository": "Ollama/library/qwen3:1.7b",
+    "license": "apache-2.0",
+    "url": "https://registry.ollama.ai/v2/library/qwen3/blobs/sha256:3d0b790534fe4b79525fc3692950408dca41171676ed7e21db57af5c65ef6ab6"
+  },
+  {
+    "file": "Qwen3.5-0.8B-Q4_0.gguf",
+    "bytes": 563036064,
+    "sha256": "57d1997790d1744fba5b40a7317df71ea5e2acee28c47e78f0cce39c0703f8cf",
+    "repository": "ggml-org/Qwen3.5-0.8B-GGUF",
+    "revision": "807dfd9a6fadbf703207aac3bfb0b2b3040d077c",
+    "license": "apache-2.0"
+  },
+  {
+    "repository": "mradermacher/LMT-60-0.6B-GGUF",
+    "revision": "86942b9f925bfccd4196d4982578b46413a1f73f",
+    "file": "LMT-60-0.6B.Q4_K_M.gguf",
+    "bytes": 484220000,
+    "sha256": "743c6cdc13294b5c470ec0e89e79d64f96ef0cab94ce1285c78da4dc0f56be5c",
+    "license": "apache-2.0"
+  },
+  {
+    "repository": "umeiko/Haidass-Translate-143M-GGUF",
+    "revision": "0763c602a8099460a5fc767ee095abbe13f87332",
+    "file": "haidass-translate-143m-q8_0.gguf",
+    "bytes": 188214496,
+    "sha256": "37b8c73c9323fb17687ba286968e92f88387e659f5162526b03bf34b5f3fe990",
+    "license": "apache-2.0"
+  },
+  {
+    "repository": "Qwen/Qwen3-0.6B-GGUF",
+    "revision": "23749fefcc72300e3a2ad315e1317431b06b590a",
+    "file": "Qwen3-0.6B-Q8_0.gguf",
+    "bytes": 639446688,
+    "sha256": "9465e63a22add5354d9bb4b99e90117043c7124007664907259bd16d043bb031",
+    "license": "apache-2.0"
+  }
+]

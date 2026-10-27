@@ -12,6 +12,7 @@ class ModelChatTemplateTest {
         val lfm = ModelChatTemplate.render("lfm2", prompt)
         assertEquals("<|im_start|>system\nTranslate.<|im_end|>\n<|im_start|>user\nA sentence.<|im_end|>\n<|im_start|>assistant\n", lfm)
         assertFalse(lfm.contains("<think>")); assertFalse(lfm.contains("<|startoftext|>"))
+        assertEquals(lfm, ModelChatTemplate.render("qwen2", prompt))
         assertFailsWith<IllegalStateException> { ModelChatTemplate.render("unsupported", prompt) }
     }
 }
