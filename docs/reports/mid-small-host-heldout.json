@@ -1,0 +1,393 @@
+{
+  "physicalAndroidDevice": false,
+  "models": [{
+    "textOnlyDiagnostics": [],
+    "cases": [
+      {
+        "fixture": "heldout-memory-order",
+        "providerCalls": 2,
+        "cacheReopenCalls": 0,
+        "failures": [],
+        "nativeCalls": 2,
+        "totalMs": 2047.424375,
+        "replayedFirstAnswer": false,
+        "commits": [{
+          "translation": "该方法通过25%减少了峰值内存使用，而不改变输入句子的顺序。",
+          "id": "a"
+        }],
+        "cancelled": false,
+        "attempts": [
+          {
+            "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The proposed method reduces peak memory usage by __PR0__ without changing the order of the input sentences.\"}]}\n/no_think",
+            "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}",
+            "nativeCalls": [{
+              "system": "",
+              "tokensPerSecond": 141.89267086348025,
+              "markerStyle": "ascii",
+              "raw": " 该方法通过减少峰值内存使用量，在不改变输入句子顺序的情况下，降低了峰值内存使用量。",
+              "user": "English: The proposed method reduces peak memory usage by __PR0__ without changing the order of the input sentences.\n\nChinese:",
+              "generatedTokens": 42
+            }],
+            "format": "TRANSLATION_JSON",
+            "raw": "{\"translations\":[{\"translation\":\" 该方法通过减少峰值内存使用量，在不改变输入句子顺序的情况下，降低了峰值内存使用量。\",\"id\":\"s1\"}]}"
+          },
+          {
+            "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The proposed method reduces peak memory usage by __PR0__ without changing the order of the input sentences.\"}]}\n/no_think",
+            "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}\nTranslate the entire sentence again. Required markers, each exactly once: __PR0__. Do not copy a previous incomplete answer.",
+            "nativeCalls": [{
+              "system": "",
+              "tokensPerSecond": 119.7703964072624,
+              "markerStyle": "bracket",
+              "raw": " 该方法通过[[PR0]]减少了峰值内存使用，而不改变输入句子的顺序。",
+              "user": "English: The proposed method reduces peak memory usage by [[PR0]] without changing the order of the input sentences.\n\nChinese:",
+              "generatedTokens": 32
+            }],
+            "format": "TRANSLATION_JSON",
+            "raw": "{\"translations\":[{\"translation\":\" 该方法通过__PR0__减少了峰值内存使用，而不改变输入句子的顺序。\",\"id\":\"s1\"}]}"
+          }
+        ],
+        "status": "passed"
+      },
+      {
+        "fixture": "heldout-baseline-contrast",
+        "providerCalls": 1,
+        "cacheReopenCalls": 0,
+        "failures": [],
+        "nativeCalls": 1,
+        "totalMs": 207.161666,
+        "replayedFirstAnswer": false,
+        "commits": [{
+          "translation": "基线在短输入上更快，但我们的方法在长文档上更准确。",
+          "id": "a"
+        }],
+        "cancelled": false,
+        "attempts": [{
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The baseline is faster on short inputs, but our method is more accurate on longer documents.\"}]}\n/no_think",
+          "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。术语表：{}",
+          "nativeCalls": [{
+            "system": "",
+            "tokensPerSecond": 145.6458878925397,
+            "markerStyle": "ascii",
+            "raw": " 基线在短输入上更快，但我们的方法在长文档上更准确。",
+            "user": "English: The baseline is faster on short inputs, but our method is more accurate on longer documents.\n\nChinese:",
+            "generatedTokens": 26
+          }],
+          "format": "TRANSLATION_JSON",
+          "raw": "{\"translations\":[{\"translation\":\" 基线在短输入上更快，但我们的方法在长文档上更准确。\",\"id\":\"s1\"}]}"
+        }],
+        "status": "passed"
+      },
+      {
+        "fixture": "heldout-batch-negation",
+        "providerCalls": 1,
+        "cacheReopenCalls": 0,
+        "failures": [],
+        "nativeCalls": 1,
+        "totalMs": 198.389541,
+        "replayedFirstAnswer": false,
+        "commits": [{
+          "translation": "增加批量大小并没有提高准确性，有时还会增加延迟。",
+          "id": "a"
+        }],
+        "cancelled": false,
+        "attempts": [{
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"Increasing the batch size did not improve accuracy and sometimes increased latency.\"}]}\n/no_think",
+          "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。术语表：{}",
+          "nativeCalls": [{
+            "system": "",
+            "tokensPerSecond": 142.28839581216795,
+            "markerStyle": "ascii",
+            "raw": " 增加批量大小并没有提高准确性，有时还会增加延迟。",
+            "user": "English: Increasing the batch size did not improve accuracy and sometimes increased latency.\n\nChinese:",
+            "generatedTokens": 25
+          }],
+          "format": "TRANSLATION_JSON",
+          "raw": "{\"translations\":[{\"translation\":\" 增加批量大小并没有提高准确性，有时还会增加延迟。\",\"id\":\"s1\"}]}"
+        }],
+        "status": "passed"
+      },
+      {
+        "fixture": "heldout-causation",
+        "providerCalls": 1,
+        "cacheReopenCalls": 0,
+        "failures": [],
+        "nativeCalls": 1,
+        "totalMs": 222.237458,
+        "replayedFirstAnswer": false,
+        "commits": [{
+          "translation": "我们观察到了一种相关性，而不是证据表明治疗导致了改善。",
+          "id": "a"
+        }],
+        "cancelled": false,
+        "attempts": [{
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"We observed a correlation, not evidence that the treatment caused the improvement.\"}]}\n/no_think",
+          "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。术语表：{}",
+          "nativeCalls": [{
+            "system": "",
+            "tokensPerSecond": 141.3784990376946,
+            "markerStyle": "ascii",
+            "raw": " 我们观察到了一种相关性，而不是证据表明治疗导致了改善。",
+            "user": "English: We observed a correlation, not evidence that the treatment caused the improvement.\n\nChinese:",
+            "generatedTokens": 28
+          }],
+          "format": "TRANSLATION_JSON",
+          "raw": "{\"translations\":[{\"translation\":\" 我们观察到了一种相关性，而不是证据表明治疗导致了改善。\",\"id\":\"s1\"}]}"
+        }],
+        "status": "passed"
+      },
+      {
+        "fixture": "heldout-citation-scope",
+        "providerCalls": 1,
+        "cacheReopenCalls": 0,
+        "failures": [],
+        "nativeCalls": 1,
+        "totalMs": 318.098791,
+        "replayedFirstAnswer": false,
+        "commits": [{
+          "translation": "结果在[2, 5\u20137]中仅适用于32位实现；它们不能证明关于8位模型的说法。",
+          "id": "a"
+        }],
+        "cancelled": false,
+        "attempts": [{
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The results in __PR0__ apply only to the __PR1__-bit implementation; they do not justify claims about the __PR2__-bit model.\"}]}\n/no_think",
+          "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}",
+          "nativeCalls": [{
+            "system": "",
+            "tokensPerSecond": 143.72473103641283,
+            "markerStyle": "ascii",
+            "raw": " 结果在__PR0__中仅适用于__PR1__位实现；它们不能证明关于__PR2__位模型的说法。",
+            "user": "English: The results in __PR0__ apply only to the __PR1__-bit implementation; they do not justify claims about the __PR2__-bit model.\n\nChinese:",
+            "generatedTokens": 40
+          }],
+          "format": "TRANSLATION_JSON",
+          "raw": "{\"translations\":[{\"translation\":\" 结果在__PR0__中仅适用于__PR1__位实现；它们不能证明关于__PR2__位模型的说法。\",\"id\":\"s1\"}]}"
+        }],
+        "status": "passed"
+      },
+      {
+        "fixture": "heldout-formula-code-url",
+        "providerCalls": 1,
+        "cacheReopenCalls": 0,
+        "failures": [],
+        "nativeCalls": 1,
+        "totalMs": 199.220584,
+        "replayedFirstAnswer": false,
+        "commits": [{
+          "translation": "对于 $x_i = x_{i-1} + 1$，保持 `cache.get(key)` 不变，并查看 https://example.org/a?b=1&c=2.",
+          "id": "a"
+        }],
+        "cancelled": false,
+        "attempts": [{
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"For __PR0__, keep __PR1__ unchanged and see __PR2__\"}]}\n/no_think",
+          "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}",
+          "nativeCalls": [{
+            "system": "",
+            "tokensPerSecond": 145.31250908203182,
+            "markerStyle": "ascii",
+            "raw": " 对于 __PR0__，保持 __PR1__ 不变，并查看 __PR2__",
+            "user": "English: For __PR0__, keep __PR1__ unchanged and see __PR2__\n\nChinese:",
+            "generatedTokens": 25
+          }],
+          "format": "TRANSLATION_JSON",
+          "raw": "{\"translations\":[{\"translation\":\" 对于 __PR0__，保持 __PR1__ 不变，并查看 __PR2__\",\"id\":\"s1\"}]}"
+        }],
+        "status": "passed"
+      },
+      {
+        "fixture": "heldout-document-counts",
+        "providerCalls": 1,
+        "cacheReopenCalls": 0,
+        "failures": [],
+        "nativeCalls": 1,
+        "totalMs": 316.594334,
+        "replayedFirstAnswer": false,
+        "commits": [{
+          "translation": "在 80 样本中，12 失败，而 68 通过了；失败不被视为成功翻译。",
+          "id": "a"
+        }],
+        "cancelled": false,
+        "attempts": [{
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"Of the __PR0__ samples, __PR1__ failed and __PR2__ passed; a failure is not counted as a successful translation.\"}]}\n/no_think",
+          "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}",
+          "nativeCalls": [{
+            "system": "",
+            "tokensPerSecond": 142.25929360315544,
+            "markerStyle": "ascii",
+            "raw": " 在 __PR0__ 样本中，__PR1__ 失败，而 __PR2__ 通过了；失败不被视为成功翻译。",
+            "user": "English: Of the __PR0__ samples, __PR1__ failed and __PR2__ passed; a failure is not counted as a successful translation.\n\nChinese:",
+            "generatedTokens": 40
+          }],
+          "format": "TRANSLATION_JSON",
+          "raw": "{\"translations\":[{\"translation\":\" 在 __PR0__ 样本中，__PR1__ 失败，而 __PR2__ 通过了；失败不被视为成功翻译。\",\"id\":\"s1\"}]}"
+        }],
+        "status": "passed"
+      },
+      {
+        "fixture": "heldout-opposite-trends",
+        "providerCalls": 1,
+        "cacheReopenCalls": 0,
+        "failures": [],
+        "nativeCalls": 1,
+        "totalMs": 274.628833,
+        "replayedFirstAnswer": false,
+        "commits": [{
+          "translation": "分数从62.4增加到71.8，而错误率从9.1%下降到6.3%。",
+          "id": "a"
+        }],
+        "cancelled": false,
+        "attempts": [{
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The score increased from __PR0__ to __PR1__, while the error rate fell from __PR2__ to __PR3__.\"}]}\n/no_think",
+          "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}",
+          "nativeCalls": [{
+            "system": "",
+            "tokensPerSecond": 136.82903885374583,
+            "markerStyle": "ascii",
+            "raw": " 分数从__PR0__增加到__PR1__，而错误率从__PR2__下降到__PR3__。",
+            "user": "English: The score increased from __PR0__ to __PR1__, while the error rate fell from __PR2__ to __PR3__.\n\nChinese:",
+            "generatedTokens": 33
+          }],
+          "format": "TRANSLATION_JSON",
+          "raw": "{\"translations\":[{\"translation\":\" 分数从__PR0__增加到__PR1__，而错误率从__PR2__下降到__PR3__。\",\"id\":\"s1\"}]}"
+        }],
+        "status": "passed"
+      },
+      {
+        "fixture": "heldout-cancel-resume",
+        "providerCalls": 1,
+        "cacheReopenCalls": 0,
+        "failures": [],
+        "nativeCalls": 1,
+        "totalMs": 312.719292,
+        "replayedFirstAnswer": false,
+        "commits": [{
+          "translation": "读者在取消之前会保存已完成的句子。只有在重新打开后，它才会继续处理未完成的工作。",
+          "id": "a"
+        }],
+        "cancelled": false,
+        "attempts": [{
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The reader saves completed sentences before cancellation. It resumes only the unfinished work after reopening.\"}]}\n/no_think",
+          "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。术语表：{}",
+          "nativeCalls": [{
+            "system": "",
+            "tokensPerSecond": 143.39823787068977,
+            "markerStyle": "ascii",
+            "raw": " 读者在取消之前会保存已完成的句子。只有在重新打开后，它才会继续处理未完成的工作。",
+            "user": "English: The reader saves completed sentences before cancellation. It resumes only the unfinished work after reopening.\n\nChinese:",
+            "generatedTokens": 41
+          }],
+          "format": "TRANSLATION_JSON",
+          "raw": "{\"translations\":[{\"translation\":\" 读者在取消之前会保存已完成的句子。只有在重新打开后，它才会继续处理未完成的工作。\",\"id\":\"s1\"}]}"
+        }],
+        "status": "passed"
+      },
+      {
+        "fixture": "heldout-significance",
+        "providerCalls": 1,
+        "cacheReopenCalls": 0,
+        "failures": [],
+        "nativeCalls": 1,
+        "totalMs": 239.22525,
+        "replayedFirstAnswer": false,
+        "commits": [{
+          "translation": "\u201c统计显著\u201d这个短语并不意味着效果在实践中是大的或有用的。",
+          "id": "a"
+        }],
+        "cancelled": false,
+        "attempts": [{
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The phrase \\\"statistically significant\\\" does not mean that an effect is large or useful in practice.\"}]}\n/no_think",
+          "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。术语表：{}",
+          "nativeCalls": [{
+            "system": "",
+            "tokensPerSecond": 139.24937805225633,
+            "markerStyle": "ascii",
+            "raw": " \u201c统计显著\u201d这个短语并不意味着效果在实践中是大的或有用的。",
+            "user": "English: The phrase \"statistically significant\" does not mean that an effect is large or useful in practice.\n\nChinese:",
+            "generatedTokens": 29
+          }],
+          "format": "TRANSLATION_JSON",
+          "raw": "{\"translations\":[{\"translation\":\" \\u201c统计显著\\u201d这个短语并不意味着效果在实践中是大的或有用的。\",\"id\":\"s1\"}]}"
+        }],
+        "status": "passed"
+      },
+      {
+        "fixture": "heldout-unit-contrast",
+        "providerCalls": 1,
+        "cacheReopenCalls": 0,
+        "failures": [],
+        "nativeCalls": 1,
+        "totalMs": 269.480667,
+        "replayedFirstAnswer": false,
+        "commits": [{
+          "translation": "在表2中，值为4 GB，而不是4 MB。这些单位不能互换。",
+          "id": "a"
+        }],
+        "cancelled": false,
+        "attempts": [{
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The value was __PR0__ in Table __PR1__, not __PR2__. These units must not be interchanged.\"}]}\n/no_think",
+          "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}",
+          "nativeCalls": [{
+            "system": "",
+            "tokensPerSecond": 141.8749706872338,
+            "markerStyle": "ascii",
+            "raw": " 在表__PR1__中，值为__PR0__，而不是__PR2__。这些单位不能互换。",
+            "user": "English: The value was __PR0__ in Table __PR1__, not __PR2__. These units must not be interchanged.\n\nChinese:",
+            "generatedTokens": 33
+          }],
+          "format": "TRANSLATION_JSON",
+          "raw": "{\"translations\":[{\"translation\":\" 在表__PR1__中，值为__PR0__，而不是__PR2__。这些单位不能互换。\",\"id\":\"s1\"}]}"
+        }],
+        "status": "passed"
+      },
+      {
+        "fixture": "heldout-speed-quality",
+        "providerCalls": 1,
+        "cacheReopenCalls": 0,
+        "failures": [],
+        "nativeCalls": 1,
+        "totalMs": 402.554083,
+        "replayedFirstAnswer": false,
+        "commits": [{
+          "translation": "比较控制模型文件、六个CPU线程和一个4096标记上下文。仅靠更快的输出并不能建立更好的翻译质量。",
+          "id": "a"
+        }],
+        "cancelled": false,
+        "attempts": [{
+          "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The comparison controls the model file, six CPU threads, and a __PR0__-token context. Faster output alone does not establish better translation quality.\"}]}\n/no_think",
+          "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}",
+          "nativeCalls": [{
+            "system": "",
+            "tokensPerSecond": 135.23606075645694,
+            "markerStyle": "ascii",
+            "raw": " 比较控制模型文件、六个CPU线程和一个__PR0__标记上下文。仅靠更快的输出并不能建立更好的翻译质量。",
+            "user": "English: The comparison controls the model file, six CPU threads, and a __PR0__-token context. Faster output alone does not establish better translation quality.\n\nChinese:",
+            "generatedTokens": 48
+          }],
+          "format": "TRANSLATION_JSON",
+          "raw": "{\"translations\":[{\"translation\":\" 比较控制模型文件、六个CPU线程和一个__PR0__标记上下文。仅靠更快的输出并不能建立更好的翻译质量。\",\"id\":\"s1\"}]}"
+        }],
+        "status": "passed"
+      }
+    ],
+    "sha256": "f0f1c64455d075236df309457e4730fe763489e5fc8c038ce3f29d9963dec96b",
+    "source": {
+      "license": "apache-2.0",
+      "file": "RWKV_v7_G1d_0.4B_Translate_ctx4096_20260607-Q8_0.gguf",
+      "rawCompletion": true,
+      "sha256": "f0f1c64455d075236df309457e4730fe763489e5fc8c038ce3f29d9963dec96b",
+      "alternateMarkerRecovery": true,
+      "upstreamFile": "gguf/RWKV_v7_G1d_0.4B_Translate_ctx4096_20260607-Q8_0.gguf",
+      "bytes": 501498208,
+      "promptProfile": "rwkv-translation",
+      "repository": "mollysama/rwkv-mobile-models",
+      "revision": "1df84ad8127815ca0555a91b5663a3ee3c521134"
+    }
+  }],
+  "adapterInAndroidApp": false,
+  "engine": "llama.cpp@2280f0fd163b03d4331d49e08460f66502e35854;cpu;arm64;ctx4096;proposal-exact-grammar-v3;templates-qwen2-qwen3-qwen35-lfm2;diagnostic-f32kv-flashoff-greedy-v1;research-rwkv7-completion-v1",
+  "diagnosticUserOnlyAdapter": true,
+  "threads": 6,
+  "formatPassCertifiesSemanticAccuracy": false,
+  "platform": "Mac OS X aarch64",
+  "hardware": "Apple M1 Pro",
+  "policy": "partial-row-commit; targeted JSON retry; strict single-text final retry"
+}

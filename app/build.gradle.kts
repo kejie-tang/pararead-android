@@ -33,6 +33,7 @@ android {
     compileOptions { sourceCompatibility = JavaVersion.VERSION_21; targetCompatibility = JavaVersion.VERSION_21 }
     kotlinOptions { jvmTarget = "21" }
     sourceSets["main"].assets.srcDir(layout.buildDirectory.dir("generated/readerAssets"))
+    sourceSets["androidTest"].java.srcDir(rootProject.file("tools/research-probes/src/main/kotlin"))
     packaging { resources.merges += setOf("META-INF/AL2.0", "META-INF/LGPL2.1") }
 }
 val buildReader by tasks.registering(Exec::class) {

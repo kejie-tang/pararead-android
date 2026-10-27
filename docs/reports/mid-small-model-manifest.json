@@ -1,0 +1,65 @@
+[
+  {
+    "repository": "mollysama/rwkv-mobile-models",
+    "revision": "1df84ad8127815ca0555a91b5663a3ee3c521134",
+    "upstreamFile": "gguf/RWKV_v7_G1d_0.4B_Translate_ctx4096_20260607-Q8_0.gguf",
+    "file": "RWKV_v7_G1d_0.4B_Translate_ctx4096_20260607-Q8_0.gguf",
+    "bytes": 501498208,
+    "sha256": "f0f1c64455d075236df309457e4730fe763489e5fc8c038ce3f29d9963dec96b",
+    "license": "apache-2.0",
+    "promptProfile": "rwkv-translation",
+    "rawCompletion": true,
+    "alternateMarkerRecovery": true
+  },
+  {
+    "repository": "Mxode/NanoTranslator-immersive_translate-365M",
+    "revision": "a284f8c2337d98280d36f1f529957d6088e2bf07",
+    "file": "NanoTranslator-365M-Q4_K_M.gguf",
+    "bytes": 255132192,
+    "sha256": "cfda1c5db47b5073be6623c37bd003131d21f518b8760e30ae6e2973fa606d2e",
+    "license": "gpl-3.0",
+    "promptProfile": "immersive",
+    "targetLabel": "chinese",
+    "normalizeNfc": true,
+    "locallyConverted": true,
+    "sourceWeightsSha256": "b23a230bdafb3f95ec8640471f036bdd53118f85fc3d00c284c2cba4a41382e7",
+    "alternateMarkerRecovery": true
+  },
+  {
+    "repository": "mradermacher/NanoTranslator-immersive_translate-0.5B-GGUF",
+    "revision": "482d3eb7e4e399886d87a1a9b72c049a3a72a48f",
+    "file": "NanoTranslator-immersive_translate-0.5B.Q4_K_M.gguf",
+    "bytes": 397806496,
+    "sha256": "cd051de57b519612a0f15e84fae591acc72e0fb8ab79af970ca8dafb7d328e68",
+    "license": "gpl-3.0",
+    "promptProfile": "immersive",
+    "alternateMarkerRecovery": true,
+    "baseRepository": "Mxode/NanoTranslator-immersive_translate-0.5B",
+    "baseRevision": "7d23211c309efc8e32abb1e71792969c61ace836"
+  },
+  {
+    "repository": "mollysama/rwkv-mobile-models",
+    "revision": "1df84ad8127815ca0555a91b5663a3ee3c521134",
+    "upstreamFile": "gguf/RWKV_v7_G1d_0.4B_Translate_ctx4096_20260607-Q8_0.gguf",
+    "file": "RWKV_v7_G1d_0.4B_Translate-Q4_K_M.gguf",
+    "bytes": 300695904,
+    "sha256": "e155d8dd82f6f66ba4795041ec132416831c5b58945056475999618bccb09354",
+    "license": "apache-2.0",
+    "promptProfile": "rwkv-translation",
+    "rawCompletion": true,
+    "alternateMarkerRecovery": true,
+    "parentSha256": "f0f1c64455d075236df309457e4730fe763489e5fc8c038ce3f29d9963dec96b",
+    "locallyRequantizedFrom": "Q8_0",
+    "quantizerCommit": "2280f0fd163b03d4331d49e08460f66502e35854",
+    "reportLabel": "rwkv-q4"
+  },
+  {
+    "repository": "tiiuae/Falcon-H1-0.5B-Instruct-GGUF",
+    "revision": "9bf0c2d4391cf4850aa62bfee1d8fe71afba8be2",
+    "file": "Falcon-H1-0.5B-Instruct-Q4_K_M.gguf",
+    "bytes": 314806560,
+    "sha256": "138a37a94b9e313af4e22d4af46b8119b76a31afdd61cabbeae7010ae45d2ac6",
+    "license": "falcon-llm-license",
+    "standaloneCliOnly": true
+  }
+]

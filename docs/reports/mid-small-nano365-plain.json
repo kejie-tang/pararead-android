@@ -1,0 +1,93 @@
+{
+  "physicalAndroidDevice": false,
+  "models": [{
+    "cases": [
+      {
+        "fixture": "short",
+        "system": "You are a professional, authentic machine translation engine.",
+        "tokensPerSecond": 202.84742481831196,
+        "sourceText": "We propose a memory-efficient method for translating scientific documents.",
+        "restored": "我们提出一种能有效地存储和存放科学文献的存储方法.",
+        "raw": "我们提出一种能有效地存储和存放科学文献的存储方法.",
+        "user": "Translate the following source text to chinese. Output translation directly without any additional text.\n    Source Text: We propose a memory-efficient method for translating scientific documents.\n\n    Translated Text:",
+        "generatedTokens": 19,
+        "status": "passed"
+      },
+      {
+        "fixture": "long",
+        "system": "You are a professional, authentic machine translation engine.",
+        "tokensPerSecond": 194.62339575648087,
+        "sourceText": "Scientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead.",
+        "restored": "科学文献中有连续的散文和等式、表、引文和技术术语，一个有用的阅读工具应该把散文翻译出来，同时保留文件的原意和结构，研究人员往往翻译几遍才能理解一个不熟悉的方法，并将之与早先的研究进行比较，当地语言模型可以支持这一过程，而不必将文件发送到远方服务，这些方法的实际速度取决于内存带宽、处理器指令、工作线和处理的相关信息量，而且重复的测量对时间的影响也很大，因此，对这些方法进行重复测量的效率也很高。",
+        "raw": "科学文献中有连续的散文和等式、表、引文和技术术语，一个有用的阅读工具应该把散文翻译出来，同时保留文件的原意和结构，研究人员往往翻译几遍才能理解一个不熟悉的方法，并将之与早先的研究进行比较，当地语言模型可以支持这一过程，而不必将文件发送到远方服务，这些方法的实际速度取决于内存带宽、处理器指令、工作线和处理的相关信息量，而且重复的测量对时间的影响也很大，因此，对这些方法进行重复测量的效率也很高。",
+        "user": "Translate the following source text to chinese. Output translation directly without any additional text.\n    Source Text: Scientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead.\n\n    Translated Text:",
+        "generatedTokens": 171,
+        "status": "passed"
+      },
+      {
+        "fixture": "protected",
+        "system": "You are a professional, authentic machine translation engine.",
+        "tokensPerSecond": 214.39140596735507,
+        "sourceText": "The model processes 100 pages using 4 GB of memory [12]. For $E=mc^2$, see https://example.org/paper.",
+        "raw": "该模型使用__PR1__号存储器处理__PR0__页，而__PR2__号存储器用于__PR3__号程序。",
+        "error": "java.lang.IllegalArgumentException: PROTECTED_TOKEN_MISMATCH",
+        "user": "Translate the following source text to chinese. Output translation directly without any additional text.\n    Source Text: The model processes __PR0__ pages using __PR1__ of memory __PR2__. For __PR3__, see __PR4__\n\n    Translated Text:",
+        "generatedTokens": 42,
+        "status": "failed"
+      },
+      {
+        "fixture": "negation",
+        "system": "You are a professional, authentic machine translation engine.",
+        "tokensPerSecond": 198.32525381290367,
+        "sourceText": "The increase was not statistically significant. The result may indicate an association, but it does not establish causation.",
+        "restored": "增加的数量并不是统计上的显著变化，结果可能表明存在某种联系，但不能确定其因果关系。",
+        "raw": "增加的数量并不是统计上的显著变化，结果可能表明存在某种联系，但不能确定其因果关系。",
+        "user": "Translate the following source text to chinese. Output translation directly without any additional text.\n    Source Text: The increase was not statistically significant. The result may indicate an association, but it does not establish causation.\n\n    Translated Text:",
+        "generatedTokens": 33,
+        "status": "passed"
+      },
+      {
+        "fixture": "protected-numeric-single",
+        "system": "You are a professional, authentic machine translation engine.",
+        "sourceText": "The model processes 100 pages using 4 GB of memory [12].",
+        "raw": "该模型使用__PR1__________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________________",
+        "error": "java.lang.IllegalStateException: TRUNCATED_GENERATION",
+        "user": "Translate the following source text to chinese. Output translation directly without any additional text.\n    Source Text: The model processes __PR0__ pages using __PR1__ of memory __PR2__.\n\n    Translated Text:",
+        "status": "failed"
+      },
+      {
+        "fixture": "protected-equation-single",
+        "system": "You are a professional, authentic machine translation engine.",
+        "tokensPerSecond": 217.09571635873354,
+        "sourceText": "For $E=mc^2$, retain the equation and see https://example.org/paper.",
+        "restored": "如果是$E=mc^2$, 保留公式并见https://example.org/paper.",
+        "raw": "如果是__PR0__, 保留公式并见__PR1__",
+        "user": "Translate the following source text to chinese. Output translation directly without any additional text.\n    Source Text: For __PR0__, retain the equation and see __PR1__\n\n    Translated Text:",
+        "generatedTokens": 19,
+        "status": "passed"
+      }
+    ],
+    "source": {
+      "license": "gpl-3.0",
+      "normalizeNfc": true,
+      "file": "NanoTranslator-365M-Q4_K_M.gguf",
+      "sha256": "cfda1c5db47b5073be6623c37bd003131d21f518b8760e30ae6e2973fa606d2e",
+      "bytes": 255132192,
+      "promptProfile": "immersive",
+      "targetLabel": "chinese",
+      "sourceWeightsSha256": "b23a230bdafb3f95ec8640471f036bdd53118f85fc3d00c284c2cba4a41382e7",
+      "repository": "Mxode/NanoTranslator-immersive_translate-365M",
+      "locallyConverted": true,
+      "revision": "a284f8c2337d98280d36f1f529957d6088e2bf07"
+    }
+  }],
+  "engine": "llama.cpp@2280f0fd163b03d4331d49e08460f66502e35854;cpu;arm64;ctx4096;proposal-exact-grammar-v3;templates-qwen2-qwen3-qwen35-lfm2;diagnostic-f32kv-flashoff-greedy-v1",
+  "productionJsonProtocol": false,
+  "threads": 6,
+  "formatPassCertifiesSemanticAccuracy": false,
+  "literalProtectedContent": false,
+  "diagnosticOnly": true,
+  "platform": "Mac OS X aarch64",
+  "promptTemplate": "manifest promptProfile; default user-only",
+  "hardware": "Apple M1 Pro"
+}

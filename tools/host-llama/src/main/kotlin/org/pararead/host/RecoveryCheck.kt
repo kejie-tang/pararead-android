@@ -7,15 +7,18 @@ import org.json.JSONObject
 import org.pararead.core.*
 import org.pararead.llama.LlamaCppProvider
 import org.pararead.llama.NativeBridge
+import org.pararead.probes.ResearchSentenceProvider
+import org.pararead.probes.queueProbeFixtures
+import org.pararead.probes.heldOutProbeFixtures
 import java.io.File
 import java.security.MessageDigest
 import java.util.concurrent.ConcurrentHashMap
 
 /** Real production queue and real model retries; replayed first answers are explicitly labelled. */
 suspend fun runRecoveryCheck(args: List<String>) {
-    require(args.size == 2 || args.size == 3 && args[2] in setOf("text-only", "user-only")) { "recovery report.json manifest.json [text-only|user-only]" }
+    require(args.size == 2 || args.size == 3 && args[2] in setOf("text-only", "user-only", "user-only-heldout")) { "recovery report.json manifest.json [text-only|user-only|user-only-heldout]" }
     val textOnly = args.getOrNull(2) == "text-only"
-    val userOnly = args.getOrNull(2) == "user-only"
+    val userOnly = args.getOrNull(2)?.startsWith("user-only") == true
     val output = File(args[0]); val manifest = JSONArray(File(args[1]).readText())
     val models = JSONArray()
     val report = JSONObject().put("platform", "${System.getProperty("os.name")} ${System.getProperty("os.arch")}")
@@ -24,19 +27,7 @@ suspend fun runRecoveryCheck(args: List<String>) {
         .put("diagnosticUserOnlyAdapter", userOnly).put("adapterInAndroidApp", false)
         .put("formatPassCertifiesSemanticAccuracy", false).put("models", models)
     fun save() { output.parentFile.mkdirs(); output.writeText(report.toString(2) + "\n") }
-    val fixtures = linkedMapOf(
-        "short" to listOf(SourceSentence("a", SpeedTest.SOURCE, "p1")),
-        "protected-batch" to listOf(
-            SourceSentence("a", "The model processes 100 pages using 4 GB of memory [12].", "p1"),
-            SourceSentence("b", "For ${'$'}E=mc^2${'$'}, retain the equation and see https://example.org/paper.", "p1")),
-        "numeric-contrast" to listOf(
-            SourceSentence("a", "Accuracy fell from 91.2% to 87.6%, whereas latency improved from 120 ms to 80 ms.", "p1"),
-            SourceSentence("b", "Only 3 of the 50 documents failed; the other 47 were translated successfully.", "p1")),
-        "negation" to listOf(
-            SourceSentence("a", "The increase was not statistically significant.", "p1"),
-            SourceSentence("b", "The result may indicate an association, but it does not establish causation.", "p1")),
-        "escaped-text" to listOf(SourceSentence("a", "The author calls this a \"reading assistant\".\nKeep the meaning of both sentences.", "p1")),
-        "long" to listOf(SourceSentence("a", SpeedTest.LONG_SOURCE, "p1")))
+    val fixtures = if (args.getOrNull(2) == "user-only-heldout") heldOutProbeFixtures() else queueProbeFixtures()
     val config = TranslationConfig(sourceLanguage = "en", targetLanguage = "zh-CN")
     for (i in 0 until manifest.length()) {
         val source = manifest.getJSONObject(i); val file = File("artifacts/models", source.getString("file"))
@@ -45,7 +36,7 @@ suspend fun runRecoveryCheck(args: List<String>) {
         val hash = digest.digest().joinToString("") { "%02x".format(it) }
         require(hash == source.getString("sha256") && file.length() == source.getLong("bytes")) { "MODEL_MANIFEST_MISMATCH" }
         val model = JSONObject().put("source", source).put("sha256", hash).put("cases", JSONArray()); models.put(model); save()
-        val provider = LlamaCppProvider(file.path, 6, fullPrecisionKv = source.optBoolean("fullPrecisionKv"), greedy = source.optBoolean("greedy"))
+        val provider = LlamaCppProvider(file.path, 6, fullPrecisionKv = source.optBoolean("fullPrecisionKv"), greedy = source.optBoolean("greedy"), rawCompletion = source.optBoolean("rawCompletion"))
         try {
             suspend fun queueCase(name: String, sentences: List<SourceSentence>, replay: String? = null) {
                 val entry = JSONObject().put("fixture", name).put("replayedFirstAnswer", replay != null).put("attempts", JSONArray())
@@ -61,27 +52,11 @@ suspend fun runRecoveryCheck(args: List<String>) {
                         if (calls == 1 && replay != null) {
                             attempt.put("replayed", true).put("raw", replay); emit(ProviderEvent.Complete(replay))
                         } else if (userOnly) {
-                            // Research adapter: the program owns IDs/JSON, the model translates one protected text.
-                            // Fixed English -> Simplified Chinese, empty glossary; deliberately not selected by the app.
-                            val rows = if (prompt.outputFormat == ModelOutputFormat.TEXT)
-                                JSONArray().put(JSONObject().put("text", prompt.user.removeSuffix("\n/no_think")))
-                            else JSONObject(prompt.user.removeSuffix("\n/no_think")).getJSONArray("sentences")
-                            val outputs = JSONArray(); val real = JSONArray(); attempt.put("nativeCalls", real)
-                            for (index in 0 until rows.length()) {
-                                val row = rows.getJSONObject(index)
-                                val nativePrompt = ModelPrompt("", "Translate the following text from English to Simplified Chinese.\n" + row.getString("text"), outputFormat = ModelOutputFormat.TEXT)
-                                val record = JSONObject().put("system", nativePrompt.system).put("user", nativePrompt.user)
-                                real.put(record); nativeCalls++
-                                val raw = StringBuilder()
-                                try {
-                                    provider.generate(nativePrompt).collect { if (it is ProviderEvent.Delta) raw.append(it.text) }
-                                } finally { record.put("raw", raw.toString()) }
-                                provider.metrics?.let { record.put("generatedTokens", it.generatedTokens).put("tokensPerSecond", it.tokensPerSecond) }
-                                outputs.put(JSONObject().put("id", row.optString("id")).put("translation", raw.toString()))
+                            val real = JSONArray(); attempt.put("nativeCalls", real)
+                            ResearchSentenceProvider(provider, source) { record -> real.put(record); nativeCalls++ }.generate(prompt).collect { event ->
+                                if (event is ProviderEvent.Complete) attempt.put("raw", event.text)
+                                emit(event)
                             }
-                            val raw = if (prompt.outputFormat == ModelOutputFormat.TEXT) outputs.getJSONObject(0).getString("translation")
-                                else JSONObject().put("translations", outputs).toString()
-                            attempt.put("raw", raw); emit(ProviderEvent.Complete(raw))
                         } else provider.generate(prompt).collect { event ->
                             if (event is ProviderEvent.Complete) {
                                 attempt.put("raw", event.text)

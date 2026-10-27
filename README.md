@@ -54,7 +54,7 @@ A translation is easier to check when the source is right beside it. ParaRead An
 
 Alpha.5 saves independently validated sentences and retries only failures, with a marker checklist and a final single-sentence text fallback. Missing or duplicated protected content is still rejected; recovery can still fail. See the [actual recovery results](docs/reports/format-recovery.md). Translation cache keys are versioned, so translations will be regenerated after upgrading. The default download remains Qwen3 1.7B.
 
-Below 0.6B, a host-side LFM350 prototype now passes the format fixtures, but still reverses numerical meanings; Haidass143 is only partially repaired. These adapters are not enabled in the released app. See the [smaller-model repair experiments](docs/reports/tiny-model-recovery.md).
+**350M–0.6B research:** RWKV 0.4B now passes 18/18 Android emulator format workloads with a specialized translation prompt and exact-marker retries; a local Q4 file is **301 MB**. It still omits text and mistranslates some numerical relations. NanoTranslator-365M recovers its format but changes meaning. These adapters are not enabled in the released app. See the [new candidates, raw outputs and speed comparison](docs/reports/mid-small-models.md), plus the earlier [LFM350 experiments](docs/reports/tiny-model-recovery.md).
 
 Downloads use Android's system queue, with progress, cancellation, retry, and monitoring after reopening the app. Removing the model keeps your documents, reading progress, and translation cache. See [model management](docs/reports/model-management.md) and [CPU thread settings](docs/reports/cpu-threads.md) for implementation and test details (Chinese).
 

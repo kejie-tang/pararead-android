@@ -2,12 +2,14 @@ plugins { kotlin("jvm"); application }
 kotlin {
     jvmToolchain(21)
     sourceSets.main { kotlin.srcDir(rootProject.file("engine/llama/src/main/java")) }
+    sourceSets.main { kotlin.srcDir(rootProject.file("tools/research-probes/src/main/kotlin")) }
 }
 dependencies {
     implementation(project(":core"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
     implementation("org.json:json:20250517")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    testImplementation(kotlin("test-junit"))
 }
 val nativeDir = layout.buildDirectory.dir("native")
 val cmake = providers.gradleProperty("cmakePath").orElse("cmake")

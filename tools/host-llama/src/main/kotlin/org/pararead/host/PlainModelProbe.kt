@@ -7,6 +7,7 @@ import org.json.JSONObject
 import org.pararead.core.*
 import org.pararead.llama.LlamaCppProvider
 import org.pararead.llama.NativeBridge
+import org.pararead.probes.translationProbeRequest
 import java.io.File
 import java.security.MessageDigest
 
@@ -19,7 +20,7 @@ suspend fun runPlainModelProbe(args: List<String>) {
     val report = JSONObject().put("diagnosticOnly", true).put("productionJsonProtocol", false)
         .put("physicalAndroidDevice", false).put("platform", System.getProperty("os.name") + " " + System.getProperty("os.arch"))
         .put("hardware", System.getenv("PARAREAD_HARDWARE") ?: "not recorded").put("engine", NativeBridge.version())
-        .put("formatPassCertifiesSemanticAccuracy", false).put("promptTemplate", "user-only; no empty system message")
+        .put("formatPassCertifiesSemanticAccuracy", false).put("promptTemplate", "manifest promptProfile; default user-only")
         .put("threads", 6).put("literalProtectedContent", literal).put("models", models)
     fun save() { output.parentFile.mkdirs(); output.writeText(report.toString(2) + "\n") }
     val fixtures = linkedMapOf("short" to SpeedTest.SOURCE, "long" to SpeedTest.LONG_SOURCE,
@@ -35,22 +36,21 @@ suspend fun runPlainModelProbe(args: List<String>) {
         require(file.length() == source.getLong("bytes") && digest.digest().joinToString("") { "%02x".format(it) } == source.getString("sha256")) { "MODEL_MANIFEST_MISMATCH" }
         val model = JSONObject().put("source", source).put("cases", JSONArray()); models.put(model)
         val provider = LlamaCppProvider(file.path, 6, constrainJson = false,
-            fullPrecisionKv = source.optBoolean("fullPrecisionKv"), greedy = source.optBoolean("greedy"))
+            fullPrecisionKv = source.optBoolean("fullPrecisionKv"), greedy = source.optBoolean("greedy"), rawCompletion = source.optBoolean("rawCompletion"))
         try {
             for ((name, text) in fixtures) {
                 val protected = StructuredTranslation.protect(text)
                 val input = if (literal) text else protected.text
-                val user = if (source.getString("file").startsWith("LMT"))
-                    "Translate the following text from English into Chinese:\nEnglish: $input\nChinese:"
-                else "Translate the following text from English to Simplified Chinese.\n$input"
-                val entry = JSONObject().put("fixture", name).put("sourceText", text).put("user", user)
+                val request = translationProbeRequest(source, input)
+                val prompt = request.prompt
+                val entry = JSONObject().put("fixture", name).put("sourceText", text).put("system", prompt.system).put("user", prompt.user).put("markerStyle", request.markerStyle)
                 model.getJSONArray("cases").put(entry)
                 val raw = StringBuilder()
                 try { withTimeout(120000) {
-                    provider.generate(ModelPrompt("", user, outputFormat = ModelOutputFormat.TEXT)).collect { if (it is ProviderEvent.Delta) raw.append(it.text) }
+                    provider.generate(prompt).collect { if (it is ProviderEvent.Delta) raw.append(it.text) }
                     val restored = if (literal) raw.toString().trim().also { value ->
                         require(StructuredTranslation.protect(value).tokens.sorted() == protected.tokens.sorted()) { "LITERAL_PROTECTED_CONTENT_MISMATCH" }
-                    } else protected.restore(raw.toString().trim())
+                    } else protected.restore(request.decode(raw.toString().trim()))
                     check(restored.any { it in '\u4e00'..'\u9fff' }) { "NO_CHINESE_TRANSLATION" }
                     entry.put("status", "passed").put("restored", restored)
                 } } catch (e: Exception) { entry.put("status", "failed").put("error", e.toString()) }

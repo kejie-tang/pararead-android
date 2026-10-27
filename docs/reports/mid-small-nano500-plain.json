@@ -1,0 +1,91 @@
+{
+  "physicalAndroidDevice": false,
+  "models": [{
+    "cases": [
+      {
+        "fixture": "short",
+        "system": "You are a professional, authentic machine translation engine.",
+        "tokensPerSecond": 135.70138088576948,
+        "sourceText": "We propose a memory-efficient method for translating scientific documents.",
+        "restored": "我们提出了一种内存效率高的方法来翻译科学文档。",
+        "raw": "我们提出了一种内存效率高的方法来翻译科学文档。",
+        "user": "Translate the following source text to Chinese. Output translation directly without any additional text.\n    Source Text: We propose a memory-efficient method for translating scientific documents.\n\n    Translated Text:",
+        "generatedTokens": 13,
+        "status": "passed"
+      },
+      {
+        "fixture": "long",
+        "system": "You are a professional, authentic machine translation engine.",
+        "tokensPerSecond": 141.27274142454215,
+        "sourceText": "Scientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead.",
+        "restored": "科学文档结合连续的散文与方程式、表格、参考文献和技术术语。一个有用的阅读助手应该将散文翻译出来，同时保留文档的原始意义和结构。研究人员经常阅读同一段落多次以理解一种不熟悉的方法并与之前的工作进行比较。本地语言模型可以在不将文档发送到远程服务的情况下支持这一过程。它们的实用速度取决于内存带宽、处理器指令、工作线程和处理的上下文量。短答案可能在处理器达到稳定运行状态之前完成，因此使用较长的输出进行重复测量是有用的。预处理和生成符应分别进行测量，因为它们执行不同的计算。本实验的目标是产生一个忠实的中文翻译，并保留足够的时间信息以区分引擎性能与应用程序开销。",
+        "raw": "科学文档结合连续的散文与方程式、表格、参考文献和技术术语。一个有用的阅读助手应该将散文翻译出来，同时保留文档的原始意义和结构。研究人员经常阅读同一段落多次以理解一种不熟悉的方法并与之前的工作进行比较。本地语言模型可以在不将文档发送到远程服务的情况下支持这一过程。它们的实用速度取决于内存带宽、处理器指令、工作线程和处理的上下文量。短答案可能在处理器达到稳定运行状态之前完成，因此使用较长的输出进行重复测量是有用的。预处理和生成符应分别进行测量，因为它们执行不同的计算。本实验的目标是产生一个忠实的中文翻译，并保留足够的时间信息以区分引擎性能与应用程序开销。",
+        "user": "Translate the following source text to Chinese. Output translation directly without any additional text.\n    Source Text: Scientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead.\n\n    Translated Text:",
+        "generatedTokens": 157,
+        "status": "passed"
+      },
+      {
+        "fixture": "protected",
+        "system": "You are a professional, authentic machine translation engine.",
+        "tokensPerSecond": 139.93773963739494,
+        "sourceText": "The model processes 100 pages using 4 GB of memory [12]. For $E=mc^2$, see https://example.org/paper.",
+        "raw": "该模型使用内存中的 __PR1___ 页处理 __PR0___ 页。",
+        "error": "java.lang.IllegalArgumentException: PROTECTED_TOKEN_MISMATCH",
+        "user": "Translate the following source text to Chinese. Output translation directly without any additional text.\n    Source Text: The model processes __PR0__ pages using __PR1__ of memory __PR2__. For __PR3__, see __PR4__\n\n    Translated Text:",
+        "generatedTokens": 19,
+        "status": "failed"
+      },
+      {
+        "fixture": "negation",
+        "system": "You are a professional, authentic machine translation engine.",
+        "tokensPerSecond": 146.0470098452042,
+        "sourceText": "The increase was not statistically significant. The result may indicate an association, but it does not establish causation.",
+        "restored": "这种增加并不具有统计学意义。结果可能表明存在关联，但并不能证明因果关系。",
+        "raw": "这种增加并不具有统计学意义。结果可能表明存在关联，但并不能证明因果关系。",
+        "user": "Translate the following source text to Chinese. Output translation directly without any additional text.\n    Source Text: The increase was not statistically significant. The result may indicate an association, but it does not establish causation.\n\n    Translated Text:",
+        "generatedTokens": 20,
+        "status": "passed"
+      },
+      {
+        "fixture": "protected-numeric-single",
+        "system": "You are a professional, authentic machine translation engine.",
+        "tokensPerSecond": 139.70185873396574,
+        "sourceText": "The model processes 100 pages using 4 GB of memory [12].",
+        "raw": "该模型使用内存中的 __PR1___ 页处理 __PR0___ 页。",
+        "error": "java.lang.IllegalArgumentException: PROTECTED_TOKEN_MISMATCH",
+        "user": "Translate the following source text to Chinese. Output translation directly without any additional text.\n    Source Text: The model processes __PR0__ pages using __PR1__ of memory __PR2__.\n\n    Translated Text:",
+        "generatedTokens": 19,
+        "status": "failed"
+      },
+      {
+        "fixture": "protected-equation-single",
+        "system": "You are a professional, authentic machine translation engine.",
+        "tokensPerSecond": 122.23949519108807,
+        "sourceText": "For $E=mc^2$, retain the equation and see https://example.org/paper.",
+        "restored": "对于 $E=mc^2$, 保留方程并查看 https://example.org/paper.\n\nTranslated Text:",
+        "raw": "对于 __PR0__, 保留方程并查看 __PR1__\n\nTranslated Text:",
+        "user": "Translate the following source text to Chinese. Output translation directly without any additional text.\n    Source Text: For __PR0__, retain the equation and see __PR1__\n\n    Translated Text:",
+        "generatedTokens": 18,
+        "status": "passed"
+      }
+    ],
+    "source": {
+      "license": "gpl-3.0",
+      "file": "NanoTranslator-immersive_translate-0.5B.Q4_K_M.gguf",
+      "sha256": "cd051de57b519612a0f15e84fae591acc72e0fb8ab79af970ca8dafb7d328e68",
+      "bytes": 397806496,
+      "promptProfile": "immersive",
+      "repository": "mradermacher/NanoTranslator-immersive_translate-0.5B-GGUF",
+      "revision": "482d3eb7e4e399886d87a1a9b72c049a3a72a48f"
+    }
+  }],
+  "engine": "llama.cpp@2280f0fd163b03d4331d49e08460f66502e35854;cpu;arm64;ctx4096;proposal-exact-grammar-v3;templates-qwen2-qwen3-qwen35-lfm2;diagnostic-f32kv-flashoff-greedy-v1",
+  "productionJsonProtocol": false,
+  "threads": 6,
+  "formatPassCertifiesSemanticAccuracy": false,
+  "literalProtectedContent": false,
+  "diagnosticOnly": true,
+  "platform": "Mac OS X aarch64",
+  "promptTemplate": "manifest promptProfile; default user-only",
+  "hardware": "Apple M1 Pro"
+}

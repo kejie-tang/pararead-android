@@ -54,7 +54,7 @@
 
 Alpha.5 逐句保存校验通过的译文，只重试失败句；重试时明确列出必需标记，最后尝试逐句纯文本兜底。引用等受保护内容缺失或重复时仍会拒绝保存，部分样本仍无法恢复，见[格式恢复实测](docs/reports/format-recovery.md)。升级后会按新的缓存版本重新生成译文；默认下载仍为 Qwen3 1.7B。
 
-更小模型中，LFM350 的主机端适配原型已通过本轮格式样本，但仍会译反数字关系；Haidass143 只修复了部分问题。这些适配尚未在已发布 App 中启用，见[更小模型修复实测](docs/reports/tiny-model-recovery.md)。
+**350M–0.6B 新候选：**RWKV 0.4B 配合专用翻译提示和严格标记重试，已通过 Android 模拟器 18/18 组格式样本；本地 Q4 文件约 **301 MB**，但仍有漏译和数字关系误译。NanoTranslator-365M 的格式可恢复，含义却经常失真。这些适配尚未在已发布 App 中启用，详见[新增模型、原始输出与速度对比](docs/reports/mid-small-models.md)，以及此前的 [LFM350 实验](docs/reports/tiny-model-recovery.md)。
 
 下载通过 Android 系统队列执行，支持进度、取消、重试和重开后继续监控。删除模型会保留文档、阅读进度与译文缓存。实现和测试细节见[模型管理](docs/reports/model-management.md)与 [CPU 线程设置](docs/reports/cpu-threads.md)。
 

@@ -1,0 +1,72 @@
+{
+  "date": "2026-10-27",
+  "baseCommit": "287b4db2e8ccadfc8cc77947cc4c7813322ec226",
+  "releasedAppVersion": "0.2.0-alpha.5",
+  "releaseCreated": false,
+  "researchAdapterEnabledInApp": false,
+  "physicalDimensity9400Tested": false,
+  "formatPassCertifiesSemanticAccuracy": false,
+  "core": {
+    "tests": 42,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "researchMarkerProfileTests": {
+    "tests": 4,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "sourceContractsPassed": 16,
+  "hostDefaultProviderJniRegressionsPassed": 4,
+  "buildAndLint": "passed",
+  "pythonScriptsCompile": "passed",
+  "tokenIdParity": {
+    "raw": {
+      "passed": 20,
+      "total": 21
+    },
+    "nfc": {
+      "passed": 21,
+      "total": 21
+    }
+  },
+  "androidResearch": [
+    {
+      "report": "mid-small-android-rwkv-q8.json",
+      "status": "passed",
+      "passed": 18,
+      "total": 18,
+      "physicalAndroidDevice": false,
+      "acceptedRowsCacheReopenCalls": 0
+    },
+    {
+      "report": "mid-small-android-rwkv-q4.json",
+      "status": "passed",
+      "passed": 18,
+      "total": 18,
+      "physicalAndroidDevice": false,
+      "acceptedRowsCacheReopenCalls": 0
+    },
+    {
+      "report": "mid-small-android-rwkv-q4-repeat.json",
+      "status": "passed",
+      "passed": 18,
+      "total": 18,
+      "physicalAndroidDevice": false,
+      "acceptedRowsCacheReopenCalls": 0
+    },
+    {
+      "report": "mid-small-android-qwen06.json",
+      "status": "failed",
+      "passed": 17,
+      "total": 18,
+      "physicalAndroidDevice": false,
+      "acceptedRowsCacheReopenCalls": 0
+    }
+  ],
+  "researchFailuresRetained": true,
+  "temporaryAndroidModelRemoved": true,
+  "headlessEmulatorStopped": true
+}

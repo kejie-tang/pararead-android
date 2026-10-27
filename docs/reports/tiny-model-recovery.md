@@ -4,6 +4,8 @@ Test date: 2026-10-27. **LFM2.5-350M's format failures can be avoided in a host-
 
 These are CPU-only, six-thread tests on an Apple M1 Pro, using the app's pinned llama.cpp JNI engine. They are **not measurements on a Dimensity 9400**. Format checks do not certify translation accuracy. The specialized adapter below is a research tool and **is not enabled in the released Android app**. No new APK release is associated with this report.
 
+Follow-up: [additional 350M–0.6B candidates and Android repair tests](mid-small-models.md) cover RWKV 0.4B, NanoTranslator and Falcon. RWKV is a promising experimental alternative, with explicit semantic limitations.
+
 ## Files and results
 
 Sizes are decimal MB of the exact GGUF, not peak memory. Revisions, SHA-256 and licenses are in the [baseline manifest](tiny-model-recovery-manifest.json) and the [adapter manifest with explicit runtime settings](tiny-model-recovery-adapter-manifest.json).

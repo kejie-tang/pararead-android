@@ -19,11 +19,12 @@ import java.util.concurrent.atomic.AtomicLong
 /**
  * All model/context operations share one executor. cancel() only sets the native atomic abort flag.
  * fullPrecisionKv opts into F32 KV storage with Flash Attention disabled; greedy opts into temperature 0.
- * Both options are explicit research controls. App model selection does not enable them automatically.
+ * rawCompletion permits the RWKV7 research profile's verbatim, text-only language-label prompt.
+ * These are explicit research controls. App model selection does not enable them automatically.
  */
 class LlamaCppProvider(private val path: String, requestedThreads: Int = 0, private val singleResult: Boolean = false,
     private val constrainJson: Boolean = true, private val fullPrecisionKv: Boolean = false,
-    private val greedy: Boolean = false) : MeasuredTranslationProvider {
+    private val greedy: Boolean = false, private val rawCompletion: Boolean = false) : MeasuredTranslationProvider {
     val threadCount = CpuThreads.resolve(requestedThreads)
     @Volatile override var metrics: GenerationMetrics? = null
         private set
@@ -43,14 +44,17 @@ class LlamaCppProvider(private val path: String, requestedThreads: Int = 0, priv
                 metrics = null
                 check(!closed.get() && !cancelled.get())
                 if (handle.get() == 0L) {
-                    handle.set(NativeBridge.load(path, threadCount, fullPrecisionKv))
+                    handle.set(NativeBridge.load(path, threadCount, fullPrecisionKv, rawCompletion))
                     architecture = NativeBridge.architecture(handle.get())
                 }
                 if (cancelled.get() || closed.get()) return@execute
                 val decoder = Charsets.UTF_8.newDecoder().onMalformedInput(CodingErrorAction.REPORT)
                 var pending = ByteArray(0)
                 val output = StringBuilder()
-                val input = ModelChatTemplate.render(architecture, prompt)
+                val input = if (rawCompletion) {
+                    require(architecture == "rwkv7" && prompt.system.isEmpty() && prompt.outputFormat == ModelOutputFormat.TEXT) { "RAW_COMPLETION_REQUIRES_RWKV_TEXT_PROFILE" }
+                    prompt.user
+                } else ModelChatTemplate.render(architecture, prompt)
                 val callback = object : TokenCallback {
                     override fun onBytes(bytes: ByteArray): Boolean {
                         if (cancelled.get() || closed.get()) return false
@@ -101,7 +105,7 @@ class LlamaCppProvider(private val path: String, requestedThreads: Int = 0, priv
             try {
                 check(!closed.get()) { "MODEL_CLOSED" }
                 if (handle.get() == 0L) {
-                    handle.set(NativeBridge.load(path, threadCount, fullPrecisionKv)); architecture = NativeBridge.architecture(handle.get())
+                    handle.set(NativeBridge.load(path, threadCount, fullPrecisionKv, rawCompletion)); architecture = NativeBridge.architecture(handle.get())
                 }
                 val callback = object : TokenCallback { override fun onBytes(bytes: ByteArray) = !result.isCancelled && !closed.get() }
                 if (!result.isCancelled && !closed.get()) result.complete(NativeBridge.benchmark(handle.get(), promptTokens, generatedTokens, callback))
@@ -121,7 +125,7 @@ private fun java.nio.charset.CoderResult.throwIfError() { if (isError) throwExce
 interface TokenCallback { fun onBytes(bytes: ByteArray): Boolean }
 object NativeBridge {
     init { System.loadLibrary("pararead-llama") }
-    external fun load(path: String, threads: Int, fullPrecisionKv: Boolean): Long
+    external fun load(path: String, threads: Int, fullPrecisionKv: Boolean, rawCompletion: Boolean): Long
     external fun generate(handle: Long, prompt: String, callback: TokenCallback, expectedResults: Int, constrainJson: Boolean, greedy: Boolean): LongArray
     external fun architecture(handle: Long): String
     external fun systemInfo(): String
