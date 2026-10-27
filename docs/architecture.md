@@ -17,7 +17,7 @@ flowchart TB
   BR --> QUEUE[有界优先级队列]
   QUEUE --> MOCK[Mock]
   QUEUE --> API[OpenAI 兼容 API / SSE]
-  QUEUE --> JNI[llama.cpp JNI / ARM64 CPU]
+  QUEUE --> JNI[llama.cpp JNI / CPU + optional Vulkan]
 ```
 
 - `:app`：Kotlin、Jetpack Compose、SAF、WebViewAssetLoader、Room、生命周期及保存。
@@ -26,7 +26,7 @@ flowchart TB
 - `web/reader/src/upstream`：从固定 ParaRead 提交复制的阅读模块。保留句子切分、spanRange/PDF rects、结构化译文、双向高亮、30% 阅读锚点、同高滚动和连接线。
 - `bridge.ts` 将原 VS Code 消息适配至 Kotlin；`reading-order.ts` 在原分段器之后保守调整双栏块顺序，不重建句子 ID 或坐标。
 
-工具链：JDK 21、Gradle 8.14.3、AGP 8.13.2、Kotlin 2.2.20、Compose BOM 2025.08.01、Room 2.7.2、WebKit 1.14.0。API 28 起，compile/target 36，仅 ARM64。llama.cpp 固定 `2280f0fd163b03d4331d49e08460f66502e35854`，NDK 28.2.13676358，CMake 3.22.1，CPU Release 优化，16KiB ELF 对齐；未启用 GPU/OpenMP；KleidiAI v1.32.0 通过运行时 CPU 特征检测选择内核。
+工具链：JDK 21、Gradle 8.14.3、AGP 8.13.2、Kotlin 2.2.20、Compose BOM 2025.08.01、Room 2.7.2、WebKit 1.14.0。API 28 起，compile/target 36，仅 ARM64。llama.cpp 固定 `2280f0fd163b03d4331d49e08460f66502e35854`，NDK 28.2.13676358，CMake 3.22.1，CPU Release 优化，16KiB ELF 对齐；按需加载 Vulkan GPU 实验后端，CPU 默认；未启用 OpenMP；KleidiAI v1.32.0 通过运行时 CPU 特征检测选择内核。
 
 ## ADR-01：保留单个 WebView 的原阅读语义
 
@@ -101,3 +101,7 @@ CPU 计算线程数独立于上下文所有权线程：设置 `cpuThreads=0` 自
 新会话在 session.opened 后核对修订、总页数及翻译指纹。RUNNING 自动恢复；CANCELLED/ERROR 保持停止，点“全篇 / 继续”生成新作业 ID 并接续游标。COMPLETED 再点全篇从首页扫描，可重试先前失败句子，成功译文继续命中缓存。模型、语言、术语或修订变化不继承旧游标；批次和 CPU 线程数不影响译文身份。每个文档仅保留最近一个配置的任务。
 
 状态显示已处理/成功/含失败句的**页数**；未统计缓存命中或句子级分类。取消在 bridge 分块之间检查，原生同时取消队列/推理。阅读器关闭不改写 RUNNING，重开同文档时续跑；未运行后台服务，不保证应用被系统暂停后仍继续计算。恢复与部分页缓存复用已通过 Mock 模拟器 Activity 重建，强杀、真实模型和大文件持续任务仍需补验。见 [恢复报告](reports/whole-document-recovery.md)。
+
+## Vulkan 实验后端
+
+后端按插件分离，CPU 会话只加载 ggml-cpu；选择 Vulkan 时才加载 ggml-vulkan 并选择一个 GPU。CPU 会话显式传空设备列表，并关闭 KQV/host-op GPU offload，防止先前加载过 GPU 后仍使用 GPU。初始化/计算异常最多重试一次 CPU；取消不触发回退。原生驱动崩溃无法在同进程捕获，持久化会话标记让下一进程恢复 CPU。详见 [Vulkan 使用与验证](vulkan.md)。后端偏好不改变译文缓存指纹。

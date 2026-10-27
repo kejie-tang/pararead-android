@@ -29,6 +29,7 @@ fun canonicalGlossary(raw: String): String {
     return canonical(JSONObject(raw))
 }
 sealed interface ProviderEvent {
+    data object Restart : ProviderEvent
     data class Delta(val text: String) : ProviderEvent
     data class Complete(val text: String) : ProviderEvent
 }

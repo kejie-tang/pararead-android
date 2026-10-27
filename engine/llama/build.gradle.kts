@@ -8,7 +8,9 @@ android {
         ndk { abiFilters += "arm64-v8a" }
         if (!providers.gradleProperty("skipNative").isPresent) {
             externalNativeBuild { cmake { arguments += listOf("-DLLAMA_SOURCE=${rootDir}/.references/llama.cpp", "-DCMAKE_BUILD_TYPE=Release",
-                "-DPARAREAD_KLEIDIAI=${providers.gradleProperty("kleidiai").getOrElse("ON")}") } }
+                "-DANDROID_STL=c++_shared", "-DPARAREAD_KLEIDIAI=${providers.gradleProperty("kleidiai").getOrElse("ON")}")
+                targets += listOf("pararead-llama", "ggml-cpu", "ggml-vulkan")
+            } }
         }
     }
     if (!providers.gradleProperty("skipNative").isPresent) {
@@ -17,4 +19,7 @@ android {
     compileOptions { sourceCompatibility = JavaVersion.VERSION_21; targetCompatibility = JavaVersion.VERSION_21 }
     kotlinOptions { jvmTarget = "21" }
 }
-dependencies { implementation(project(":core")); implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0") }
+dependencies {
+    implementation(project(":core")); implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+    testImplementation("junit:junit:4.13.2")
+}

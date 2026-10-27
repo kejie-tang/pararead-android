@@ -68,6 +68,7 @@ object SpeedTest {
                 var complete: String? = null
                 provider.generate(prompt).collect { event ->
                     when (event) {
+                        ProviderEvent.Restart -> { first = 0L; complete = null }
                         is ProviderEvent.Delta -> if (first == 0L && event.text.isNotEmpty()) first = System.nanoTime()
                         is ProviderEvent.Complete -> { check(complete == null); complete = event.text }
                     }

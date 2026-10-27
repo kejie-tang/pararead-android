@@ -29,6 +29,8 @@ jobs:
           log-accepted-android-sdk-licenses: false
       - name: Install Android build tools
         run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
+      - name: Install Vulkan shader compiler
+        run: sudo apt-get update && sudo apt-get install -y glslc ninja-build
       - name: Fetch verified source dependencies
         run: |
           npm ci
@@ -42,7 +44,7 @@ jobs:
           npx playwright install --with-deps chromium
           npm run test:reader
       - name: Build ARM64 debug APK and run checks
-        run: ./gradlew --no-daemon :core:test :app:assembleDebug :app:lintDebug
+        run: ./gradlew --no-daemon :core:test :engine:llama:testDebugUnitTest :app:assembleDebug :app:lintDebug
       - name: Verify and package artifacts
         run: |
           mkdir -p artifacts

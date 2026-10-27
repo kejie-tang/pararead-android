@@ -56,7 +56,8 @@ fun main(args: Array<String>) = runBlocking {
         val started = System.nanoTime(); var first = 0L; var chunks = 0; var complete: String? = null
         val streamed = StringBuilder()
         provider.generate(prompt).collect { event -> when (event) {
-            is ProviderEvent.Delta -> { if (first == 0L) first = System.nanoTime(); chunks++; streamed.append(event.text) }
+            ProviderEvent.Restart -> { first = 0L; chunks = 0; streamed.clear() }
+                            is ProviderEvent.Delta -> { if (first == 0L) first = System.nanoTime(); chunks++; streamed.append(event.text) }
             is ProviderEvent.Complete -> { check(complete == null); complete = event.text }
         } }
         val raw = requireNotNull(complete); entry.put("raw", raw)

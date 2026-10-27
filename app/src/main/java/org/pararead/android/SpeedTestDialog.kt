@@ -37,6 +37,7 @@ fun SpeedTestDialog(state: SpeedTestState, onStart: () -> Unit, onCancel: () -> 
                 Text("翻译固定英文长段：首次加载 1 次 + 热模型 3 次；随后运行 3 次纯引擎 pp512 / tg128 基准。", style = MaterialTheme.typography.bodyMedium)
                 Text("CPU ${state.effectiveThreads} 线程${if (state.requestedThreads == 0) "（自动）" else ""} · 模型 ${state.model?.sha256?.take(12)}",
                     style = MaterialTheme.typography.bodySmall)
+                Text(state.backendStatus?.description ?: "请求后端：${state.backend.label}", style = MaterialTheme.typography.bodySmall)
                 Text("英 → 简体中文 · ${SpeedTest.LONG_SOURCE.split(' ').size} 个英文单词 · 不使用译文缓存", style = MaterialTheme.typography.bodySmall)
                 Text("测试期间阅读器暂停。首次响应包含本次模型加载和提示处理；系统文件缓存可能仍然存在。每次最多 120 秒。", style = MaterialTheme.typography.bodySmall)
                 if (state.busy) {
@@ -52,6 +53,9 @@ fun SpeedTestDialog(state: SpeedTestState, onStart: () -> Unit, onCancel: () -> 
                 Text(DateFormat.getDateTimeInstance().format(Date(env.getLong("startedAtEpochMs"))), style = MaterialTheme.typography.bodySmall)
                 Text("${env.getString("device")} · CPU ${env.getInt("effectiveThreads")} 线程 · ${env.getString("modelSha256").take(12)}",
                     style = MaterialTheme.typography.bodySmall)
+                Text("请求：${env.optString("requestedBackend", "CPU")} · 实际：${env.optString("actualBackend", "CPU")}" +
+                    if (env.optString("actualBackend") == "VULKAN") " · ${env.optString("gpuDevice")}" else "", style = MaterialTheme.typography.bodySmall)
+                if (env.optString("fallbackReason").isNotEmpty()) Text("回退原因：${env.getString("fallbackReason")}", style = MaterialTheme.typography.bodySmall)
                 SpeedMetric("翻译生成速度：", tps(result.warmMedian { it.metrics.tokensPerSecond }), "含 JSON 格式 token，不含模型加载和提示处理时间。")
                 env.optJSONArray("engineSamples")?.let { rows ->
                     val rates = (0 until rows.length()).map { rows.getJSONObject(it).getDouble("decodeTokensPerSecond") }.sorted()

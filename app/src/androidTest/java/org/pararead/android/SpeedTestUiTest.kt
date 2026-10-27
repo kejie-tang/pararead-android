@@ -18,6 +18,7 @@ import org.junit.runner.RunWith
 import org.pararead.core.DefaultModel
 import org.pararead.core.SpeedTest
 import org.pararead.llama.LlamaCppProvider
+import org.pararead.llama.InferenceBackend
 import java.io.File
 
 @RunWith(AndroidJUnit4::class)
@@ -65,6 +66,7 @@ class SpeedTestUiTest {
         assertEquals(DefaultModel.asset.bytes, File(path!!).length())
         settings.installModel(path, DefaultModel.asset.sha256, "qwen3:1.7b")
         settings.cpuThreads = args.getString("cpuThreads")?.toInt() ?: 0
+        settings.inferenceBackend = InferenceBackend.from(args.getString("inferenceBackend"))
         var vm: SpeedTestViewModel? = null
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
             scenario.onActivity { vm = ViewModelProvider(it)[SpeedTestViewModel::class.java] }
@@ -87,6 +89,10 @@ class SpeedTestUiTest {
             assertTrue(report.result.samples.all { it.metrics.generatedTokens > 1 && it.metrics.tokensPerSecond > 0 })
             assertEquals(SpeedTest.LONG_SOURCE, report.toJson().getString("source"))
             assertEquals(3, report.metadata.getJSONArray("engineSamples").length())
+            assertEquals(settings.inferenceBackend.name, report.metadata.getString("requestedBackend"))
+            assertTrue(report.metadata.getString("actualBackend") in setOf("CPU", "VULKAN"))
+            if (settings.inferenceBackend == InferenceBackend.VULKAN && report.metadata.getString("actualBackend") == "CPU")
+                assertTrue(report.metadata.getString("fallbackReason").isNotEmpty())
             assertTrue(report.result.samples.all { it.metrics.decodeNanos > 0 && it.metrics.samplingNanos > 0 })
             File(context.filesDir, "app-speed-test.json").writeText(report.toJson().toString(2))
             compose.onNodeWithText("生成速度：", substring = true).performScrollTo().assertExists()

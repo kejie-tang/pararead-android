@@ -7,12 +7,13 @@ plugins {
 android {
     namespace = "org.pararead.android"
     compileSdk = 36
+    ndkVersion = "28.2.13676358"
     defaultConfig {
         applicationId = "org.pararead.android"
         minSdk = 28
         targetSdk = 36
-        versionCode = 7
-        versionName = "0.2.0-alpha.7"
+        versionCode = 8
+        versionName = "0.2.0-alpha.8"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         ndk { abiFilters += "arm64-v8a" }
     }

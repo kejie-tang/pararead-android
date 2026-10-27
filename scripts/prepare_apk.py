@@ -40,6 +40,8 @@ with ZipFile(source) as z:
         assert hashlib.sha256(z.read(original)).hexdigest() == entry['sha256'], original
     natives = [n for n in names if n.startswith('lib/') and n.endswith('.so')]
     assert 'lib/arm64-v8a/libpararead-llama.so' in natives, 'Missing native inference engine'
+    for lib in ['ggml-cpu', 'ggml-vulkan', 'ggml', 'ggml-base', 'llama', 'c++_shared']:
+        assert f'lib/arm64-v8a/lib{lib}.so' in natives, f'Missing inference library: {lib}'
     assert all(n.startswith('lib/arm64-v8a/') for n in natives), natives
     for name in natives:
         elf = z.read(name)

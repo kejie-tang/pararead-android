@@ -1,0 +1,18 @@
+{
+  "headers": [
+    {
+      "repository": "KhronosGroup/Vulkan-Headers",
+      "commit": "8864cdc896bbc2a9b6eb36b3218fc9ef57908d77",
+      "tag": "v1.4.350",
+      "sha256": "35824117f649befc664a12622bc801eddbba036ac03d906db400ee1c1e7903e9",
+      "directory": "Vulkan-Headers"
+    },
+    {
+      "repository": "KhronosGroup/SPIRV-Headers",
+      "commit": "ad9184e76a66b1001c29db9b0a3e87f646c64de0",
+      "tag": "vulkan-sdk-1.4.350.0",
+      "sha256": "b5b7eba62453eb8c6f6a5fbf7155b71cde693bafe9cd5f03b79ed8c714816afe",
+      "directory": "SPIRV-Headers"
+    }
+  ]
+}

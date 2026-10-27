@@ -28,8 +28,11 @@ import org.json.JSONArray
 import org.json.JSONObject
 import org.pararead.core.*
 import org.pararead.llama.LlamaCppProvider
+import org.pararead.llama.InferenceBackend
+import org.pararead.llama.BackendStatus
 
 class MainActivity : ComponentActivity() {
+    companion object { private val backendRecoveryChecked = java.util.concurrent.atomic.AtomicBoolean() }
     private val activityStarted = android.os.SystemClock.elapsedRealtime()
     private lateinit var db: ReaderDatabase
     private lateinit var repository: DocumentRepository
@@ -39,10 +42,12 @@ class MainActivity : ComponentActivity() {
     private val modelCatalogViewModel: ModelCatalogViewModel by viewModels()
     private var host: ReaderHost? = null
     private var readerScope: CoroutineScope? = null
+    private var readerRelease: Deferred<Unit>? = null
     private var selected by mutableStateOf<DocumentRecord?>(null)
     private var readerVersion by mutableIntStateOf(0)
     private var documents by mutableStateOf<List<DocumentRecord>>(emptyList())
     private var status by mutableStateOf("导入 PDF，或打开示例文档")
+    private var localBackendStatus by mutableStateOf<BackendStatus?>(null)
     private var showSettings by mutableStateOf(false)
     private var showModelLibrary by mutableStateOf(false)
     private var showModelCatalog by mutableStateOf(false)
@@ -51,6 +56,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         db = ReaderDatabase.open(this); repository = DocumentRepository(this, db.reader()); settings = Settings(this)
+        if (backendRecoveryChecked.compareAndSet(false, true)) settings.recoverInterruptedVulkan()
         lifecycleScope.launch {
             documents = withContext(Dispatchers.IO) { db.reader().documents() }
             val restored = savedInstanceState?.getString("documentId")
@@ -75,7 +81,12 @@ class MainActivity : ComponentActivity() {
         } }
     }
     override fun onSaveInstanceState(outState: Bundle) { outState.putString("documentId", selected?.id); super.onSaveInstanceState(outState) }
-    private fun reopen() { host?.close(); readerScope?.cancel(); host = null; readerVersion++ }
+    private fun reopen() {
+        val previous = host; val pending = readerRelease
+        previous?.close(); readerScope?.cancel(); host = null
+        readerRelease = lifecycleScope.async { pending?.await(); previous?.awaitProviderClosed(); Unit }
+        readerVersion++
+    }
     private fun runImport(block: suspend () -> Unit) {
         importTask?.cancel()
         importTask = lifecycleScope.launch {
@@ -92,6 +103,7 @@ class MainActivity : ComponentActivity() {
         LaunchedEffect(modelState.installed?.path, modelState.installed?.sha256) {
             val previous = host
             previous?.close(); readerScope?.cancel(); host = null
+            readerRelease?.await()
             previous?.awaitProviderClosed()
             readerVersion++
         }
@@ -143,6 +155,10 @@ class MainActivity : ComponentActivity() {
             if (document != null) ReaderToolbar(document.name,
                 onPage = { host?.command("translateCurrentPage") }, onAll = { host?.command("translateAll") },
                 onCancel = { host?.command("cancelTranslateAll") }, onExport = { export.launch("${document.name.removeSuffix(".pdf")}-annotated.pdf") })
+            if (document != null && settings.provider == "llama") Text(
+                localBackendStatus?.description ?: settings.backendRecoveryNotice.ifEmpty { "请求后端：${settings.inferenceBackend.label}" },
+                Modifier.fillMaxWidth().padding(20.dp, 3.dp), style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant)
             if (document != null && status != "导入 PDF，或打开示例文档") Text(status,
                 Modifier.fillMaxWidth().padding(20.dp, 5.dp), style = MaterialTheme.typography.bodySmall,
                 color = if (status.contains("失败") || status.contains("无法")) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant)
@@ -156,7 +172,10 @@ class MainActivity : ComponentActivity() {
             } else key(document.id, readerVersion) {
                 var source by remember { mutableStateOf<RangeSource?>(null) }
                 LaunchedEffect(document.id, readerVersion) {
-                    try { source = withContext(Dispatchers.IO) { RangeSource(document, db.reader().draft(document.id)) } }
+                    try {
+                        readerRelease?.await()
+                        source = withContext(Dispatchers.IO) { RangeSource(document, db.reader().draft(document.id)) }
+                    }
                     catch (e: Exception) { if (e is CancellationException) throw e; status = "无法打开文档，请重新导入：${e.message}" }
                 }
                 source?.let { file ->
@@ -165,7 +184,10 @@ class MainActivity : ComponentActivity() {
                         val provider: TranslationProvider = when (config.provider) {
                             "mock" -> MockTranslationProvider()
                             "api" -> OpenAICompatibleProvider(settings.baseUrl, settings.model, settings.apiKey)
-                            else -> LlamaCppProvider(settings.modelPath, settings.cpuThreads)
+                            else -> LlamaCppProvider(settings.modelPath, settings.cpuThreads,
+                                requestedBackend = settings.inferenceBackend,
+                                onBackendChanged = { value -> lifecycleScope.launch { localBackendStatus = value } },
+                                onVulkanSession = settings::markVulkanSession).also { localBackendStatus = it.backendStatus }
                         }
                         val rs = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate); readerScope = rs
                         ReaderHost(this@MainActivity, file, db.reader(), rs, config, provider,
@@ -176,9 +198,9 @@ class MainActivity : ComponentActivity() {
             }
         }
         if (showSettings) SettingsDialog(modelState = modelState,
-            onSpeedTest = { threads -> modelState.installed?.let { model ->
+            onSpeedTest = { threads, backend -> modelState.installed?.let { model ->
                 val previous = host; reopen()
-                speedTestViewModel.open(model, threads) { previous?.awaitProviderClosed() }
+                speedTestViewModel.open(model, threads, backend) { readerRelease?.await(); previous?.awaitProviderClosed() }
             } },
             onImportGlossary = { glossaryPicker.launch(arrayOf("application/json", "text/plain")) },
             onExportGlossary = { glossaryExport.launch("pararead-glossary.json") },
@@ -201,13 +223,14 @@ class MainActivity : ComponentActivity() {
         }
     }
     @OptIn(ExperimentalLayoutApi::class)
-    @Composable private fun SettingsDialog(modelState: ModelState, onSpeedTest: (Int) -> Unit, onImportGlossary: () -> Unit,
+    @Composable private fun SettingsDialog(modelState: ModelState, onSpeedTest: (Int, InferenceBackend) -> Unit, onImportGlossary: () -> Unit,
         onExportGlossary: () -> Unit, onMetrics: () -> Unit, onSave: () -> Unit, onClose: () -> Unit) {
         var provider by remember { mutableStateOf(settings.provider) }; var url by remember { mutableStateOf(settings.baseUrl) }
         var model by remember { mutableStateOf(settings.model) }; var apiKey by remember { mutableStateOf(settings.apiKey) }
         var target by remember { mutableStateOf(settings.targetLanguage) }; var source by remember { mutableStateOf(settings.sourceLanguage) }
         var glossary by remember { mutableStateOf(settings.glossary) }; var batch by remember { mutableStateOf(settings.batchSize.toString()) }
         var cpuThreads by remember { mutableStateOf(settings.cpuThreads.toString()) }
+        var backend by remember { mutableStateOf(settings.inferenceBackend) }
         LaunchedEffect(modelState.installed?.sha256) { modelState.installed?.let { model = settings.model } }
         var error by remember { mutableStateOf("") }; var advanced by remember { mutableStateOf(false) }
         var range by remember { mutableStateOf(settings.translateRange) }
@@ -222,7 +245,7 @@ class MainActivity : ComponentActivity() {
                     if (provider == "api") require(url.startsWith("https://") || OpenAICompatibleProvider.isLocalHttp(url)) { "HTTP 仅支持本地兼容服务" }
                     settings.provider = provider; settings.baseUrl = url; if (provider == "api") settings.model = model; settings.apiKey = apiKey
                     settings.translateRange = range
-                    if (provider == "llama") settings.cpuThreads = threads!!
+                    if (provider == "llama") { settings.cpuThreads = threads!!; settings.inferenceBackend = backend }
                     settings.sourceLanguage = source; settings.targetLanguage = target; settings.glossary = glossary; settings.batchSize = batch.toInt(); onSave()
                 } catch (e: Exception) { error = e.message ?: "设置无效" }
             }, shape = RoundedCornerShape(12.dp), contentPadding = PaddingValues(24.dp, 12.dp)) { Text("保存") }
@@ -234,6 +257,15 @@ class MainActivity : ComponentActivity() {
                     }
                 }
                 if (provider == "llama") {
+                    Text("推理加速", style = MaterialTheme.typography.titleSmall)
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        InferenceBackend.entries.forEach { option ->
+                            FilterChip(selected = backend == option, onClick = { backend = option }, label = { Text(option.label) })
+                        }
+                    }
+                    Text(if (backend == InferenceBackend.VULKAN) "尝试将模型层交给 GPU；不可用或推理出错时回退 CPU。速度取决于设备和模型，请先测速。" else "默认使用 CPU；适合稳定阅读。",
+                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    if (settings.backendRecoveryNotice.isNotEmpty()) Text(settings.backendRecoveryNotice, style = MaterialTheme.typography.bodySmall)
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) {
                             Text("当前模型：${modelState.activeName()}", style = MaterialTheme.typography.titleSmall)
@@ -245,7 +277,7 @@ class MainActivity : ComponentActivity() {
                     OutlinedButton(enabled = modelState.installed != null && !modelState.busy, onClick = {
                         val threads = cpuThreads.toIntOrNull()
                         if (threads == null || threads !in 0..CpuThreads.maximum()) error = "线程数填写 0（自动）或 1–${CpuThreads.maximum()}"
-                        else { error = ""; onSpeedTest(threads) }
+                        else { error = ""; onSpeedTest(threads, backend) }
                     }, shape = RoundedCornerShape(12.dp)) {
                         AppIcon(AppGlyph.Sliders, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text("速度测试")
                     }

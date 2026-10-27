@@ -5,7 +5,7 @@
 | 项目 | 核对提交 | 根声明 | 当前使用范围 |
 | --- | --- | --- | --- |
 | [ParaRead](https://github.com/Chuanyunux/pararead/blob/c9d103481e4e3fa065cee6a52e611b8be20866c6/LICENSE) | c9d1034 | Apache-2.0；另有 NOTICE | 已复制固定 TS 阅读模块，并在构建时引入 PDF.js/样式/字体/WASM 资产；保留原声明与 Android 修改记录 |
-| [llama.cpp](https://github.com/ggml-org/llama.cpp/blob/2280f0fd163b03d4331d49e08460f66502e35854/LICENSE) | 2280f0f | MIT | 已固定 405 个 CPU 构建 blob，编入 ARM64 llama.cpp/ggml；JNI wrapper 为本项目实现 |
+| [llama.cpp](https://github.com/ggml-org/llama.cpp/blob/2280f0fd163b03d4331d49e08460f66502e35854/LICENSE) | 2280f0f | MIT | 已固定 607 个 CPU/Vulkan 构建 blob，编入 ARM64 llama.cpp/ggml；JNI wrapper 为本项目实现 |
 | [PocketPal](https://github.com/a-ghorbani/pocketpal-ai/blob/4ef1600cc9062984cf69e2f1974e881e0b10e990/LICENSE) | 4ef1600 | MIT | 参考 React Native + llama.rn 的模型管理、移动推理和基准设计；不采用其 UI 技术栈，未复制代码 |
 | [Readest](https://github.com/readest/readest/blob/32dc7856f1cd2b2c1b3abb2347b8221193b42b73/LICENSE) | 32dc785 | AGPL-3.0 声明 | 仅参考公开阅读/双栏/进度行为；未复制代码、样式、图标或测试 |
 | [MJ PDF](https://github.com/mudlej/mj_pdf/blob/a5065a4d77c6e7bf07b134579752380005406b16/LICENSE) | a5065a4 | GPL-3.0 声明 | 仅参考公开文件导入、阅读与保存体验；未复制代码、资源或测试 |
@@ -36,3 +36,5 @@ PDF.js 资产还包含单独许可证：CMaps、Foxit 字体、Liberation 的 SI
 另已从默认模型的实际 Ollama manifest license layer 获取并校验 Apache-2.0 许可全文，保留其 Copyright 2024 Alibaba Cloud 原署名，存于 third_party/qwen3/。这与 Qwen 官方 Hugging Face 仓库附带的版权年份不同，不据后者改写所选 layer 的声明；权重仍不随 Git/APK 分发。
 
 公开仓库使用自编示例和重新生成的阅读器截图，移除包含旧论文内容的 Android 原型截图；历史测试报告保留原执行范围。Attention Is All You Need 只提供官方链接，不打包或附带全文。仓库名称、简介、许可边界与发布事项见 [publishing.md](publishing.md)。
+
+Vulkan-Headers / SPIRV-Headers 的固定版本和许可见 [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)，完整声明随 APK 分发。

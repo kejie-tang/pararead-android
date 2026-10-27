@@ -12,6 +12,8 @@ import org.json.JSONArray
 import org.pararead.core.*
 import org.pararead.llama.LlamaCppProvider
 import org.pararead.llama.NativeBridge
+import org.pararead.llama.InferenceBackend
+import org.pararead.llama.BackendStatus
 import java.io.File
 
 data class SavedSpeedReport(val result: SpeedTestResult, val metadata: JSONObject) {
@@ -32,6 +34,7 @@ enum class SpeedPhase { READY, PREPARING, RUNNING, CANCELLING, COMPLETED, CANCEL
 data class SpeedTestState(
     val visible: Boolean = false, val phase: SpeedPhase = SpeedPhase.READY,
     val model: InstalledModel? = null, val requestedThreads: Int = 0, val effectiveThreads: Int = CpuThreads.resolve(0),
+    val backend: InferenceBackend = InferenceBackend.CPU, val backendStatus: BackendStatus? = null,
     val run: Int = 0, val message: String = "", val report: SavedSpeedReport? = null,
 ) {
     val busy get() = phase in setOf(SpeedPhase.PREPARING, SpeedPhase.RUNNING, SpeedPhase.CANCELLING)
@@ -52,11 +55,12 @@ class SpeedTestViewModel(app: Application) : AndroidViewModel(app) {
     }
     fun takeExport(): String? = pendingExport.also { pendingExport = null }
 
-    fun open(model: InstalledModel, requestedThreads: Int, releaseReader: suspend () -> Unit) {
+    fun open(model: InstalledModel, requestedThreads: Int, backend: InferenceBackend = InferenceBackend.CPU, releaseReader: suspend () -> Unit) {
         if (state.value.visible || state.value.busy) return
         val effective = CpuThreads.resolve(requestedThreads)
         mutable.value = state.value.copy(visible = true, phase = SpeedPhase.PREPARING, model = model,
-            requestedThreads = requestedThreads, effectiveThreads = effective, run = 0, message = "正在暂停阅读器并释放模型…")
+            requestedThreads = requestedThreads, effectiveThreads = effective, backend = backend,
+            backendStatus = BackendStatus(backend), run = 0, message = "正在暂停阅读器并释放模型…")
         job = viewModelScope.launch {
             // Even cancellation must wait for the old reader's native model to leave memory.
             withContext(NonCancellable) { releaseReader() }
@@ -78,10 +82,16 @@ class SpeedTestViewModel(app: Application) : AndroidViewModel(app) {
             try {
                 require(File(model.path).isFile && File(model.path).length() == model.bytes) { "本机模型已更改，请重新打开测速" }
                 val started = System.currentTimeMillis()
-                provider = LlamaCppProvider(model.path, request.requestedThreads, singleResult = true)
+                provider = LlamaCppProvider(model.path, request.requestedThreads, singleResult = true,
+                    requestedBackend = request.backend, onVulkanSession = Settings(getApplication())::markVulkanSession,
+                    onBackendChanged = { value -> viewModelScope.launch { mutable.value = state.value.copy(backendStatus = value) } })
+                val usedBackends = mutableListOf<InferenceBackend?>()
                 val result = SpeedTest.run(provider) { index ->
+                    if (index > 1) usedBackends += provider.backendStatus.actual
                     mutable.value = state.value.copy(run = index, message = if (index == 1) "首次加载 · 第 1 / 4 次" else "模型已加载 · 第 $index / 4 次")
                 }
+                usedBackends += provider.backendStatus.actual
+                check(usedBackends.distinct().size == 1) { "GPU 在测试中途回退 CPU，本轮结果已丢弃；请选择 CPU 后重新测速" }
                 val engineSamples = JSONArray()
                 for (index in 1..3) {
                     mutable.value = state.value.copy(run = index + 4, message = "纯引擎 pp512 / tg128 · 第 $index / 3 次")
@@ -98,6 +108,8 @@ class SpeedTestViewModel(app: Application) : AndroidViewModel(app) {
                     .put("modelName", Settings(getApplication()).model).put("modelLicense", Settings(getApplication()).modelLicense)
                     .put("modelRepository", Settings(getApplication()).modelRepository).put("modelRevision", Settings(getApplication()).modelRevision)
                     .put("requestedThreads", request.requestedThreads).put("effectiveThreads", provider.threadCount)
+                    .put("requestedBackend", request.backend.name).put("actualBackend", provider.backendStatus.actual?.name)
+                    .put("gpuDevice", provider.backendStatus.device).put("fallbackReason", provider.backendStatus.fallbackReason)
                     .put("availableProcessors", CpuThreads.maximum()).put("engine", NativeBridge.version())
                     .put("singleResultGrammar", true)
                     .put("architecture", provider.architecture).put("systemInfo", NativeBridge.systemInfo())

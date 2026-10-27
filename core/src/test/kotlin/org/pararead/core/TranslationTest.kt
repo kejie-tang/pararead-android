@@ -11,6 +11,28 @@ import kotlin.test.*
 import org.junit.Test
 
 class TranslationTest {
+    @Test fun backendRestartClearsGpuDraftAndOnlyCommitsCpuResult() = runTest {
+        val stored = mutableListOf<String>(); val drafts = mutableListOf<String>()
+        val cache = object : TranslationCache {
+            override suspend fun get(key: String): String? = null
+            override suspend fun put(key: String, text: String, translation: String, config: TranslationConfig) { stored += translation }
+        }
+        val correct = "{\"translations\":[{\"id\":\"s1\",\"translation\":\"正确译文\"}]}"
+        val provider = object : TranslationProvider { override fun generate(prompt: ModelPrompt) = flow {
+            emit(ProviderEvent.Delta("{\"translations\":[{\"id\":\"s1\",\"translation\":\"错误草稿"))
+            emit(ProviderEvent.Restart)
+            emit(ProviderEvent.Delta(correct)); emit(ProviderEvent.Complete(correct))
+        } }
+        val done = CompletableDeferred<Unit>()
+        TranslationQueue(backgroundScope, cache) { provider }.submit(TranslationWork("restart", 0, 0,
+            listOf(SourceSentence("one", "A model.", "g")), TranslationConfig(),
+            committed = { _, value, _ -> assertEquals("正确译文", value) },
+            finished = { failures, cancelled -> assertTrue(failures.isEmpty()); assertFalse(cancelled); done.complete(Unit) },
+            delta = { _, value -> drafts += value }))
+        done.await()
+        assertEquals(listOf("正确译文"), stored)
+        assertEquals(listOf("错误草稿", "", "正确译文"), drafts)
+    }
     @Test fun batchPlaceholdersCannotReferToAnotherSentence() {
         val sentences = listOf(SourceSentence("first", "Use 4 GB [12].", "g"), SourceSentence("second", "Preserve `cache.get(key)`.", "g"))
         val (prompt, values) = StructuredTranslation.prompt(sentences, TranslationConfig())

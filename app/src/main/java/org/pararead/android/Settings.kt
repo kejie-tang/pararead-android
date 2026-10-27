@@ -7,6 +7,7 @@ import android.util.Base64
 import androidx.core.content.edit
 import org.pararead.core.TranslationConfig
 import org.pararead.core.CpuThreads
+import org.pararead.llama.InferenceBackend
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
@@ -27,6 +28,20 @@ class Settings(context: Context) {
     var cpuThreads: Int
         get() = prefs.getInt("cpuThreads", 0).coerceAtLeast(0)
         set(value) { require(value in 0..CpuThreads.maximum()); prefs.edit().putInt("cpuThreads", value).apply() }
+    var inferenceBackend: InferenceBackend
+        get() = InferenceBackend.from(prefs.getString("inferenceBackend", null))
+        set(value) { prefs.edit { putString("inferenceBackend", value.name); remove("backendRecoveryNotice") } }
+    val backendRecoveryNotice: String get() = prefs.getString("backendRecoveryNotice", "")!!
+    fun markVulkanSession(active: Boolean) {
+        check(prefs.edit().putBoolean("vulkanSessionActive", active).commit()) { "无法保存 GPU 会话状态" }
+    }
+    fun recoverInterruptedVulkan() {
+        if (prefs.getBoolean("vulkanSessionActive", false)) prefs.edit(commit = true) {
+            putBoolean("vulkanSessionActive", false)
+            putString("inferenceBackend", InferenceBackend.CPU.name)
+            putString("backendRecoveryNotice", "上次 GPU 会话未正常结束，已恢复 CPU；可手动重新启用 Vulkan。")
+        }
+    }
     val modelLicense: String get() = prefs.getString("modelLicense", "")!!
     val modelRepository: String get() = prefs.getString("modelRepository", "")!!
     val modelRevision: String get() = prefs.getString("modelRevision", "")!!

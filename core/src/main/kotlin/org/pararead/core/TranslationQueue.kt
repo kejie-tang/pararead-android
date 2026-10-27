@@ -158,6 +158,11 @@ class TranslationQueue(private val scope: CoroutineScope, private val cache: Tra
         val draft = StringBuilder(); val displayed = mutableMapOf<String, String>()
         provider().generate(prompt).collect { event ->
             when (event) {
+                ProviderEvent.Restart -> {
+                    draft.clear()
+                    displayed.keys.forEach { id -> batch.find { it.id == id }?.let { w.delta(it, "") } }
+                    displayed.clear()
+                }
                 is ProviderEvent.Delta -> {
                     draft.append(event.text)
                     for ((s, text) in StructuredTranslation.drafts(draft.toString(), batch, protected)) {

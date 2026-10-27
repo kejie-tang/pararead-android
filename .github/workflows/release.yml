@@ -52,6 +52,8 @@ jobs:
           log-accepted-android-sdk-licenses: false
       - name: Install Android build tools
         run: sdkmanager 'platforms;android-36' 'build-tools;36.0.0' 'ndk;28.2.13676358' 'cmake;3.22.1'
+      - name: Install Vulkan shader compiler
+        run: sudo apt-get update && sudo apt-get install -y glslc ninja-build
       - name: Fetch verified sources and check reader
         run: |
           npm ci
@@ -79,7 +81,7 @@ jobs:
           PARAREAD_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           PARAREAD_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
-          ./gradlew --no-daemon :core:test :app:assembleRelease :app:lintRelease
+          ./gradlew --no-daemon :core:test :engine:llama:testDebugUnitTest :app:assembleRelease :app:lintRelease
           mkdir -p artifacts
           ./gradlew --no-daemon :app:dependencies --configuration releaseRuntimeClasspath > artifacts/release-runtime-dependencies.txt
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs app/build/outputs/apk/release/app-release.apk

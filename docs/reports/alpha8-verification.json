@@ -1,0 +1,74 @@
+{
+  "appVersion": "0.2.0-alpha.8",
+  "physicalDimensity9400Tested": false,
+  "hardwareVulkanInferenceTested": false,
+  "emulator": "API 36 ARM64; 8 vCPU; 6 GiB; 2560x1600 @240 dpi; SwiftShader",
+  "coreTests": {
+    "passed": 44,
+    "failures": 0
+  },
+  "backendUnitTests": {
+    "passed": 8,
+    "failures": 0
+  },
+  "androidRegression": {
+    "scheduled": 21,
+    "passed": 19,
+    "skipped": 2,
+    "failures": 0,
+    "seconds": 26.051
+  },
+  "realModelNative": {
+    "passed": 1,
+    "seconds": 6.353,
+    "model": "Qwen3-0.6B Q4_K_M",
+    "requestedBackend": "VULKAN",
+    "actualBackend": "CPU",
+    "fallbackReason": "VULKAN_DEVICE_UNAVAILABLE"
+  },
+  "realSpeedUi": {
+    "passed": 3,
+    "seconds": 75.895,
+    "model": "Qwen3-1.7B Q4_K_M",
+    "threads": 6,
+    "requestedBackend": "VULKAN",
+    "actualBackend": "CPU",
+    "translationSamples": 4,
+    "pp512_tg128_samples": 3
+  },
+  "sourceContracts": {
+    "passed": 16,
+    "failures": 0
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 41
+  },
+  "signatureSha256": "e044c8f329f42465866add4d041f29c498009361241610c8ee2de43ae6e87a45",
+  "packageChecks": [
+    "only ARM64",
+    "all native ELF LOAD segments >=16 KiB alignment",
+    "APK zipalign -P 16",
+    "same certificate as alpha.7",
+    "all notices present",
+    "only original reading guide PDF",
+    "no GGUF weights"
+  ],
+  "artifacts": [
+    {
+      "name": "ParaRead-0.2.0-alpha.8-android-arm64-debug.apk",
+      "bytes": 76554053,
+      "sha256": "815fe3e412b82b0bc8bbb749261184a0634165bb25d1f6a361e2f04ddc831e19"
+    },
+    {
+      "name": "ParaRead-0.2.0-alpha.8-android-arm64-debug-notices.zip",
+      "bytes": 165545,
+      "sha256": "9c874cb88c0cbcfed630b811e18427e4aca95276f754a058b72e0e8e8a77735c"
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "bytes": 234,
+      "sha256": "661654ee73bede9cee75fa473c7dfa6cd669d204a714c5e17b7dfc7b5d671358"
+    }
+  ]
+}

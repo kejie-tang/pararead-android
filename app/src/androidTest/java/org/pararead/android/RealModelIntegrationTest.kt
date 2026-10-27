@@ -52,6 +52,7 @@ class RealModelIntegrationTest {
                     val streamed = StringBuilder()
                     provider.generate(prompt).collect { event ->
                         when (event) {
+                            ProviderEvent.Restart -> { first = 0L; chunks = 0; streamed.clear() }
                             is ProviderEvent.Delta -> { if (first == 0L) first = System.nanoTime(); chunks++; streamed.append(event.text) }
                             is ProviderEvent.Complete -> { attempt.put("raw", event.text); assertEquals(streamed.toString(), event.text) }
                         }

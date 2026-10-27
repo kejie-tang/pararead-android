@@ -6,7 +6,7 @@ Keep the original page in view, tap a sentence to follow its translation, and us
 
 [![Android CI](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml/badge.svg?branch=main)](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml) [![Android 9+](https://img.shields.io/badge/Android-9%2B-3DDC84?logo=android&logoColor=white)](#quick-start) [![Code license: Apache-2.0](https://img.shields.io/badge/Code-Apache--2.0-blue)](LICENSE)
 
-**[Download preview APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.7/ParaRead-0.2.0-alpha.7-android-arm64-debug.apk)** · [All releases](https://github.com/kejie-tang/pararead-android/releases) · [Quick start](#quick-start) · [简体中文](README.zh-CN.md)
+**[Download preview APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.8/ParaRead-0.2.0-alpha.8-android-arm64-debug.apk)** · [All releases](https://github.com/kejie-tang/pararead-android/releases) · [Quick start](#quick-start) · [简体中文](README.zh-CN.md)
 
 An independent, unofficial Android adaptation of [ParaRead](https://github.com/Chuanyunux/pararead) 0.6.1. **Development preview:** ARM64 only; the app interface currently uses Chinese labels.
 
@@ -33,7 +33,7 @@ A translation is easier to check when the source is right beside it. ParaRead An
 
 **You need:** Android 9 / API 28 or newer, an ARM64 device, and an Android System WebView with `WebMessageListener` support. The layout is designed for tablets.
 
-1. **Install the [preview APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.7/ParaRead-0.2.0-alpha.7-android-arm64-debug.apk).** The current download is debug-signed (`0.2.0-alpha.7`). If upgrading from a differently signed build, you may need to uninstall first; export important annotated PDFs before uninstalling, which removes app data.
+1. **Install the [preview APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.8/ParaRead-0.2.0-alpha.8-android-arm64-debug.apk).** The current download is debug-signed (`0.2.0-alpha.8`). If upgrading from a differently signed build, you may need to uninstall first; export important annotated PDFs before uninstalling, which removes app data.
 2. **Open a PDF.** Try **打开示例文档** (Open sample document), or import a PDF with selectable text through the system file picker.
 3. **Choose a local model.** Open **模型管理** (Model management) on the home screen or in **设置 → 离线 GGUF**. Download **Qwen3-0.6B (397 MB)** for quick reading or **Qwen3-1.7B (1.36 GB)** for quality priority. The app checks file size and SHA-256 before enabling it.
 4. **Start reading.** Tap a sentence, translate a page, or start a whole-document job. Change the target language in **目标语言** (Target language). After an explicit cancellation, use **全篇 / 继续** (Whole document / Continue) to resume.
@@ -45,7 +45,7 @@ A translation is easier to check when the source is right beside it. ParaRead An
 | Model | Qwen3 1.7B, Q4_K_M, thinking disabled |
 | Download | About **1.36 GB**, separate from the APK |
 | Storage | About **2.8 GB free during download and verification**, plus space for PDFs |
-| Runtime | llama.cpp on the CPU; automatic or manual thread count |
+| Runtime | CPU by default; optional experimental Vulkan GPU with CPU fallback; automatic or manual CPU threads |
 | Source | A fixed, SHA-256-verified GGUF layer from the Ollama registry; **no Ollama app required** |
 | Model search / imports | Hugging Face search and single-file GGUF downloads; Qwen2.5, Qwen3, Qwen3.5 and LFM2/2.5 text templates |
 
@@ -55,7 +55,7 @@ A translation is easier to check when the source is right beside it. ParaRead An
 
 **Want a smaller, faster model?** Try `Qwen3-0.6B-Q4_K_M.gguf` (**397 MB**) from [Unsloth](https://huggingface.co/unsloth/Qwen3-0.6B-GGUF). The official [Qwen Q8_0](https://huggingface.co/Qwen/Qwen3-0.6B-GGUF) is **639 MB**. These are candidates for fast preview reading; small models still miss details and can mistranslate numerical relations. See the [small-model tests, exact files and recommendations](docs/reports/small-model-evaluation.md).
 
-Alpha.5 saves independently validated sentences and retries only failures, with a marker checklist and a final single-sentence text fallback. Missing or duplicated protected content is still rejected; recovery can still fail. See the [actual recovery results](docs/reports/format-recovery.md). Alpha.5 introduced a new cache version, so upgrading from earlier versions regenerates translations; alpha.6 and alpha.7 retain that version. The default download remains Qwen3 1.7B.
+Alpha.5 saves independently validated sentences and retries only failures, with a marker checklist and a final single-sentence text fallback. Missing or duplicated protected content is still rejected; recovery can still fail. See the [actual recovery results](docs/reports/format-recovery.md). Alpha.5 introduced a new cache version, so upgrading from earlier versions regenerates translations; alpha.6–alpha.8 retain that version. The default download remains Qwen3 1.7B.
 
 **350M–0.6B research:** RWKV 0.4B now passes 18/18 Android emulator format workloads with a specialized translation prompt and exact-marker retries; a local Q4 file is **301 MB**. It still omits text and mistranslates some numerical relations. NanoTranslator-365M recovers its format but changes meaning. These adapters are not enabled in the released app. See the [new candidates, raw outputs and speed comparison](docs/reports/mid-small-models.md), plus the earlier [LFM350 experiments](docs/reports/tiny-model-recovery.md).
 
@@ -133,7 +133,9 @@ python3 scripts/fetch_llama.py
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
-The source-fetch scripts verify pinned upstream Git blob hashes and the KleidiAI source archive SHA-256. Source snapshots live in the ignored `.references/` directory; model weights are not fetched by the build. `-PskipNative` produces a Mock-only prototype and cannot validate offline inference.
+Install a host `glslc` shader compiler before building (macOS: `brew install shaderc`; Ubuntu: `apt-get install glslc ninja-build`). On macOS, use `scripts/gradle.sh` in place of `./gradlew` to include the SDK Ninja directory. See the [Vulkan build guide](docs/vulkan.md).
+
+The source-fetch scripts verify pinned upstream Git blobs and the SHA-256 of the Arm kernel and Vulkan/SPIR-V header archives. Source snapshots live in the ignored `.references/` directory; model weights are not fetched by the build. `-PskipNative` produces a Mock-only prototype and cannot validate offline inference.
 
 <details>
 <summary>Run checks and find the technical docs</summary>
@@ -166,3 +168,5 @@ Built on [ParaRead](https://github.com/Chuanyunux/pararead) by Chuanyunux, whose
 Android-original code and adaptation changes use **[Apache License 2.0](LICENSE)**. Third-party code, fonts, WASM, and model materials retain their own licenses. Keep the [NOTICE](NOTICE), [third-party disclosures](THIRD_PARTY_NOTICES.md), and [license originals](third_party/) with distributions. The project license does not grant rights to imported PDFs or arbitrary models and translations.
 
 This is an independent, unofficial project with no affiliation with or endorsement from the upstream projects or model providers. Names and trademarks belong to their respective owners. PocketPal, Readest, MJ PDF, and PocketLLM were behavioral or architectural references; their code and assets were not copied. See the [source and license review](docs/licenses.md) (Chinese).
+
+[Experimental Vulkan GPU: setup, fallback and benchmark notes](docs/vulkan.md).

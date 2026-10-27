@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fetch only the pinned CPU build sources, verifying every Git blob SHA-1 against GitHub tree metadata."""
+"""Fetch pinned CPU/Vulkan sources, verifying every Git blob against GitHub tree metadata."""
 import concurrent.futures
 import hashlib
 import json
@@ -41,3 +41,4 @@ if __name__ == '__main__':
             if i % 25 == 0: print(f'{i}/{len(lock["files"])} verified', flush=True)
     print(f'{len(lock["files"])} pinned llama.cpp source blobs verified')
     subprocess.run([sys.executable, str(ROOT / 'scripts/fetch_kleidiai.py')], check=True)
+    subprocess.run([sys.executable, str(ROOT / 'scripts/fetch_vulkan.py')], check=True)

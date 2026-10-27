@@ -24,9 +24,9 @@ PDF.js 版本为 **6.2.108**，随固定 ParaRead 快照取得。其独立资产
 
 以上各原文中的作者、版权年份、保留字体名与免责声明均保留。项目根许可证不替代这些条款。
 
-## llama.cpp / ggml 与 CPU 内部组件
+## llama.cpp / ggml 与原生后端
 
-来源 [ggml-org/llama.cpp](https://github.com/ggml-org/llama.cpp)，固定提交 `2280f0fd163b03d4331d49e08460f66502e35854`。Copyright (c) 2023–2026 The ggml authors，使用 [MIT License](third_party/llama.cpp/LICENSE)。固定 CPU 构建文件见 [upstream/llama.lock.json](upstream/llama.lock.json)。JNI wrapper 为本项目实现。
+来源 [ggml-org/llama.cpp](https://github.com/ggml-org/llama.cpp)，固定提交 `2280f0fd163b03d4331d49e08460f66502e35854`。Copyright (c) 2023–2026 The ggml authors，使用 [MIT License](third_party/llama.cpp/LICENSE)。固定 CPU/Vulkan 构建文件见 [upstream/llama.lock.json](upstream/llama.lock.json)。JNI wrapper 为本项目实现。
 
 已保留其内部组件声明：
 
@@ -35,9 +35,16 @@ PDF.js 版本为 **6.2.108**，随固定 ParaRead 快照取得。其独立资产
 - [rotate-bits，MIT](third_party/llama.cpp/vendor/hash/rotate-bits/LICENSE.md)。
 - [SHA support 的 public-domain 声明](third_party/llama.cpp/vendor/hash/sha256/LICENSE)。
 
-范围见 [native NOTICE](third_party/llama.cpp/NOTICE)。当前 APK 不启用 Vulkan、server、mtmd 等目标。
+范围见 [native NOTICE](third_party/llama.cpp/NOTICE)。当前 APK 包含按需加载的 Vulkan 后端，不启用 server、mtmd 等目标。
 
 CPU 构建启用 [Arm KleidiAI v1.32.0](https://github.com/ARM-software/kleidiai/releases/tag/v1.32.0)，Copyright 2024–2026 Arm Limited and/or its affiliates，通过运行时 CPU 特征检测选择内核。固定下载摘要见 [upstream/kleidiai.lock.json](upstream/kleidiai.lock.json)；[Apache-2.0](third_party/kleidiai/Apache-2.0.txt) 与 [BSD-3-Clause](third_party/kleidiai/BSD-3-Clause.txt) 完整文本与包含 Fujitsu、Meta 贡献者署名的 [NOTICE](third_party/kleidiai/NOTICE) 随 APK 分发。
+
+
+Vulkan 后端使用以下 Khronos 头文件；固定版本与下载摘要见 [upstream/vulkan.lock.json](upstream/vulkan.lock.json)：
+
+- Vulkan-Headers v1.4.350，Copyright The Khronos Group Inc.，采用其双重授权中的 MIT 许可；[原声明](third_party/Vulkan-Headers/LICENSE.md)及[完整 MIT 文本](third_party/Vulkan-Headers/LICENSES/MIT.txt)随 APK 提供。
+- SPIRV-Headers vulkan-sdk-1.4.350.0，Copyright The Khronos Group Inc.，编译使用的 SPIR-V 头文件采用 MIT；[完整上游声明](third_party/SPIRV-Headers/LICENSE)随 APK 提供。归档中的规范元数据另有许可，未作为运行时资产分发。
+- glslc/shaderc 仅在构建机生成 SPIR-V；不随 APK 分发。设备 Vulkan 驱动由 Android/设备厂商提供。
 
 ## Android 运行依赖与开发工具
 
@@ -85,3 +92,7 @@ ParaRead Android 是独立的非官方适配项目，与 ParaRead 原作者、Ma
 - APK：`assets/reader/licenses/project/` 为项目许可与总声明，`assets/reader/licenses/` 含各第三方许可副本；`assets/reader/pdfjs/` 继续保留 PDF.js 原有资产许可证。
 
 新增依赖、模型或资产时应同步更新其来源和声明，不能仅保留本次清单而把后续内容视为已核对。
+
+## Android NDK C++ runtime
+
+APK 随附 NDK 28.2.13676358 的 `libc++_shared.so`，供多个原生后端共享 C++ 运行时。LLVM / libc++ 采用 Apache-2.0 WITH LLVM-exception 等上游声明，完整 NDK 工具链通知保留于 [third_party/llvm/NOTICE.toolchain](third_party/llvm/NOTICE.toolchain) 并随 APK 分发；该通知还涵盖未打入 APK 的构建工具，不表示这些工具都作为运行时依赖。
