@@ -1,15 +1,18 @@
-ParaRead Android 0.2.0-alpha.6 — development preview / 开发预览版
+ParaRead Android 0.2.0-alpha.7 — development preview / 开发预览版
 
-Choose Qwen3-0.6B or Qwen3-1.7B directly in Model management. Keep both downloaded and switch offline without downloading again.
+A calmer interface for reading on an Android tablet: a card-based library, a dedicated sidebar, and consistent model and settings panels.
 
-- Add two curated Q4_K_M model cards: Qwen3-0.6B (397 MB) for quick reading and Qwen3-1.7B (1.36 GB) for quality priority, with source/license links and download-space estimates.
-- Retain downloaded and imported models in a local library. New installations activate automatically; other downloaded models remain available. Existing managed model files migrate in place.
-- Show the active model by name on the home screen and in settings. Remove the misleading editable model-name field from offline mode.
-- Retry the model that actually failed, including after reopening the app. Preserve background downloads, progress, cancellation and SHA-256 verification.
-- Delete models individually with a confirmation showing the model name and space to be freed. PDFs, translations and reading progress remain available. Deleting the active model clears its selection; other saved models can be selected explicitly.
+- Refresh the library with document cards, a clear PDF import action, and a sample-document entry.
+- Add a tablet sidebar that becomes compact while reading; use a top navigation bar on narrower screens. Keep reading actions beside the document title on wide screens.
+- Introduce coordinated light and dark themes that follow the system, with restrained blue accents, original outline icons, and consistent type and spacing.
+- Group settings into translation engine, language/reading, and expandable advanced controls. Replace language-code text fields with named language pickers; CPU threads and terminology remain available under Advanced settings.
+- Restyle model management and Hugging Face search. Preserve the two recommended downloads, offline switching, per-model deletion, progress, retry and license links.
+- Present translation and raw-engine speed results as readable metric cards. Detailed timings, samples and translation can be expanded; JSON export remains available.
 
-新增直接下载 0.6B / 1.7B 的模型卡片，支持同时保留、离线切换和分别删除；修复失败重试下载错模型的问题，并明确显示当前使用的模型。旧版本的已安装模型原地迁移，无需重新下载。
+重新设计书库、平板侧栏、模型管理和设置页，统一留白、字体、圆角与图标，新增随系统切换的深色主题。设置中的线程数、术语表和性能记录移入“高级设置”；测速结果突出显示翻译速度与 tg128，详细数据与译文可展开查看。
 
-Android 9+ / ARM64. The preview APK is debug-signed, versionCode 6. It uses the same local debug certificate as alpha.5. Differently signed builds require exporting important annotated PDFs before uninstalling (uninstall removes app data). APK, SHA256SUMS.txt and a notices ZIP are attached. Model weights and third-party papers are not bundled.
+The visual direction takes inspiration from PocketPal's restrained surfaces and accent colors; icons, illustrations and layouts are authored for ParaRead. Screenshots and verification: [UI refresh](https://github.com/kejie-tang/pararead-android/blob/main/docs/reports/ui-refresh.md).
 
-The default model remains Qwen3-1.7B. Qwen3-0.6B is for quick preview; both can omit or mistranslate details. RWKV and specialized NanoTranslator repair adapters remain research-only and are not enabled in the app. Emulator tests do not establish physical Dimensity 9400 performance.
+Android 9+ / ARM64. Debug-signed preview, versionCode 7, using the same local certificate as alpha.6. APK, SHA256SUMS.txt and a notices ZIP are attached. Model weights and third-party papers are not bundled. The model library and translation-cache version are retained from alpha.6.
+
+Validation uses an ARM64 Android emulator and does not establish physical-tablet performance or translation quality. Qwen3-1.7B remains the default; Qwen3-0.6B is available for quick preview reading. Research-only RWKV and specialized NanoTranslator adapters remain disabled.

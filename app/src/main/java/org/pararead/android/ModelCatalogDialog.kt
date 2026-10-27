@@ -1,8 +1,6 @@
 package org.pararead.android
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -47,11 +45,11 @@ class ModelCatalogViewModel : ViewModel() {
 fun ModelCatalogDialog(state: ModelCatalogState, installedHash: String?, onQuery: (String) -> Unit,
     onSearch: () -> Unit, onDetails: (String) -> Unit, onBack: () -> Unit, onDownload: (ModelAsset) -> Unit, onClose: () -> Unit) {
     val uriHandler = LocalUriHandler.current
-    AlertDialog(onDismissRequest = onClose, title = { Text("Hugging Face 模型") }, text = {
-        Column(Modifier.fillMaxWidth().heightIn(max = 520.dp).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    AppDialog("Hugging Face 模型", onClose, "发现更多适合你的本地模型", AppGlyph.Search) {
+        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             val details = state.details
             if (details == null) {
-                OutlinedTextField(state.query, onQuery, label = { Text("模型名称或 org/repo") }, singleLine = true)
+                OutlinedTextField(state.query, onQuery, modifier = Modifier.fillMaxWidth(), label = { Text("模型名称或 org/repo") }, singleLine = true)
                 Button(onClick = onSearch, enabled = !state.loading) { Text("搜索 GGUF") }
                 Text("选择公开、单文件的文本 GGUF。当前适配 Qwen2.5、Qwen3、Qwen3.5 和 LFM2/2.5。", style = MaterialTheme.typography.bodySmall)
                 if (state.repositories.isEmpty()) {
@@ -82,5 +80,5 @@ fun ModelCatalogDialog(state: ModelCatalogState, installedHash: String?, onQuery
             if (state.loading) { LinearProgressIndicator(Modifier.fillMaxWidth()); Text("正在连接 Hugging Face…") }
             if (state.error.isNotEmpty()) Text(state.error, color = MaterialTheme.colorScheme.error)
         }
-    }, confirmButton = { TextButton(onClick = onClose) { Text("关闭") } })
+    }
 }

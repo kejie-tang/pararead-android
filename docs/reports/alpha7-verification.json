@@ -1,0 +1,76 @@
+{
+  "date": "2026-10-27",
+  "version": "0.2.0-alpha.7",
+  "versionCode": 7,
+  "baseCommit": "f3887bafc646ee1e2ff946e67aa2c84509d72d98",
+  "core": {
+    "tests": 43,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "execution": "Gradle up-to-date; no core code changed"
+  },
+  "androidRegression": {
+    "scheduled": 19,
+    "passed": 17,
+    "skipped": 2,
+    "failures": 0,
+    "seconds": 27.13,
+    "widthPx": 1080,
+    "heightPx": 2400,
+    "densityDpi": 420,
+    "note": "HF live download and opt-in speed test skipped in this invocation. Reader uses mock translation and JNI loading."
+  },
+  "androidRealSpeedUi": {
+    "scheduled": 3,
+    "passed": 3,
+    "skipped": 0,
+    "failures": 0,
+    "seconds": 79.585,
+    "model": "Qwen3-1.7B Q4_K_M",
+    "cpuThreads": 6,
+    "widthPx": 2560,
+    "heightPx": 1600,
+    "densityDpi": 240,
+    "systemTheme": "dark",
+    "covers": [
+      "real four-sample translation test",
+      "three pp512/tg128 samples",
+      "rotation",
+      "cancellation",
+      "persistence",
+      "JSON export entry",
+      "reader pause and resume"
+    ],
+    "note": "Two checks overlap with the regression invocation; do not sum test counts as unique tests."
+  },
+  "sourceContractsPassed": 16,
+  "buildAndLint": "passed",
+  "lintErrors": 0,
+  "lintWarnings": 40,
+  "visualReview": {
+    "android": "API36 ARM64 emulator",
+    "tablet": "2560x1600 @240dpi, light and dark",
+    "narrow": "1080x2400 @420dpi",
+    "physicalDevice": false,
+    "talkBackValidated": false
+  },
+  "apk": {
+    "ParaRead-0.2.0-alpha.7-android-arm64-debug.apk": {
+      "bytes": 44018741,
+      "sha256": "2486818e239dbf26af0e3153a67c4bed5c9ca419fe7ec7308f975d928c6ba851"
+    },
+    "ParaRead-0.2.0-alpha.7-android-arm64-debug-notices.zip": {
+      "bytes": 54810,
+      "sha256": "11b1bc8cd940693ade20ffddb643b8276a9f41f166cec6fc65a199c4c25e6cbc"
+    }
+  },
+  "certificateSha256": "e044c8f329f42465866add4d041f29c498009361241610c8ee2de43ae6e87a45",
+  "signatureMatchesAlpha6": true,
+  "weightsBundled": false,
+  "originalSampleOnly": true,
+  "elfAndApk16KiBAlignment": "passed",
+  "cacheFingerprintVersionChanged": false,
+  "inferenceBackendChanged": false,
+  "physicalDimensity9400Tested": false
+}

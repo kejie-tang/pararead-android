@@ -8,12 +8,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.core.view.WindowCompat
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.Alignment
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -47,6 +47,7 @@ class MainActivity : ComponentActivity() {
     private var showModelLibrary by mutableStateOf(false)
     private var showModelCatalog by mutableStateOf(false)
     private var importTask: Job? = null
+    private var importing by mutableStateOf(false)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         db = ReaderDatabase.open(this); repository = DocumentRepository(this, db.reader()); settings = Settings(this)
@@ -65,15 +66,23 @@ class MainActivity : ComponentActivity() {
                 selected = fixture
             }
         }
-        setContent { MaterialTheme(colorScheme = lightColorScheme()) { Surface { App() } } }
+        setContent { ParaReadTheme {
+            val dark = isSystemInDarkTheme()
+            SideEffect { WindowCompat.getInsetsController(window, window.decorView).apply {
+                isAppearanceLightStatusBars = !dark; isAppearanceLightNavigationBars = !dark
+            } }
+            Surface(color = MaterialTheme.colorScheme.background) { App() }
+        } }
     }
     override fun onSaveInstanceState(outState: Bundle) { outState.putString("documentId", selected?.id); super.onSaveInstanceState(outState) }
     private fun reopen() { host?.close(); readerScope?.cancel(); host = null; readerVersion++ }
     private fun runImport(block: suspend () -> Unit) {
         importTask?.cancel()
         importTask = lifecycleScope.launch {
+            importing = true
             try { block() } catch (_: CancellationException) { status = "导入已取消" }
             catch (e: Exception) { status = "导入失败：${e.message}" }
+            finally { importing = false }
         }
     }
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -128,36 +137,22 @@ class MainActivity : ComponentActivity() {
             val array = JSONArray(); rows.forEach { row -> array.put(JSONObject().put("documentId", row.documentId).put("name", row.name).put("value", row.value).put("timestamp", row.timestamp)) }
             contentResolver.openOutputStream(it)?.use { out -> out.write(JSONObject().put("events", array).toString(2).toByteArray()) }
         } } }
-        Column(Modifier.fillMaxSize().safeDrawingPadding()) {
-            FlowRow(Modifier.fillMaxWidth().padding(horizontal = 8.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                TextButton(onClick = { reopen(); selected = null }) { Text("书库") }
-                TextButton(onClick = { picker.launch(arrayOf("application/pdf")) }) { Text("导入 PDF") }
-                TextButton(onClick = { showSettings = true }) { Text("设置") }
-                if (selected != null) {
-                    TextButton(onClick = { host?.command("translateCurrentPage") }) { Text("本页") }
-                    TextButton(onClick = { host?.command("translateAll") }) { Text("全篇 / 继续") }
-                    TextButton(onClick = { host?.command("cancelTranslateAll") }) { Text("取消") }
-                    TextButton(onClick = { export.launch("${selected!!.name.removeSuffix(".pdf")}-annotated.pdf") }) { Text("另存") }
-                }
-            }
-            Text(status, Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp), style = MaterialTheme.typography.bodySmall)
+        AppShell(selected != null, modelState, onHome = { reopen(); selected = null },
+            onModels = { showModelLibrary = true }, onSettings = { showSettings = true }) {
             val document = selected
+            if (document != null) ReaderToolbar(document.name,
+                onPage = { host?.command("translateCurrentPage") }, onAll = { host?.command("translateAll") },
+                onCancel = { host?.command("cancelTranslateAll") }, onExport = { export.launch("${document.name.removeSuffix(".pdf")}-annotated.pdf") })
+            if (document != null && status != "导入 PDF，或打开示例文档") Text(status,
+                Modifier.fillMaxWidth().padding(20.dp, 5.dp), style = MaterialTheme.typography.bodySmall,
+                color = if (status.contains("失败") || status.contains("无法")) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant)
             if (speedState.visible || speedState.busy) {
-                Text("速度测试期间阅读器已暂停", Modifier.padding(20.dp))
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text("速度测试期间阅读器已暂停", color = MaterialTheme.colorScheme.onSurfaceVariant) }
             } else if (document == null) {
-                Text("ParaRead · 离线双语阅读", Modifier.padding(20.dp), style = MaterialTheme.typography.headlineSmall)
-                Column(Modifier.padding(horizontal = 20.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    Text("当前模型：${modelState.activeName()}")
-                    Text("轻量快读 0.6B · 质量优先 1.7B", style = MaterialTheme.typography.bodySmall)
-                    Button(onClick = { showModelLibrary = true }) { Text("模型管理") }
-                    if (modelState.busy || modelState.phase == ModelPhase.ERROR) ModelTransferProgress(modelState)
-                }
-                FlowRow(Modifier.padding(12.dp)) {
-                    Button(onClick = { runImport { selected = repository.sample(); documents = withContext(Dispatchers.IO) { db.reader().documents() } } }) { Text("打开示例文档") }
-                    TextButton(onClick = { importTask?.cancel() }) { Text("取消导入") }
-                    TextButton(onClick = { metrics.launch("pararead-performance.json") }) { Text("导出性能记录") }
-                }
-                LazyColumn { items(documents, key = { it.id }) { doc -> ListItem(headlineContent = { TextButton(onClick = { selected = doc }) { Text(doc.name) } }, supportingContent = { Text("${doc.length / 1048576} MiB · ${doc.revision.take(22)}") }) } }
+                LibraryScreen(documents, modelState, importing, status,
+                    onImport = { picker.launch(arrayOf("application/pdf")) },
+                    onSample = { runImport { selected = repository.sample(); documents = withContext(Dispatchers.IO) { db.reader().documents() } } },
+                    onOpen = { selected = it }, onModels = { showModelLibrary = true }, onCancelImport = { importTask?.cancel() })
             } else key(document.id, readerVersion) {
                 var source by remember { mutableStateOf<RangeSource?>(null) }
                 LaunchedEffect(document.id, readerVersion) {
@@ -187,6 +182,7 @@ class MainActivity : ComponentActivity() {
             } },
             onImportGlossary = { glossaryPicker.launch(arrayOf("application/json", "text/plain")) },
             onExportGlossary = { glossaryExport.launch("pararead-glossary.json") },
+            onMetrics = { metrics.launch("pararead-performance.json") },
             onSave = { showSettings = false; reopen() }, onClose = { showSettings = false })
         if (speedState.visible) SpeedTestDialog(speedState, onStart = speedTestViewModel::start,
             onCancel = speedTestViewModel::cancel, onClose = speedTestViewModel::dismiss,
@@ -204,64 +200,94 @@ class MainActivity : ComponentActivity() {
                 onClose = { modelCatalogViewModel.stop(); showModelCatalog = false })
         }
     }
-    @Composable private fun SettingsDialog(modelState: ModelState, onSpeedTest: (Int) -> Unit, onImportGlossary: () -> Unit, onExportGlossary: () -> Unit, onSave: () -> Unit, onClose: () -> Unit) {
+    @OptIn(ExperimentalLayoutApi::class)
+    @Composable private fun SettingsDialog(modelState: ModelState, onSpeedTest: (Int) -> Unit, onImportGlossary: () -> Unit,
+        onExportGlossary: () -> Unit, onMetrics: () -> Unit, onSave: () -> Unit, onClose: () -> Unit) {
         var provider by remember { mutableStateOf(settings.provider) }; var url by remember { mutableStateOf(settings.baseUrl) }
         var model by remember { mutableStateOf(settings.model) }; var apiKey by remember { mutableStateOf(settings.apiKey) }
         var target by remember { mutableStateOf(settings.targetLanguage) }; var source by remember { mutableStateOf(settings.sourceLanguage) }
         var glossary by remember { mutableStateOf(settings.glossary) }; var batch by remember { mutableStateOf(settings.batchSize.toString()) }
         var cpuThreads by remember { mutableStateOf(settings.cpuThreads.toString()) }
         LaunchedEffect(modelState.installed?.sha256) { modelState.installed?.let { model = settings.model } }
-        var error by remember { mutableStateOf("") }
+        var error by remember { mutableStateOf("") }; var advanced by remember { mutableStateOf(false) }
         var range by remember { mutableStateOf(settings.translateRange) }
-        AlertDialog(onDismissRequest = onClose, title = { Text("翻译设置") }, text = {
-            Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Row { listOf("llama" to "离线 GGUF", "api" to "兼容 API", "mock" to "模拟").forEach { (value, name) -> FilterChip(selected = provider == value, onClick = { provider = value }, label = { Text(name) }) } }
+        AppDialog("翻译设置", onClose, "让阅读方式适合你", AppGlyph.Settings, footer = {
+            Button(onClick = {
+                try {
+                    val languages = setOf("auto", "zh-CN", "zh-TW", "en", "ja", "ko", "fr", "de", "es", "pt", "ru", "it")
+                    require(source in languages && target in languages) { "请选择有效语言" }
+                    canonicalGlossary(glossary); require(batch.toInt() in 1..40)
+                    val threads = cpuThreads.toIntOrNull()
+                    if (provider == "llama") require(threads != null && threads in 0..CpuThreads.maximum()) { "线程数填写 0（自动）或 1–${CpuThreads.maximum()}" }
+                    if (provider == "api") require(url.startsWith("https://") || OpenAICompatibleProvider.isLocalHttp(url)) { "HTTP 仅支持本地兼容服务" }
+                    settings.provider = provider; settings.baseUrl = url; if (provider == "api") settings.model = model; settings.apiKey = apiKey
+                    settings.translateRange = range
+                    if (provider == "llama") settings.cpuThreads = threads!!
+                    settings.sourceLanguage = source; settings.targetLanguage = target; settings.glossary = glossary; settings.batchSize = batch.toInt(); onSave()
+                } catch (e: Exception) { error = e.message ?: "设置无效" }
+            }, shape = RoundedCornerShape(12.dp), contentPadding = PaddingValues(24.dp, 12.dp)) { Text("保存") }
+        }) {
+            SettingsSection("翻译引擎", AppGlyph.Model) {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf("llama" to "离线 GGUF", "api" to "兼容 API", "mock" to "模拟").forEach { (value, name) ->
+                        FilterChip(selected = provider == value, onClick = { provider = value }, label = { Text(name) })
+                    }
+                }
                 if (provider == "llama") {
-                    Text("当前模型：${modelState.activeName()}")
-                    modelState.installed?.let { Text("已占用 ${modelSize(it.bytes)} · 思考模式已关闭", style = MaterialTheme.typography.bodySmall) }
-                    Button(onClick = { showModelLibrary = true }) { Text("模型管理") }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f)) {
+                            Text("当前模型：${modelState.activeName()}", style = MaterialTheme.typography.titleSmall)
+                            Text(modelState.installed?.let { "${modelSize(it.bytes)} · 思考已关闭" } ?: "下载模型后即可离线翻译", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        TextButton(onClick = { showModelLibrary = true }) { Text("模型管理") }
+                    }
                     if (modelState.busy || modelState.phase == ModelPhase.ERROR) ModelTransferProgress(modelState)
-                    OutlinedTextField(cpuThreads, { cpuThreads = it }, label = { Text("CPU 推理线程数") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), singleLine = true,
-                        supportingText = { Text("0 = 自动（当前 ${CpuThreads.resolve(0)} 线程）；手动范围 1–${CpuThreads.maximum()}。保存后重新加载模型。") })
-                    TextButton(onClick = { cpuThreads = "0" }) { Text("恢复自动线程数") }
-                    Button(enabled = modelState.installed != null && !modelState.busy, onClick = {
+                    OutlinedButton(enabled = modelState.installed != null && !modelState.busy, onClick = {
                         val threads = cpuThreads.toIntOrNull()
                         if (threads == null || threads !in 0..CpuThreads.maximum()) error = "线程数填写 0（自动）或 1–${CpuThreads.maximum()}"
                         else { error = ""; onSpeedTest(threads) }
-                    }) { Text("速度测试") }
-                    Text("使用上方线程数测试本机模型；无需先保存设置。", style = MaterialTheme.typography.bodySmall)
+                    }, shape = RoundedCornerShape(12.dp)) {
+                        AppIcon(AppGlyph.Sliders, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text("速度测试")
+                    }
                 }
                 if (provider == "api") {
-                    OutlinedTextField(url, { url = it }, label = { Text("API 基址（含 /v1）") })
-                    OutlinedTextField(apiKey, { apiKey = it }, label = { Text("API Key") }, visualTransformation = PasswordVisualTransformation())
+                    OutlinedTextField(url, { url = it }, Modifier.fillMaxWidth(), label = { Text("API 基址（含 /v1）") }, singleLine = true)
+                    OutlinedTextField(apiKey, { apiKey = it }, Modifier.fillMaxWidth(), label = { Text("API Key") }, visualTransformation = PasswordVisualTransformation(), singleLine = true)
+                    OutlinedTextField(model, { model = it }, Modifier.fillMaxWidth(), label = { Text("API 模型名称") }, singleLine = true)
                 }
-                if (provider == "api") OutlinedTextField(model, { model = it }, label = { Text("API 模型名称") })
-                OutlinedTextField(source, { source = it }, label = { Text("源语言：auto / en / zh-CN 等") })
-                OutlinedTextField(target, { target = it }, label = { Text("目标语言：zh-CN / en / ja 等") })
-                OutlinedTextField(batch, { batch = it }, label = { Text("每批句数（1–40）") })
-                Row { listOf("page" to "当前页", "nearby" to "邻近页", "manual" to "手动").forEach { (value, name) -> FilterChip(selected = range == value, onClick = { range = value }, label = { Text(name) }) } }
-                OutlinedTextField(glossary, { glossary = it }, label = { Text("ParaRead 术语表 JSON") }, minLines = 2)
-                Row {
+            }
+            SettingsSection("语言与阅读", AppGlyph.Globe) {
+                Row(horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                    LanguagePicker("源语言", source, { source = it }, Modifier.weight(1f))
+                    LanguagePicker("目标语言", target, { target = it }, Modifier.weight(1f), autoLabel = "跟随系统")
+                }
+                Text("自动翻译范围", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    listOf("page" to "当前页", "nearby" to "邻近页", "manual" to "手动").forEach { (value, name) ->
+                        FilterChip(selected = range == value, onClick = { range = value }, label = { Text(name) })
+                    }
+                }
+            }
+            TextButton(onClick = { advanced = !advanced }) {
+                AppIcon(AppGlyph.Sliders, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text(if (advanced) "收起高级设置" else "高级设置")
+            }
+            if (advanced) SettingsSection("性能与术语", AppGlyph.Sliders) {
+                if (provider == "llama") {
+                    OutlinedTextField(cpuThreads, { cpuThreads = it }, Modifier.fillMaxWidth(), label = { Text("CPU 推理线程数") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), singleLine = true,
+                        supportingText = { Text("0 = 自动（${CpuThreads.resolve(0)} 线程）；可手动设置 1–${CpuThreads.maximum()}。") })
+                    TextButton(onClick = { cpuThreads = "0" }) { Text("恢复自动线程数") }
+                }
+                OutlinedTextField(batch, { batch = it }, Modifier.fillMaxWidth(), label = { Text("每批句数（1–40）") }, singleLine = true)
+                OutlinedTextField(glossary, { glossary = it }, Modifier.fillMaxWidth(), label = { Text("ParaRead 术语表 JSON") }, minLines = 2)
+                FlowRow {
                     TextButton(onClick = onImportGlossary) { Text("导入术语表") }
                     TextButton(onClick = { try { settings.glossary = canonicalGlossary(glossary); onExportGlossary() } catch (e: Exception) { error = e.message ?: "术语表无效" } }) { Text("导出术语表") }
+                    TextButton(onClick = onMetrics) { Text("导出性能记录") }
                 }
-                if (error.isNotEmpty()) Text(error, color = MaterialTheme.colorScheme.error)
             }
-        }, confirmButton = { TextButton(onClick = {
-            try {
-                val languages = setOf("auto", "zh-CN", "zh-TW", "en", "ja", "ko", "fr", "de", "es", "pt", "ru", "it")
-                require(source in languages && target in languages) { "请选择有效语言" }
-                canonicalGlossary(glossary); require(batch.toInt() in 1..40)
-                val threads = cpuThreads.toIntOrNull()
-                if (provider == "llama") require(threads != null && threads in 0..CpuThreads.maximum()) { "线程数填写 0（自动）或 1–${CpuThreads.maximum()}" }
-                if (provider == "api") require(url.startsWith("https://") || OpenAICompatibleProvider.isLocalHttp(url)) { "HTTP 仅支持本地兼容服务" }
-                settings.provider = provider; settings.baseUrl = url; if (provider == "api") settings.model = model; settings.apiKey = apiKey
-                settings.translateRange = range
-                if (provider == "llama") settings.cpuThreads = threads!!
-                settings.sourceLanguage = source; settings.targetLanguage = target; settings.glossary = glossary; settings.batchSize = batch.toInt(); onSave()
-            } catch (e: Exception) { error = e.message ?: "设置无效" }
-        }) { Text("保存") } }, dismissButton = { TextButton(onClick = onClose) { Text("关闭") } })
+            if (error.isNotEmpty()) Text(error, color = MaterialTheme.colorScheme.error)
+        }
     }
     override fun onStop() {
         super.onStop()

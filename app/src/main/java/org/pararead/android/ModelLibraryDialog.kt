@@ -1,15 +1,15 @@
 package org.pararead.android
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.ui.Alignment
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.DialogProperties
 import org.pararead.core.*
 import java.util.Locale
 
@@ -27,40 +27,41 @@ fun ModelLibraryDialog(state: ModelState, actionsEnabled: Boolean = true, onDown
     onImport: () -> Unit, onMore: () -> Unit, onClose: () -> Unit) {
     var deleting by remember { mutableStateOf<SavedModel?>(null) }
     val enabled = actionsEnabled && !state.busy
-    AlertDialog(onDismissRequest = onClose, modifier = Modifier.widthIn(max = 680.dp).fillMaxWidth(.94f),
-        properties = DialogProperties(usePlatformDefaultWidth = false), title = { Text("模型管理") }, text = {
-            Column(Modifier.fillMaxWidth().heightIn(max = 560.dp).verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text("当前使用：${state.activeName()}", style = MaterialTheme.typography.titleMedium)
-                Text("两个模型可同时保留，切换无需重新下载。下载完成后自动使用新模型。", style = MaterialTheme.typography.bodySmall)
-                if (state.busy || state.phase == ModelPhase.ERROR) {
-                    state.target?.let { Text("${RecommendedModels.name(it.sha256, it.name)} · ${modelSize(it.bytes)}") }
-                    ModelTransferProgress(state)
-                    if (state.cancellable) TextButton(onClick = onCancel) { Text("取消下载或导入") }
-                    if (state.canRetry) Button(onClick = onRetry, enabled = actionsEnabled) { Text("重试此模型下载") }
-                } else if (state.message.isNotEmpty()) Text(state.message, style = MaterialTheme.typography.bodySmall)
-                for (asset in RecommendedModels.all) {
-                    val saved = state.models.firstOrNull { it.model.sha256 == asset.sha256 }
-                    val fast = asset.sha256 == RecommendedModels.fast.sha256
-                    ModelCard(RecommendedModels.name(asset.sha256, asset.name),
-                        if (fast) "轻量快读 · 速度与体积优先" else "质量优先 · 翻译质量优先",
-                        "Q4_K_M · ${modelSize(asset.bytes)}", asset.sha256, saved,
-                        state.installed?.sha256 == asset.sha256, enabled,
-                        onDownload = { onDownload(asset) }, onUse = { onUse(asset.sha256) }, onDelete = { deleting = saved },
-                        license = asset.license, sourceUrl = if (fast) "https://huggingface.co/unsloth/Qwen3-0.6B-GGUF" else "https://ollama.com/library/qwen3:1.7b",
-                        spaceHint = if (saved == null) "下载时需额外约 ${modelSize(asset.bytes * 2 + 67108864L)} 可用空间" else "")
-                }
-                val other = state.models.filter { saved -> RecommendedModels.all.none { it.sha256 == saved.model.sha256 } }
-                if (other.isNotEmpty()) Text("其他已下载模型", style = MaterialTheme.typography.titleSmall)
-                for (saved in other) ModelCard(saved.displayName(), "已保存到本机", modelSize(saved.model.bytes), saved.model.sha256,
-                    saved, state.installed?.sha256 == saved.model.sha256, enabled, {},
-                    { onUse(saved.model.sha256) }, { deleting = saved })
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedButton(onClick = onImport, enabled = enabled) { Text("导入 GGUF") }
-                    TextButton(onClick = onMore, enabled = enabled) { Text("更多模型（Hugging Face）") }
-                }
+    AppDialog("模型管理", onClose, "选择适合你的阅读节奏", AppGlyph.Model) {
+        Surface(shape = RoundedCornerShape(14.dp), color = MaterialTheme.colorScheme.tertiaryContainer) {
+            Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                AppIcon(if (state.installed == null) AppGlyph.Model else AppGlyph.Check, Modifier.size(18.dp), MaterialTheme.colorScheme.onTertiaryContainer)
+                Text("当前使用：${state.activeName()}", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.onTertiaryContainer)
             }
-        }, confirmButton = { TextButton(onClick = onClose) { Text("关闭") } })
+        }
+        Text("模型可以同时保留，随时离线切换。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        if (state.busy || state.phase == ModelPhase.ERROR) {
+            state.target?.let { Text("${RecommendedModels.name(it.sha256, it.name)} · ${modelSize(it.bytes)}") }
+            ModelTransferProgress(state)
+            if (state.cancellable) TextButton(onClick = onCancel) { Text("取消下载或导入") }
+            if (state.canRetry) Button(onClick = onRetry, enabled = actionsEnabled) { Text("重试此模型下载") }
+        } else if (state.message.isNotEmpty()) Text(state.message, style = MaterialTheme.typography.bodySmall)
+        for (asset in RecommendedModels.all) {
+            val saved = state.models.firstOrNull { it.model.sha256 == asset.sha256 }
+            val fast = asset.sha256 == RecommendedModels.fast.sha256
+            ModelCard(RecommendedModels.name(asset.sha256, asset.name),
+                if (fast) "轻量快读 · 适合快速浏览" else "质量优先 · 适合日常论文阅读",
+                "Q4_K_M · ${modelSize(asset.bytes)}", asset.sha256, saved,
+                state.installed?.sha256 == asset.sha256, enabled,
+                onDownload = { onDownload(asset) }, onUse = { onUse(asset.sha256) }, onDelete = { deleting = saved },
+                license = asset.license, sourceUrl = if (fast) "https://huggingface.co/unsloth/Qwen3-0.6B-GGUF" else "https://ollama.com/library/qwen3:1.7b",
+                spaceHint = if (saved == null) "下载时需额外约 ${modelSize(asset.bytes * 2 + 67108864L)} 可用空间" else "")
+        }
+        val other = state.models.filter { saved -> RecommendedModels.all.none { it.sha256 == saved.model.sha256 } }
+        if (other.isNotEmpty()) Text("其他已下载模型", style = MaterialTheme.typography.titleSmall)
+        for (saved in other) ModelCard(saved.displayName(), "已保存到本机", modelSize(saved.model.bytes), saved.model.sha256,
+            saved, state.installed?.sha256 == saved.model.sha256, enabled, {},
+            { onUse(saved.model.sha256) }, { deleting = saved })
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedButton(onClick = onImport, enabled = enabled) { Text("导入 GGUF") }
+            TextButton(onClick = onMore, enabled = enabled) { Text("更多模型（Hugging Face）") }
+        }
+    }
     deleting?.let { saved ->
         AlertDialog(onDismissRequest = { deleting = null }, title = { Text("删除 ${saved.displayName()}？") },
             text = { Text("将释放 ${modelSize(saved.model.bytes)} 空间。PDF、译文和阅读进度会保留。" +
@@ -76,19 +77,35 @@ private fun ModelCard(name: String, description: String, size: String, hash: Str
     current: Boolean, enabled: Boolean, onDownload: () -> Unit, onUse: () -> Unit, onDelete: () -> Unit,
     license: String = saved?.license ?: "", sourceUrl: String? = null, spaceHint: String = "") {
     val uriHandler = LocalUriHandler.current
-    OutlinedCard(Modifier.fillMaxWidth().testTag("model-$hash")) {
-        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-            Text(name, style = MaterialTheme.typography.titleMedium)
-            Text(description, style = MaterialTheme.typography.bodyMedium)
-            Text(size, style = MaterialTheme.typography.bodySmall)
-            if (spaceHint.isNotEmpty()) Text(spaceHint, style = MaterialTheme.typography.bodySmall)
-            if (license.isNotEmpty()) Text("许可：$license", style = MaterialTheme.typography.bodySmall)
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = if (saved == null) onDownload else onUse, enabled = enabled && !current) {
-                    Text(when { current -> "当前使用"; saved != null -> "使用"; else -> "下载并使用" })
+    val colors = MaterialTheme.colorScheme
+    Surface(Modifier.fillMaxWidth().testTag("model-$hash"), shape = RoundedCornerShape(20.dp), color = colors.surface,
+        border = BorderStroke(1.dp, if (current) colors.secondary.copy(alpha = .4f) else colors.outlineVariant)) {
+        Column(Modifier.fillMaxWidth()) {
+            Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
+                    IconTile(AppGlyph.Model, color = if (current) colors.secondary else colors.onSurfaceVariant)
+                    Column(Modifier.weight(1f)) {
+                        Text(name, style = MaterialTheme.typography.titleMedium)
+                        Text(description, style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
+                    }
                 }
-                if (saved != null) TextButton(onClick = onDelete, enabled = enabled) { Text("删除") }
-                if (sourceUrl != null) TextButton(onClick = { uriHandler.openUri(sourceUrl) }) { Text("来源与许可") }
+                Text(size, style = MaterialTheme.typography.titleSmall, color = colors.onSurfaceVariant)
+                if (spaceHint.isNotEmpty()) Text(spaceHint, style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
+                if (license.isNotEmpty()) Text("许可：$license", style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
+            }
+            HorizontalDivider(color = colors.outlineVariant)
+            FlowRow(Modifier.padding(12.dp, 6.dp), horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                TextButton(onClick = if (saved == null) onDownload else onUse, enabled = enabled && !current,
+                    colors = ButtonDefaults.textButtonColors(contentColor = colors.secondary, disabledContentColor = if (current) colors.tertiary else colors.onSurfaceVariant.copy(alpha=.4f))) {
+                    AppIcon(if (current) AppGlyph.Check else if (saved == null) AppGlyph.Download else AppGlyph.Arrow, Modifier.size(17.dp))
+                    Spacer(Modifier.width(6.dp)); Text(when { current -> "当前使用"; saved != null -> "使用"; else -> "下载并使用" })
+                }
+                if (saved != null) TextButton(onClick = onDelete, enabled = enabled, colors = ButtonDefaults.textButtonColors(contentColor = colors.error)) {
+                    AppIcon(AppGlyph.Trash, Modifier.size(17.dp)); Spacer(Modifier.width(6.dp)); Text("删除")
+                }
+                if (sourceUrl != null) TextButton(onClick = { uriHandler.openUri(sourceUrl) }, colors = ButtonDefaults.textButtonColors(contentColor = colors.onSurfaceVariant)) {
+                    Text("来源与许可"); Spacer(Modifier.width(5.dp)); AppIcon(AppGlyph.External, Modifier.size(15.dp))
+                }
             }
         }
     }
