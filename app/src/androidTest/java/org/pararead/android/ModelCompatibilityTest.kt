@@ -26,6 +26,7 @@ class ModelCompatibilityTest {
         val cases = JSONArray()
         val report = JSONObject().put("device", "${android.os.Build.MANUFACTURER} ${android.os.Build.MODEL}")
             .put("model", args.getString("modelLabel")).put("threads", 6).put("cases", cases).put("systemInfo", NativeBridge.systemInfo())
+            .put("appVersion", BuildConfig.VERSION_NAME).put("physicalAndroidDevice", android.os.Build.HARDWARE !in setOf("ranchu", "goldfish"))
         val file = File(path)
         val digest = java.security.MessageDigest.getInstance("SHA-256")
         file.inputStream().buffered().use { input -> val bytes = ByteArray(262144); while (true) { val n = input.read(bytes); if (n < 0) break; digest.update(bytes, 0, n) } }
@@ -55,29 +56,51 @@ class ModelCompatibilityTest {
             val queueResult = JSONObject(); report.put("productionQueue", queueResult)
             val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
             val committed = java.util.concurrent.ConcurrentHashMap<String, String>()
+            val saved = java.util.concurrent.ConcurrentHashMap<String, String>()
+            val commitOrder = JSONArray(); queueResult.put("commits", commitOrder)
             val attempts = JSONArray(); queueResult.put("attempts", attempts)
+            val replayTextRecovery = args.getString("replayFailureForText") == "true"
+            queueResult.put("replayedFailuresForTextRecovery", replayTextRecovery)
             val wrapped = object : TranslationProvider {
                 override fun generate(prompt: ModelPrompt) = flow {
+                    // Fault injection checks the real native TEXT route even when first-pass JSON succeeds.
+                    if (replayTextRecovery && attempts.length() < 2) {
+                        val raw = if (attempts.length() == 0)
+                            """{"translations":[{"id":"s1","translation":"模型使用了 __PR0__ 页，其中 __PR1__ 页。"},{"id":"s2","translation":"对于 __PR3__，保留方程并查看 __PR4__"}]}"""
+                        else """{"translations":[{"id":"s1","translation":"模型使用了 __PR0__ 页，其中 __PR1__ 页。"}]}"""
+                        attempts.put(JSONObject().put("format", prompt.outputFormat.name).put("input", prompt.user).put("raw", raw).put("replayedFailure", true))
+                        emit(ProviderEvent.Complete(raw)); return@flow
+                    }
                     provider.generate(prompt).collect { event ->
-                        if (event is ProviderEvent.Complete) attempts.put(JSONObject().put("input", prompt.user).put("raw", event.text))
+                        if (event is ProviderEvent.Complete) attempts.put(JSONObject().put("format", prompt.outputFormat.name)
+                            .put("system", prompt.system).put("input", prompt.user).put("raw", event.text))
                         emit(event)
                     }
                 }
             }
             val cache = object : TranslationCache {
-                override suspend fun get(key: String): String? = null
-                override suspend fun put(key: String, text: String, translation: String, config: TranslationConfig) {}
+                override suspend fun get(key: String) = saved[key]
+                override suspend fun put(key: String, text: String, translation: String, config: TranslationConfig) { saved[key] = translation }
             }
             try { withTimeout(120000) {
                 val done = CompletableDeferred<Unit>()
-                TranslationQueue(scope, cache) { wrapped }.submit(TranslationWork("android-model", 0, 0,
+                val queue = TranslationQueue(scope, cache) { wrapped }
+                queue.submit(TranslationWork("android-model", 0, 0,
                     fixtures.getValue("protected-batch"), TranslationConfig(sourceLanguage = "en", targetLanguage = "zh-CN"),
-                    committed = { s, t, _ -> committed[s.id] = t }, finished = { failures, cancelled ->
+                    committed = { s, t, _ -> committed[s.id] = t; commitOrder.put(s.id) }, finished = { failures, cancelled ->
                         queueResult.put("status", if (failures.isEmpty() && !cancelled && committed.size == 2 && committed.values.all { t -> t.any { it in '\u4e00'..'\u9fff' } }) "passed" else "failed")
                             .put("failures", JSONArray(failures.map { JSONObject().put("id", it.first).put("reason", it.second) }))
                         done.complete(Unit)
                     }))
                 done.await(); queueResult.put("translations", JSONObject(committed.toMap()))
+                val before = attempts.length(); val reopened = CompletableDeferred<Unit>()
+                queue.submit(TranslationWork("android-reopen", 0, 0, fixtures.getValue("protected-batch").filter { committed.containsKey(it.id) },
+                    TranslationConfig(sourceLanguage = "en", targetLanguage = "zh-CN"),
+                    committed = { _, _, _ -> }, finished = { failures, cancelled ->
+                        check(failures.isEmpty() && !cancelled); reopened.complete(Unit)
+                    }))
+                reopened.await(); queueResult.put("cacheReopenCalls", attempts.length() - before)
+                check(attempts.length() == before) { "CACHED_SENTENCE_RETRANSLATED" }
             } } catch (e: Exception) { queueResult.put("status", "failed").put("error", e.toString()) }
             finally { scope.cancel() }
             if (args.getString("benchmark") == "true") {

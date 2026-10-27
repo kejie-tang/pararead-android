@@ -18,6 +18,7 @@ fun main(args: Array<String>) = runBlocking {
     val mode = args.getOrNull(0) ?: "jni"
     if (mode == "matrix") { runModelMatrix(args.drop(1)); return@runBlocking }
     if (mode == "plain") { runPlainModelProbe(args.drop(1)); return@runBlocking }
+    if (mode == "recovery") { runRecoveryCheck(args.drop(1)); return@runBlocking }
     require(mode in setOf("jni", "api")) { "Usage: run --args='jni|api [report.json]'" }
     val file = File(requireNotNull(System.getenv("PARAREAD_GGUF")) { "Set PARAREAD_GGUF to a local GGUF file" })
     require(file.isFile)

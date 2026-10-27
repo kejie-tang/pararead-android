@@ -1,0 +1,98 @@
+{
+  "device": "Google sdk_gphone64_arm64",
+  "model": "Qwen3.5-0.8B-Q4_0.gguf",
+  "threads": 6,
+  "cases": [
+    {
+      "fixture": "short",
+      "status": "passed",
+      "translations": [
+        {
+          "source": "We propose a memory-efficient method for translating scientific documents.",
+          "translation": "我们提出一种用于翻译科学文档的方法，以使其内存效率更高。"
+        }
+      ],
+      "raw": "{\n  \"translations\": [\n    {\n    \"id\": \"s1\",\n    \"translation\": \"我们提出一种用于翻译科学文档的方法，以使其内存效率更高。\"\n  }\n]\n}",
+      "generatedTokens": 48,
+      "tokensPerSecond": 5.22857904041149
+    },
+    {
+      "fixture": "protected-batch",
+      "status": "failed",
+      "error": "java.lang.IllegalArgumentException: PROTECTED_TOKEN_MISMATCH",
+      "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"模型使用__PR0__个页面，__PR1__个内存中处理。\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"对于__PR3__，保留方程并查看__PR4__\"\n    }\n  ]\n}",
+      "generatedTokens": 88,
+      "tokensPerSecond": 73.1371555905686
+    },
+    {
+      "fixture": "negation",
+      "status": "passed",
+      "translations": [
+        {
+          "source": "The increase was not statistically significant.",
+          "translation": "这种增加在统计学上并未显著。"
+        },
+        {
+          "source": "The result may indicate an association, but it does not establish causation.",
+          "translation": "结果可能表明存在关联，但并未建立因果关系。"
+        }
+      ],
+      "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"这种增加在统计学上并未显著。\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"结果可能表明存在关联，但并未建立因果关系。\"\n    }\n  ]\n}",
+      "generatedTokens": 75,
+      "tokensPerSecond": 74.19191707117946
+    },
+    {
+      "fixture": "escaped-text",
+      "status": "passed",
+      "translations": [
+        {
+          "source": "The author calls this a \"reading assistant\".\nKeep the meaning of both sentences.",
+          "translation": "该作者称这种叫做‘阅读助手’。"
+        }
+      ],
+      "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"该作者称这种叫做‘阅读助手’。\"\n    }\n  ]\n}",
+      "generatedTokens": 43,
+      "tokensPerSecond": 69.84024712636862
+    }
+  ],
+  "systemInfo": "CPU : NEON = 1 | ARM_FMA = 1 | LLAMAFILE = 1 | KLEIDIAI = 1 | REPACK = 1 | ",
+  "appVersion": "0.2.0-alpha.5",
+  "physicalAndroidDevice": false,
+  "bytes": 563036064,
+  "sha256": "57d1997790d1744fba5b40a7317df71ea5e2acee28c47e78f0cce39c0703f8cf",
+  "architecture": "qwen35",
+  "productionQueue": {
+    "commits": [
+      "b",
+      "a"
+    ],
+    "attempts": [
+      {
+        "format": "TRANSLATION_JSON",
+        "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}",
+        "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes __PR0__ pages using __PR1__ of memory __PR2__.\"},{\"id\":\"s2\",\"text\":\"For __PR3__, retain the equation and see __PR4__\"}]}\n/no_think",
+        "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"模型使用__PR0__个页面，__PR1__个内存中处理。\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"对于__PR3__，保留方程并查看__PR4__\"\n    }\n  ]\n}"
+      },
+      {
+        "format": "TRANSLATION_JSON",
+        "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}\nTranslate the entire sentence again. Required markers, each exactly once: __PR0__, __PR1__, __PR2__. Do not copy a previous incomplete answer.",
+        "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes __PR0__ pages using __PR1__ of memory __PR2__.\"}]}\n/no_think",
+        "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"该模型使用__PR0__个页面，__PR1__个内存中处理。\"\n    }\n  ]\n}"
+      },
+      {
+        "format": "TEXT",
+        "system": "将下文完整翻译为简体中文，只输出译文正文，不要 JSON、解释或代码围栏。保留所有句子的原意、否定和转折。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}",
+        "input": "The model processes __PR0__ pages using __PR1__ of memory __PR2__.\n/no_think",
+        "raw": "该模型使用__PR0__页，使用__PR1__个内存__PR2__。"
+      }
+    ],
+    "replayedFailuresForTextRecovery": false,
+    "status": "passed",
+    "failures": [],
+    "translations": {
+      "a": "该模型使用100页，使用4 GB个内存[12]。",
+      "b": "对于$E=mc^2$，保留方程并查看https://example.org/paper."
+    },
+    "cacheReopenCalls": 0
+  }
+}

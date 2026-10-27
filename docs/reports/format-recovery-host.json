@@ -1,0 +1,1019 @@
+{
+  "physicalAndroidDevice": false,
+  "models": [
+    {
+      "textOnlyDiagnostics": [
+        {
+          "input": "The model processes __PR0__ pages using __PR1__ of memory __PR2__.\n/no_think",
+          "system": "将下文完整翻译为简体中文，只输出译文正文，不要 JSON、解释或代码围栏。保留所有句子的原意、否定和转折。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}",
+          "translation": "模型使用了 100 页，使用了 4 GB 的内存 [12]。",
+          "raw": "模型使用了 __PR0__ 页，使用了 __PR1__ 的内存 __PR2__。",
+          "source": "The model processes 100 pages using 4 GB of memory [12].",
+          "status": "passed"
+        },
+        {
+          "input": "For __PR0__, retain the equation and see __PR1__\n/no_think",
+          "system": "将下文完整翻译为简体中文，只输出译文正文，不要 JSON、解释或代码围栏。保留所有句子的原意、否定和转折。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}",
+          "raw": "For __PR0__, retain the equation and see __PR1__",
+          "source": "For $E=mc^2$, retain the equation and see https://example.org/paper.",
+          "error": "java.lang.IllegalArgumentException: EXPECTED_CHINESE_TRANSLATION",
+          "status": "failed"
+        }
+      ],
+      "cases": [
+        {
+          "fixture": "short",
+          "cacheReopenCalls": 0,
+          "failures": [],
+          "totalMs": 1826.565375,
+          "replayedFirstAnswer": false,
+          "commits": [{
+            "translation": "我们提出了一种用于科学文档翻译的高效内存方法",
+            "id": "a"
+          }],
+          "cancelled": false,
+          "attempts": [{
+            "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"We propose a memory-efficient method for translating scientific documents.\"}]}\n/no_think",
+            "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。术语表：{}",
+            "tokensPerSecond": 113.07802999039855,
+            "format": "TRANSLATION_JSON",
+            "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"我们提出了一种用于科学文档翻译的高效内存方法\"\n    }\n  ]\n}",
+            "generatedTokens": 39
+          }],
+          "status": "passed"
+        },
+        {
+          "fixture": "protected-batch",
+          "cacheReopenCalls": 0,
+          "failures": [],
+          "totalMs": 836.546167,
+          "replayedFirstAnswer": false,
+          "commits": [
+            {
+              "translation": "模型使用 100 页码，利用 4 GB 的记忆 [12]。",
+              "id": "a"
+            },
+            {
+              "translation": "对于 $E=mc^2$，保留方程并查看 https://example.org/paper.。",
+              "id": "b"
+            }
+          ],
+          "cancelled": false,
+          "attempts": [{
+            "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes __PR0__ pages using __PR1__ of memory __PR2__.\"},{\"id\":\"s2\",\"text\":\"For __PR3__, retain the equation and see __PR4__\"}]}\n/no_think",
+            "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}",
+            "tokensPerSecond": 130.3120305872166,
+            "format": "TRANSLATION_JSON",
+            "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"模型使用 __PR0__ 页码，利用 __PR1__ 的记忆 __PR2__。\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"对于 __PR3__，保留方程并查看 __PR4__。\"\n    }\n  ]\n}",
+            "generatedTokens": 83
+          }],
+          "status": "passed"
+        },
+        {
+          "fixture": "numeric-contrast",
+          "cacheReopenCalls": 0,
+          "failures": [],
+          "totalMs": 953.140167,
+          "replayedFirstAnswer": false,
+          "commits": [
+            {
+              "translation": "准确率从 91.2% 降至 87.6%，而延迟从 120 ms 提升至 80 ms。",
+              "id": "a"
+            },
+            {
+              "translation": "仅 3 份 50 文档失败，其余 47 文档已成功翻译。",
+              "id": "b"
+            }
+          ],
+          "cancelled": false,
+          "attempts": [{
+            "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"Accuracy fell from __PR0__ to __PR1__, whereas latency improved from __PR2__ to __PR3__.\"},{\"id\":\"s2\",\"text\":\"Only __PR4__ of the __PR5__ documents failed; the other __PR6__ were translated successfully.\"}]}\n/no_think",
+            "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}",
+            "tokensPerSecond": 136.14418116427365,
+            "format": "TRANSLATION_JSON",
+            "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"准确率从 __PR0__ 降至 __PR1__，而延迟从 __PR2__ 提升至 __PR3__。\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"仅 __PR4__ 份 __PR5__ 文档失败，其余 __PR6__ 文档已成功翻译。\"\n    }\n  ]\n}",
+            "generatedTokens": 100
+          }],
+          "status": "passed"
+        },
+        {
+          "fixture": "negation",
+          "cacheReopenCalls": 0,
+          "failures": [],
+          "totalMs": 618.351042,
+          "replayedFirstAnswer": false,
+          "commits": [
+            {
+              "translation": "增加的程度并不具有统计学上的显著性",
+              "id": "a"
+            },
+            {
+              "translation": "结果可能暗示存在关联，但并未证明因果关系",
+              "id": "b"
+            }
+          ],
+          "cancelled": false,
+          "attempts": [{
+            "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The increase was not statistically significant.\"},{\"id\":\"s2\",\"text\":\"The result may indicate an association, but it does not establish causation.\"}]}\n/no_think",
+            "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。术语表：{}",
+            "tokensPerSecond": 140.282269508138,
+            "format": "TRANSLATION_JSON",
+            "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"增加的程度并不具有统计学上的显著性\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"结果可能暗示存在关联，但并未证明因果关系\"\n    }\n  ]\n}",
+            "generatedTokens": 65
+          }],
+          "status": "passed"
+        },
+        {
+          "fixture": "escaped-text",
+          "cacheReopenCalls": 0,
+          "failures": [],
+          "totalMs": 428.876666,
+          "replayedFirstAnswer": false,
+          "commits": [{
+            "translation": "作者将此称为\u2018阅读助手\u2019。保持两个句子的含义。",
+            "id": "a"
+          }],
+          "cancelled": false,
+          "attempts": [{
+            "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The author calls this a \\\"reading assistant\\\".\\nKeep the meaning of both sentences.\"}]}\n/no_think",
+            "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。术语表：{}",
+            "tokensPerSecond": 142.7667603290264,
+            "format": "TRANSLATION_JSON",
+            "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"作者将此称为\u2018阅读助手\u2019。保持两个句子的含义。\"\n    }\n  ]\n}",
+            "generatedTokens": 42
+          }],
+          "status": "passed"
+        },
+        {
+          "fixture": "long",
+          "cacheReopenCalls": 0,
+          "failures": [],
+          "totalMs": 1943.230708,
+          "replayedFirstAnswer": false,
+          "commits": [{
+            "translation": "科学文档融合连续的叙述性文本与公式、表格、参考文献以及专业术语。一个有用的阅读辅助工具应同时翻译文本，而保持文档原意和结构。研究人员常阅读同一段落多次，以理解新方法并与其他研究工作进行比较。本地语言模型可以支持这一过程，而无需将文档发送至远程服务。其实际速度取决于内存带宽、处理器指令、工作线程以及需要处理的上下文量。短答案可能在处理器达到稳定运行状态之前结束，因此重复测量具有较长输出的短答案是实用的。提示处理与令牌生成应分别测量，因为它们执行不同的计算。公平比较也记录了精确的模型文件、推理设置以及设备条件。本实验的目标是生成一个准确的中文翻译，并保留足够的时序信息以区分引擎性能与应用开销。",
+            "id": "a"
+          }],
+          "cancelled": false,
+          "attempts": [{
+            "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"Scientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead.\"}]}\n/no_think",
+            "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。术语表：{}",
+            "tokensPerSecond": 126.7372128863651,
+            "format": "TRANSLATION_JSON",
+            "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"科学文档融合连续的叙述性文本与公式、表格、参考文献以及专业术语。一个有用的阅读辅助工具应同时翻译文本，而保持文档原意和结构。研究人员常阅读同一段落多次，以理解新方法并与其他研究工作进行比较。本地语言模型可以支持这一过程，而无需将文档发送至远程服务。其实际速度取决于内存带宽、处理器指令、工作线程以及需要处理的上下文量。短答案可能在处理器达到稳定运行状态之前结束，因此重复测量具有较长输出的短答案是实用的。提示处理与令牌生成应分别测量，因为它们执行不同的计算。公平比较也记录了精确的模型文件、推理设置以及设备条件。本实验的目标是生成一个准确的中文翻译，并保留足够的时序信息以区分引擎性能与应用开销。\"\n    }\n  ]\n}",
+            "generatedTokens": 203
+          }],
+          "status": "passed"
+        }
+      ],
+      "sha256": "ac2d97712095a558e31573f62f466a3f9d93990898b0ec79d7c974c1780d524a",
+      "source": {
+        "license": "apache-2.0",
+        "file": "Qwen3-0.6B-Q4_K_M.gguf",
+        "sha256": "ac2d97712095a558e31573f62f466a3f9d93990898b0ec79d7c974c1780d524a",
+        "bytes": 396705472,
+        "repository": "unsloth/Qwen3-0.6B-GGUF",
+        "revision": "50968a4468ef4233ed78cd7c3de230dd1d61a56b"
+      }
+    },
+    {
+      "textOnlyDiagnostics": [
+        {
+          "input": "The model processes __PR0__ pages using __PR1__ of memory __PR2__.\n/no_think",
+          "system": "将下文完整翻译为简体中文，只输出译文正文，不要 JSON、解释或代码围栏。保留所有句子的原意、否定和转折。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}",
+          "translation": "模型使用了 100 页数，使用了 4 GB 的内存 [12]。",
+          "raw": "模型使用了 __PR0__ 页数，使用了 __PR1__ 的内存 __PR2__。",
+          "source": "The model processes 100 pages using 4 GB of memory [12].",
+          "status": "passed"
+        },
+        {
+          "input": "For __PR0__, retain the equation and see __PR1__\n/no_think",
+          "system": "将下文完整翻译为简体中文，只输出译文正文，不要 JSON、解释或代码围栏。保留所有句子的原意、否定和转折。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}",
+          "raw": "For __PR0__, retain the equation and see __PR1__",
+          "source": "For $E=mc^2$, retain the equation and see https://example.org/paper.",
+          "error": "java.lang.IllegalArgumentException: EXPECTED_CHINESE_TRANSLATION",
+          "status": "failed"
+        }
+      ],
+      "cases": [
+        {
+          "fixture": "short",
+          "cacheReopenCalls": 0,
+          "failures": [],
+          "totalMs": 1223.480625,
+          "replayedFirstAnswer": false,
+          "commits": [{
+            "translation": "我们提出了一种高效的科学文档翻译方法。",
+            "id": "a"
+          }],
+          "cancelled": false,
+          "attempts": [{
+            "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"We propose a memory-efficient method for translating scientific documents.\"}]}\n/no_think",
+            "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。术语表：{}",
+            "tokensPerSecond": 121.7122110690269,
+            "format": "TRANSLATION_JSON",
+            "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"我们提出了一种高效的科学文档翻译方法。\"\n    }\n  ]\n}",
+            "generatedTokens": 37
+          }],
+          "status": "passed"
+        },
+        {
+          "fixture": "protected-batch",
+          "cacheReopenCalls": 0,
+          "failures": [],
+          "totalMs": 1583.335708,
+          "replayedFirstAnswer": false,
+          "commits": [
+            {
+              "translation": "对于 $E=mc^2$ ，保留方程并查看 https://example.org/paper. 。",
+              "id": "b"
+            },
+            {
+              "translation": "模型使用 100 页，使用 4 GB 的内存 [12]。",
+              "id": "a"
+            }
+          ],
+          "cancelled": false,
+          "attempts": [
+            {
+              "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes __PR0__ pages using __PR1__ of memory __PR2__.\"},{\"id\":\"s2\",\"text\":\"For __PR3__, retain the equation and see __PR4__\"}]}\n/no_think",
+              "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}",
+              "tokensPerSecond": 124.06041081188553,
+              "format": "TRANSLATION_JSON",
+              "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"模型使用了 __PR0__ 页，其中 __PR1__ 页。\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"对于 __PR3__ ，保留方程并查看 __PR4__ 。\"\n    }\n  ]\n}",
+              "generatedTokens": 79
+            },
+            {
+              "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes __PR0__ pages using __PR1__ of memory __PR2__.\"}]}\n/no_think",
+              "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}\nTranslate the entire sentence again. Required markers, each exactly once: __PR0__, __PR1__, __PR2__. Do not copy a previous incomplete answer.",
+              "tokensPerSecond": 135.54609165213301,
+              "format": "TRANSLATION_JSON",
+              "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"模型使用 __PR0__ 页，使用 __PR1__ 的内存 __PR2__。\"\n    }\n  ]\n}",
+              "generatedTokens": 48
+            }
+          ],
+          "status": "passed"
+        },
+        {
+          "fixture": "numeric-contrast",
+          "cacheReopenCalls": 0,
+          "failures": [],
+          "totalMs": 974.221292,
+          "replayedFirstAnswer": false,
+          "commits": [
+            {
+              "translation": "准确率从 91.2% 下降到 87.6%，而延迟则从 120 ms 提高到 80 ms。",
+              "id": "a"
+            },
+            {
+              "translation": "只有 3 个 50 文档失败，其余 47 均成功翻译。",
+              "id": "b"
+            }
+          ],
+          "cancelled": false,
+          "attempts": [{
+            "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"Accuracy fell from __PR0__ to __PR1__, whereas latency improved from __PR2__ to __PR3__.\"},{\"id\":\"s2\",\"text\":\"Only __PR4__ of the __PR5__ documents failed; the other __PR6__ were translated successfully.\"}]}\n/no_think",
+            "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}",
+            "tokensPerSecond": 131.34200645721518,
+            "format": "TRANSLATION_JSON",
+            "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"准确率从 __PR0__ 下降到 __PR1__，而延迟则从 __PR2__ 提高到 __PR3__。\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"只有 __PR4__ 个 __PR5__ 文档失败，其余 __PR6__ 均成功翻译。\"\n    }\n  ]\n}",
+            "generatedTokens": 101
+          }],
+          "status": "passed"
+        },
+        {
+          "fixture": "negation",
+          "cacheReopenCalls": 0,
+          "failures": [],
+          "totalMs": 599.842042,
+          "replayedFirstAnswer": false,
+          "commits": [
+            {
+              "translation": "该增加不具有统计学意义。",
+              "id": "a"
+            },
+            {
+              "translation": "结果可能暗示存在关联，但并未证明因果关系。",
+              "id": "b"
+            }
+          ],
+          "cancelled": false,
+          "attempts": [{
+            "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The increase was not statistically significant.\"},{\"id\":\"s2\",\"text\":\"The result may indicate an association, but it does not establish causation.\"}]}\n/no_think",
+            "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。术语表：{}",
+            "tokensPerSecond": 142.02247458902204,
+            "format": "TRANSLATION_JSON",
+            "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"该增加不具有统计学意义。\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"结果可能暗示存在关联，但并未证明因果关系。\"\n    }\n  ]\n}",
+            "generatedTokens": 65
+          }],
+          "status": "passed"
+        },
+        {
+          "fixture": "escaped-text",
+          "cacheReopenCalls": 0,
+          "failures": [],
+          "totalMs": 395.055708,
+          "replayedFirstAnswer": false,
+          "commits": [{
+            "translation": "作者称此为\u2018阅读助手\u2019。保持两句话的意思。",
+            "id": "a"
+          }],
+          "cancelled": false,
+          "attempts": [{
+            "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The author calls this a \\\"reading assistant\\\".\\nKeep the meaning of both sentences.\"}]}\n/no_think",
+            "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。术语表：{}",
+            "tokensPerSecond": 151.26188400520795,
+            "format": "TRANSLATION_JSON",
+            "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"作者称此为\u2018阅读助手\u2019。保持两句话的意思。\"\n    }\n  ]\n}",
+            "generatedTokens": 41
+          }],
+          "status": "passed"
+        },
+        {
+          "fixture": "long",
+          "cacheReopenCalls": 0,
+          "failures": [],
+          "totalMs": 1774.496292,
+          "replayedFirstAnswer": false,
+          "commits": [{
+            "translation": "科学文档包含连续的叙述和公式、表格、参考文献以及技术术语。一个有用的阅读助手应将叙述翻译，同时保留原意和文档的结构。研究人员通常阅读同一段落多次，以理解一个陌生的方法并与先前工作进行比较。本地语言模型可以支持这一过程，无需将文档发送到远程服务。他们的实际速度取决于内存带宽、处理器指令、工作线程和处理的上下文量。短答案可能在处理器达到稳定运行状态之前结束，因此重复测量并输出较长的输出是有用的。提示处理和token生成应分别测量，因为它们执行不同的计算类型。公平的比较也记录了模型文件、推理设置和设备条件。本实验的目标是生成一个忠实的中文翻译，并保留足够的时间信息以区分引擎性能与应用开销。",
+            "id": "a"
+          }],
+          "cancelled": false,
+          "attempts": [{
+            "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"Scientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead.\"}]}\n/no_think",
+            "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。术语表：{}",
+            "tokensPerSecond": 135.376754969362,
+            "format": "TRANSLATION_JSON",
+            "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"科学文档包含连续的叙述和公式、表格、参考文献以及技术术语。一个有用的阅读助手应将叙述翻译，同时保留原意和文档的结构。研究人员通常阅读同一段落多次，以理解一个陌生的方法并与先前工作进行比较。本地语言模型可以支持这一过程，无需将文档发送到远程服务。他们的实际速度取决于内存带宽、处理器指令、工作线程和处理的上下文量。短答案可能在处理器达到稳定运行状态之前结束，因此重复测量并输出较长的输出是有用的。提示处理和token生成应分别测量，因为它们执行不同的计算类型。公平的比较也记录了模型文件、推理设置和设备条件。本实验的目标是生成一个忠实的中文翻译，并保留足够的时间信息以区分引擎性能与应用开销。\"\n    }\n  ]\n}",
+            "generatedTokens": 197
+          }],
+          "status": "passed"
+        },
+        {
+          "fixture": "recorded-android-first-answer-real-recovery",
+          "cacheReopenCalls": 0,
+          "failures": [],
+          "totalMs": 755.393791,
+          "replayedFirstAnswer": true,
+          "commits": [
+            {
+              "translation": "对于 $E=mc^2$，保留方程并查看 https://example.org/paper.",
+              "id": "b"
+            },
+            {
+              "translation": "模型使用 100 页，使用 4 GB 的内存 [12]。",
+              "id": "a"
+            }
+          ],
+          "cancelled": false,
+          "attempts": [
+            {
+              "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes __PR0__ pages using __PR1__ of memory __PR2__.\"},{\"id\":\"s2\",\"text\":\"For __PR3__, retain the equation and see __PR4__\"}]}\n/no_think",
+              "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}",
+              "format": "TRANSLATION_JSON",
+              "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"模型使用了 __PR0__ 页，其中 __PR1__ 页。\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"对于 __PR3__，保留方程并查看 __PR4__\"\n    }\n  ]\n}",
+              "replayed": true
+            },
+            {
+              "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes __PR0__ pages using __PR1__ of memory __PR2__.\"}]}\n/no_think",
+              "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}\nTranslate the entire sentence again. Required markers, each exactly once: __PR0__, __PR1__, __PR2__. Do not copy a previous incomplete answer.",
+              "tokensPerSecond": 141.51725662901472,
+              "format": "TRANSLATION_JSON",
+              "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"模型使用 __PR0__ 页，使用 __PR1__ 的内存 __PR2__。\"\n    }\n  ]\n}",
+              "generatedTokens": 48
+            }
+          ],
+          "status": "passed"
+        }
+      ],
+      "sha256": "33bcc57074ec7b6eada5a90651ee546ec0c2b271002c22baf9f1b2dd1e8f75cb",
+      "source": {
+        "license": "apache-2.0",
+        "file": "Qwen3-0.6B-Q4_0.gguf",
+        "sha256": "33bcc57074ec7b6eada5a90651ee546ec0c2b271002c22baf9f1b2dd1e8f75cb",
+        "bytes": 382156480,
+        "repository": "unsloth/Qwen3-0.6B-GGUF",
+        "revision": "50968a4468ef4233ed78cd7c3de230dd1d61a56b"
+      }
+    },
+    {
+      "textOnlyDiagnostics": [
+        {
+          "input": "The model processes __PR0__ pages using __PR1__ of memory __PR2__.\n/no_think",
+          "system": "将下文完整翻译为简体中文，只输出译文正文，不要 JSON、解释或代码围栏。保留所有句子的原意、否定和转折。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}",
+          "translation": "该模型使用了 100 页，使用了 4 GB 内存 [12]。",
+          "raw": "该模型使用了 __PR0__ 页，使用了 __PR1__ 内存 __PR2__。",
+          "source": "The model processes 100 pages using 4 GB of memory [12].",
+          "status": "passed"
+        },
+        {
+          "input": "For __PR0__, retain the equation and see __PR1__\n/no_think",
+          "system": "将下文完整翻译为简体中文，只输出译文正文，不要 JSON、解释或代码围栏。保留所有句子的原意、否定和转折。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}",
+          "raw": "For PR0, retain the equation and see PR1.",
+          "source": "For $E=mc^2$, retain the equation and see https://example.org/paper.",
+          "error": "java.lang.IllegalArgumentException: EXPECTED_CHINESE_TRANSLATION",
+          "status": "failed"
+        }
+      ],
+      "cases": [
+        {
+          "fixture": "short",
+          "cacheReopenCalls": 0,
+          "failures": [],
+          "totalMs": 2516.227209,
+          "replayedFirstAnswer": false,
+          "commits": [{
+            "translation": "我们提出了一种高效处理科学文档翻译的方法",
+            "id": "a"
+          }],
+          "cancelled": false,
+          "attempts": [{
+            "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"We propose a memory-efficient method for translating scientific documents.\"}]}\n/no_think",
+            "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。术语表：{}",
+            "tokensPerSecond": 114.75496906461906,
+            "format": "TRANSLATION_JSON",
+            "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"我们提出了一种高效处理科学文档翻译的方法\"\n    }\n  ]\n}",
+            "generatedTokens": 37
+          }],
+          "status": "passed"
+        },
+        {
+          "fixture": "protected-batch",
+          "cacheReopenCalls": 0,
+          "failures": [],
+          "totalMs": 856.827708,
+          "replayedFirstAnswer": false,
+          "commits": [
+            {
+              "translation": "模型使用 100 页码处理 4 GB 页内存 [12]。",
+              "id": "a"
+            },
+            {
+              "translation": "对于 $E=mc^2$，保留方程并查看 https://example.org/paper.。",
+              "id": "b"
+            }
+          ],
+          "cancelled": false,
+          "attempts": [{
+            "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes __PR0__ pages using __PR1__ of memory __PR2__.\"},{\"id\":\"s2\",\"text\":\"For __PR3__, retain the equation and see __PR4__\"}]}\n/no_think",
+            "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}",
+            "tokensPerSecond": 114.63362041804326,
+            "format": "TRANSLATION_JSON",
+            "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"模型使用 __PR0__ 页码处理 __PR1__ 页内存 __PR2__。\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"对于 __PR3__，保留方程并查看 __PR4__。\"\n    }\n  ]\n}",
+            "generatedTokens": 83
+          }],
+          "status": "passed"
+        },
+        {
+          "fixture": "numeric-contrast",
+          "cacheReopenCalls": 0,
+          "failures": [],
+          "totalMs": 1021.926875,
+          "replayedFirstAnswer": false,
+          "commits": [
+            {
+              "translation": "准确率从 91.2% 下降到 87.6%，而延迟从 120 ms 提高到 80 ms。",
+              "id": "a"
+            },
+            {
+              "translation": "只有 3 个 50 文档失败，其余 47 文档成功翻译。",
+              "id": "b"
+            }
+          ],
+          "cancelled": false,
+          "attempts": [{
+            "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"Accuracy fell from __PR0__ to __PR1__, whereas latency improved from __PR2__ to __PR3__.\"},{\"id\":\"s2\",\"text\":\"Only __PR4__ of the __PR5__ documents failed; the other __PR6__ were translated successfully.\"}]}\n/no_think",
+            "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}",
+            "tokensPerSecond": 112.83505381924905,
+            "format": "TRANSLATION_JSON",
+            "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"准确率从 __PR0__ 下降到 __PR1__，而延迟从 __PR2__ 提高到 __PR3__。\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"只有 __PR4__ 个 __PR5__ 文档失败，其余 __PR6__ 文档成功翻译。\"\n    }\n  ]\n}",
+            "generatedTokens": 99
+          }],
+          "status": "passed"
+        },
+        {
+          "fixture": "negation",
+          "cacheReopenCalls": 0,
+          "failures": [],
+          "totalMs": 619.235666,
+          "replayedFirstAnswer": false,
+          "commits": [
+            {
+              "translation": "增加并不具有统计学意义",
+              "id": "a"
+            },
+            {
+              "translation": "结果可能暗示关联，但并未建立因果关系",
+              "id": "b"
+            }
+          ],
+          "cancelled": false,
+          "attempts": [{
+            "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The increase was not statistically significant.\"},{\"id\":\"s2\",\"text\":\"The result may indicate an association, but it does not establish causation.\"}]}\n/no_think",
+            "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。术语表：{}",
+            "tokensPerSecond": 116.6957130586329,
+            "format": "TRANSLATION_JSON",
+            "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"增加并不具有统计学意义\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"结果可能暗示关联，但并未建立因果关系\"\n    }\n  ]\n}",
+            "generatedTokens": 61
+          }],
+          "status": "passed"
+        },
+        {
+          "fixture": "escaped-text",
+          "cacheReopenCalls": 0,
+          "failures": [],
+          "totalMs": 425.216625,
+          "replayedFirstAnswer": false,
+          "commits": [{
+            "translation": "作者称此为\u2018阅读助手\u2019。",
+            "id": "a"
+          }],
+          "cancelled": false,
+          "attempts": [{
+            "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The author calls this a \\\"reading assistant\\\".\\nKeep the meaning of both sentences.\"}]}\n/no_think",
+            "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。术语表：{}",
+            "tokensPerSecond": 109.93386027788074,
+            "format": "TRANSLATION_JSON",
+            "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"作者称此为\u2018阅读助手\u2019。\"\n    }\n  ]\n}",
+            "generatedTokens": 36
+          }],
+          "status": "passed"
+        },
+        {
+          "fixture": "long",
+          "cacheReopenCalls": 0,
+          "failures": [],
+          "totalMs": 2146.758875,
+          "replayedFirstAnswer": false,
+          "commits": [{
+            "translation": "科学文献通常结合连续的叙述与公式、表格、参考文献以及专业术语。一个有用的阅读助手应将叙述翻译成中文，同时保留原文含义和文档结构。研究人员常阅读同一段落多次，以理解一种新的方法，并与之前的研究进行比较。本地语言模型可以支持这一过程，无需将文档发送到远程服务。其实际速度取决于内存带宽、处理器指令、工作线程以及需要处理的上下文量。短答案可能在处理器达到稳定运行状态之前结束，因此重复测量具有较长输出的短答案是有用的。提示处理和令牌生成应分别测量，因为它们执行不同的计算。公平的比较也记录了模型文件、推理设置和设备条件。本实验的目标是生成一个忠实的中文翻译，并保留足够的时序信息，以便区分引擎性能与应用开销。",
+            "id": "a"
+          }],
+          "cancelled": false,
+          "attempts": [{
+            "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"Scientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead.\"}]}\n/no_think",
+            "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。术语表：{}",
+            "tokensPerSecond": 105.29621728552085,
+            "format": "TRANSLATION_JSON",
+            "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"科学文献通常结合连续的叙述与公式、表格、参考文献以及专业术语。一个有用的阅读助手应将叙述翻译成中文，同时保留原文含义和文档结构。研究人员常阅读同一段落多次，以理解一种新的方法，并与之前的研究进行比较。本地语言模型可以支持这一过程，无需将文档发送到远程服务。其实际速度取决于内存带宽、处理器指令、工作线程以及需要处理的上下文量。短答案可能在处理器达到稳定运行状态之前结束，因此重复测量具有较长输出的短答案是有用的。提示处理和令牌生成应分别测量，因为它们执行不同的计算。公平的比较也记录了模型文件、推理设置和设备条件。本实验的目标是生成一个忠实的中文翻译，并保留足够的时序信息，以便区分引擎性能与应用开销。\"\n    }\n  ]\n}",
+            "generatedTokens": 202
+          }],
+          "status": "passed"
+        }
+      ],
+      "sha256": "9465e63a22add5354d9bb4b99e90117043c7124007664907259bd16d043bb031",
+      "source": {
+        "license": "apache-2.0",
+        "file": "Qwen3-0.6B-Q8_0.gguf",
+        "sha256": "9465e63a22add5354d9bb4b99e90117043c7124007664907259bd16d043bb031",
+        "bytes": 639446688,
+        "repository": "Qwen/Qwen3-0.6B-GGUF",
+        "revision": "23749fefcc72300e3a2ad315e1317431b06b590a"
+      }
+    },
+    {
+      "textOnlyDiagnostics": [
+        {
+          "input": "The model processes __PR0__ pages using __PR1__ of memory __PR2__.\n/no_think",
+          "system": "将下文完整翻译为简体中文，只输出译文正文，不要 JSON、解释或代码围栏。保留所有句子的原意、否定和转折。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}",
+          "translation": "该模型使用100页，使用4 GB个内存[12]。",
+          "raw": "该模型使用__PR0__页，使用__PR1__个内存__PR2__。",
+          "source": "The model processes 100 pages using 4 GB of memory [12].",
+          "status": "passed"
+        },
+        {
+          "input": "For __PR0__, retain the equation and see __PR1__\n/no_think",
+          "system": "将下文完整翻译为简体中文，只输出译文正文，不要 JSON、解释或代码围栏。保留所有句子的原意、否定和转折。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}",
+          "translation": "对于$E=mc^2$，保留方程并查看https://example.org/paper.。",
+          "raw": "对于__PR0__，保留方程并查看__PR1__。",
+          "source": "For $E=mc^2$, retain the equation and see https://example.org/paper.",
+          "status": "passed"
+        }
+      ],
+      "cases": [
+        {
+          "fixture": "short",
+          "cacheReopenCalls": 0,
+          "failures": [],
+          "totalMs": 1921.888958,
+          "replayedFirstAnswer": false,
+          "commits": [{
+            "translation": "我们提出一种用于翻译科学文档的方法，以使其内存效率最大化。",
+            "id": "a"
+          }],
+          "cancelled": false,
+          "attempts": [{
+            "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"We propose a memory-efficient method for translating scientific documents.\"}]}\n/no_think",
+            "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。术语表：{}",
+            "tokensPerSecond": 93.2123752330268,
+            "format": "TRANSLATION_JSON",
+            "raw": "{\n  \"translations\": [\n    {\n    \"id\": \"s1\",\n    \"translation\": \"我们提出一种用于翻译科学文档的方法，以使其内存效率最大化。\"\n  }\n]\n}",
+            "generatedTokens": 48
+          }],
+          "status": "passed"
+        },
+        {
+          "fixture": "protected-batch",
+          "cacheReopenCalls": 0,
+          "failures": [],
+          "totalMs": 3308.609833,
+          "replayedFirstAnswer": false,
+          "commits": [
+            {
+              "translation": "对于$E=mc^2$，保留方程并查看https://example.org/paper.",
+              "id": "b"
+            },
+            {
+              "translation": "该模型使用100页，使用4 GB个内存[12]。",
+              "id": "a"
+            }
+          ],
+          "cancelled": false,
+          "attempts": [
+            {
+              "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes __PR0__ pages using __PR1__ of memory __PR2__.\"},{\"id\":\"s2\",\"text\":\"For __PR3__, retain the equation and see __PR4__\"}]}\n/no_think",
+              "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}",
+              "tokensPerSecond": 86.94374934151843,
+              "format": "TRANSLATION_JSON",
+              "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"模型使用__PR0__个页面，__PR1__个内存中处理。\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"对于__PR3__，保留方程并查看__PR4__\"\n    }\n  ]\n}",
+              "generatedTokens": 88
+            },
+            {
+              "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes __PR0__ pages using __PR1__ of memory __PR2__.\"}]}\n/no_think",
+              "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}\nTranslate the entire sentence again. Required markers, each exactly once: __PR0__, __PR1__, __PR2__. Do not copy a previous incomplete answer.",
+              "tokensPerSecond": 83.72180262917074,
+              "format": "TRANSLATION_JSON",
+              "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"该模型使用__PR0__个页面，__PR1__个内存中处理。\"\n    }\n  ]\n}",
+              "generatedTokens": 53
+            },
+            {
+              "input": "The model processes __PR0__ pages using __PR1__ of memory __PR2__.\n/no_think",
+              "system": "将下文完整翻译为简体中文，只输出译文正文，不要 JSON、解释或代码围栏。保留所有句子的原意、否定和转折。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}",
+              "tokensPerSecond": 76.62707103861861,
+              "format": "TEXT",
+              "raw": "该模型使用__PR0__页，使用__PR1__个内存__PR2__。",
+              "generatedTokens": 21
+            }
+          ],
+          "status": "passed"
+        },
+        {
+          "fixture": "numeric-contrast",
+          "cacheReopenCalls": 0,
+          "failures": [{
+            "reason": "PROTECTED_TOKEN_MISMATCH",
+            "id": "b"
+          }],
+          "totalMs": 3307.536125,
+          "replayedFirstAnswer": false,
+          "commits": [{
+            "translation": "准确率从91.2%下降到87.6%，而延迟则从120 ms上升到80 ms。",
+            "id": "a"
+          }],
+          "cancelled": false,
+          "attempts": [
+            {
+              "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"Accuracy fell from __PR0__ to __PR1__, whereas latency improved from __PR2__ to __PR3__.\"},{\"id\":\"s2\",\"text\":\"Only __PR4__ of the __PR5__ documents failed; the other __PR6__ were translated successfully.\"}]}\n/no_think",
+              "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}",
+              "tokensPerSecond": 85.40979799012742,
+              "format": "TRANSLATION_JSON",
+              "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"准确率从__PR0__下降到__PR1__，而延迟则从__PR2__上升到__PR3__。\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"仅__PR4__份文档失败了，其余__PR6__份文档均成功翻译。\"\n    }\n  ]\n}",
+              "generatedTokens": 102
+            },
+            {
+              "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"Only __PR0__ of the __PR1__ documents failed; the other __PR2__ were translated successfully.\"}]}\n/no_think",
+              "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}\nTranslate the entire sentence again. Required markers, each exactly once: __PR0__, __PR1__, __PR2__. Do not copy a previous incomplete answer.",
+              "tokensPerSecond": 89.592256418308,
+              "format": "TRANSLATION_JSON",
+              "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"仅 0 份文档失败；其余 2 份文档翻译成功。\"\n    }\n  ]\n}",
+              "generatedTokens": 51
+            },
+            {
+              "input": "Only __PR0__ of the __PR1__ documents failed; the other __PR2__ were translated successfully.\n/no_think",
+              "system": "将下文完整翻译为简体中文，只输出译文正文，不要 JSON、解释或代码围栏。保留所有句子的原意、否定和转折。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}",
+              "tokensPerSecond": 82.54483071664845,
+              "format": "TEXT",
+              "raw": "只有 __PR0__ 份文档失败了；其余 __PR2__ 份文档翻译成功。",
+              "generatedTokens": 21
+            }
+          ],
+          "status": "failed"
+        },
+        {
+          "fixture": "negation",
+          "cacheReopenCalls": 0,
+          "failures": [],
+          "totalMs": 1140.428417,
+          "replayedFirstAnswer": false,
+          "commits": [
+            {
+              "translation": "这种增加在统计学上并未显著。",
+              "id": "a"
+            },
+            {
+              "translation": "结果可能表明存在关联，但并未建立因果关系。",
+              "id": "b"
+            }
+          ],
+          "cancelled": false,
+          "attempts": [{
+            "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The increase was not statistically significant.\"},{\"id\":\"s2\",\"text\":\"The result may indicate an association, but it does not establish causation.\"}]}\n/no_think",
+            "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。术语表：{}",
+            "tokensPerSecond": 79.07321619137502,
+            "format": "TRANSLATION_JSON",
+            "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"这种增加在统计学上并未显著。\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"结果可能表明存在关联，但并未建立因果关系。\"\n    }\n  ]\n}",
+            "generatedTokens": 75
+          }],
+          "status": "passed"
+        },
+        {
+          "fixture": "escaped-text",
+          "cacheReopenCalls": 0,
+          "failures": [],
+          "totalMs": 761.547959,
+          "replayedFirstAnswer": false,
+          "commits": [{
+            "translation": "该作者称这种为\u2018阅读助手\u2019。",
+            "id": "a"
+          }],
+          "cancelled": false,
+          "attempts": [{
+            "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The author calls this a \\\"reading assistant\\\".\\nKeep the meaning of both sentences.\"}]}\n/no_think",
+            "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。术语表：{}",
+            "tokensPerSecond": 82.69699915668292,
+            "format": "TRANSLATION_JSON",
+            "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"该作者称这种为\u2018阅读助手\u2019。\"\n    }\n  ]\n}",
+            "generatedTokens": 43
+          }],
+          "status": "passed"
+        },
+        {
+          "fixture": "long",
+          "cacheReopenCalls": 0,
+          "failures": [],
+          "totalMs": 2859.369042,
+          "replayedFirstAnswer": false,
+          "commits": [{
+            "translation": "科学文档结合连续 prose 与方程、表格、参考文献和技术术语。一个有用的阅读助手应翻译 prose 的同时保留原文的意和结构。研究人员常常反复阅读同一段落以理解一种陌生的方法，并将其与先前工作进行比较。本地语言模型可支持此过程而不需将文档发送至远程服务。其实际速度取决于内存带宽、处理器指令、工作线程和处理的上下文量。一个简短的回答可能在处理器达到稳态运行状态之前完成，因此较长的输出进行多次测量是有益的。处理请求和令牌生成应分开测量，因为它们执行不同类型的计算。公平的比较记录精确的模型文件、推理设置和设备条件。本实验的目标是产生一个忠实的中文翻译，并保留足够的时信息以区分引擎性能与应用开销。",
+            "id": "a"
+          }],
+          "cancelled": false,
+          "attempts": [{
+            "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"Scientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead.\"}]}\n/no_think",
+            "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。术语表：{}",
+            "tokensPerSecond": 76.07533711506194,
+            "format": "TRANSLATION_JSON",
+            "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"科学文档结合连续 prose 与方程、表格、参考文献和技术术语。一个有用的阅读助手应翻译 prose 的同时保留原文的意和结构。研究人员常常反复阅读同一段落以理解一种陌生的方法，并将其与先前工作进行比较。本地语言模型可支持此过程而不需将文档发送至远程服务。其实际速度取决于内存带宽、处理器指令、工作线程和处理的上下文量。一个简短的回答可能在处理器达到稳态运行状态之前完成，因此较长的输出进行多次测量是有益的。处理请求和令牌生成应分开测量，因为它们执行不同类型的计算。公平的比较记录精确的模型文件、推理设置和设备条件。本实验的目标是产生一个忠实的中文翻译，并保留足够的时信息以区分引擎性能与应用开销。\"\n    }\n  ]\n}",
+            "generatedTokens": 187
+          }],
+          "status": "passed"
+        },
+        {
+          "fixture": "recorded-android-first-answer-real-recovery",
+          "cacheReopenCalls": 0,
+          "failures": [],
+          "totalMs": 1936.254666,
+          "replayedFirstAnswer": true,
+          "commits": [
+            {
+              "translation": "对于$E=mc^2$，保留方程并查看https://example.org/paper.",
+              "id": "b"
+            },
+            {
+              "translation": "该模型使用100页，使用4 GB个内存[12]。",
+              "id": "a"
+            }
+          ],
+          "cancelled": false,
+          "attempts": [
+            {
+              "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes __PR0__ pages using __PR1__ of memory __PR2__.\"},{\"id\":\"s2\",\"text\":\"For __PR3__, retain the equation and see __PR4__\"}]}\n/no_think",
+              "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}",
+              "format": "TRANSLATION_JSON",
+              "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"模型使用__PR0__个页面，__PR1__个内存中处理。\"\n    },\n    {\n      \"id\": \"s2\",\n      \"translation\": \"对于__PR3__，保留方程并查看__PR4__\"\n    }\n  ]\n}",
+              "replayed": true
+            },
+            {
+              "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes __PR0__ pages using __PR1__ of memory __PR2__.\"}]}\n/no_think",
+              "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}\nTranslate the entire sentence again. Required markers, each exactly once: __PR0__, __PR1__, __PR2__. Do not copy a previous incomplete answer.",
+              "tokensPerSecond": 80.04193387854546,
+              "format": "TRANSLATION_JSON",
+              "raw": "{\n  \"translations\": [\n    {\n      \"id\": \"s1\",\n      \"translation\": \"该模型使用__PR0__个页面，__PR1__个内存中处理。\"\n    }\n  ]\n}",
+              "generatedTokens": 53
+            },
+            {
+              "input": "The model processes __PR0__ pages using __PR1__ of memory __PR2__.\n/no_think",
+              "system": "将下文完整翻译为简体中文，只输出译文正文，不要 JSON、解释或代码围栏。保留所有句子的原意、否定和转折。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}",
+              "tokensPerSecond": 82.57461093851401,
+              "format": "TEXT",
+              "raw": "该模型使用__PR0__页，使用__PR1__个内存__PR2__。",
+              "generatedTokens": 21
+            }
+          ],
+          "status": "passed"
+        }
+      ],
+      "sha256": "57d1997790d1744fba5b40a7317df71ea5e2acee28c47e78f0cce39c0703f8cf",
+      "source": {
+        "license": "apache-2.0",
+        "file": "Qwen3.5-0.8B-Q4_0.gguf",
+        "sha256": "57d1997790d1744fba5b40a7317df71ea5e2acee28c47e78f0cce39c0703f8cf",
+        "bytes": 563036064,
+        "repository": "ggml-org/Qwen3.5-0.8B-GGUF",
+        "revision": "807dfd9a6fadbf703207aac3bfb0b2b3040d077c"
+      }
+    },
+    {
+      "textOnlyDiagnostics": [
+        {
+          "input": "The model processes __PR0__ pages using __PR1__ of memory __PR2__.\n/no_think",
+          "system": "将下文完整翻译为简体中文，只输出译文正文，不要 JSON、解释或代码围栏。保留所有句子的原意、否定和转折。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}",
+          "translation": "模型使用 100 页码，使用 4 GB 的内存 [12]。",
+          "raw": "模型使用 __PR0__ 页码，使用 __PR1__ 的内存 __PR2__。",
+          "source": "The model processes 100 pages using 4 GB of memory [12].",
+          "status": "passed"
+        },
+        {
+          "input": "For __PR0__, retain the equation and see __PR1__\n/no_think",
+          "system": "将下文完整翻译为简体中文，只输出译文正文，不要 JSON、解释或代码围栏。保留所有句子的原意、否定和转折。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}",
+          "translation": "对于 $E=mc^2$，保留方程并见 https://example.org/paper.",
+          "raw": "对于 __PR0__，保留方程并见 __PR1__",
+          "source": "For $E=mc^2$, retain the equation and see https://example.org/paper.",
+          "status": "passed"
+        }
+      ],
+      "cases": [
+        {
+          "fixture": "short",
+          "cacheReopenCalls": 0,
+          "failures": [],
+          "totalMs": 3256.618042,
+          "replayedFirstAnswer": false,
+          "commits": [{
+            "translation": "我们提出一种内存高效的方法用于翻译科学文档。",
+            "id": "a"
+          }],
+          "cancelled": false,
+          "attempts": [{
+            "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"We propose a memory-efficient method for translating scientific documents.\"}]}\n/no_think",
+            "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。术语表：{}",
+            "tokensPerSecond": 59.70153662866387,
+            "format": "TRANSLATION_JSON",
+            "raw": "{\"translations\": [{\"id\": \"s1\", \"translation\": \"我们提出一种内存高效的方法用于翻译科学文档。\"}]}",
+            "generatedTokens": 27
+          }],
+          "status": "passed"
+        },
+        {
+          "fixture": "protected-batch",
+          "cacheReopenCalls": 0,
+          "failures": [],
+          "totalMs": 1621.502708,
+          "replayedFirstAnswer": false,
+          "commits": [
+            {
+              "translation": "模型使用 100 页内存 4 GB 处理 [12] 。",
+              "id": "a"
+            },
+            {
+              "translation": "对于 $E=mc^2$ ，保留方程并查看 https://example.org/paper. 。",
+              "id": "b"
+            }
+          ],
+          "cancelled": false,
+          "attempts": [{
+            "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The model processes __PR0__ pages using __PR1__ of memory __PR2__.\"},{\"id\":\"s2\",\"text\":\"For __PR3__, retain the equation and see __PR4__\"}]}\n/no_think",
+            "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}",
+            "tokensPerSecond": 59.95676655925181,
+            "format": "TRANSLATION_JSON",
+            "raw": "{\"translations\": [{\"id\": \"s1\", \"translation\": \"模型使用 __PR0__ 页内存 __PR1__ 处理 __PR2__ 。\"}, {\"id\": \"s2\", \"translation\": \"对于 __PR3__ ，保留方程并查看 __PR4__ 。\"}]}",
+            "generatedTokens": 65
+          }],
+          "status": "passed"
+        },
+        {
+          "fixture": "numeric-contrast",
+          "cacheReopenCalls": 0,
+          "failures": [],
+          "totalMs": 3075.039125,
+          "replayedFirstAnswer": false,
+          "commits": [
+            {
+              "translation": "准确性从91.2%下降到87.6%，而延迟从120 ms提高到80 ms。",
+              "id": "a"
+            },
+            {
+              "translation": "只有 3 的 50 份文件失败；其他 47 成功翻译。",
+              "id": "b"
+            }
+          ],
+          "cancelled": false,
+          "attempts": [
+            {
+              "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"Accuracy fell from __PR0__ to __PR1__, whereas latency improved from __PR2__ to __PR3__.\"},{\"id\":\"s2\",\"text\":\"Only __PR4__ of the __PR5__ documents failed; the other __PR6__ were translated successfully.\"}]}\n/no_think",
+              "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}",
+              "tokensPerSecond": 64.14177704547427,
+              "format": "TRANSLATION_JSON",
+              "raw": "{\"translations\": [{\"id\": \"s1\", \"translation\": \"准确性从__PR0__下降到__PR1__，而延迟从__PR2__提高到__PR3__。\"}, {\"id\": \"s2\", \"translation\": \"只有__PR4__份文档失败；其余__PR6__成功翻译。\"}]}",
+              "generatedTokens": 72
+            },
+            {
+              "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"Only __PR0__ of the __PR1__ documents failed; the other __PR2__ were translated successfully.\"}]}\n/no_think",
+              "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。术语表：{}\nTranslate the entire sentence again. Required markers, each exactly once: __PR0__, __PR1__, __PR2__. Do not copy a previous incomplete answer.",
+              "tokensPerSecond": 58.75381679849588,
+              "format": "TRANSLATION_JSON",
+              "raw": "{\"translations\": [{\"id\": \"s1\", \"translation\": \"只有 __PR0__ 的 __PR1__ 份文件失败；其他 __PR2__ 成功翻译。\"}]}",
+              "generatedTokens": 40
+            }
+          ],
+          "status": "passed"
+        },
+        {
+          "fixture": "negation",
+          "cacheReopenCalls": 0,
+          "failures": [],
+          "totalMs": 1271.688333,
+          "replayedFirstAnswer": false,
+          "commits": [
+            {
+              "translation": "数值增加并不具有统计学意义。",
+              "id": "a"
+            },
+            {
+              "translation": "结果可能表明存在关联，但并不能证明因果关系。",
+              "id": "b"
+            }
+          ],
+          "cancelled": false,
+          "attempts": [{
+            "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The increase was not statistically significant.\"},{\"id\":\"s2\",\"text\":\"The result may indicate an association, but it does not establish causation.\"}]}\n/no_think",
+            "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。术语表：{}",
+            "tokensPerSecond": 57.19923645549578,
+            "format": "TRANSLATION_JSON",
+            "raw": "{\"translations\": [{\"id\": \"s1\", \"translation\": \"数值增加并不具有统计学意义。\"}, {\"id\": \"s2\", \"translation\": \"结果可能表明存在关联，但并不能证明因果关系。\"}]}",
+            "generatedTokens": 48
+          }],
+          "status": "passed"
+        },
+        {
+          "fixture": "escaped-text",
+          "cacheReopenCalls": 0,
+          "failures": [],
+          "totalMs": 926.075667,
+          "replayedFirstAnswer": false,
+          "commits": [{
+            "translation": "作者将此称为\"阅读助手\"。\n保持两个句子的原意。",
+            "id": "a"
+          }],
+          "cancelled": false,
+          "attempts": [{
+            "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"The author calls this a \\\"reading assistant\\\".\\nKeep the meaning of both sentences.\"}]}\n/no_think",
+            "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。术语表：{}",
+            "tokensPerSecond": 57.44701126414208,
+            "format": "TRANSLATION_JSON",
+            "raw": "{\"translations\": [{\"id\": \"s1\", \"translation\": \"作者将此称为\\\"阅读助手\\\"。\\n保持两个句子的原意。\"}]}",
+            "generatedTokens": 33
+          }],
+          "status": "passed"
+        },
+        {
+          "fixture": "long",
+          "cacheReopenCalls": 0,
+          "failures": [],
+          "totalMs": 4785.333084,
+          "replayedFirstAnswer": false,
+          "commits": [{
+            "translation": "科学文档结合连续的散文与公式、表格、参考文献和技术术语。一个有用的阅读助手应翻译散文内容，同时保留原文的含义和文档的结构。研究人员经常多次阅读同一段文字，以理解一个陌生的方法，并将其与先前的工作进行比较。本地语言模型可以支持这一过程，而无需将文档发送到远程服务。其实际速度取决于内存带宽、处理器指令、工作线程以及正在处理的上下文量。一个简短的答案可能在处理器达到稳定运行状态之前就完成了，因此重复测量具有较长输出的测量结果是有用的。提示处理和令牌生成应分别进行测量，因为它们执行不同的计算类型。公平的比较也记录了精确的模型文件、推理设置和设备条件。本实验的目标是生成一个忠实的中文翻译，并保留足够的定时信息以区分发动机性能和应用开销。",
+            "id": "a"
+          }],
+          "cancelled": false,
+          "attempts": [{
+            "input": "{\"sentences\":[{\"id\":\"s1\",\"text\":\"Scientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead.\"}]}\n/no_think",
+            "system": "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。术语表：{}",
+            "tokensPerSecond": 49.86808688615502,
+            "format": "TRANSLATION_JSON",
+            "raw": "{\"translations\": [{\"id\": \"s1\", \"translation\": \"科学文档结合连续的散文与公式、表格、参考文献和技术术语。一个有用的阅读助手应翻译散文内容，同时保留原文的含义和文档的结构。研究人员经常多次阅读同一段文字，以理解一个陌生的方法，并将其与先前的工作进行比较。本地语言模型可以支持这一过程，而无需将文档发送到远程服务。其实际速度取决于内存带宽、处理器指令、工作线程以及正在处理的上下文量。一个简短的答案可能在处理器达到稳定运行状态之前就完成了，因此重复测量具有较长输出的测量结果是有用的。提示处理和令牌生成应分别进行测量，因为它们执行不同的计算类型。公平的比较也记录了精确的模型文件、推理设置和设备条件。本实验的目标是生成一个忠实的中文翻译，并保留足够的定时信息以区分发动机性能和应用开销。\"}]}",
+            "generatedTokens": 197
+          }],
+          "status": "passed"
+        }
+      ],
+      "sha256": "3d0b790534fe4b79525fc3692950408dca41171676ed7e21db57af5c65ef6ab6",
+      "source": {
+        "license": "apache-2.0",
+        "file": "Qwen3-1.7B-Q4_K_M.gguf",
+        "sha256": "3d0b790534fe4b79525fc3692950408dca41171676ed7e21db57af5c65ef6ab6",
+        "bytes": 1359279776,
+        "repository": "Ollama/library/qwen3:1.7b",
+        "url": "https://registry.ollama.ai/v2/library/qwen3/blobs/sha256:3d0b790534fe4b79525fc3692950408dca41171676ed7e21db57af5c65ef6ab6"
+      }
+    }
+  ],
+  "engine": "llama.cpp@2280f0fd163b03d4331d49e08460f66502e35854;cpu;arm64;ctx4096;proposal-exact-grammar-v3;templates-qwen2-qwen3-qwen35-lfm2",
+  "threads": 6,
+  "formatPassCertifiesSemanticAccuracy": false,
+  "platform": "Mac OS X aarch64",
+  "hardware": "Apple M1 Pro",
+  "policy": "partial-row-commit; targeted JSON retry; strict single-text final retry"
+}

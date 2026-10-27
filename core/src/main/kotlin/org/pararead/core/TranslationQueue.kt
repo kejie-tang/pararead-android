@@ -81,23 +81,35 @@ class TranslationQueue(private val scope: CoroutineScope, private val cache: Tra
             }
             if (pending.isNotEmpty()) batches += pending
             for (batch in batches) {
-                var succeeded = false; var message = "TRANSLATION_FAILED"
+                var remaining = batch
+                val reasons = mutableMapOf<String, String>()
                 for (attempt in 0..2) {
                     currentCoroutineContext().ensureActive()
-                    try {
-                        // A failed batch is repaired one sentence at a time, with the same outer retry budget.
-                        val validated = if (attempt > 0 && batch.size > 1) batch.flatMap { infer(listOf(it), w) } else infer(batch, w)
-                        for ((source, value) in validated) {
-                            currentCoroutineContext().ensureActive()
-                            val key = contentKey(source.text, w.config)
-                            cache.put(key, source.text, value, w.config)
-                            w.committed(source, value, key)
+                    val retry = mutableListOf<SourceSentence>()
+                    // Accepted rows survive a neighbour's failure. Only failed sentences are retried.
+                    val groups = if (attempt == 0) listOf(remaining) else remaining.map { listOf(it) }
+                    for (group in groups) {
+                        currentCoroutineContext().ensureActive()
+                        try {
+                            val validated = infer(group, w, attempt)
+                            for ((source, value) in validated.accepted) {
+                                currentCoroutineContext().ensureActive()
+                                val key = contentKey(source.text, w.config)
+                                cache.put(key, source.text, value, w.config)
+                                w.committed(source, value, key)
+                            }
+                            for ((source, reason) in validated.rejected) { retry += source; reasons[source.id] = reason }
+                        } catch (cancel: CancellationException) { throw cancel }
+                        catch (e: Exception) {
+                            retry += group
+                            group.forEach { reasons[it.id] = (e.message ?: "TRANSLATION_FAILED").take(512) }
                         }
-                        succeeded = true; break
-                    } catch (cancel: CancellationException) { throw cancel }
-                    catch (e: Exception) { message = (e.message ?: "TRANSLATION_FAILED").take(512); if (attempt < 2) delay(200L shl attempt) }
+                    }
+                    remaining = retry
+                    if (remaining.isEmpty()) break
+                    if (attempt < 2) delay(200L shl attempt)
                 }
-                if (!succeeded) failures += batch.map { it.id to message }
+                failures += remaining.map { it.id to reasons.getValue(it.id) }
             }
             w.finished(failures, false)
         } catch (e: CancellationException) {
@@ -112,7 +124,7 @@ class TranslationQueue(private val scope: CoroutineScope, private val cache: Tra
             synchronized(queue) { cancelled.remove(w.id) }
         }
     }
-    private suspend fun infer(batch: List<SourceSentence>, w: TranslationWork): List<Pair<SourceSentence, String>> {
+    private suspend fun infer(batch: List<SourceSentence>, w: TranslationWork, attempt: Int): TranslationValidation {
         if (batch.size == 1 && batch[0].text.length > 1200) {
             val original = batch[0]
             val parts = StructuredTranslation.fragments(original.text)
@@ -120,14 +132,28 @@ class TranslationQueue(private val scope: CoroutineScope, private val cache: Tra
             val translated = StringBuilder()
             for (part in parts) {
                 val key = contentKey(part, w.config)
-                val value = cache.get(key) ?: infer(listOf(original.copy(text = part)), w.copy(delta = { _, text -> w.delta(original, translated.toString() + text) })).single().second.also {
+                val value = cache.get(key) ?: infer(listOf(original.copy(text = part)), w.copy(delta = { _, text -> w.delta(original, translated.toString() + text) }), attempt).let { result ->
+                    require(result.rejected.isEmpty()) { result.rejected.first().second }
+                    result.accepted.single().second
+                }.also {
                     cache.put(key, part, it, w.config)
                 }
                 translated.append(value)
             }
-            return listOf(original to translated.toString())
+            return TranslationValidation(listOf(original to translated.toString()), emptyList())
         }
-        val (prompt, protected) = StructuredTranslation.prompt(batch, w.config)
+        if (attempt == 2) {
+            val source = batch.single()
+            val (prompt, protected) = StructuredTranslation.textPrompt(source, w.config)
+            var complete: String? = null
+            // Unconstrained text is not shown as a draft before its protected content is checked.
+            provider().generate(prompt).collect { event -> if (event is ProviderEvent.Complete) {
+                check(complete == null); complete = event.text
+            } }
+            return TranslationValidation(listOf(source to StructuredTranslation.validateText(requireNotNull(complete), protected, w.config)), emptyList())
+        }
+        val (prompt, protected) = if (attempt == 1) StructuredTranslation.repairPrompt(batch.single(), w.config)
+            else StructuredTranslation.prompt(batch, w.config)
         var result: String? = null
         val draft = StringBuilder(); val displayed = mutableMapOf<String, String>()
         provider().generate(prompt).collect { event ->
@@ -141,6 +167,6 @@ class TranslationQueue(private val scope: CoroutineScope, private val cache: Tra
                 is ProviderEvent.Complete -> { check(result == null); result = event.text }
             }
         }
-        return StructuredTranslation.validate(requireNotNull(result), batch, protected)
+        return StructuredTranslation.validateEach(requireNotNull(result), batch, protected)
     }
 }

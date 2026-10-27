@@ -1,5 +1,7 @@
 # Small-model evaluation for ParaRead
 
+This report records alpha.4. Alpha.5 adds independent row commits and targeted JSON/text recovery; see the [new recovery results and remaining failures](format-recovery.md). The first-pass format and speed measurements below remain historical alpha.4 results.
+
 Test date: 2026-10-27. Real downloaded GGUF weights, the production CPU/JNI runtime, six CPU threads, no GPU. Host: **Apple M1 Pro / macOS ARM64**. These measurements are not Dimensity 9400 results and cannot be converted into a promised tablet token/s.
 
 

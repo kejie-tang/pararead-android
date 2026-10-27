@@ -17,10 +17,10 @@ class OpenAICompatibleProvider(
 ) : TranslationProvider {
     override fun generate(prompt: ModelPrompt) = callbackFlow {
         val body = JSONObject().put("model", model).put("temperature", 0.2).put("max_tokens", 2048).put("stream", true)
-            .put("response_format", JSONObject().put("type", "json_object"))
             .put("chat_template_kwargs", JSONObject().put("enable_thinking", false))
             .put("messages", JSONArray().put(JSONObject().put("role", "system").put("content", prompt.system))
                 .put(JSONObject().put("role", "user").put("content", prompt.user)))
+        if (prompt.outputFormat == ModelOutputFormat.TRANSLATION_JSON) body.put("response_format", JSONObject().put("type", "json_object"))
         val url = baseUrl.trimEnd('/') + "/chat/completions"
         val builder = Request.Builder().url(url).post(body.toString().toRequestBody("application/json".toMediaType()))
         require(url.startsWith("https://") || isLocalHttp(url)) { "HTTP_ONLY_FOR_LOCAL_SERVER" }

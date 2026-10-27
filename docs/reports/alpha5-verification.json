@@ -1,0 +1,221 @@
+{
+  "date": "2026-10-27",
+  "appVersion": "0.2.0-alpha.5",
+  "physicalDimensity9400Tested": false,
+  "core": {
+    "tests": 41,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "sourceContractsPassed": 16,
+  "androidWebChecksPassed": 13,
+  "hostJniRegressionPassed": 4,
+  "androidReaderWholeDocumentAndSpeedUiPassed": 7,
+  "androidResearch": [
+    {
+      "file": "Qwen3-0.6B-Q4_0.gguf",
+      "forcedText": false,
+      "testPassed": true,
+      "directCases": [
+        {
+          "fixture": "short",
+          "status": "passed"
+        },
+        {
+          "fixture": "protected-batch",
+          "status": "failed"
+        },
+        {
+          "fixture": "negation",
+          "status": "passed"
+        },
+        {
+          "fixture": "escaped-text",
+          "status": "passed"
+        }
+      ],
+      "queueStatus": "passed",
+      "calls": 2,
+      "formats": [
+        "TRANSLATION_JSON",
+        "TRANSLATION_JSON"
+      ],
+      "commits": [
+        "b",
+        "a"
+      ],
+      "failures": [],
+      "cacheReopenCalls": 0,
+      "elapsedSeconds": 20.1
+    },
+    {
+      "file": "Qwen3.5-0.8B-Q4_0.gguf",
+      "forcedText": false,
+      "testPassed": true,
+      "directCases": [
+        {
+          "fixture": "short",
+          "status": "passed"
+        },
+        {
+          "fixture": "protected-batch",
+          "status": "failed"
+        },
+        {
+          "fixture": "negation",
+          "status": "passed"
+        },
+        {
+          "fixture": "escaped-text",
+          "status": "passed"
+        }
+      ],
+      "queueStatus": "passed",
+      "calls": 3,
+      "formats": [
+        "TRANSLATION_JSON",
+        "TRANSLATION_JSON",
+        "TEXT"
+      ],
+      "commits": [
+        "b",
+        "a"
+      ],
+      "failures": [],
+      "cacheReopenCalls": 0,
+      "elapsedSeconds": 22.6
+    },
+    {
+      "file": "Qwen3-0.6B-Q4_K_M.gguf",
+      "forcedText": false,
+      "testPassed": true,
+      "directCases": [
+        {
+          "fixture": "short",
+          "status": "passed"
+        },
+        {
+          "fixture": "protected-batch",
+          "status": "passed"
+        },
+        {
+          "fixture": "negation",
+          "status": "passed"
+        },
+        {
+          "fixture": "escaped-text",
+          "status": "passed"
+        }
+      ],
+      "queueStatus": "passed",
+      "calls": 1,
+      "formats": [
+        "TRANSLATION_JSON"
+      ],
+      "commits": [
+        "a",
+        "b"
+      ],
+      "failures": [],
+      "cacheReopenCalls": 0,
+      "elapsedSeconds": 9.9
+    },
+    {
+      "file": "Qwen3-0.6B-Q4_0.gguf",
+      "forcedText": true,
+      "testPassed": true,
+      "directCases": [
+        {
+          "fixture": "short",
+          "status": "passed"
+        },
+        {
+          "fixture": "protected-batch",
+          "status": "failed"
+        },
+        {
+          "fixture": "negation",
+          "status": "passed"
+        },
+        {
+          "fixture": "escaped-text",
+          "status": "passed"
+        }
+      ],
+      "queueStatus": "passed",
+      "calls": 3,
+      "formats": [
+        "TRANSLATION_JSON",
+        "TRANSLATION_JSON",
+        "TEXT"
+      ],
+      "commits": [
+        "b",
+        "a"
+      ],
+      "failures": [],
+      "cacheReopenCalls": 0,
+      "elapsedSeconds": 7.4
+    },
+    {
+      "file": "Qwen3-0.6B-Q4_K_M.gguf",
+      "forcedText": true,
+      "testPassed": false,
+      "directCases": [
+        {
+          "fixture": "short",
+          "status": "passed"
+        },
+        {
+          "fixture": "protected-batch",
+          "status": "passed"
+        },
+        {
+          "fixture": "negation",
+          "status": "passed"
+        },
+        {
+          "fixture": "escaped-text",
+          "status": "passed"
+        }
+      ],
+      "queueStatus": "failed",
+      "calls": 3,
+      "formats": [
+        "TRANSLATION_JSON",
+        "TRANSLATION_JSON",
+        "TEXT"
+      ],
+      "commits": [
+        "b"
+      ],
+      "failures": [
+        {
+          "id": "a",
+          "reason": "EXPECTED_CHINESE_TRANSLATION"
+        }
+      ],
+      "cacheReopenCalls": 0,
+      "elapsedSeconds": 9.7
+    }
+  ],
+  "researchFailuresRetained": true,
+  "formatPassCertifiesSemanticAccuracy": false,
+  "buildAndLint": "passed",
+  "distributionChecks": "sole original PDF; no GGUF; all notices; ARM64; ELF/ZIP 16 KiB alignment",
+  "debugCertificateSha256": "e044c8f329f42465866add4d041f29c498009361241610c8ee2de43ae6e87a45",
+  "sameCertificateAsAlpha4": true,
+  "artifacts": [
+    {
+      "file": "ParaRead-0.2.0-alpha.5-android-arm64-debug-notices.zip",
+      "bytes": 54811,
+      "sha256": "611f118275bc50ac1b90007d466ca0ac941773ae6eb6858b6ecea1fa83af5b81"
+    },
+    {
+      "file": "ParaRead-0.2.0-alpha.5-android-arm64-debug.apk",
+      "bytes": 43246677,
+      "sha256": "2057282bbce04353c4e5d14838008eb150a5767bc6725aebd6ade6d9962e1540"
+    }
+  ]
+}

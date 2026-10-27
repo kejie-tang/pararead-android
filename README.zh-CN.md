@@ -6,7 +6,7 @@
 
 [![Android CI](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml/badge.svg?branch=main)](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml) [![Android 9+](https://img.shields.io/badge/Android-9%2B-3DDC84?logo=android&logoColor=white)](#快速开始) [![代码许可：Apache-2.0](https://img.shields.io/badge/Code-Apache--2.0-blue)](LICENSE)
 
-**[下载预览版 APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.4/ParaRead-0.2.0-alpha.4-android-arm64-debug.apk)** · [全部版本](https://github.com/kejie-tang/pararead-android/releases) · [快速开始](#快速开始) · [English](README.md)
+**[下载预览版 APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.5/ParaRead-0.2.0-alpha.5-android-arm64-debug.apk)** · [全部版本](https://github.com/kejie-tang/pararead-android/releases) · [快速开始](#快速开始) · [English](README.md)
 
 基于 [ParaRead](https://github.com/Chuanyunux/pararead) 0.6.1 的独立、非官方 Android 移植与扩展。**当前为开发预览版，仅支持 ARM64；应用界面目前主要使用中文。**
 
@@ -32,7 +32,7 @@
 
 **设备要求：** Android 9 / API 28 及以上、ARM64，以及支持 `WebMessageListener` 的 Android System WebView。布局面向平板设计。
 
-1. **安装[预览版 APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.4/ParaRead-0.2.0-alpha.4-android-arm64-debug.apk)。** 当前下载为 debug 签名的 `0.2.0-alpha.4`。若旧版签名不同，可能需要卸载后安装；卸载会清除应用数据，请先另存重要的批注 PDF。
+1. **安装[预览版 APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.5/ParaRead-0.2.0-alpha.5-android-arm64-debug.apk)。** 当前下载为 debug 签名的 `0.2.0-alpha.5`。若旧版签名不同，可能需要卸载后安装；卸载会清除应用数据，请先另存重要的批注 PDF。
 2. **打开文档。** 点击“打开示例文档”，或通过系统文件选择器导入有可选中文字的 PDF。
 3. **下载本地模型。** 点击书库的“下载默认模型”，或进入“设置 → 离线 GGUF”。应用会在完整大小与 SHA-256 校验通过后启用模型。
 4. **开始阅读。** 点击句子，翻译本页，或启动全篇任务；在“目标语言”中调整译文语言。主动取消后，点击“全篇 / 继续”接续任务。
@@ -52,7 +52,7 @@
 
 **想更小、更快？**可以尝试 [Unsloth](https://huggingface.co/unsloth/Qwen3-0.6B-GGUF) 的 `Qwen3-0.6B-Q4_K_M.gguf`（**397 MB**）；官方 [Qwen Q8_0](https://huggingface.co/Qwen/Qwen3-0.6B-GGUF) 为 **639 MB**。它们适合快速浏览，小模型仍可能漏掉细节或翻错数字关系。具体结论、文件哈希和原始输出见[小模型实测与推荐](docs/reports/small-model-evaluation.md)。
 
-Alpha.4 改用 ASCII 占位符，并移除提示词中可被照抄的示例答案，改善小模型的协议兼容性。升级后会按新的缓存版本重新生成译文；默认下载仍为 Qwen3 1.7B。
+Alpha.5 逐句保存校验通过的译文，只重试失败句；重试时明确列出必需标记，最后尝试逐句纯文本兜底。引用等受保护内容缺失或重复时仍会拒绝保存，部分样本仍无法恢复，见[格式恢复实测](docs/reports/format-recovery.md)。升级后会按新的缓存版本重新生成译文；默认下载仍为 Qwen3 1.7B。
 
 下载通过 Android 系统队列执行，支持进度、取消、重试和重开后继续监控。删除模型会保留文档、阅读进度与译文缓存。实现和测试细节见[模型管理](docs/reports/model-management.md)与 [CPU 线程设置](docs/reports/cpu-threads.md)。
 

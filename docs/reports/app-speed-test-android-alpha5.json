@@ -1,0 +1,109 @@
+{
+  "methodVersion": 2,
+  "source": "Scientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead.",
+  "sourceLanguage": "en",
+  "targetLanguage": "zh-CN",
+  "translationCache": false,
+  "samples": [
+    {
+      "firstResponseMs": 6812.879461,
+      "totalMs": 12304.597755,
+      "promptTokens": 278,
+      "generatedTokens": 209,
+      "prefillNanos": 2834194252,
+      "generationNanos": 5490971252,
+      "samplingNanos": 29021503,
+      "decodeNanos": 5424964293,
+      "callbackNanos": 36564627,
+      "tokensPerSecond": 38.06248301224943,
+      "translation": "科学文档结合连续的叙述文与公式、表格、参考文献和技术术语。一个有用的阅读助手应翻译叙述文，同时保留文档的原意和结构。研究人员经常多次阅读同一段文字，以理解一个陌生的方法，并将其与先前的工作进行比较。本地语言模型可以支持这一过程，而无需将文档发送到远程服务。其实际速度取决于内存带宽、处理器指令、工作者线程以及正在处理的上下文量。一个简短的答案可能在处理器达到稳定工作状态之前就完成了，因此重复测量具有较长输出的测量结果是有用的。提示处理和令牌生成应分别进行测量，因为它们执行不同的计算类型。公平的比较还应记录精确的模型文件、推理设置和设备条件。本实验的目标是生成一个忠实的中文翻译，并保留足够的定时信息，以区分引擎性能和应用程序开销。"
+    },
+    {
+      "firstResponseMs": 2915.240376,
+      "totalMs": 10588.50963,
+      "promptTokens": 278,
+      "generatedTokens": 209,
+      "prefillNanos": 2914234126,
+      "generationNanos": 7673372587,
+      "samplingNanos": 29237170,
+      "decodeNanos": 7603660799,
+      "callbackNanos": 40067957,
+      "tokensPerSecond": 27.23704572277405,
+      "translation": "科学文档结合连续的叙述文与公式、表格、参考文献和技术术语。一个有用的阅读助手应翻译叙述文，同时保留文档的原意和结构。研究人员经常多次阅读同一段文字，以理解一个陌生的方法，并将其与先前的工作进行比较。本地语言模型可以支持这一过程，而无需将文档发送到远程服务。其实际速度取决于内存带宽、处理器指令、工作者线程以及正在处理的上下文量。一个简短的答案可能在处理器达到稳定工作状态之前就完成了，因此重复测量具有较长输出的测量结果是有用的。提示处理和令牌生成应分别进行测量，因为它们执行不同的计算类型。公平的比较还应记录精确的模型文件、推理设置和设备条件。本实验的目标是生成一个忠实的中文翻译，并保留足够的定时信息，以区分引擎性能和应用程序开销。"
+    },
+    {
+      "firstResponseMs": 3428.247168,
+      "totalMs": 8858.693712,
+      "promptTokens": 278,
+      "generatedTokens": 209,
+      "prefillNanos": 3426918668,
+      "generationNanos": 5430350544,
+      "samplingNanos": 30893209,
+      "decodeNanos": 5362659763,
+      "callbackNanos": 36426381,
+      "tokensPerSecond": 38.48738645996331,
+      "translation": "科学文档结合连续的叙述文与公式、表格、参考文献和技术术语。一个有用的阅读助手应翻译叙述文，同时保留文档的原意和结构。研究人员经常多次阅读同一段文字，以理解一个陌生的方法，并将其与先前的工作进行比较。本地语言模型可以支持这一过程，而无需将文档发送到远程服务。其实际速度取决于内存带宽、处理器指令、工作者线程以及正在处理的上下文量。一个简短的答案可能在处理器达到稳定工作状态之前就完成了，因此重复测量具有较长输出的测量结果是有用的。提示处理和令牌生成应分别进行测量，因为它们执行不同的计算类型。公平的比较还应记录精确的模型文件、推理设置和设备条件。本实验的目标是生成一个忠实的中文翻译，并保留足够的定时信息，以区分引擎性能和应用程序开销。"
+    },
+    {
+      "firstResponseMs": 2809.891459,
+      "totalMs": 8373.956004,
+      "promptTokens": 278,
+      "generatedTokens": 209,
+      "prefillNanos": 2809174418,
+      "generationNanos": 5563850794,
+      "samplingNanos": 33625292,
+      "decodeNanos": 5492314873,
+      "callbackNanos": 37516752,
+      "tokensPerSecond": 37.56391171118094,
+      "translation": "科学文档结合连续的叙述文与公式、表格、参考文献和技术术语。一个有用的阅读助手应翻译叙述文，同时保留文档的原意和结构。研究人员经常多次阅读同一段文字，以理解一个陌生的方法，并将其与先前的工作进行比较。本地语言模型可以支持这一过程，而无需将文档发送到远程服务。其实际速度取决于内存带宽、处理器指令、工作者线程以及正在处理的上下文量。一个简短的答案可能在处理器达到稳定工作状态之前就完成了，因此重复测量具有较长输出的测量结果是有用的。提示处理和令牌生成应分别进行测量，因为它们执行不同的计算类型。公平的比较还应记录精确的模型文件、推理设置和设备条件。本实验的目标是生成一个忠实的中文翻译，并保留足够的定时信息，以区分引擎性能和应用程序开销。"
+    }
+  ],
+  "environment": {
+    "startedAtEpochMs": 1793074269053,
+    "appVersion": "0.2.0-alpha.5",
+    "device": "Google sdk_gphone64_arm64",
+    "hardware": "ranchu",
+    "androidApi": 36,
+    "abis": "arm64-v8a",
+    "modelSha256": "3d0b790534fe4b79525fc3692950408dca41171676ed7e21db57af5c65ef6ab6",
+    "modelBytes": 1359279776,
+    "modelName": "qwen3:1.7b",
+    "modelLicense": "",
+    "modelRepository": "",
+    "modelRevision": "",
+    "requestedThreads": 0,
+    "effectiveThreads": 6,
+    "availableProcessors": 8,
+    "engine": "llama.cpp@2280f0fd163b03d4331d49e08460f66502e35854;cpu;arm64;ctx4096;proposal-exact-grammar-v3;templates-qwen2-qwen3-qwen35-lfm2",
+    "singleResultGrammar": true,
+    "architecture": "qwen3",
+    "systemInfo": "CPU : NEON = 1 | ARM_FMA = 1 | LLAMAFILE = 1 | KLEIDIAI = 1 | REPACK = 1 | ",
+    "engineBenchmarkProtocol": "16-token warmup; pp512 then tg128; pl1; 3 runs; no grammar/sampler/callback; ctx4096; batch512; ubatch128",
+    "engineSamples": [
+      {
+        "promptTokens": 512,
+        "generatedTokens": 128,
+        "prefillTokensPerSecond": 97.29101214589546,
+        "decodeTokensPerSecond": 37.17445665411915,
+        "prefillMs": 5262.56217,
+        "decodeMs": 3443.224502
+      },
+      {
+        "promptTokens": 512,
+        "generatedTokens": 128,
+        "prefillTokensPerSecond": 96.12695436396199,
+        "decodeTokensPerSecond": 36.526553071068946,
+        "prefillMs": 5326.2896279999995,
+        "decodeMs": 3504.300002
+      },
+      {
+        "promptTokens": 512,
+        "generatedTokens": 128,
+        "prefillTokensPerSecond": 96.99883178130789,
+        "decodeTokensPerSecond": 36.24192303372005,
+        "prefillMs": 5278.414086,
+        "decodeMs": 3531.821418
+      }
+    ]
+  }
+}

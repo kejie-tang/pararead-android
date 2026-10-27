@@ -58,7 +58,8 @@ class LlamaCppProvider(private val path: String, requestedThreads: Int = 0, priv
                         return true
                     }
                 }
-                val measured = NativeBridge.generate(handle.get(), input, callback, if (singleResult) 1 else prompt.expectedResults, constrainJson)
+                val measured = NativeBridge.generate(handle.get(), input, callback, if (singleResult) 1 else prompt.expectedResults,
+                    constrainJson && prompt.outputFormat == ModelOutputFormat.TRANSLATION_JSON)
                 check(!cancelled.get()) { "INFERENCE_CANCELLED" }
                 check(pending.isEmpty()) { "INCOMPLETE_UTF8_TOKEN" }
                 check(measured.size == 7) { "INVALID_NATIVE_TOKEN_METRICS" }

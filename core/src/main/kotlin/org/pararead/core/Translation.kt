@@ -17,7 +17,7 @@ data class TranslationConfig(
 ) {
     // Preserve native cache keys written before the default display name became the Ollama tag.
     fun fingerprint() = listOf(provider, if (provider == "llama" && model == "qwen3:1.7b") "Qwen3-1.7B" else model, modelHash, sourceLanguage, targetLanguage, canonicalGlossary(glossary),
-        "prompt=6", "validator=5", "template=model-chat-v2", "nativeGrammar=exact-translation-json-v3").joinToString("\u0000")
+        "prompt=6", "validator=6", "recovery=sentence-text-v1", "template=model-chat-v2", "nativeGrammar=exact-translation-json-v3").joinToString("\u0000")
 }
 fun sha256(text: String): String = MessageDigest.getInstance("SHA-256").digest(text.toByteArray()).joinToString("") { "%02x".format(it) }
 fun contentKey(text: String, config: TranslationConfig): String = sha256(Normalizer.normalize(text, Normalizer.Form.NFC).replace(Regex("\\s+"), " ").trim() + "\u0000" + config.fingerprint())
@@ -32,7 +32,9 @@ sealed interface ProviderEvent {
     data class Delta(val text: String) : ProviderEvent
     data class Complete(val text: String) : ProviderEvent
 }
-data class ModelPrompt(val system: String, val user: String, val expectedResults: Int = 0)
+enum class ModelOutputFormat { TRANSLATION_JSON, TEXT }
+data class ModelPrompt(val system: String, val user: String, val expectedResults: Int = 0,
+    val outputFormat: ModelOutputFormat = ModelOutputFormat.TRANSLATION_JSON)
 interface TranslationProvider : AutoCloseable {
     fun generate(prompt: ModelPrompt): Flow<ProviderEvent>
     override fun close() {}
@@ -50,14 +52,16 @@ class MockTranslationProvider : TranslationProvider {
     }
 }
 data class ProtectedText(val text: String, val tokens: List<String>, val firstToken: Int = 0) {
+    val markers get() = tokens.indices.map { "__PR${it + firstToken}__" }
     fun restore(value: String): String {
-        val placeholders = Regex("__PR(\\d+)__").findAll(value).map { it.groupValues[1].toInt() }.toList()
-        require(placeholders.sorted() == tokens.indices.map { it + firstToken }) { "PROTECTED_TOKEN_MISMATCH" }
+        val placeholders = Regex("__PR\\d+__").findAll(value).map { it.value }.toList()
+        require(placeholders.sorted() == markers.sorted()) { "PROTECTED_TOKEN_MISMATCH" }
         var restored = value
         tokens.forEachIndexed { i, t -> restored = restored.replace("__PR${i + firstToken}__", t) }
         return restored
     }
 }
+data class TranslationValidation(val accepted: List<Pair<SourceSentence, String>>, val rejected: List<Pair<SourceSentence, String>>)
 object StructuredTranslation {
     fun fragments(text: String, limit: Int = 1200): List<String> {
         val protected = protect(text)
@@ -92,10 +96,7 @@ object StructuredTranslation {
         val values = sentences.map { protect(it.text, nextToken).also { nextToken += it.tokens.size } }
         val rows = JSONArray()
         values.forEachIndexed { i, p -> rows.put(JSONObject().put("id", "s${i + 1}").put("text", p.text)) }
-        val glossary = JSONObject(c.glossary)
-        val terms = JSONObject()
-        glossary.keys().forEach { k -> if (glossary.opt(k) is String) terms.put(k, glossary.getString(k)) }
-        glossary.optJSONObject(c.targetLanguage)?.let { lang -> lang.keys().forEach { terms.put(it, lang.getString(it)) } }
+        val terms = glossary(c)
         val system = if (c.targetLanguage.lowercase() in setOf("zh-cn", "zh-hans", "zh", "简体中文"))
             "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。" +
             "只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。" +
@@ -107,7 +108,60 @@ object StructuredTranslation {
             "Preserve terms, code, equations, references, negation and contrasts. No reasoning. Glossary: $terms"
         return ModelPrompt(system, JSONObject().put("sentences", rows).toString() + "\n/no_think", sentences.size) to values
     }
+    private fun glossary(c: TranslationConfig): JSONObject {
+        val glossary = JSONObject(c.glossary)
+        val terms = JSONObject()
+        glossary.keys().forEach { k -> if (glossary.opt(k) is String) terms.put(k, glossary.getString(k)) }
+        glossary.optJSONObject(c.targetLanguage)?.let { lang -> lang.keys().forEach { terms.put(it, lang.getString(it)) } }
+        return terms
+    }
+    fun repairPrompt(sentence: SourceSentence, c: TranslationConfig): Pair<ModelPrompt, List<ProtectedText>> {
+        val (original, protected) = prompt(listOf(sentence), c)
+        val required = protected.single().markers.joinToString(", ").ifEmpty { "none" }
+        return original.copy(system = original.system + "\nTranslate the entire sentence again. Required markers, each exactly once: $required. Do not copy a previous incomplete answer.") to protected
+    }
+    /** One known sentence, so the caller owns its ID and no model-generated JSON is needed. */
+    fun textPrompt(sentence: SourceSentence, c: TranslationConfig): Pair<ModelPrompt, ProtectedText> {
+        val protected = protect(sentence.text)
+        fun language(code: String): String = when (code.lowercase()) {
+            "en" -> "English"
+            "zh-cn", "zh-hans", "zh", "简体中文" -> "Chinese"
+            else -> code
+        }
+        val source = if (c.sourceLanguage == "auto") "the original language" else language(c.sourceLanguage)
+        val target = language(c.targetLanguage)
+        val required = protected.markers.joinToString(", ")
+        val system = if (target == "Chinese")
+            "将下文完整翻译为简体中文，只输出译文正文，不要 JSON、解释或代码围栏。保留所有句子的原意、否定和转折。" +
+            (if (required.isNotEmpty()) "所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。" else "") +
+            "术语表：${glossary(c)}"
+        else "Translate the complete text from $source into $target. Preserve every sentence, negation and contrast. " +
+            "Output only the translated text, without JSON, commentary or a surrounding code fence. " +
+            (if (target == "Chinese") "Use Simplified Chinese. " else "") +
+            (if (required.isNotEmpty()) "Copy these markers exactly once each, including underscores: $required. " else "") +
+            "Glossary: ${glossary(c)}"
+        val user = protected.text + "\n/no_think"
+        return ModelPrompt(system, user, outputFormat = ModelOutputFormat.TEXT) to protected
+    }
+    fun validateText(raw: String, protected: ProtectedText, c: TranslationConfig): String {
+        require(raw.toByteArray().size <= 262144) { "OUTPUT_TOO_LARGE" }
+        require(!raw.contains("<think>") && !raw.contains("</think>")) { "THINKING_OUTPUT" }
+        val value = raw.trim()
+        require(value.isNotEmpty()) { "EMPTY_TRANSLATION" }
+        require(!value.startsWith("```") && !value.startsWith("{") && !value.startsWith("[")) { "UNEXPECTED_TEXT_WRAPPER" }
+        if (c.targetLanguage.lowercase() in setOf("zh-cn", "zh-hans", "zh", "简体中文")) {
+            require(value.any { it in '\u4e00'..'\u9fff' }) { "EXPECTED_CHINESE_TRANSLATION" }
+        }
+        return protected.restore(value)
+    }
     fun validate(raw: String, sentences: List<SourceSentence>, protected: List<ProtectedText>): List<Pair<SourceSentence, String>> {
+        val result = validateEach(raw, sentences, protected)
+        require(result.rejected.isEmpty()) { result.rejected.first().second }
+        return result.accepted
+    }
+    /** Only complete JSON with unique, known IDs may contribute independently validated rows. */
+    fun validateEach(raw: String, sentences: List<SourceSentence>, protected: List<ProtectedText>): TranslationValidation {
+        require(sentences.size == protected.size)
         require(raw.toByteArray().size <= 262144) { "OUTPUT_TOO_LARGE" }
         require(!raw.contains("<think>") && !raw.contains("</think>")) { "THINKING_OUTPUT" }
         val clean = raw.trim().removePrefix("```json").removePrefix("```").removeSuffix("```").trim()
@@ -119,15 +173,24 @@ object StructuredTranslation {
             is JSONObject -> root.getJSONArray("translations")
             else -> error("INVALID_RESULT_ROOT")
         }
-        require(array.length() == sentences.size) { "RESULT_COUNT_MISMATCH" }
-        val outputs = mutableMapOf<String, String>()
+        val outputs = mutableMapOf<String, Any>()
         for (i in 0 until array.length()) {
             val row = array.getJSONObject(i)
             val id = row.getString("id")
             require(id.matches(Regex("s[1-9][0-9]*")) && id.removePrefix("s").toInt() in 1..sentences.size) { "UNKNOWN_ID" }
             require(!outputs.containsKey(id)) { "DUPLICATE_ID" }
-            outputs[id] = row.getString("translation").trim().also { require(it.isNotEmpty()) { "EMPTY_TRANSLATION" } }
+            outputs[id] = row.opt("translation") ?: JSONObject.NULL
         }
-        return sentences.mapIndexed { i, s -> s to protected[i].restore(outputs.getValue("s${i + 1}")) }
+        val accepted = mutableListOf<Pair<SourceSentence, String>>()
+        val rejected = mutableListOf<Pair<SourceSentence, String>>()
+        sentences.forEachIndexed { i, s ->
+            try {
+                val value = outputs["s${i + 1}"] ?: error("RESULT_COUNT_MISMATCH")
+                require(value is String) { "INVALID_TRANSLATION_TYPE" }
+                require(value.isNotBlank()) { "EMPTY_TRANSLATION" }
+                accepted += s to protected[i].restore(value.trim())
+            } catch (e: Exception) { rejected += s to (e.message ?: "INVALID_TRANSLATION").take(512) }
+        }
+        return TranslationValidation(accepted, rejected)
     }
 }
