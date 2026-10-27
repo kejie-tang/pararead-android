@@ -44,6 +44,7 @@ class MainActivity : ComponentActivity() {
     private var documents by mutableStateOf<List<DocumentRecord>>(emptyList())
     private var status by mutableStateOf("导入 PDF，或打开示例文档")
     private var showSettings by mutableStateOf(false)
+    private var showModelLibrary by mutableStateOf(false)
     private var showModelCatalog by mutableStateOf(false)
     private var importTask: Job? = null
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,7 +80,12 @@ class MainActivity : ComponentActivity() {
     @Composable private fun App() {
         val modelState by modelViewModel.manager.state.collectAsState()
         val speedState by speedTestViewModel.state.collectAsState()
-        LaunchedEffect(modelState.installed?.path, modelState.installed?.sha256) { reopen() }
+        LaunchedEffect(modelState.installed?.path, modelState.installed?.sha256) {
+            val previous = host
+            previous?.close(); readerScope?.cancel(); host = null
+            previous?.awaitProviderClosed()
+            readerVersion++
+        }
         LaunchedEffect(Unit) {
             withFrameNanos { }
             val elapsed = (android.os.SystemClock.elapsedRealtime() - activityStarted).toDouble()
@@ -140,15 +146,11 @@ class MainActivity : ComponentActivity() {
                 Text("速度测试期间阅读器已暂停", Modifier.padding(20.dp))
             } else if (document == null) {
                 Text("ParaRead · 离线双语阅读", Modifier.padding(20.dp), style = MaterialTheme.typography.headlineSmall)
-                Text("默认：qwen3:1.7b · 思考模式已关闭", Modifier.padding(horizontal = 20.dp))
-                if (modelState.installed == null || modelState.busy || modelState.phase == ModelPhase.ERROR) {
-                    Column(Modifier.padding(horizontal = 20.dp)) {
-                        ModelTransferProgress(modelState)
-                        if (modelState.cancellable) TextButton(onClick = { modelViewModel.manager.cancel() }) { Text("取消模型下载或导入") }
-                        else Button(enabled = !modelState.busy, onClick = { modelViewModel.manager.download() }) {
-                            Text(if (modelState.phase == ModelPhase.ERROR) "重试下载默认模型（1.36 GB）" else "下载默认模型（1.36 GB）")
-                        }
-                    }
+                Column(Modifier.padding(horizontal = 20.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text("当前模型：${modelState.activeName()}")
+                    Text("轻量快读 0.6B · 质量优先 1.7B", style = MaterialTheme.typography.bodySmall)
+                    Button(onClick = { showModelLibrary = true }) { Text("模型管理") }
+                    if (modelState.busy || modelState.phase == ModelPhase.ERROR) ModelTransferProgress(modelState)
                 }
                 FlowRow(Modifier.padding(12.dp)) {
                     Button(onClick = { runImport { selected = repository.sample(); documents = withContext(Dispatchers.IO) { db.reader().documents() } } }) { Text("打开示例文档") }
@@ -178,7 +180,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-        if (showSettings) SettingsDialog(modelState = modelState, onModel = { modelPicker.launch(arrayOf("*/*")) },
+        if (showSettings) SettingsDialog(modelState = modelState,
             onSpeedTest = { threads -> modelState.installed?.let { model ->
                 val previous = host; reopen()
                 speedTestViewModel.open(model, threads) { previous?.awaitProviderClosed() }
@@ -189,6 +191,11 @@ class MainActivity : ComponentActivity() {
         if (speedState.visible) SpeedTestDialog(speedState, onStart = speedTestViewModel::start,
             onCancel = speedTestViewModel::cancel, onClose = speedTestViewModel::dismiss,
             onExport = { if (speedTestViewModel.prepareExport()) speedExport.launch("pararead-speed-test.json") })
+        if (showModelLibrary) ModelLibraryDialog(modelState, actionsEnabled = !speedState.busy,
+            onDownload = modelViewModel.manager::download, onUse = modelViewModel.manager::select,
+            onDelete = { modelViewModel.manager.delete(it) }, onRetry = modelViewModel.manager::retry,
+            onCancel = modelViewModel.manager::cancel, onImport = { modelPicker.launch(arrayOf("*/*")) },
+            onMore = { showModelCatalog = true }, onClose = { showModelLibrary = false })
         if (showModelCatalog) {
             val catalogState by modelCatalogViewModel.state.collectAsState()
             ModelCatalogDialog(catalogState, modelState.installed?.sha256, modelCatalogViewModel::query,
@@ -197,7 +204,7 @@ class MainActivity : ComponentActivity() {
                 onClose = { modelCatalogViewModel.stop(); showModelCatalog = false })
         }
     }
-    @Composable private fun SettingsDialog(modelState: ModelState, onModel: () -> Unit, onSpeedTest: (Int) -> Unit, onImportGlossary: () -> Unit, onExportGlossary: () -> Unit, onSave: () -> Unit, onClose: () -> Unit) {
+    @Composable private fun SettingsDialog(modelState: ModelState, onSpeedTest: (Int) -> Unit, onImportGlossary: () -> Unit, onExportGlossary: () -> Unit, onSave: () -> Unit, onClose: () -> Unit) {
         var provider by remember { mutableStateOf(settings.provider) }; var url by remember { mutableStateOf(settings.baseUrl) }
         var model by remember { mutableStateOf(settings.model) }; var apiKey by remember { mutableStateOf(settings.apiKey) }
         var target by remember { mutableStateOf(settings.targetLanguage) }; var source by remember { mutableStateOf(settings.sourceLanguage) }
@@ -210,25 +217,10 @@ class MainActivity : ComponentActivity() {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Row { listOf("llama" to "离线 GGUF", "api" to "兼容 API", "mock" to "模拟").forEach { (value, name) -> FilterChip(selected = provider == value, onClick = { provider = value }, label = { Text(name) }) } }
                 if (provider == "llama") {
-                    Text("默认：qwen3:1.7b · Q4_K_M · 思考模式已关闭")
-                    Text("Ollama 官方模型源 · 1.36 GB · 下载后离线使用", style = MaterialTheme.typography.bodySmall)
-                    Text(modelState.installed?.let { "本机模型：${it.sha256.take(12)} · ${it.bytes / 1048576} MiB" } ?: "尚无本机模型")
-                    if (modelState.installed != null && settings.modelLicense.isNotEmpty()) Text("模型许可：${settings.modelLicense}", style = MaterialTheme.typography.bodySmall)
-                    ModelTransferProgress(modelState)
-                    if (modelState.cancellable) TextButton(onClick = { modelViewModel.manager.cancel() }) { Text("取消模型下载或导入") }
-                    else Button(enabled = !modelState.busy && modelState.installed?.sha256 != DefaultModel.asset.sha256,
-                        onClick = { modelViewModel.manager.download() }) {
-                        Text(when {
-                            modelState.installed?.sha256 == DefaultModel.asset.sha256 -> "默认模型已就绪"
-                            modelState.phase == ModelPhase.ERROR -> "重试下载默认模型（1.36 GB）"
-                            else -> "下载默认模型（1.36 GB）"
-                        })
-                    }
-                    Row {
-                        TextButton(enabled = !modelState.busy, onClick = onModel) { Text("导入 GGUF 模型") }
-                        TextButton(enabled = !modelState.busy, onClick = { modelViewModel.manager.delete() }) { Text("删除本机模型") }
-                    }
-                    Button(enabled = !modelState.busy, onClick = { showModelCatalog = true }) { Text("从 Hugging Face 搜索下载") }
+                    Text("当前模型：${modelState.activeName()}")
+                    modelState.installed?.let { Text("已占用 ${modelSize(it.bytes)} · 思考模式已关闭", style = MaterialTheme.typography.bodySmall) }
+                    Button(onClick = { showModelLibrary = true }) { Text("模型管理") }
+                    if (modelState.busy || modelState.phase == ModelPhase.ERROR) ModelTransferProgress(modelState)
                     OutlinedTextField(cpuThreads, { cpuThreads = it }, label = { Text("CPU 推理线程数") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number), singleLine = true,
                         supportingText = { Text("0 = 自动（当前 ${CpuThreads.resolve(0)} 线程）；手动范围 1–${CpuThreads.maximum()}。保存后重新加载模型。") })
@@ -244,7 +236,7 @@ class MainActivity : ComponentActivity() {
                     OutlinedTextField(url, { url = it }, label = { Text("API 基址（含 /v1）") })
                     OutlinedTextField(apiKey, { apiKey = it }, label = { Text("API Key") }, visualTransformation = PasswordVisualTransformation())
                 }
-                OutlinedTextField(model, { model = it }, label = { Text("模型名称") })
+                if (provider == "api") OutlinedTextField(model, { model = it }, label = { Text("API 模型名称") })
                 OutlinedTextField(source, { source = it }, label = { Text("源语言：auto / en / zh-CN 等") })
                 OutlinedTextField(target, { target = it }, label = { Text("目标语言：zh-CN / en / ja 等") })
                 OutlinedTextField(batch, { batch = it }, label = { Text("每批句数（1–40）") })
@@ -264,25 +256,12 @@ class MainActivity : ComponentActivity() {
                 val threads = cpuThreads.toIntOrNull()
                 if (provider == "llama") require(threads != null && threads in 0..CpuThreads.maximum()) { "线程数填写 0（自动）或 1–${CpuThreads.maximum()}" }
                 if (provider == "api") require(url.startsWith("https://") || OpenAICompatibleProvider.isLocalHttp(url)) { "HTTP 仅支持本地兼容服务" }
-                settings.provider = provider; settings.baseUrl = url; settings.model = model; settings.apiKey = apiKey
+                settings.provider = provider; settings.baseUrl = url; if (provider == "api") settings.model = model; settings.apiKey = apiKey
                 settings.translateRange = range
                 if (provider == "llama") settings.cpuThreads = threads!!
                 settings.sourceLanguage = source; settings.targetLanguage = target; settings.glossary = glossary; settings.batchSize = batch.toInt(); onSave()
             } catch (e: Exception) { error = e.message ?: "设置无效" }
         }) { Text("保存") } }, dismissButton = { TextButton(onClick = onClose) { Text("关闭") } })
-    }
-    @Composable private fun ModelTransferProgress(state: ModelState) {
-        if (state.message.isNotEmpty()) Text(state.message,
-            color = if (state.phase == ModelPhase.ERROR) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface)
-        if (state.busy && state.phase != ModelPhase.DELETING) {
-            if (state.total > 0 && state.phase != ModelPhase.IMPORTING) {
-                LinearProgressIndicator(progress = { (state.completed.toDouble() / state.total).toFloat().coerceIn(0f, 1f) }, modifier = Modifier.fillMaxWidth())
-                Text("${state.completed / 1048576} / ${state.total / 1048576} MiB · ${(state.completed * 100 / state.total).coerceIn(0, 100)}%", style = MaterialTheme.typography.bodySmall)
-            } else {
-                LinearProgressIndicator(Modifier.fillMaxWidth())
-                Text("${state.completed / 1048576} MiB", style = MaterialTheme.typography.bodySmall)
-            }
-        }
     }
     override fun onStop() {
         super.onStop()

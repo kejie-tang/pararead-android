@@ -20,9 +20,10 @@ import org.pararead.core.*
 import java.io.File
 import java.util.UUID
 
-enum class ModelPhase { IDLE, DOWNLOADING, PAUSED, VERIFYING, IMPORTING, DELETING, ERROR }
+enum class ModelPhase { IDLE, DOWNLOADING, PAUSED, VERIFYING, IMPORTING, SWITCHING, DELETING, ERROR }
 data class ModelState(val installed: InstalledModel? = null, val phase: ModelPhase = ModelPhase.IDLE,
-    val completed: Long = 0, val total: Long = DefaultModel.asset.bytes, val message: String = "") {
+    val completed: Long = 0, val total: Long = DefaultModel.asset.bytes, val message: String = "",
+    val models: List<SavedModel> = emptyList(), val target: ModelAsset? = null, val canRetry: Boolean = false) {
     val busy get() = phase !in setOf(ModelPhase.IDLE, ModelPhase.ERROR)
     val cancellable get() = phase in setOf(ModelPhase.DOWNLOADING, ModelPhase.PAUSED, ModelPhase.VERIFYING, ModelPhase.IMPORTING)
 }
@@ -42,11 +43,13 @@ class ModelManager(context: Context, private val scope: CoroutineScope, val asse
     } }.getOrDefault(asset)
     private val downloads = app.getSystemService(DownloadManager::class.java)
     private val files = ModelFiles(File(app.filesDir, "models"))
+    private val library = ModelLibrary(app, files.directory, settings)
     private val downloadDirectory = requireNotNull(app.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS))
     private val staging get() = File(downloadDirectory, prefs.getString("file", "qwen3-download.part")!!)
     private val mutable = MutableStateFlow(ModelState(installed(),
         phase = if (prefs.getString("error", "").isNullOrEmpty()) ModelPhase.IDLE else ModelPhase.ERROR,
-        message = prefs.getString("error", "") ?: ""))
+        message = prefs.getString("error", "") ?: "", models = library.all(), target = if (prefs.getBoolean("retryDownload", false)) target else null,
+        canRetry = !prefs.getString("error", "").isNullOrEmpty() && prefs.getBoolean("retryDownload", false)))
     val state = mutable.asStateFlow()
     private var work: Job? = null
     private var downloadId: Long
@@ -56,26 +59,31 @@ class ModelManager(context: Context, private val scope: CoroutineScope, val asse
     init {
         if (downloadId > 0) monitor()
         else if (state.value.installed?.sha256 == target.sha256 && state.value.message == "下载任务已移除，请重试") {
-            prefs.edit { remove("error") }; update(ModelPhase.IDLE, "模型已就绪，思考模式已关闭")
+            prefs.edit { remove("error"); remove("retryDownload") }; update(ModelPhase.IDLE, "模型已就绪，思考模式已关闭")
         }
     }
     private fun installed() = settings.modelPath.takeIf { it.isNotEmpty() }?.let(::File)?.takeIf { it.isFile }
         ?.let { InstalledModel(it.absolutePath, settings.modelHash, it.length()) }
     private fun update(phase: ModelPhase, message: String, completed: Long = 0) {
-        mutable.value = ModelState(installed(), phase, completed, target.bytes, message)
+        val retry = phase == ModelPhase.ERROR && prefs.getBoolean("retryDownload", false)
+        val downloading = phase in setOf(ModelPhase.DOWNLOADING, ModelPhase.PAUSED, ModelPhase.VERIFYING)
+        mutable.value = ModelState(installed(), phase, completed, target.bytes, message, library.all(),
+            if (downloading || retry) target else null, retry)
     }
     private fun clearTransfer() {
         val temp = staging
         if (downloadId > 0) downloads.remove(downloadId)
         prefs.edit(commit = true) { putLong("id", 0); remove("file") }; temp.delete()
     }
-    private fun failure(e: Exception) {
+    private fun failure(e: Exception, retryDownload: Boolean = false) {
         val message = e.message ?: "模型操作失败，请重试"
-        prefs.edit { putString("error", message) }; update(ModelPhase.ERROR, message)
+        prefs.edit { putString("error", message); putBoolean("retryDownload", retryDownload) }; update(ModelPhase.ERROR, message)
     }
     fun download(selected: ModelAsset = asset) {
-        if (state.value.busy || state.value.installed?.sha256 == selected.sha256) return
+        if (state.value.busy) return
+        if (library.all().any { it.model.sha256 == selected.sha256 }) { select(selected.sha256); return }
         target = selected
+        persistTarget()
         update(ModelPhase.DOWNLOADING, "正在准备下载…")
         try {
             require(target.bytes > 24 && target.bytes < Long.MAX_VALUE / 3 && target.sha256.matches(Regex("[a-f0-9]{64}"))) { "模型大小或 SHA-256 无效" }
@@ -85,8 +93,6 @@ class ModelManager(context: Context, private val scope: CoroutineScope, val asse
             // DownloadManager can finish cleaning a cancelled job after a replacement has started.
             prefs.edit(commit = true) {
                 putString("file", "model-${UUID.randomUUID()}.part")
-                putString("target", JSONObject().put("name", target.name).put("url", target.url).put("bytes", target.bytes)
-                    .put("sha256", target.sha256).put("license", target.license).put("repository", target.repository).put("revision", target.revision).toString())
             }
             val request = DownloadManager.Request(target.url.toUri()).setTitle("ParaRead · ${target.name}")
                 .setDescription("下载后校验 SHA-256 · 离线翻译")
@@ -94,7 +100,7 @@ class ModelManager(context: Context, private val scope: CoroutineScope, val asse
                 .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
             downloadId = downloads.enqueue(request)
             monitor()
-        } catch (e: Exception) { failure(e) }
+        } catch (e: Exception) { failure(e, retryDownload = true) }
     }
     private fun monitor() {
         val asset = target // A restored monitor verifies the persisted selection, not the default model.
@@ -138,18 +144,18 @@ class ModelManager(context: Context, private val scope: CoroutineScope, val asse
                     delay(500)
                 }
             } catch (e: CancellationException) { throw e }
-            catch (e: Exception) { runCatching { clearTransfer() }; failure(e) }
+            catch (e: Exception) { runCatching { clearTransfer() }; failure(e, retryDownload = true) }
         }
     }
     private suspend fun activate(model: InstalledModel, name: String, source: ModelAsset? = null) {
         // Publication and preferences must finish together even if monitoring is then cancelled.
         withContext(NonCancellable + Dispatchers.IO) {
+            library.remember(SavedModel(model, name, source?.license ?: "", source?.repository ?: "", source?.revision ?: ""))
             settings.installModel(model.path, model.sha256, name, source?.license ?: "", source?.repository ?: "", source?.revision ?: "")
-            files.removeExcept(model.path)
             // Do not announce IDLE until the persistent transfer record and second weight copy are gone.
             clearTransfer()
         }
-        prefs.edit { remove("error") }; update(ModelPhase.IDLE, "模型已就绪，思考模式已关闭")
+        prefs.edit { remove("error"); remove("retryDownload") }; update(ModelPhase.IDLE, "模型已就绪，思考模式已关闭")
     }
     fun import(uri: Uri) {
         if (state.value.busy) return
@@ -175,18 +181,43 @@ class ModelManager(context: Context, private val scope: CoroutineScope, val asse
         update(ModelPhase.DELETING, "正在取消…")
         work = scope.launch {
             try {
-                previous?.join(); withContext(Dispatchers.IO) { clearTransfer(); files.removeExcept(settings.modelPath) }
-                update(ModelPhase.IDLE, "已取消")
+                previous?.join(); withContext(Dispatchers.IO) { clearTransfer(); files.removePartials() }
+                prefs.edit { remove("error"); remove("retryDownload") }; update(ModelPhase.IDLE, "已取消")
             } catch (e: Exception) { if (e is CancellationException) throw e; failure(e) }
         }
     }
-    fun delete() {
-        if (state.value.busy) return
+    private fun persistTarget() {
+        prefs.edit(commit = true) { putString("target", JSONObject().put("name", target.name).put("url", target.url).put("bytes", target.bytes)
+            .put("sha256", target.sha256).put("license", target.license).put("repository", target.repository).put("revision", target.revision).toString()) }
+    }
+    fun retry() {
+        if (state.value.canRetry && !state.value.busy) download(target)
+    }
+    fun select(hash: String) {
+        if (state.value.busy || installed()?.sha256 == hash) return
+        update(ModelPhase.SWITCHING, "正在切换模型…")
+        work = scope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    val saved = library.all().firstOrNull { it.model.sha256 == hash } ?: error("模型文件不存在，请重新下载")
+                    settings.installModel(saved.model.path, saved.model.sha256, saved.name, saved.license, saved.repository, saved.revision)
+                }
+                prefs.edit { remove("error"); remove("retryDownload") }; update(ModelPhase.IDLE, "已切换模型")
+            } catch (e: Exception) { if (e is CancellationException) throw e; failure(e) }
+        }
+    }
+    fun delete(hash: String? = state.value.installed?.sha256) {
+        if (state.value.busy || hash == null) return
         update(ModelPhase.DELETING, "正在删除模型…")
         work = scope.launch {
             try {
-                withContext(Dispatchers.IO) { clearTransfer(); settings.clearModel(); files.removeExcept() }
-                prefs.edit { remove("error") }; update(ModelPhase.IDLE, "模型已删除")
+                withContext(Dispatchers.IO) {
+                    val saved = library.all().firstOrNull { it.model.sha256 == hash } ?: error("模型文件不存在")
+                    files.remove(saved.model)
+                    library.forget(hash)
+                    if (settings.modelHash == hash) settings.clearModel()
+                }
+                prefs.edit { remove("error"); remove("retryDownload") }; update(ModelPhase.IDLE, "模型已删除")
             } catch (e: Exception) { if (e is CancellationException) throw e; failure(e) }
         }
     }

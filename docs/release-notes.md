@@ -1,13 +1,15 @@
-ParaRead Android 0.2.0-alpha.3 — development preview / 开发预览版
+ParaRead Android 0.2.0-alpha.6 — development preview / 开发预览版
 
-- Add Hugging Face model search, quantization selection and downloads pinned to a commit and LFS SHA-256. Display model licenses; a verified selection replaces the current local model.
-- Support text-only Qwen3.5 and LFM2.5 templates alongside Qwen3. LFM2.5 remains experimental: protected-token and translation-completeness failures are documented in the model report.
-- Replace full-vocabulary grammar filtering on every token with proposal validation and grammar-filtered resampling when required. Constrain output IDs/count to the input batch; retain strict placeholder validation.
-- Enable runtime-dispatched Arm KleidiAI CPU kernels, with original license texts bundled.
-- Expand the in-app test to a 158-word translation and three pp512 → tg128 engine runs, with decode/sampling/callback timing and JSON export.
+Choose Qwen3-0.6B or Qwen3-1.7B directly in Model management. Keep both downloaded and switch offline without downloading again.
 
-新增 Hugging Face 搜索下载、多模型文本模板、ARM 内核与约束采样优化；测速同时显示长段翻译和纯引擎成绩。LFM 小模型的格式与漏译问题没有作为通过隐藏，详见仓库实测报告。
+- Add two curated Q4_K_M model cards: Qwen3-0.6B (397 MB) for quick reading and Qwen3-1.7B (1.36 GB) for quality priority, with source/license links and download-space estimates.
+- Retain downloaded and imported models in a local library. New installations activate automatically; other downloaded models remain available. Existing managed model files migrate in place.
+- Show the active model by name on the home screen and in settings. Remove the misleading editable model-name field from offline mode.
+- Retry the model that actually failed, including after reopening the app. Preserve background downloads, progress, cancellation and SHA-256 verification.
+- Delete models individually with a confirmation showing the model name and space to be freed. PDFs, translations and reading progress remain available. Deleting the active model clears its selection; other saved models can be selected explicitly.
 
-Android 9+ / ARM64. This release's `*-debug.apk` uses the same local debug certificate as alpha.2 and versionCode 3. Differently signed builds require exporting important annotated PDFs before uninstalling (uninstall removes app data). APK, SHA256SUMS.txt and a notices ZIP are attached. Model weights and third-party papers are not bundled.
+新增直接下载 0.6B / 1.7B 的模型卡片，支持同时保留、离线切换和分别删除；修复失败重试下载错模型的问题，并明确显示当前使用的模型。旧版本的已安装模型原地迁移，无需重新下载。
 
-Host and Android ARM64 emulator observations do not establish physical Dimensity 9400 performance. The reported PocketPal v1.20.1 tg128 result and ParaRead's old JSON translation rate measured different workloads; use the new raw tg128 result for a closer on-device comparison. Translation quality still requires checking against the original.
+Android 9+ / ARM64. The preview APK is debug-signed, versionCode 6. It uses the same local debug certificate as alpha.5. Differently signed builds require exporting important annotated PDFs before uninstalling (uninstall removes app data). APK, SHA256SUMS.txt and a notices ZIP are attached. Model weights and third-party papers are not bundled.
+
+The default model remains Qwen3-1.7B. Qwen3-0.6B is for quick preview; both can omit or mistranslate details. RWKV and specialized NanoTranslator repair adapters remain research-only and are not enabled in the app. Emulator tests do not establish physical Dimensity 9400 performance.

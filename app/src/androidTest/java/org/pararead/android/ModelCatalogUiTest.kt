@@ -34,9 +34,11 @@ class ModelCatalogUiTest {
         ActivityScenario.launch(MainActivity::class.java).use {
             compose.onNodeWithText("设置").performClick()
             compose.onNodeWithText("离线 GGUF").performClick()
-            compose.onNodeWithText("从 Hugging Face 搜索下载").performScrollTo().performClick()
+            compose.onAllNodesWithText("模型管理").onLast().performScrollTo().performClick()
+            compose.onNodeWithText("更多模型（Hugging Face）").performScrollTo().performClick()
             compose.onNodeWithText("模型名称或 org/repo").assertExists()
             compose.onNodeWithText("搜索 GGUF").assertIsEnabled()
+            compose.onAllNodesWithText("关闭").onLast().performClick()
             compose.onAllNodesWithText("关闭").onLast().performClick()
             compose.onNodeWithText("翻译设置").assertExists()
         }

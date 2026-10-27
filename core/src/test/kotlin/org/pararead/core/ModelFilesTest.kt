@@ -57,4 +57,19 @@ class ModelFilesTest {
         assertTrue(prompt.contains("source text\n/no_think<|im_end|>"))
         assertTrue(prompt.endsWith("<|im_start|>assistant\n<think>\n\n</think>\n\n"))
     }
+    @Test fun removingOneModelOrPartialFilesKeepsOtherDownloads(): Unit = runBlocking {
+        val root = Files.createTempDirectory("model-library").toFile()
+        try {
+            val store = ModelFiles(root)
+            val a = store.install(payload.inputStream())
+            val b = store.install((payload + 1.toByte()).inputStream())
+            File(root, "pending.part").writeText("incomplete")
+            store.removePartials()
+            assertTrue(File(a.path).exists()); assertTrue(File(b.path).exists())
+            store.remove(a.sha256)
+            assertFalse(File(a.path).exists()); assertTrue(File(b.path).exists())
+            assertFailsWith<IllegalArgumentException> { store.remove("../paper.pdf") }
+        } finally { root.deleteRecursively() }
+    }
+
 }

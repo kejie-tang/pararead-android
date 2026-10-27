@@ -36,7 +36,7 @@ class ModelManagerTest {
             deleteSharedPreferences("$id-settings"); deleteSharedPreferences("$id-model-download")
         }
     }
-    private class ModelServer(private val bytes: ByteArray, private val throttle: Long = 0) : Closeable {
+    private class ModelServer(@Volatile var bytes: ByteArray, private val throttle: Long = 0) : Closeable {
         private val socket = ServerSocket(0, 8, java.net.InetAddress.getByName("127.0.0.1"))
         private val pool = Executors.newCachedThreadPool()
         val url = "http://127.0.0.1:${socket.localPort}/model.gguf"
@@ -146,7 +146,7 @@ class ModelManagerTest {
             assertTrue(File(old.path).exists()); assertEquals(1, File(context.filesDir, "models").listFiles()!!.size)
             val retry = ModelManager(context, scope, spec(server, bytes))
             withContext(Dispatchers.Main) { retry.download() }; retry.await { it.installed?.sha256 == spec(server, bytes).sha256 && !it.busy }
-            assertFalse(File(old.path).exists())
+            assertTrue(File(old.path).exists()) // Other downloaded models remain available.
             withContext(Dispatchers.Main) { retry.delete() }; retry.await { it.message == "模型已删除" }
         } } finally { scope.cancel(); context.cleanup() }
     }
@@ -163,4 +163,92 @@ class ModelManagerTest {
             assertTrue(input.exists())
         } finally { scope.cancel(); context.cleanup() }
     }
+    @Test fun upgradeRetainsBothModelsAndSwitchDeleteAreScoped(): Unit = runBlocking {
+        val context = IsolatedContext(base); val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+        try {
+            val original = ModelFiles(File(context.filesDir, "models")).install(("GGUF".toByteArray() + ByteArray(32)).inputStream())
+            val alias = File(File(original.path).parentFile, "legacy-custom-name.gguf")
+            check(File(original.path).renameTo(alias))
+            val legacy = original.copy(path = alias.absolutePath)
+            Settings(context).installModel(legacy.path, legacy.sha256, "legacy model", "Apache-2.0", "example/legacy", "a".repeat(40))
+            val bytes = payload
+            ModelServer(bytes).use { server ->
+                val selected = spec(server, bytes).copy(name = "second model", license = "Apache-2.0")
+                val manager = ModelManager(context, scope)
+                assertEquals(legacy.sha256, manager.state.value.models.single().model.sha256)
+                withContext(Dispatchers.Main) { manager.download(selected) }
+                manager.await { !it.busy && it.installed?.sha256 == selected.sha256 }
+                assertTrue(File(legacy.path).exists()); assertEquals(2, manager.state.value.models.size)
+                val restored = ModelManager(context, scope)
+                assertEquals(2, restored.state.value.models.size)
+                withContext(Dispatchers.Main) { restored.select(legacy.sha256) }
+                restored.await { !it.busy && it.installed?.sha256 == legacy.sha256 }
+                assertEquals("example/legacy", Settings(context).modelRepository)
+                assertEquals("legacy model", Settings(context).model)
+                // Deleting the active model clears only the selection, preserving the other file.
+                withContext(Dispatchers.Main) { restored.delete(legacy.sha256) }
+                restored.await { !it.busy && it.message == "模型已删除" }
+                assertNull(restored.state.value.installed)
+                assertEquals(selected.sha256, restored.state.value.models.single().model.sha256)
+                withContext(Dispatchers.Main) { restored.select(selected.sha256) }
+                restored.await { !it.busy && it.installed?.sha256 == selected.sha256 }
+                // Downloading a saved asset selects it, without a new system download.
+                withContext(Dispatchers.Main) { restored.download(selected) }
+                assertEquals(0L, context.getSharedPreferences("model-download", 0).getLong("id", 0))
+            }
+        } finally { scope.cancel(); context.cleanup() }
+    }
+
+    @Test fun retryAfterRecreationKeepsTheFailedSelectionAndOldModel(): Unit = runBlocking {
+        val context = IsolatedContext(base); val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+        try {
+            val old = ModelFiles(File(context.filesDir, "models")).install(("GGUF".toByteArray() + ByteArray(32)).inputStream())
+            Settings(context).installModel(old.path, old.sha256, "old model")
+            val good = payload; val damaged = good.clone().apply { this[100] = 99 }
+            ModelServer(damaged).use { server ->
+                val selected = spec(server, good).copy(name = "selected small model")
+                val first = ModelManager(context, scope)
+                withContext(Dispatchers.Main) { first.download(selected) }
+                first.await { it.phase == ModelPhase.ERROR }
+                assertTrue(first.state.value.canRetry); assertEquals(old.sha256, first.state.value.installed?.sha256)
+                server.bytes = good
+                val restored = ModelManager(context, scope)
+                assertEquals(selected, restored.state.value.target)
+                withContext(Dispatchers.Main) { restored.retry() }
+                assertEquals(selected, restored.state.value.target)
+                restored.await { !it.busy && it.installed?.sha256 == selected.sha256 }
+                assertTrue(File(old.path).exists()); assertEquals(2, restored.state.value.models.size)
+                // Removing an inactive entry never changes the active model or deletes it.
+                withContext(Dispatchers.Main) { restored.delete(old.sha256) }
+                restored.await { !it.busy && it.message == "模型已删除" }
+                assertEquals(selected.sha256, restored.state.value.installed?.sha256)
+                assertEquals(1, restored.state.value.models.size)
+            }
+        } finally { scope.cancel(); context.cleanup() }
+    }
+
+    @Test fun cancelledReplacementRetainsEverySavedModel(): Unit = runBlocking {
+        val context = IsolatedContext(base); val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+        try {
+            val store = ModelFiles(File(context.filesDir, "models"))
+            val a = store.install(("GGUF".toByteArray() + ByteArray(32)).inputStream())
+            Settings(context).installModel(a.path, a.sha256, "first")
+            val manager = ModelManager(context, scope)
+            val b = File(context.filesDir, "second.gguf").apply { writeBytes("GGUF".toByteArray() + ByteArray(33)) }
+            withContext(Dispatchers.Main) { manager.import(Uri.fromFile(b)) }
+            manager.await { !it.busy && it.installed?.sha256 != a.sha256 }
+            val hashes = manager.state.value.models.map { it.model.sha256 }.toSet()
+            val bytes = payload
+            ModelServer(bytes, 40).use { server ->
+                withContext(Dispatchers.Main) { manager.download(spec(server, bytes)) }
+                manager.await { it.completed > 0 && it.phase == ModelPhase.DOWNLOADING }
+                withContext(Dispatchers.Main) { manager.cancel() }
+                manager.await { !it.busy && it.message == "已取消" }
+                assertEquals(hashes, manager.state.value.models.map { it.model.sha256 }.toSet())
+                assertEquals(2, File(context.filesDir, "models").listFiles()!!.size)
+                assertTrue(b.exists())
+            }
+        } finally { scope.cancel(); context.cleanup() }
+    }
+
 }

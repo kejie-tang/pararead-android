@@ -2,6 +2,8 @@
 
 日期：2026-10-26。已实现书库与“设置 → 离线 GGUF”的一键下载、进度、取消、重试和删除；默认 `qwen3:1.7b`，Q4_K_M、1.36 GB，关闭思考。APK 不内置权重，翻译使用应用内 CPU JNI，无需安装 Ollama。
 
+后续版本 alpha.6 已改为[多模型库](model-library.md)：保留多个模型、离线切换、确认后分别删除。本文记录早期单模型阶段，替换后清理旧权重的行为不再适用于 alpha.6。
+
 ## 实现行为
 
 - 模型来源为 [Ollama 官方 qwen3:1.7b](https://ollama.com/library/qwen3:1.7b) 的 registry GGUF layer，固定 1,359,279,776 字节与 SHA-256 `3d0b790534fe4b79525fc3692950408dca41171676ed7e21db57af5c65ef6ab6`；不在运行时跟随可变标签。元数据和 CDN 分段核验见 [来源记录](default-model-source.json)。

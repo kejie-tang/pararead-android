@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-27",
+  "version": "0.2.0-alpha.6",
+  "versionCode": 6,
+  "baseCommit": "01d061193cb94e9f19227b36db61765b0249f855",
+  "core": {
+    "tests": 43,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "android": {
+    "scheduled": 19,
+    "passed": 17,
+    "skipped": 2,
+    "failures": 0,
+    "physicalAndroidDevice": false,
+    "note": "HF live download and full real-model speed UI tests require explicit arguments and were skipped. Reader regression uses mock translation plus JNI library loading."
+  },
+  "sourceContractsPassed": 16,
+  "buildAndLint": "passed",
+  "pinnedSmallModelHead": {
+    "status": 200,
+    "bytes": 396705472
+  },
+  "apk": {
+    "ParaRead-0.2.0-alpha.6-android-arm64-debug.apk": {
+      "bytes": 43132343,
+      "sha256": "33d3f60cd37bc5098ec70ecf50dd59f64e3fca5678f1b523aa09a8ed6a5eca9a"
+    },
+    "ParaRead-0.2.0-alpha.6-android-arm64-debug-notices.zip": {
+      "bytes": 54810,
+      "sha256": "6c554afe74c3b0b664f6e5f827c42f04925712bb722aa7bcc28b5c6ccfec145c"
+    }
+  },
+  "signatureMatchesAlpha5": true,
+  "weightsBundled": false,
+  "originalSampleOnly": true,
+  "elfAndApk16KiBAlignment": "passed",
+  "multiModel": {
+    "legacyCustomFilenameMigration": "passed",
+    "retainsOtherDownloads": "passed",
+    "activeAndInactiveDeletion": "passed",
+    "reopenRetrySelection": "passed",
+    "cancelPreservesSavedModels": "passed",
+    "uiDeleteConfirmation": "passed"
+  },
+  "cacheFingerprintVersionChanged": false,
+  "physicalDimensity9400Tested": false
+}

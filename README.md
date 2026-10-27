@@ -6,7 +6,7 @@ Keep the original page in view, tap a sentence to follow its translation, and us
 
 [![Android CI](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml/badge.svg?branch=main)](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml) [![Android 9+](https://img.shields.io/badge/Android-9%2B-3DDC84?logo=android&logoColor=white)](#quick-start) [![Code license: Apache-2.0](https://img.shields.io/badge/Code-Apache--2.0-blue)](LICENSE)
 
-**[Download preview APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.5/ParaRead-0.2.0-alpha.5-android-arm64-debug.apk)** · [All releases](https://github.com/kejie-tang/pararead-android/releases) · [Quick start](#quick-start) · [简体中文](README.zh-CN.md)
+**[Download preview APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.6/ParaRead-0.2.0-alpha.6-android-arm64-debug.apk)** · [All releases](https://github.com/kejie-tang/pararead-android/releases) · [Quick start](#quick-start) · [简体中文](README.zh-CN.md)
 
 An independent, unofficial Android adaptation of [ParaRead](https://github.com/Chuanyunux/pararead) 0.6.1. **Development preview:** ARM64 only; the app interface currently uses Chinese labels.
 
@@ -32,9 +32,9 @@ A translation is easier to check when the source is right beside it. ParaRead An
 
 **You need:** Android 9 / API 28 or newer, an ARM64 device, and an Android System WebView with `WebMessageListener` support. The layout is designed for tablets.
 
-1. **Install the [preview APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.5/ParaRead-0.2.0-alpha.5-android-arm64-debug.apk).** The current download is debug-signed (`0.2.0-alpha.5`). If upgrading from a differently signed build, you may need to uninstall first; export important annotated PDFs before uninstalling, which removes app data.
+1. **Install the [preview APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.6/ParaRead-0.2.0-alpha.6-android-arm64-debug.apk).** The current download is debug-signed (`0.2.0-alpha.6`). If upgrading from a differently signed build, you may need to uninstall first; export important annotated PDFs before uninstalling, which removes app data.
 2. **Open a PDF.** Try **打开示例文档** (Open sample document), or import a PDF with selectable text through the system file picker.
-3. **Download the local model.** Tap **下载默认模型** (Download default model), or open **设置 → 离线 GGUF** (Settings → Offline GGUF). The app checks the full file size and SHA-256 before enabling it.
+3. **Choose a local model.** Open **模型管理** (Model management) on the home screen or in **设置 → 离线 GGUF**. Download **Qwen3-0.6B (397 MB)** for quick reading or **Qwen3-1.7B (1.36 GB)** for quality priority. The app checks file size and SHA-256 before enabling it.
 4. **Start reading.** Tap a sentence, translate a page, or start a whole-document job. Change the target language in **目标语言** (Target language). After an explicit cancellation, use **全篇 / 继续** (Whole document / Continue) to resume.
 
 ### The local model
@@ -48,11 +48,13 @@ A translation is easier to check when the source is right beside it. ParaRead An
 | Source | A fixed, SHA-256-verified GGUF layer from the Ollama registry; **no Ollama app required** |
 | Model search / imports | Hugging Face search and single-file GGUF downloads; Qwen2.5, Qwen3, Qwen3.5 and LFM2/2.5 text templates |
 
-**Choose another model:** open **设置 → 离线 GGUF → 从 Hugging Face 搜索下载**. Search a model name or enter `org/repo`, inspect its license, and choose a quantization. Downloads are pinned to a repository commit and checked against its LFS SHA-256. A successful download replaces the current local model. LFM2.5 is experimental: small-model formatting and translation completeness have known failures. See the [actual model compatibility results](docs/reports/model-compatibility.md).
+**Manage models:** open **模型管理** from the home screen or offline settings. Both recommended models can stay downloaded; tap **使用** (Use) to switch offline or **删除** (Delete) to remove one after confirmation. A new download becomes active automatically and keeps your other models. Failed downloads retry the same selection, including after reopening the app. See [model library behaviour and verification](docs/reports/model-library.md).
+
+**Choose another model:** open **模型管理 → 更多模型（Hugging Face）**. Search a model name or enter `org/repo`, inspect its license, and choose a quantization. Downloads are pinned to a repository commit and checked against its LFS SHA-256. A successful download activates that model and retains other saved models. LFM2.5 is experimental: small-model formatting and translation completeness have known failures. See the [actual model compatibility results](docs/reports/model-compatibility.md).
 
 **Want a smaller, faster model?** Try `Qwen3-0.6B-Q4_K_M.gguf` (**397 MB**) from [Unsloth](https://huggingface.co/unsloth/Qwen3-0.6B-GGUF). The official [Qwen Q8_0](https://huggingface.co/Qwen/Qwen3-0.6B-GGUF) is **639 MB**. These are candidates for fast preview reading; small models still miss details and can mistranslate numerical relations. See the [small-model tests, exact files and recommendations](docs/reports/small-model-evaluation.md).
 
-Alpha.5 saves independently validated sentences and retries only failures, with a marker checklist and a final single-sentence text fallback. Missing or duplicated protected content is still rejected; recovery can still fail. See the [actual recovery results](docs/reports/format-recovery.md). Translation cache keys are versioned, so translations will be regenerated after upgrading. The default download remains Qwen3 1.7B.
+Alpha.5 saves independently validated sentences and retries only failures, with a marker checklist and a final single-sentence text fallback. Missing or duplicated protected content is still rejected; recovery can still fail. See the [actual recovery results](docs/reports/format-recovery.md). Alpha.5 introduced a new cache version, so upgrading from earlier versions regenerates translations; alpha.6 retains that version. The default download remains Qwen3 1.7B.
 
 **350M–0.6B research:** RWKV 0.4B now passes 18/18 Android emulator format workloads with a specialized translation prompt and exact-marker retries; a local Q4 file is **301 MB**. It still omits text and mistranslates some numerical relations. NanoTranslator-365M recovers its format but changes meaning. These adapters are not enabled in the released app. See the [new candidates, raw outputs and speed comparison](docs/reports/mid-small-models.md), plus the earlier [LFM350 experiments](docs/reports/tiny-model-recovery.md).
 

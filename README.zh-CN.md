@@ -6,7 +6,7 @@
 
 [![Android CI](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml/badge.svg?branch=main)](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml) [![Android 9+](https://img.shields.io/badge/Android-9%2B-3DDC84?logo=android&logoColor=white)](#快速开始) [![代码许可：Apache-2.0](https://img.shields.io/badge/Code-Apache--2.0-blue)](LICENSE)
 
-**[下载预览版 APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.5/ParaRead-0.2.0-alpha.5-android-arm64-debug.apk)** · [全部版本](https://github.com/kejie-tang/pararead-android/releases) · [快速开始](#快速开始) · [English](README.md)
+**[下载预览版 APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.6/ParaRead-0.2.0-alpha.6-android-arm64-debug.apk)** · [全部版本](https://github.com/kejie-tang/pararead-android/releases) · [快速开始](#快速开始) · [English](README.md)
 
 基于 [ParaRead](https://github.com/Chuanyunux/pararead) 0.6.1 的独立、非官方 Android 移植与扩展。**当前为开发预览版，仅支持 ARM64；应用界面目前主要使用中文。**
 
@@ -32,9 +32,9 @@
 
 **设备要求：** Android 9 / API 28 及以上、ARM64，以及支持 `WebMessageListener` 的 Android System WebView。布局面向平板设计。
 
-1. **安装[预览版 APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.5/ParaRead-0.2.0-alpha.5-android-arm64-debug.apk)。** 当前下载为 debug 签名的 `0.2.0-alpha.5`。若旧版签名不同，可能需要卸载后安装；卸载会清除应用数据，请先另存重要的批注 PDF。
+1. **安装[预览版 APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.6/ParaRead-0.2.0-alpha.6-android-arm64-debug.apk)。** 当前下载为 debug 签名的 `0.2.0-alpha.6`。若旧版签名不同，可能需要卸载后安装；卸载会清除应用数据，请先另存重要的批注 PDF。
 2. **打开文档。** 点击“打开示例文档”，或通过系统文件选择器导入有可选中文字的 PDF。
-3. **下载本地模型。** 点击书库的“下载默认模型”，或进入“设置 → 离线 GGUF”。应用会在完整大小与 SHA-256 校验通过后启用模型。
+3. **选择本地模型。** 在首页或“设置 → 离线 GGUF”打开 **模型管理**。选择 **Qwen3-0.6B（397 MB）**轻量快读，或 **Qwen3-1.7B（1.36 GB）**质量优先；完整大小与 SHA-256 校验通过后自动启用。
 4. **开始阅读。** 点击句子，翻译本页，或启动全篇任务；在“目标语言”中调整译文语言。主动取消后，点击“全篇 / 继续”接续任务。
 
 ### 本地模型
@@ -48,11 +48,13 @@
 | 来源 | Ollama registry 的固定 GGUF 层，以 SHA-256 校验；**无需安装 Ollama** |
 | 搜索与导入 | Hugging Face 搜索、单文件 GGUF 下载；Qwen2.5、Qwen3、Qwen3.5、LFM2/2.5 文本模板 |
 
-**更换模型：**进入 **设置 → 离线 GGUF → 从 Hugging Face 搜索下载**，搜索模型名或输入 `org/repo`，查看模型许可后选择量化文件。下载固定到仓库提交，并按 LFS SHA-256 校验；成功后替换当前本机模型。LFM2.5 暂属实验支持，小模型存在格式与漏译问题，见[模型实测与性能排查](docs/reports/model-compatibility.md)。
+**管理模型：**首页和离线设置都可打开 **模型管理**。0.6B 与 1.7B 可以同时保留；点击“使用”离线切换，点击“删除”确认后单独移除。新下载自动启用，并保留其他已下载模型；失败后会重试原模型，重开 App 后也一样。详见[模型库行为与验证](docs/reports/model-library.md)。
+
+**更多模型：**进入 **模型管理 → 更多模型（Hugging Face）**，搜索模型名或输入 `org/repo`，查看模型许可后选择量化文件。下载固定到仓库提交，并按 LFS SHA-256 校验；成功后自动启用，并保留其他已下载模型。LFM2.5 暂属实验支持，小模型存在格式与漏译问题，见[模型实测与性能排查](docs/reports/model-compatibility.md)。
 
 **想更小、更快？**可以尝试 [Unsloth](https://huggingface.co/unsloth/Qwen3-0.6B-GGUF) 的 `Qwen3-0.6B-Q4_K_M.gguf`（**397 MB**）；官方 [Qwen Q8_0](https://huggingface.co/Qwen/Qwen3-0.6B-GGUF) 为 **639 MB**。它们适合快速浏览，小模型仍可能漏掉细节或翻错数字关系。具体结论、文件哈希和原始输出见[小模型实测与推荐](docs/reports/small-model-evaluation.md)。
 
-Alpha.5 逐句保存校验通过的译文，只重试失败句；重试时明确列出必需标记，最后尝试逐句纯文本兜底。引用等受保护内容缺失或重复时仍会拒绝保存，部分样本仍无法恢复，见[格式恢复实测](docs/reports/format-recovery.md)。升级后会按新的缓存版本重新生成译文；默认下载仍为 Qwen3 1.7B。
+Alpha.5 逐句保存校验通过的译文，只重试失败句；重试时明确列出必需标记，最后尝试逐句纯文本兜底。引用等受保护内容缺失或重复时仍会拒绝保存，部分样本仍无法恢复，见[格式恢复实测](docs/reports/format-recovery.md)。从 Alpha.5 之前的版本升级会重新生成译文，Alpha.6 延用 Alpha.5 的缓存版本；默认下载仍为 Qwen3 1.7B。
 
 **350M–0.6B 新候选：**RWKV 0.4B 配合专用翻译提示和严格标记重试，已通过 Android 模拟器 18/18 组格式样本；本地 Q4 文件约 **301 MB**，但仍有漏译和数字关系误译。NanoTranslator-365M 的格式可恢复，含义却经常失真。这些适配尚未在已发布 App 中启用，详见[新增模型、原始输出与速度对比](docs/reports/mid-small-models.md)，以及此前的 [LFM350 实验](docs/reports/tiny-model-recovery.md)。
 

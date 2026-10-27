@@ -68,7 +68,7 @@ fun ModelCatalogDialog(state: ModelCatalogState, installedHash: String?, onQuery
                 Text(details.repository, style = MaterialTheme.typography.titleSmall)
                 Text("模型许可：${details.license}")
                 TextButton(onClick = { uriHandler.openUri("https://huggingface.co/${details.repository}") }) { Text("查看模型卡与许可") }
-                Text("下载成功后替换当前本机模型。较小模型可能遗漏译文或占位符；格式校验失败时不会写入译文。", style = MaterialTheme.typography.bodySmall)
+                Text("下载成功后自动使用；其他已下载模型会保留，可在模型管理中切换或删除。较小模型可能遗漏译文或占位符；格式校验失败时不会写入译文。", style = MaterialTheme.typography.bodySmall)
                 if (details.files.isEmpty()) Text("没有可下载的完整 GGUF 文件（需提供 LFS 大小与 SHA-256）。")
                 details.files.forEach { file ->
                     HorizontalDivider()
