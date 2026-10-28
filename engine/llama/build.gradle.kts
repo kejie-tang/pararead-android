@@ -9,7 +9,8 @@ android {
         if (!providers.gradleProperty("skipNative").isPresent) {
             externalNativeBuild { cmake { arguments += listOf("-DLLAMA_SOURCE=${rootDir}/.references/llama.cpp", "-DCMAKE_BUILD_TYPE=Release",
                 "-DANDROID_STL=c++_shared", "-DPARAREAD_KLEIDIAI=${providers.gradleProperty("kleidiai").getOrElse("ON")}")
-                targets += listOf("pararead-llama", "ggml-cpu", "ggml-vulkan")
+                targets += listOf("pararead-llama", "ggml-vulkan", "ggml-cpu-android_armv8.0_1",
+                    "ggml-cpu-android_armv8.2_1", "ggml-cpu-android_armv8.2_2", "ggml-cpu-android_armv8.6_1")
             } }
         }
     }

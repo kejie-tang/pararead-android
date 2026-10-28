@@ -1,0 +1,30 @@
+{
+  "modelSha256": "ac2d97712095a558e31573f62f466a3f9d93990898b0ec79d7c974c1780d524a",
+  "modelBytes": 396705472,
+  "threads": 6,
+  "device": "Google sdk_gphone64_arm64",
+  "protocol": "16-token warmup; pp512 then tg128; pl1; 3 runs; no sampler\/grammar\/token callback; ctx4096; batch512; ubatch128",
+  "systemInfo": "CPU : NEON = 1 | ARM_FMA = 1 | LLAMAFILE = 1 | KLEIDIAI = 1 | REPACK = 1 | ",
+  "translation": "本地模型在文档离线时进行翻译",
+  "actualBackend": "CPU",
+  "samples": [
+    {
+      "pp512": 239.4027974150481,
+      "tg128": 64.41507865682982,
+      "prefillMs": 2138.6550429999998,
+      "decodeMs": 1987.112376
+    },
+    {
+      "pp512": 240.62645586349134,
+      "tg128": 68.95923340554475,
+      "prefillMs": 2127.779334,
+      "decodeMs": 1856.169126
+    },
+    {
+      "pp512": 245.32788919059033,
+      "tg128": 68.77778335313654,
+      "prefillMs": 2087.0028340000003,
+      "decodeMs": 1861.066085
+    }
+  ]
+}

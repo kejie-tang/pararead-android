@@ -263,7 +263,7 @@ class MainActivity : ComponentActivity() {
                             FilterChip(selected = backend == option, onClick = { backend = option }, label = { Text(option.label) })
                         }
                     }
-                    Text(if (backend == InferenceBackend.VULKAN) "尝试将模型层交给 GPU；不可用或推理出错时回退 CPU。速度取决于设备和模型，请先测速。" else "默认使用 CPU；适合稳定阅读。",
+                    Text(if (backend == InferenceBackend.VULKAN) "尝试将模型层交给 GPU；不可用或推理出错时回退 CPU。部分设备会更慢或出现界面卡顿，请先测速；流畅阅读建议使用 CPU。" else "默认使用 CPU；适合稳定阅读。",
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     if (settings.backendRecoveryNotice.isNotEmpty()) Text(settings.backendRecoveryNotice, style = MaterialTheme.typography.bodySmall)
                     Row(verticalAlignment = Alignment.CenterVertically) {

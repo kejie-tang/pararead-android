@@ -10,6 +10,7 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include "cpu_backend.h"
 
 struct Engine {
     std::string architecture;
@@ -21,6 +22,7 @@ struct Engine {
     ~Engine() { if (context) llama_free(context); if (model) llama_model_free(model); }
 };
 static std::once_flag backend_once;
+static std::atomic<const char *> cpu_backend{"host-static"};
 static void fail(JNIEnv * env, const char * message) { env->ThrowNew(env->FindClass("java/lang/IllegalStateException"), message); }
 static bool abort_decode(void * data) { return static_cast<Engine *>(data)->cancelled.load(); }
 // Constrain JSON syntax and expected rows; exact placeholder checks remain in Kotlin.
@@ -63,7 +65,9 @@ extern "C" JNIEXPORT jlong JNICALL Java_org_pararead_llama_NativeBridge_load(JNI
     try {
         std::call_once(backend_once, [] {
 #ifdef __ANDROID__
-            if (!ggml_backend_load("libggml-cpu.so")) throw std::runtime_error("CPU_BACKEND_LOAD_FAILED");
+            const auto * selected = pararead_load_cpu_backend([](const char * plugin) { return ggml_backend_load(plugin) != nullptr; });
+            if (!selected) throw std::runtime_error("CPU_BACKEND_LOAD_FAILED");
+            cpu_backend.store(selected);
 #endif
             llama_backend_init();
         });
@@ -237,7 +241,8 @@ extern "C" JNIEXPORT jstring JNICALL Java_org_pararead_llama_NativeBridge_device
     return env->NewStringUTF(reinterpret_cast<Engine *>(handle)->device.c_str());
 }
 extern "C" JNIEXPORT jstring JNICALL Java_org_pararead_llama_NativeBridge_systemInfo(JNIEnv * env, jobject) {
-    return env->NewStringUTF(llama_print_system_info());
+    const std::string info = std::string(llama_print_system_info()) + "; CPU_PLUGIN=" + cpu_backend.load();
+    return env->NewStringUTF(info.c_str());
 }
 // Kernel-only pp/tg benchmark: deterministic valid token IDs, no sampler, grammar or per-token JNI callbacks.
 extern "C" JNIEXPORT jdoubleArray JNICALL Java_org_pararead_llama_NativeBridge_benchmark(JNIEnv * env, jobject, jlong handle, jint pp, jint tg, jobject callback) {

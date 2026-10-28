@@ -28,6 +28,8 @@ flowchart TB
 
 工具链：JDK 21、Gradle 8.14.3、AGP 8.13.2、Kotlin 2.2.20、Compose BOM 2025.08.01、Room 2.7.2、WebKit 1.14.0。API 28 起，compile/target 36，仅 ARM64。llama.cpp 固定 `2280f0fd163b03d4331d49e08460f66502e35854`，NDK 28.2.13676358，CMake 3.22.1，CPU Release 优化，16KiB ELF 对齐；按需加载 Vulkan GPU 实验后端，CPU 默认；未启用 OpenMP；KleidiAI v1.32.0 通过运行时 CPU 特征检测选择内核。
 
+Alpha.9 为普通 ggml CPU 算子补充分离的 dotprod、dotprod + FP16、dotprod + FP16 + i8mm 插件，保留基础 ARM64 插件。按上游基线编译的 feature score 拒绝不支持的插件，成功加载一个即停止；不探测 Vulkan，不打包 SVE/SME 插件。测速保存实际插件名。详见 [CPU 指令排查与验证](reports/cpu-kernel-dispatch.md)。
+
 ## ADR-01：保留单个 WebView 的原阅读语义
 
 PDF 左、译文右共享 DOM 坐标。选句仍是一组 PDF 单位 rects 与文本层 span 索引；每句译文是所属结构块中的独立 span。标题/列表/段落/图表标题/注释/代码沿用上游 role，不改为整页纯文本。选中锚点保持同高；边界 clamp 沿用原版，不声称所有不同语言行能同时等高。

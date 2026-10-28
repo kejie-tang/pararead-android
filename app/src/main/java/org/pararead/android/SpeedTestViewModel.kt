@@ -113,6 +113,7 @@ class SpeedTestViewModel(app: Application) : AndroidViewModel(app) {
                     .put("availableProcessors", CpuThreads.maximum()).put("engine", NativeBridge.version())
                     .put("singleResultGrammar", true)
                     .put("architecture", provider.architecture).put("systemInfo", NativeBridge.systemInfo())
+                    .put("cpuPlugin", NativeBridge.systemInfo().substringAfter("CPU_PLUGIN=", "unknown"))
                     .put("engineBenchmarkProtocol", "16-token warmup; pp512 then tg128; pl1; 3 runs; no grammar/sampler/callback; ctx4096; batch512; ubatch128")
                     .put("engineSamples", engineSamples)
                 report = SavedSpeedReport(result, metadata)

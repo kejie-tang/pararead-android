@@ -65,6 +65,7 @@ fun SpeedTestDialog(state: SpeedTestState, onStart: () -> Unit, onCancel: () -> 
                 }
                 TextButton(onClick = { details = !details }) { Text(if (details) "收起详细数据与译文" else "展开详细数据与译文") }
                 if (details) SettingsSection("详细数据与译文", AppGlyph.File) {
+                    if (env.has("cpuPlugin")) Text("CPU 内核：${env.getString("cpuPlugin")}", style = MaterialTheme.typography.bodySmall)
                     Text("首次加载：响应 ${ms(result.first.firstResponseMs)} · 完成 ${ms(result.first.totalMs)}", style = MaterialTheme.typography.bodyMedium)
                     Text("热模型中位数：响应 ${ms(result.warmMedian { it.firstResponseMs })} · 完成 ${ms(result.warmMedian { it.totalMs })}", style = MaterialTheme.typography.bodyMedium)
                     Text("生成速度按实际生成 token 数 ÷ 生成阶段耗时计算。", style = MaterialTheme.typography.bodySmall)

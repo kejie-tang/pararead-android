@@ -40,7 +40,11 @@ with ZipFile(source) as z:
         assert hashlib.sha256(z.read(original)).hexdigest() == entry['sha256'], original
     natives = [n for n in names if n.startswith('lib/') and n.endswith('.so')]
     assert 'lib/arm64-v8a/libpararead-llama.so' in natives, 'Missing native inference engine'
-    for lib in ['ggml-cpu', 'ggml-vulkan', 'ggml', 'ggml-base', 'llama', 'c++_shared']:
+    cpu_plugins = {Path(n).name for n in natives if Path(n).name.startswith('libggml-cpu')}
+    assert cpu_plugins == {'libggml-cpu.so', 'libggml-cpu-android_armv8.2_1.so',
+                           'libggml-cpu-android_armv8.2_2.so', 'libggml-cpu-android_armv8.6_1.so'}, cpu_plugins
+    for lib in ['ggml-cpu', 'ggml-cpu-android_armv8.2_1', 'ggml-cpu-android_armv8.2_2',
+                'ggml-cpu-android_armv8.6_1', 'ggml-vulkan', 'ggml', 'ggml-base', 'llama', 'c++_shared']:
         assert f'lib/arm64-v8a/lib{lib}.so' in natives, f'Missing inference library: {lib}'
     assert all(n.startswith('lib/arm64-v8a/') for n in natives), natives
     for name in natives:

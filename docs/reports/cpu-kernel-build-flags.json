@@ -1,0 +1,52 @@
+[
+  {
+    "target": "android_armv8.0_1",
+    "ordinaryQuantFlags": [
+      "-DGGML_USE_CPU_KLEIDIAI",
+      "-DGGML_USE_CPU_REPACK",
+      "-DGGML_USE_LLAMAFILE",
+      "-march=armv8-a"
+    ],
+    "featureScorerBaseline": true,
+    "featureScorerLtoDisabled": true
+  },
+  {
+    "target": "android_armv8.2_1",
+    "ordinaryQuantFlags": [
+      "-DGGML_USE_CPU_KLEIDIAI",
+      "-DGGML_USE_CPU_REPACK",
+      "-DGGML_USE_DOTPROD",
+      "-DGGML_USE_LLAMAFILE",
+      "-march=armv8.2-a+dotprod"
+    ],
+    "featureScorerBaseline": true,
+    "featureScorerLtoDisabled": true
+  },
+  {
+    "target": "android_armv8.2_2",
+    "ordinaryQuantFlags": [
+      "-DGGML_USE_CPU_KLEIDIAI",
+      "-DGGML_USE_CPU_REPACK",
+      "-DGGML_USE_DOTPROD",
+      "-DGGML_USE_FP16_VECTOR_ARITHMETIC",
+      "-DGGML_USE_LLAMAFILE",
+      "-march=armv8.2-a+dotprod+fp16"
+    ],
+    "featureScorerBaseline": true,
+    "featureScorerLtoDisabled": true
+  },
+  {
+    "target": "android_armv8.6_1",
+    "ordinaryQuantFlags": [
+      "-DGGML_USE_CPU_KLEIDIAI",
+      "-DGGML_USE_CPU_REPACK",
+      "-DGGML_USE_DOTPROD",
+      "-DGGML_USE_FP16_VECTOR_ARITHMETIC",
+      "-DGGML_USE_LLAMAFILE",
+      "-DGGML_USE_MATMUL_INT8",
+      "-march=armv8.6-a+dotprod+fp16+i8mm"
+    ],
+    "featureScorerBaseline": true,
+    "featureScorerLtoDisabled": true
+  }
+]

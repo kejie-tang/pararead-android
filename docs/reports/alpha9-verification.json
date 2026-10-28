@@ -1,0 +1,53 @@
+{
+  "version": "0.2.0-alpha.9",
+  "date": "2026-10-28",
+  "tests": {
+    "core": {
+      "tests": 44,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "engine": {
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "android": {
+      "tests": 22,
+      "failures": 0,
+      "skipped": 0,
+      "seconds": 106.258
+    },
+    "cpuComparisons": {
+      "tests": 4,
+      "failures": 0,
+      "threeBenchmarksPerTest": true
+    },
+    "sourceContracts": {
+      "tests": 16,
+      "failures": 0
+    }
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 41
+  },
+  "artifacts": [
+    {
+      "file": "ParaRead-0.2.0-alpha.9-android-arm64-debug-notices.zip",
+      "bytes": 165545,
+      "sha256": "9c874cb88c0cbcfed630b811e18427e4aca95276f754a058b72e0e8e8a77735c"
+    },
+    {
+      "file": "ParaRead-0.2.0-alpha.9-android-arm64-debug.apk",
+      "bytes": 79921171,
+      "sha256": "b8802a44e66f140457550fe0550975a486fa24de29550a295dbc00cbdf015e93"
+    }
+  ],
+  "signatureSha256": "e044c8f329f42465866add4d041f29c498009361241610c8ee2de43ae6e87a45",
+  "physicalDeviceTested": false,
+  "i8mmExecuted": false,
+  "cpuPluginExecuted": "libggml-cpu-android_armv8.2_2.so"
+}

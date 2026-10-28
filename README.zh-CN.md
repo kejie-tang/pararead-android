@@ -6,7 +6,7 @@
 
 [![Android CI](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml/badge.svg?branch=main)](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml) [![Android 9+](https://img.shields.io/badge/Android-9%2B-3DDC84?logo=android&logoColor=white)](#快速开始) [![代码许可：Apache-2.0](https://img.shields.io/badge/Code-Apache--2.0-blue)](LICENSE)
 
-**[下载预览版 APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.8/ParaRead-0.2.0-alpha.8-android-arm64-debug.apk)** · [全部版本](https://github.com/kejie-tang/pararead-android/releases) · [快速开始](#快速开始) · [English](README.md)
+**[下载预览版 APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.9/ParaRead-0.2.0-alpha.9-android-arm64-debug.apk)** · [全部版本](https://github.com/kejie-tang/pararead-android/releases) · [快速开始](#快速开始) · [English](README.md)
 
 基于 [ParaRead](https://github.com/Chuanyunux/pararead) 0.6.1 的独立、非官方 Android 移植与扩展。**当前为开发预览版，仅支持 ARM64；应用界面目前主要使用中文。**
 
@@ -33,7 +33,7 @@
 
 **设备要求：** Android 9 / API 28 及以上、ARM64，以及支持 `WebMessageListener` 的 Android System WebView。布局面向平板设计。
 
-1. **安装[预览版 APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.8/ParaRead-0.2.0-alpha.8-android-arm64-debug.apk)。** 当前下载为 debug 签名的 `0.2.0-alpha.8`。若旧版签名不同，可能需要卸载后安装；卸载会清除应用数据，请先另存重要的批注 PDF。
+1. **安装[预览版 APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.9/ParaRead-0.2.0-alpha.9-android-arm64-debug.apk)。** 当前下载为 debug 签名的 `0.2.0-alpha.9`。若旧版签名不同，可能需要卸载后安装；卸载会清除应用数据，请先另存重要的批注 PDF。
 2. **打开文档。** 点击“打开示例文档”，或通过系统文件选择器导入有可选中文字的 PDF。
 3. **选择本地模型。** 在首页或“设置 → 离线 GGUF”打开 **模型管理**。选择 **Qwen3-0.6B（397 MB）**轻量快读，或 **Qwen3-1.7B（1.36 GB）**质量优先；完整大小与 SHA-256 校验通过后自动启用。
 4. **开始阅读。** 点击句子，翻译本页，或启动全篇任务；在“目标语言”中调整译文语言。主动取消后，点击“全篇 / 继续”接续任务。
@@ -48,6 +48,8 @@
 | 推理方式 | 默认 CPU，可选 Vulkan GPU 实验加速与 CPU 回退；支持自动或手动线程数 |
 | 来源 | Ollama registry 的固定 GGUF 层，以 SHA-256 校验；**无需安装 Ollama** |
 | 搜索与导入 | Hugging Face 搜索、单文件 GGUF 下载；Qwen2.5、Qwen3、Qwen3.5、LFM2/2.5 文本模板 |
+
+Alpha.9 根据设备指令支持选择 CPU 内核（dotprod / FP16 / i8mm），并保留基础 ARM64 回退；测速详情与 JSON 显示实际内核。Vulkan 仍属实验功能，可能更慢或导致界面卡顿，阅读建议使用 CPU。见 [CPU 性能排查与验证](docs/reports/cpu-kernel-dispatch.md)，真机提升幅度仍需复测。
 
 **管理模型：**首页和离线设置都可打开 **模型管理**。0.6B 与 1.7B 可以同时保留；点击“使用”离线切换，点击“删除”确认后单独移除。新下载自动启用，并保留其他已下载模型；失败后会重试原模型，重开 App 后也一样。详见[模型库行为与验证](docs/reports/model-library.md)。
 

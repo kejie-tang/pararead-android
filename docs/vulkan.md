@@ -10,6 +10,8 @@ The reader and speed dialog show the requested and actual backend. A completed r
 
 Compare the exact same GGUF, CPU threads, context and thermal conditions. Run the existing long-paragraph translation test and pp512/tg128 in each mode. Do not compare a CPU fallback result as GPU throughput. No Dimensity 9400 performance gain is claimed without a physical-device run.
 
+The first user report from a Dimensity 9400 device found about 13 translation / 16 engine token/s with Vulkan, together with UI stutter, versus 16 / 14 with CPU for Qwen3 1.7B. These are rounded user observations, without raw exports or thermal logs; they do not establish an engine-wide speedup. Use CPU for reading on this device. A valid but slower GPU session does not automatically fall back: fallback detects failures, not speed or frame rate. Alpha.9 improves ordinary CPU instruction dispatch separately; see the [CPU investigation](reports/cpu-kernel-dispatch.md).
+
 ## Fallback behavior
 
 - Missing GPU/plugin, unsupported device, model/context allocation failure, warmup failure, decode error or invalid numeric output: release the GPU context/model, then retry the prompt once on CPU. Subsequent requests in that provider keep using CPU.

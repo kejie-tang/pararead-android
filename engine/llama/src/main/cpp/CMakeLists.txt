@@ -20,6 +20,11 @@ set(LLAMA_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
 set(LLAMA_CURL OFF CACHE BOOL "" FORCE)
 set(GGML_OPENMP OFF CACHE BOOL "" FORCE)
 set(GGML_NATIVE OFF CACHE BOOL "" FORCE)
+# Build upstream's feature-scored plugins instead of compiling every ordinary
+# quant/attention operation for the minimum ARM64 ISA. KleidiAI alone does not
+# cover every operation. Gradle packages the four NEON variants below; SVE/SME
+# variants are deliberately not shipped until validated on physical devices.
+set(GGML_CPU_ALL_VARIANTS ON CACHE BOOL "" FORCE)
 option(PARAREAD_KLEIDIAI "Use runtime-dispatched Arm dotprod/i8mm/SME kernels" ON)
 set(GGML_CPU_KLEIDIAI ${PARAREAD_KLEIDIAI} CACHE BOOL "" FORCE)
 set(FETCHCONTENT_SOURCE_DIR_KLEIDIAI "${LLAMA_SOURCE}/../kleidiai" CACHE PATH "" FORCE)
@@ -29,7 +34,11 @@ endif()
 add_subdirectory("${LLAMA_SOURCE}" "${CMAKE_BINARY_DIR}/llama")
 target_link_libraries(ggml-vulkan PRIVATE SPIRV-Headers::SPIRV-Headers)
 # Android loads unversioned .so files from the APK linker namespace.
-foreach(lib llama ggml ggml-base ggml-cpu ggml-vulkan)
+set(PARAREAD_CPU_TARGETS ggml-cpu-android_armv8.0_1 ggml-cpu-android_armv8.2_1
+    ggml-cpu-android_armv8.2_2 ggml-cpu-android_armv8.6_1)
+# Retain the existing baseline filename for compatibility and packaging checks.
+set_target_properties(ggml-cpu-android_armv8.0_1 PROPERTIES OUTPUT_NAME ggml-cpu)
+foreach(lib llama ggml ggml-base ggml-vulkan ${PARAREAD_CPU_TARGETS})
     set_target_properties(${lib} PROPERTIES VERSION "" SOVERSION "")
 endforeach()
 add_library(pararead-llama SHARED llama_jni.cpp)

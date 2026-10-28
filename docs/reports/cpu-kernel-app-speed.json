@@ -1,0 +1,114 @@
+{
+  "methodVersion": 2,
+  "source": "Scientific documents combine continuous prose with equations, tables, references, and technical terminology. A useful reading assistant should translate the prose while preserving the original meaning and the structure of the document. Researchers often read the same paragraph several times to understand an unfamiliar method and compare it with earlier work. Local language models can support this process without sending the document to a remote service. Their practical speed depends on memory bandwidth, processor instructions, worker threads, and the amount of context being processed. A short answer may finish before the processor reaches a steady operating state, so repeated measurements with longer outputs are useful. Prompt processing and token generation should be measured separately because they perform different kinds of computation. A fair comparison also records the exact model file, inference settings, and device conditions. The goal of this experiment is to produce a faithful Chinese translation and retain enough timing information to distinguish engine performance from application overhead.",
+  "sourceLanguage": "en",
+  "targetLanguage": "zh-CN",
+  "translationCache": false,
+  "samples": [
+    {
+      "firstResponseMs": 5078.590336,
+      "totalMs": 16414.310966,
+      "promptTokens": 278,
+      "generatedTokens": 210,
+      "prefillNanos": 1207962334,
+      "generationNanos": 11335233380,
+      "samplingNanos": 31968756,
+      "decodeNanos": 11250525846,
+      "callbackNanos": 52158248,
+      "tokensPerSecond": 18.52630580774156,
+      "translation": "科学文档结合连续的散文与公式、表格、参考文献和技术术语。一个有用的阅读助手应将散文翻译成中文，同时保持原文的含义和文档结构。研究人员常常多次阅读同一段落，以理解一个陌生的方法，并将其与先前的工作进行比较。本地语言模型可以支持这一过程，而无需将文档发送到远程服务。其实际速度取决于内存带宽、处理器指令、工作者线程以及正在处理的上下文量。一个简短的答案可能在处理器达到稳定运行状态之前就完成了，因此重复测量具有较长输出的测量结果是有用的。提示处理和令牌生成应分别进行测量，因为它们执行不同的计算类型。公平的比较还应记录精确的模型文件、推理设置和设备条件。本实验的目标是生成一个忠实的中文翻译，并保留足够的时序信息以区分引擎性能和应用程序开销。"
+    },
+    {
+      "firstResponseMs": 2681.473251,
+      "totalMs": 10811.823546,
+      "promptTokens": 278,
+      "generatedTokens": 210,
+      "prefillNanos": 2680076418,
+      "generationNanos": 8129644337,
+      "samplingNanos": 34520709,
+      "decodeNanos": 8041949377,
+      "callbackNanos": 52517045,
+      "tokensPerSecond": 25.831388347979583,
+      "translation": "科学文档结合连续的散文与公式、表格、参考文献和技术术语。一个有用的阅读助手应将散文翻译成中文，同时保持原文的含义和文档结构。研究人员常常多次阅读同一段落，以理解一个陌生的方法，并将其与先前的工作进行比较。本地语言模型可以支持这一过程，而无需将文档发送到远程服务。其实际速度取决于内存带宽、处理器指令、工作者线程以及正在处理的上下文量。一个简短的答案可能在处理器达到稳定运行状态之前就完成了，因此重复测量具有较长输出的测量结果是有用的。提示处理和令牌生成应分别进行测量，因为它们执行不同的计算类型。公平的比较还应记录精确的模型文件、推理设置和设备条件。本实验的目标是生成一个忠实的中文翻译，并保留足够的时序信息以区分引擎性能和应用程序开销。"
+    },
+    {
+      "firstResponseMs": 1249.103751,
+      "totalMs": 8120.182462,
+      "promptTokens": 278,
+      "generatedTokens": 210,
+      "prefillNanos": 1248113751,
+      "generationNanos": 6868464711,
+      "samplingNanos": 32726165,
+      "decodeNanos": 6786777754,
+      "callbackNanos": 48383748,
+      "tokensPerSecond": 30.57451830009118,
+      "translation": "科学文档结合连续的散文与公式、表格、参考文献和技术术语。一个有用的阅读助手应将散文翻译成中文，同时保持原文的含义和文档结构。研究人员常常多次阅读同一段落，以理解一个陌生的方法，并将其与先前的工作进行比较。本地语言模型可以支持这一过程，而无需将文档发送到远程服务。其实际速度取决于内存带宽、处理器指令、工作者线程以及正在处理的上下文量。一个简短的答案可能在处理器达到稳定运行状态之前就完成了，因此重复测量具有较长输出的测量结果是有用的。提示处理和令牌生成应分别进行测量，因为它们执行不同的计算类型。公平的比较还应记录精确的模型文件、推理设置和设备条件。本实验的目标是生成一个忠实的中文翻译，并保留足够的时序信息以区分引擎性能和应用程序开销。"
+    },
+    {
+      "firstResponseMs": 1408.490918,
+      "totalMs": 8475.765296,
+      "promptTokens": 278,
+      "generatedTokens": 210,
+      "prefillNanos": 1407353959,
+      "generationNanos": 7067205670,
+      "samplingNanos": 34367539,
+      "decodeNanos": 6982485429,
+      "callbackNanos": 49770414,
+      "tokensPerSecond": 29.71471467024675,
+      "translation": "科学文档结合连续的散文与公式、表格、参考文献和技术术语。一个有用的阅读助手应将散文翻译成中文，同时保持原文的含义和文档结构。研究人员常常多次阅读同一段落，以理解一个陌生的方法，并将其与先前的工作进行比较。本地语言模型可以支持这一过程，而无需将文档发送到远程服务。其实际速度取决于内存带宽、处理器指令、工作者线程以及正在处理的上下文量。一个简短的答案可能在处理器达到稳定运行状态之前就完成了，因此重复测量具有较长输出的测量结果是有用的。提示处理和令牌生成应分别进行测量，因为它们执行不同的计算类型。公平的比较还应记录精确的模型文件、推理设置和设备条件。本实验的目标是生成一个忠实的中文翻译，并保留足够的时序信息以区分引擎性能和应用程序开销。"
+    }
+  ],
+  "environment": {
+    "startedAtEpochMs": 1793154353814,
+    "appVersion": "0.2.0-alpha.9",
+    "device": "Google sdk_gphone64_arm64",
+    "hardware": "ranchu",
+    "androidApi": 36,
+    "abis": "arm64-v8a",
+    "modelSha256": "3d0b790534fe4b79525fc3692950408dca41171676ed7e21db57af5c65ef6ab6",
+    "modelBytes": 1359279776,
+    "modelName": "qwen3:1.7b",
+    "modelLicense": "",
+    "modelRepository": "",
+    "modelRevision": "",
+    "requestedThreads": 6,
+    "effectiveThreads": 6,
+    "requestedBackend": "CPU",
+    "actualBackend": "CPU",
+    "gpuDevice": "CPU",
+    "fallbackReason": "",
+    "availableProcessors": 8,
+    "engine": "llama.cpp@2280f0fd163b03d4331d49e08460f66502e35854;cpu+optional-vulkan;arm64;ctx4096;proposal-exact-grammar-v3;templates-qwen2-qwen3-qwen35-lfm2;diagnostic-f32kv-flashoff-greedy-v1;research-rwkv7-completion-v1",
+    "singleResultGrammar": true,
+    "architecture": "qwen3",
+    "systemInfo": "CPU : NEON = 1 | ARM_FMA = 1 | FP16_VA = 1 | DOTPROD = 1 | LLAMAFILE = 1 | KLEIDIAI = 1 | REPACK = 1 | ; CPU_PLUGIN=libggml-cpu-android_armv8.2_2.so",
+    "cpuPlugin": "libggml-cpu-android_armv8.2_2.so",
+    "engineBenchmarkProtocol": "16-token warmup; pp512 then tg128; pl1; 3 runs; no grammar\/sampler\/callback; ctx4096; batch512; ubatch128",
+    "engineSamples": [
+      {
+        "promptTokens": 512,
+        "generatedTokens": 128,
+        "prefillTokensPerSecond": 219.81644523977258,
+        "decodeTokensPerSecond": 28.64855584257146,
+        "prefillMs": 2329.216085,
+        "decodeMs": 4467.939001999999
+      },
+      {
+        "promptTokens": 512,
+        "generatedTokens": 128,
+        "prefillTokensPerSecond": 197.99305163029928,
+        "decodeTokensPerSecond": 24.88681520676389,
+        "prefillMs": 2585.949334,
+        "decodeMs": 5143.285669
+      },
+      {
+        "promptTokens": 512,
+        "generatedTokens": 128,
+        "prefillTokensPerSecond": 247.40331209657128,
+        "decodeTokensPerSecond": 40.343876375853206,
+        "prefillMs": 2069.495334,
+        "decodeMs": 3172.724376
+      }
+    ]
+  }
+}

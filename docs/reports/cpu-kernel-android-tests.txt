@@ -1,0 +1,371 @@
+INSTRUMENTATION_STATUS: class=org.pararead.android.ModelManagerTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=
+org.pararead.android.ModelManagerTest:
+INSTRUMENTATION_STATUS: test=liveHuggingFaceSelectionDownloadsAndVerifies
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=org.pararead.android.ModelManagerTest
+INSTRUMENTATION_STATUS: current=1
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stack=org.junit.AssumptionViolatedException: Opt in with hfLive=true
+	at org.junit.Assume.assumeTrue(Assume.java:68)
+	at org.pararead.android.ModelManagerTest$liveHuggingFaceSelectionDownloadsAndVerifies$1.invokeSuspend(ModelManagerTest.kt:75)
+	at kotlin.coroutines.jvm.internal.BaseContinuationImpl.resumeWith(ContinuationImpl.kt:34)
+	at kotlinx.coroutines.DispatchedTask.run(DispatchedTask.kt:101)
+	at kotlinx.coroutines.EventLoopImplBase.processNextEvent(EventLoop.common.kt:263)
+	at kotlinx.coroutines.BlockingCoroutine.joinBlocking(Builders.kt:95)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking(Builders.kt:69)
+	at kotlinx.coroutines.BuildersKt.runBlocking(Unknown Source:1)
+	at kotlinx.coroutines.BuildersKt__BuildersKt.runBlocking$default(Builders.kt:47)
+	at kotlinx.coroutines.BuildersKt.runBlocking$default(Unknown Source:1)
+	at org.pararead.android.ModelManagerTest.liveHuggingFaceSelectionDownloadsAndVerifies(ModelManagerTest.kt:74)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+	at androidx.test.ext.junit.runners.AndroidJUnit4.run(AndroidJUnit4.java:162)
+	at org.junit.runners.Suite.runChild(Suite.java:128)
+	at org.junit.runners.Suite.runChild(Suite.java:27)
+	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:137)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:115)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:68)
+	at androidx.test.internal.runner.TestExecutor.execute(TestExecutor.java:59)
+	at androidx.test.runner.AndroidJUnitRunner.onStart(AndroidJUnitRunner.java:463)
+	at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:2597)
+
+INSTRUMENTATION_STATUS: stream=
+org.pararead.android.ModelManagerTest:
+INSTRUMENTATION_STATUS: test=liveHuggingFaceSelectionDownloadsAndVerifies
+INSTRUMENTATION_STATUS_CODE: -4
+INSTRUMENTATION_STATUS: class=org.pararead.android.ModelManagerTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=cancelRemovesTransferAndRetryCanInstall
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=org.pararead.android.ModelManagerTest
+INSTRUMENTATION_STATUS: current=2
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=cancelRemovesTransferAndRetryCanInstall
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=org.pararead.android.ModelManagerTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=cancelledReplacementRetainsEverySavedModel
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=org.pararead.android.ModelManagerTest
+INSTRUMENTATION_STATUS: current=3
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=cancelledReplacementRetainsEverySavedModel
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=org.pararead.android.ModelManagerTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=upgradeRetainsBothModelsAndSwitchDeleteAreScoped
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=org.pararead.android.ModelManagerTest
+INSTRUMENTATION_STATUS: current=4
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=upgradeRetainsBothModelsAndSwitchDeleteAreScoped
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=org.pararead.android.ModelManagerTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=retryAfterRecreationKeepsTheFailedSelectionAndOldModel
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=org.pararead.android.ModelManagerTest
+INSTRUMENTATION_STATUS: current=5
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=retryAfterRecreationKeepsTheFailedSelectionAndOldModel
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=org.pararead.android.ModelManagerTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=manualGgufImportUsesSameManagedStorage
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=org.pararead.android.ModelManagerTest
+INSTRUMENTATION_STATUS: current=6
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=manualGgufImportUsesSameManagedStorage
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=org.pararead.android.ModelManagerTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=failedHashKeepsOldModelAndCanRetryWithCorrectDigest
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=org.pararead.android.ModelManagerTest
+INSTRUMENTATION_STATUS: current=7
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=failedHashKeepsOldModelAndCanRetryWithCorrectDigest
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=org.pararead.android.ModelManagerTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=downloadSurvivesMonitorRecreationThenDeletePreservesDocumentsAndCache
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=org.pararead.android.ModelManagerTest
+INSTRUMENTATION_STATUS: current=8
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=downloadSurvivesMonitorRecreationThenDeletePreservesDocumentsAndCache
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=org.pararead.android.ModelLibraryUiTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=
+org.pararead.android.ModelLibraryUiTest:
+INSTRUMENTATION_STATUS: test=bothRecommendedDownloadsAreDirectAndSmallModelIsPinned
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=org.pararead.android.ModelLibraryUiTest
+INSTRUMENTATION_STATUS: current=9
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=bothRecommendedDownloadsAreDirectAndSmallModelIsPinned
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=org.pararead.android.ModelLibraryUiTest
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=failedDownloadShowsTheSelectedModelAndSpecificRetry
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=org.pararead.android.ModelLibraryUiTest
+INSTRUMENTATION_STATUS: current=10
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=failedDownloadShowsTheSelectedModelAndSpecificRetry
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=org.pararead.android.ModelLibraryUiTest
+INSTRUMENTATION_STATUS: current=11
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=savedModelsCanSwitchAndDeletionRequiresConfirmation
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=org.pararead.android.ModelLibraryUiTest
+INSTRUMENTATION_STATUS: current=11
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=savedModelsCanSwitchAndDeletionRequiresConfirmation
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=org.pararead.android.ModelCatalogUiTest
+INSTRUMENTATION_STATUS: current=12
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=
+org.pararead.android.ModelCatalogUiTest:
+INSTRUMENTATION_STATUS: test=settingsOpensSearchAndCloseReturnsToSettings
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=org.pararead.android.ModelCatalogUiTest
+INSTRUMENTATION_STATUS: current=12
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=settingsOpensSearchAndCloseReturnsToSettings
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=org.pararead.android.ModelCatalogUiTest
+INSTRUMENTATION_STATUS: current=13
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=selectedFileDisplaysLicenseSizeAndDownloadsThePinnedAsset
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=org.pararead.android.ModelCatalogUiTest
+INSTRUMENTATION_STATUS: current=13
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=selectedFileDisplaysLicenseSizeAndDownloadsThePinnedAsset
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=org.pararead.android.CpuThreadsSettingsTest
+INSTRUMENTATION_STATUS: current=14
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=
+org.pararead.android.CpuThreadsSettingsTest:
+INSTRUMENTATION_STATUS: test=settingsReachANewProviderAndDoNotInvalidateTranslations
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=org.pararead.android.CpuThreadsSettingsTest
+INSTRUMENTATION_STATUS: current=14
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=settingsReachANewProviderAndDoNotInvalidateTranslations
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=org.pararead.android.BackendSettingsTest
+INSTRUMENTATION_STATUS: current=15
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=
+org.pararead.android.BackendSettingsTest:
+INSTRUMENTATION_STATUS: test=interruptedGpuSessionRecoversCpuAndCanBeReenabled
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=org.pararead.android.BackendSettingsTest
+INSTRUMENTATION_STATUS: current=15
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=interruptedGpuSessionRecoversCpuAndCanBeReenabled
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=org.pararead.android.BackendSettingsTest
+INSTRUMENTATION_STATUS: current=16
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=backendChoicePersistsWithoutInvalidatingTranslations
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=org.pararead.android.BackendSettingsTest
+INSTRUMENTATION_STATUS: current=16
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=backendChoicePersistsWithoutInvalidatingTranslations
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=org.pararead.android.SpeedTestUiTest
+INSTRUMENTATION_STATUS: current=17
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=
+org.pararead.android.SpeedTestUiTest:
+INSTRUMENTATION_STATUS: test=missingModelDisablesSpeedTestEntry
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=org.pararead.android.SpeedTestUiTest
+INSTRUMENTATION_STATUS: current=17
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=missingModelDisablesSpeedTestEntry
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=org.pararead.android.SpeedTestUiTest
+INSTRUMENTATION_STATUS: current=18
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=realModelResultsSurviveRotationCancellationAndPersistence
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=org.pararead.android.SpeedTestUiTest
+INSTRUMENTATION_STATUS: current=18
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=realModelResultsSurviveRotationCancellationAndPersistence
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=org.pararead.android.SpeedTestUiTest
+INSTRUMENTATION_STATUS: current=19
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=cancelledCallerFinishesModelRelease
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=org.pararead.android.SpeedTestUiTest
+INSTRUMENTATION_STATUS: current=19
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=cancelledCallerFinishesModelRelease
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=org.pararead.android.ReaderIntegrationTest
+INSTRUMENTATION_STATUS: current=20
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=
+org.pararead.android.ReaderIntegrationTest:
+INSTRUMENTATION_STATUS: test=rangesSupportLongOffsetsConcurrentReadsAndDraftBoundary
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=org.pararead.android.ReaderIntegrationTest
+INSTRUMENTATION_STATUS: current=20
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=rangesSupportLongOffsetsConcurrentReadsAndDraftBoundary
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=org.pararead.android.ReaderIntegrationTest
+INSTRUMENTATION_STATUS: current=21
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=
+INSTRUMENTATION_STATUS: test=arm64JniReaderCacheDraftAndRecovery
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=org.pararead.android.ReaderIntegrationTest
+INSTRUMENTATION_STATUS: current=21
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=arm64JniReaderCacheDraftAndRecovery
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_STATUS: class=org.pararead.android.VulkanNativeTest
+INSTRUMENTATION_STATUS: current=22
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=
+org.pararead.android.VulkanNativeTest:
+INSTRUMENTATION_STATUS: test=actualBackendAndOutputAreRecorded
+INSTRUMENTATION_STATUS_CODE: 1
+INSTRUMENTATION_STATUS: class=org.pararead.android.VulkanNativeTest
+INSTRUMENTATION_STATUS: current=22
+INSTRUMENTATION_STATUS: id=AndroidJUnitRunner
+INSTRUMENTATION_STATUS: numtests=22
+INSTRUMENTATION_STATUS: stream=.
+INSTRUMENTATION_STATUS: test=actualBackendAndOutputAreRecorded
+INSTRUMENTATION_STATUS_CODE: 0
+INSTRUMENTATION_RESULT: stream=
+
+Time: 106.258
+
+OK (22 tests)
+
+
+INSTRUMENTATION_CODE: -1

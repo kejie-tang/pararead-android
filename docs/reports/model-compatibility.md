@@ -2,6 +2,8 @@
 
 This report records alpha.3 / prompt v5. For alpha.4 and the smaller-model recommendation, see the [new evaluation](small-model-evaluation.md).
 
+Alpha.9 adds ordinary CPU instruction variants beyond KleidiAI; see the [follow-up CPU investigation and Android comparison](cpu-kernel-dispatch.md).
+
 27 October 2026. Local, real GGUF weights, CPU, six inference threads. Test text is original project material; no user documents were sent to a service.
 
 ## Why 10 token/s and 22 token/s differ
