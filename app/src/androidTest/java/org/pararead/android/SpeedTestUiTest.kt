@@ -91,6 +91,7 @@ class SpeedTestUiTest {
             assertEquals(3, report.metadata.getJSONArray("engineSamples").length())
             assertTrue(report.metadata.getString("cpuPlugin").startsWith("libggml-cpu"))
             assertTrue(report.metadata.getString("systemInfo").contains("CPU_PLUGIN="))
+            assertTrue(report.metadata.getString("cpuThreadpool").startsWith("persistent"))
             assertEquals(settings.inferenceBackend.name, report.metadata.getString("requestedBackend"))
             assertTrue(report.metadata.getString("actualBackend") in setOf("CPU", "VULKAN"))
             if (settings.inferenceBackend == InferenceBackend.VULKAN && report.metadata.getString("actualBackend") == "CPU")
@@ -100,6 +101,7 @@ class SpeedTestUiTest {
             compose.onNodeWithText("生成速度：", substring = true).performScrollTo().assertExists()
             compose.onNodeWithText("展开详细数据与译文").performScrollTo().performClick()
             compose.onNodeWithText("CPU 内核：", substring = true).performScrollTo().assertExists()
+            compose.onNodeWithText("CPU 线程池：复用").performScrollTo().assertExists()
             compose.onNodeWithText("导出测速结果 JSON").performScrollTo().assertIsEnabled()
             compose.onNodeWithText("重新测速").performClick()
             compose.waitUntil(15_000) { vm!!.state.value.run >= 1 }

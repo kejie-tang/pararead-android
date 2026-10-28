@@ -1,0 +1,63 @@
+{
+  "version": "0.2.0-alpha.10",
+  "date": "2026-10-28",
+  "tests": {
+    "core": {
+      "tests": 44,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "engine": {
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "android": {
+      "tests": 22,
+      "failures": 0,
+      "skipped": 0,
+      "seconds": 83.413
+    },
+    "nativePoolLifecycle": {
+      "tests": 1,
+      "failures": 0,
+      "seconds": 2.578
+    },
+    "cpuComparisons": {
+      "tests": 6,
+      "failures": 0,
+      "threeBenchmarksPerTest": true
+    },
+    "hostJni": {
+      "cases": 4,
+      "failures": 0
+    },
+    "sourceContracts": {
+      "tests": 16,
+      "failures": 0
+    }
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 41
+  },
+  "artifacts": [
+    {
+      "file": "ParaRead-0.2.0-alpha.10-android-arm64-debug-notices.zip",
+      "bytes": 165545,
+      "sha256": "9c874cb88c0cbcfed630b811e18427e4aca95276f754a058b72e0e8e8a77735c"
+    },
+    {
+      "file": "ParaRead-0.2.0-alpha.10-android-arm64-debug.apk",
+      "bytes": 79983997,
+      "sha256": "75e432a33fa9849d30c99e7dbc97de7f7e16cb8d90d92f9dbed1fdb408555272"
+    }
+  ],
+  "signatureSha256": "e044c8f329f42465866add4d041f29c498009361241610c8ee2de43ae6e87a45",
+  "physicalDeviceTested": false,
+  "i8mmExecuted": false,
+  "cpuPluginExecuted": "libggml-cpu-android_armv8.2_2.so",
+  "cpuThreadpool": "persistent,poll50,normal-priority"
+}

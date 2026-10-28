@@ -1,0 +1,20 @@
+{
+  "device": "Google sdk_gphone64_arm64",
+  "CPU": {
+    "actualBackend": "CPU",
+    "device": "CPU",
+    "fallbackReason": "",
+    "translation": "本地模型在文档离线时翻译内容。",
+    "pp32": 764.1357654341992,
+    "tg8": 131.47245035887872
+  },
+  "VULKAN": {
+    "actualBackend": "CPU",
+    "device": "CPU",
+    "fallbackReason": "VULKAN_DEVICE_UNAVAILABLE",
+    "translation": "本地模型在文档离线时翻译内容。",
+    "pp32": 767.2212581474403,
+    "tg8": 137.42988928304544
+  },
+  "cpuAfterVulkan": "CPU"
+}

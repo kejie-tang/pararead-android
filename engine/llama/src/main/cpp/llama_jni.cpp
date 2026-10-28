@@ -2,6 +2,7 @@
 #include <jni.h>
 #include <llama.h>
 #include <ggml-backend.h>
+#include <ggml-cpu.h>
 #include <atomic>
 #include <chrono>
 #include <cmath>
@@ -18,8 +19,32 @@ struct Engine {
     bool vulkan = false;
     llama_model * model = nullptr;
     llama_context * context = nullptr;
+    ggml_threadpool_t threadpool = nullptr;
+    decltype(&ggml_threadpool_free) free_threadpool = nullptr;
     std::atomic<bool> cancelled{false};
-    ~Engine() { if (context) llama_free(context); if (model) llama_model_free(model); }
+    ~Engine() {
+        if (context && threadpool) llama_detach_threadpool(context);
+        if (threadpool) free_threadpool(threadpool);
+        if (context) llama_free(context);
+        if (model) llama_model_free(model);
+    }
+    void attach_threadpool(int threads) {
+        auto cpu = ggml_backend_dev_by_type(GGML_BACKEND_DEVICE_TYPE_CPU);
+        auto reg = cpu ? ggml_backend_dev_backend_reg(cpu) : nullptr;
+        if (!reg) throw std::runtime_error("CPU_THREADPOOL_BACKEND_UNAVAILABLE");
+        // Resolve through the selected plugin; linking a CPU library directly
+        // would bypass runtime ISA selection and could load two CPU backends.
+        auto create = reinterpret_cast<decltype(&ggml_threadpool_new)>(ggml_backend_reg_get_proc_address(reg, "ggml_threadpool_new"));
+        free_threadpool = reinterpret_cast<decltype(free_threadpool)>(ggml_backend_reg_get_proc_address(reg, "ggml_threadpool_free"));
+        if (!create || !free_threadpool) throw std::runtime_error("CPU_THREADPOOL_API_UNAVAILABLE");
+        auto params = ggml_threadpool_params_default(threads);
+        params.paused = true;
+        threadpool = create(&params);
+        if (!threadpool) throw std::runtime_error("CPU_THREADPOOL_ALLOCATION_FAILED");
+        // Prefill and decode use the same thread count, so they share one pool.
+        // Without this, ggml creates and joins worker threads for every graph.
+        llama_attach_threadpool(context, threadpool, threadpool);
+    }
 };
 static std::once_flag backend_once;
 static std::atomic<const char *> cpu_backend{"host-static"};
@@ -106,6 +131,7 @@ extern "C" JNIEXPORT jlong JNICALL Java_org_pararead_llama_NativeBridge_load(JNI
         cp.abort_callback = abort_decode; cp.abort_callback_data = engine.get();
         engine->context = llama_init_from_model(engine->model, cp);
         if (!engine->context) throw std::runtime_error("CONTEXT_ALLOCATION_FAILED");
+        engine->attach_threadpool(threads);
         if (vulkan) {
             // Validate allocation and a real compute before reporting GPU as ready.
             llama_token token = 16;
@@ -241,7 +267,7 @@ extern "C" JNIEXPORT jstring JNICALL Java_org_pararead_llama_NativeBridge_device
     return env->NewStringUTF(reinterpret_cast<Engine *>(handle)->device.c_str());
 }
 extern "C" JNIEXPORT jstring JNICALL Java_org_pararead_llama_NativeBridge_systemInfo(JNIEnv * env, jobject) {
-    const std::string info = std::string(llama_print_system_info()) + "; CPU_PLUGIN=" + cpu_backend.load();
+    const std::string info = std::string(llama_print_system_info()) + "; CPU_PLUGIN=" + cpu_backend.load() + "; CPU_THREADPOOL=persistent,poll50,normal-priority";
     return env->NewStringUTF(info.c_str());
 }
 // Kernel-only pp/tg benchmark: deterministic valid token IDs, no sampler, grammar or per-token JNI callbacks.
@@ -295,4 +321,4 @@ extern "C" JNIEXPORT void JNICALL Java_org_pararead_llama_NativeBridge_cancel(JN
     if (handle) reinterpret_cast<Engine *>(handle)->cancelled.store(true);
 }
 extern "C" JNIEXPORT void JNICALL Java_org_pararead_llama_NativeBridge_free(JNIEnv *, jobject, jlong handle) { delete reinterpret_cast<Engine *>(handle); }
-extern "C" JNIEXPORT jstring JNICALL Java_org_pararead_llama_NativeBridge_version(JNIEnv * env, jobject) { return env->NewStringUTF("llama.cpp@2280f0fd163b03d4331d49e08460f66502e35854;cpu+optional-vulkan;arm64;ctx4096;proposal-exact-grammar-v3;templates-qwen2-qwen3-qwen35-lfm2;diagnostic-f32kv-flashoff-greedy-v1;research-rwkv7-completion-v1"); }
+extern "C" JNIEXPORT jstring JNICALL Java_org_pararead_llama_NativeBridge_version(JNIEnv * env, jobject) { return env->NewStringUTF("llama.cpp@2280f0fd163b03d4331d49e08460f66502e35854;cpu+optional-vulkan;arm64;ctx4096;proposal-exact-grammar-v3;templates-qwen2-qwen3-qwen35-lfm2;diagnostic-f32kv-flashoff-greedy-v1;research-rwkv7-completion-v1;cpu-pool-v1"); }

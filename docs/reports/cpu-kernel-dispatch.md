@@ -1,5 +1,7 @@
 # CPU kernel dispatch — alpha.9
 
+Alpha.10 adds persistent CPU worker reuse independently of the instruction dispatch change; see the [follow-up threadpool comparison](cpu-threadpool.md).
+
 ## Device report that triggered this change
 
 The user reported the following rounded rates on 28 October 2026. Their previously supplied configuration was Dimensity 9400, 6 CPU threads, and PocketPal v1.20.1 (152). The latest report did not include JSON exports, file hashes, temperature/thermal-state logs, or the installed ParaRead version; these observations are not a controlled benchmark.

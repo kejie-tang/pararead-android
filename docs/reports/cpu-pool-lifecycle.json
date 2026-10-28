@@ -1,0 +1,11 @@
+{
+  "threads": 6,
+  "systemInfo": "CPU : NEON = 1 | ARM_FMA = 1 | FP16_VA = 1 | DOTPROD = 1 | LLAMAFILE = 1 | KLEIDIAI = 1 | REPACK = 1 | ; CPU_PLUGIN=libggml-cpu-android_armv8.2_2.so; CPU_THREADPOOL=persistent,poll50,normal-priority",
+  "idleWindowMs": 500,
+  "idleCpuTicks": 0,
+  "ticksPerSecond": 100,
+  "workerCount": 5,
+  "reusedAcrossCalls": true,
+  "cancellationRecovered": true,
+  "allWorkersJoinedOnFree": true
+}
