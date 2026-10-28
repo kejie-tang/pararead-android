@@ -4,6 +4,8 @@
 
 后续版本 alpha.6 已改为[多模型库](model-library.md)：保留多个模型、离线切换、确认后分别删除。本文记录早期单模型阶段，替换后清理旧权重的行为不再适用于 alpha.6。
 
+> Alpha.11 的新下载已改为同目录暂存、校验后原子重命名，不再需要第二份权重；后台任务改用 WorkManager。下文保留早期实现记录，当前行为与验证见 [alpha.11](alpha11.md)。
+
 ## 实现行为
 
 - 模型来源为 [Ollama 官方 qwen3:1.7b](https://ollama.com/library/qwen3:1.7b) 的 registry GGUF layer，固定 1,359,279,776 字节与 SHA-256 `3d0b790534fe4b79525fc3692950408dca41171676ed7e21db57af5c65ef6ab6`；不在运行时跟随可变标签。元数据和 CDN 分段核验见 [来源记录](default-model-source.json)。

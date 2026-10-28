@@ -30,6 +30,9 @@ class ModelManagerTest {
         override fun getExternalFilesDir(type: String?) = File(requireNotNull(super.getExternalFilesDir(type)), id).apply { mkdirs() }
         override fun getSharedPreferences(name: String?, mode: Int) = super.getSharedPreferences("$id-$name", mode)
         fun cleanup() {
+            getSharedPreferences("model-download", 0).getString("work", null)?.let {
+                androidx.work.WorkManager.getInstance(this).cancelWorkById(UUID.fromString(it)).result.get()
+            }
             val rowId = getSharedPreferences("model-download", 0).getLong("id", 0)
             if (rowId > 0) getSystemService(android.app.DownloadManager::class.java).remove(rowId)
             filesDir.deleteRecursively(); getExternalFilesDir(android.os.Environment.DIRECTORY_DOWNLOADS).deleteRecursively()
@@ -37,6 +40,7 @@ class ModelManagerTest {
         }
     }
     private class ModelServer(@Volatile var bytes: ByteArray, private val throttle: Long = 0) : Closeable {
+        val requests = java.util.concurrent.atomic.AtomicInteger()
         private val socket = ServerSocket(0, 8, java.net.InetAddress.getByName("127.0.0.1"))
         private val pool = Executors.newCachedThreadPool()
         val url = "http://127.0.0.1:${socket.localPort}/model.gguf"
@@ -45,6 +49,7 @@ class ModelManagerTest {
                 val client = try { socket.accept() } catch (_: SocketException) { break }
                 pool.execute {
                     try { client.use {
+                        requests.incrementAndGet()
                         val reader = it.getInputStream().bufferedReader(); var offset = 0
                         while (true) {
                             val line = reader.readLine() ?: break
@@ -98,7 +103,7 @@ class ModelManagerTest {
             val first = ModelManager(context, scope)
             withContext(Dispatchers.Main) { first.download(asset) }
             first.await { it.completed > 0 && it.phase == ModelPhase.DOWNLOADING }
-            scope.cancel() // Network belongs to DownloadManager and continues without an Activity or monitor.
+            scope.cancel() // The durable worker continues without an Activity or monitor.
             scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
             val resumed = ModelManager(context, scope)
             val ready = resumed.await { it.installed?.sha256 == asset.sha256 && !it.busy }
@@ -132,6 +137,40 @@ class ModelManagerTest {
             withContext(Dispatchers.Main) { manager.download() }
             manager.await { it.installed != null && !it.busy }
             withContext(Dispatchers.Main) { manager.delete() }; manager.await { it.message == "模型已删除" }
+        } } finally { scope.cancel(); context.cleanup() }
+    }
+    @Test fun downloadPublishesTheSameInodeAndNeverCreatesASecondWeightCopy(): Unit = runBlocking {
+        val context = IsolatedContext(base); val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+        val bytes = payload
+        try { ModelServer(bytes, 15).use { server ->
+            val manager = ModelManager(context, scope, spec(server, bytes))
+            withContext(Dispatchers.Main) { manager.download() }
+            manager.await { it.completed > 0 && it.phase == ModelPhase.DOWNLOADING }
+            val directory = File(context.filesDir, "models")
+            val part = directory.listFiles()!!.single { it.extension == "part" }
+            val inode = android.system.Os.stat(part.path).st_ino
+            while (manager.state.value.busy) {
+                assertTrue("Only one weight copy may exist", directory.listFiles()!!.sumOf { it.length() } <= bytes.size.toLong())
+                delay(10)
+            }
+            val ready = manager.state.value.installed!!
+            assertEquals(inode, android.system.Os.stat(ready.path).st_ino)
+            assertEquals(1, directory.listFiles()!!.size)
+            assertTrue(context.getExternalFilesDir(android.os.Environment.DIRECTORY_DOWNLOADS).listFiles()!!.isEmpty())
+        } } finally { scope.cancel(); context.cleanup() }
+    }
+    @Test fun completedPublishIsRecoveredWithoutAnotherDownload(): Unit = runBlocking {
+        val context = IsolatedContext(base); val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+        val bytes = payload
+        try { ModelServer(bytes).use { server ->
+            val stored = ModelFiles(File(context.filesDir, "models")).install(bytes.inputStream())
+            // Simulate process death after rename but before the work result / library is saved.
+            val manager = ModelManager(context, scope, spec(server, bytes))
+            withContext(Dispatchers.Main) { manager.download() }
+            val ready = manager.await { !it.busy && it.installed?.sha256 == stored.sha256 }
+            assertEquals(File(stored.path).canonicalPath, File(ready.installed!!.path).canonicalPath)
+            assertEquals(0, server.requests.get())
+            assertEquals(1, File(context.filesDir, "models").listFiles()!!.size)
         } } finally { scope.cancel(); context.cleanup() }
     }
     @Test fun failedHashKeepsOldModelAndCanRetryWithCorrectDigest(): Unit = runBlocking {

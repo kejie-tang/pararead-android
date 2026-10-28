@@ -38,6 +38,38 @@ object RecommendedModels {
 /** Publish complete, verified files by rename. A failed transfer never replaces an installed model. */
 class ModelFiles(val directory: File) {
     init { check(directory.mkdirs() || directory.isDirectory) }
+    /** Verify an already-downloaded sibling and publish it without another weight copy. */
+    suspend fun verifyAndPublish(temp: File, expected: ModelAsset, progress: (Long) -> Unit = {}): InstalledModel {
+        require(temp.canonicalFile.parentFile == directory.canonicalFile && temp.extension == "part")
+        val verified = verify(temp, expected, progress)
+        coroutineContext.ensureActive()
+        val target = File(directory, "${verified.sha256}.gguf")
+        Files.move(temp.toPath(), target.toPath(), StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING)
+        return verified.copy(path = target.absolutePath)
+    }
+    /** Also recovers a publish that finished before the worker could persist its success. */
+    suspend fun verify(file: File, expected: ModelAsset, progress: (Long) -> Unit = {}): InstalledModel {
+        require(file.canonicalFile.parentFile == directory.canonicalFile)
+        val temp = file
+        require(temp.length() == expected.bytes) { "模型文件不完整，请重试下载" }
+        val digest = MessageDigest.getInstance("SHA-256")
+        var total = 0L
+        temp.inputStream().buffered(262144).use { input ->
+            val header = ByteArray(4)
+            require(input.read(header) == 4 && header.contentEquals("GGUF".toByteArray(Charsets.US_ASCII))) { "模型不是 GGUF 文件" }
+            digest.update(header); total = 4
+            val buffer = ByteArray(262144)
+            while (true) {
+                coroutineContext.ensureActive()
+                val n = input.read(buffer); if (n < 0) break
+                total += n; digest.update(buffer, 0, n); progress(total)
+            }
+        }
+        val hash = digest.digest().joinToString("") { "%02x".format(it) }
+        require(total == expected.bytes && hash == expected.sha256) { "模型 SHA-256 校验失败，请重试下载" }
+        coroutineContext.ensureActive()
+        return InstalledModel(file.absolutePath, hash, total)
+    }
     suspend fun install(input: InputStream, expected: ModelAsset? = null, progress: (Long) -> Unit = {}): InstalledModel {
         val temp = File(directory, "${UUID.randomUUID()}.part")
         val digest = MessageDigest.getInstance("SHA-256")

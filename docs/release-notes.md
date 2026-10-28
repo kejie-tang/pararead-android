@@ -1,13 +1,15 @@
-ParaRead Android 0.2.0-alpha.10 — reuse CPU workers / 复用 CPU 线程池
+ParaRead Android 0.2.0-alpha.11 — lean downloads and bilingual menus / 下载省空间与双语菜单
 
-Fix another avoidable CPU cost found during the PocketPal comparison: ParaRead did not attach a persistent threadpool, so ggml created and joined worker threads for each compute graph. A model session now owns one pool shared by prefill and decode. The pool uses the selected CPU plugin and is detached, stopped and joined when its engine is freed, including GPU failure and CPU retry.
+Model downloads now write directly into private model storage, verify GGUF, file size and SHA-256, then rename the same file into place. A second full weight copy is no longer needed: a new Qwen3-1.7B download needs about **1.43 GB** free, including the 64 MiB reserve; 0.6B needs about **464 MB**. Background work and HTTP Range resume retain progress after network interruptions and process restarts. Previously saved models are retained; old in-flight system downloads finish through the legacy path.
 
-- Retain alpha.9's feature-checked dotprod / FP16 / i8mm CPU plugins.
-- Keep the same model, six-thread comparison setting, context, batch sizes, KV types, automatic Flash Attention, sampling/grammar and benchmark workload. Keep normal priority, default hybrid polling and system CPU placement.
-- Record the pool in speed-test details and exported JSON. Existing reports, models, documents and validated translation caches remain compatible.
+- **Settings → Interface language:** choose System, 简体中文 or English. Native menus change immediately and the choice persists. Document source and translation target languages stay independent; the open reader is retained. The embedded PDF viewer and raw third-party diagnostics may retain their own language.
+- **English-default and Chinese READMEs:** clearer reading features, setup, model choices, space requirements, privacy, screenshots and license disclosures.
+- **Original launcher icon:** two facing pages with aligned lines, including adaptive and themed monochrome variants. Original artwork is Apache-2.0.
 
-进一步排查发现原生层每次计算图都会重复创建、销毁线程。此版改为模型会话内复用线程池，保持其余参数不变；取消后可继续使用，释放模型时回收所有工作线程。保留 alpha.9 的 CPU 指令优化。实验 Vulkan 在当前设备上没有稳定收益，阅读仍建议使用 CPU。
+模型直接下载到私有模型目录的临时文件，完成校验后原子重命名，无须再复制一整份权重。支持后台下载、网络重试和断点续传；本次验证包含实际停止 App 进程后重新打开恢复下载。
 
-Android 9+ / ARM64, versionCode 10. Debug-signed preview using the same local certificate as alpha.9; install over alpha.8/9 to retain app data. Model weights and third-party papers are not bundled. APK, checksum file and retained notices are attached.
+在 **设置 → 界面语言** 中可选跟随系统、简体中文或 English，即时生效并记住选择，不改变文档源语言、翻译目标或译文缓存。同步重写中英文 README，并加入原创双页书本图标。
 
-Comparison and validation: [CPU threadpool investigation](https://github.com/kejie-tang/pararead-android/blob/main/docs/reports/cpu-threadpool.md). Emulator improvements cannot be multiplied together to predict a phone's speed. **Dimensity 9400 performance still needs retesting on the device.**
+Validation: 52 core tests, 8 engine tests and 16 source-contract tests passed. Android API 36 / ARM64 suite: **24 passed, 1 optional live Hugging Face test skipped**; two stronger locale checks passed after the final dialog-language fix. A separate two-phase process-stop/resume check passed. Lint: 0 errors, 44 warnings. [Checks, evidence and limits](https://github.com/kejie-tang/pararead-android/blob/main/docs/reports/alpha11.md).
+
+Android 9+ / ARM64, versionCode 11. Debug-signed preview with the same local certificate as alpha.8–alpha.10: install over those versions to retain documents, translations and models. APK, checksum file and retained notices are attached. Model weights and third-party papers are not bundled. Physical-device and manufacturer background-policy validation remain open; the CPU inference implementation is unchanged from alpha.10.

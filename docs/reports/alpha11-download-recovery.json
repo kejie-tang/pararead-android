@@ -1,0 +1,8 @@
+{
+  "partialBytesBeforeStop": 262144,
+  "expectedBytes": 8388612,
+  "modelSha256": "675991157c56e691f2ce2c18bb3cc95180cb8e4895c0d7cf77e502c7d480ecf0",
+  "workerId": "c1f76f4a-a35b-4395-88d0-25753f96e087",
+  "recovered": true,
+  "singlePublishedFile": true
+}

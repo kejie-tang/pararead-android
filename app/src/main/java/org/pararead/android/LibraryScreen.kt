@@ -8,6 +8,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.CornerRadius
@@ -21,6 +23,7 @@ import java.util.Locale
 
 @Composable fun AppShell(reading: Boolean, modelState: ModelState, onHome: () -> Unit, onModels: () -> Unit,
     onSettings: () -> Unit, content: @Composable ColumnScope.() -> Unit) {
+    val text = LocalContext.current
     BoxWithConstraints(Modifier.fillMaxSize().safeDrawingPadding()) {
         val wide = maxWidth >= 840.dp
         Row(Modifier.fillMaxSize()) {
@@ -31,26 +34,26 @@ import java.util.Locale
                         IconTile(AppGlyph.Book, Modifier.size(40.dp), MaterialTheme.colorScheme.primary)
                         if (!reading) Text("ParaRead", style = MaterialTheme.typography.titleLarge, letterSpacing = (-.6).sp)
                     }
-                    NavigationItem("书库", AppGlyph.Book, true, reading, onHome)
-                    NavigationItem("模型管理", AppGlyph.Model, false, reading, onModels)
-                    NavigationItem("设置", AppGlyph.Settings, false, reading, onSettings)
+                    NavigationItem(text.getString(R.string.library), AppGlyph.Book, true, reading, onHome)
+                    NavigationItem(text.getString(R.string.models), AppGlyph.Model, false, reading, onModels)
+                    NavigationItem(text.getString(R.string.settings), AppGlyph.Settings, false, reading, onSettings)
                     Spacer(Modifier.weight(1f))
                     if (!reading) {
                         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                        Text("本机模型", Modifier.padding(top = 12.dp), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(text.getString(R.string.local_model), Modifier.padding(top = 12.dp), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         Text(modelState.activeName(), style = MaterialTheme.typography.titleSmall)
-                        Text(if (modelState.installed == null) "选择模型，开始离线阅读" else "本机已就绪", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(if (modelState.installed == null) text.getString(R.string.choose_a_model) else text.getString(R.string.ready_locally), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
             Column(Modifier.weight(1f).fillMaxHeight()) {
                 if (!wide) Row(Modifier.fillMaxWidth().padding(16.dp, 8.dp), verticalAlignment = Alignment.CenterVertically) {
                     TextButton(onClick = onHome, contentPadding = PaddingValues(4.dp)) {
-                        AppIcon(AppGlyph.Book); Spacer(Modifier.width(8.dp)); Text(if (reading) "书库" else "ParaRead", style = MaterialTheme.typography.titleMedium)
+                        AppIcon(AppGlyph.Book); Spacer(Modifier.width(8.dp)); Text(if (reading) text.getString(R.string.library) else "ParaRead", style = MaterialTheme.typography.titleMedium)
                     }
                     Spacer(Modifier.weight(1f))
-                    TextButton(onClick = onModels) { Text("模型管理") }
-                    TextButton(onClick = onSettings) { Text("设置") }
+                    TextButton(onClick = onModels) { Text(text.getString(R.string.models)) }
+                    TextButton(onClick = onSettings) { Text(text.getString(R.string.settings)) }
                 }
                 content()
             }
@@ -71,6 +74,7 @@ import java.util.Locale
 
 @Composable fun LibraryScreen(documents: List<DocumentRecord>, modelState: ModelState, importing: Boolean, status: String,
     onImport: () -> Unit, onSample: () -> Unit, onOpen: (DocumentRecord) -> Unit, onModels: () -> Unit, onCancelImport: () -> Unit) {
+    val text = LocalContext.current
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
         BoxWithConstraints(Modifier.widthIn(max = 1180.dp).fillMaxSize()) {
             val padding = if (maxWidth < 600.dp) 20.dp else 36.dp
@@ -80,11 +84,11 @@ import java.util.Locale
                 item(span = { GridItemSpan(maxLineSpan) }) {
                     Row(Modifier.fillMaxWidth().padding(bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f)) {
-                            Text("我的书库", style = MaterialTheme.typography.headlineMedium)
-                            Text("原文与译文，一起读懂。", Modifier.padding(top = 5.dp), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(text.getString(R.string.my_library), style = MaterialTheme.typography.headlineMedium)
+                            Text(text.getString(R.string.read_together), Modifier.padding(top = 5.dp), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                         Button(onClick = onImport, shape = RoundedCornerShape(12.dp), contentPadding = PaddingValues(16.dp, 13.dp)) {
-                            AppIcon(AppGlyph.Plus, Modifier.size(19.dp)); Spacer(Modifier.width(6.dp)); Text("导入 PDF")
+                            AppIcon(AppGlyph.Plus, Modifier.size(19.dp)); Spacer(Modifier.width(6.dp)); Text(text.getString(R.string.import_pdf))
                         }
                     }
                 }
@@ -92,10 +96,10 @@ import java.util.Locale
                     Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = .65f)) {
                         Row(Modifier.fillMaxWidth().padding(28.dp), verticalAlignment = Alignment.CenterVertically) {
                             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                                Text("让外文阅读更轻松", style = MaterialTheme.typography.titleLarge)
-                                Text("导入 PDF，逐句翻译与原文对照。\n也可以先用示例文档体验。", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(text.getString(R.string.read_across_languages), style = MaterialTheme.typography.titleLarge)
+                                Text(text.getString(R.string.library_intro), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                                 OutlinedButton(onClick = onSample, shape = RoundedCornerShape(12.dp), border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)) {
-                                    AppIcon(AppGlyph.Book, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text("打开示例文档")
+                                    AppIcon(AppGlyph.Book, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text(text.getString(R.string.open_sample))
                                 }
                             }
                             if (showIllustration) PaperIllustration(Modifier.size(170.dp, 135.dp))
@@ -107,9 +111,9 @@ import java.util.Locale
                         Row(Modifier.padding(18.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(14.dp)) {
                             IconTile(AppGlyph.Model)
                             Column(Modifier.weight(1f)) {
-                                Text(if (modelState.busy) "模型准备中" else if (modelState.phase == ModelPhase.ERROR) "模型需要处理" else "准备你的离线模型", style = MaterialTheme.typography.titleSmall)
+                                Text(if (modelState.busy) text.getString(R.string.model_preparing) else if (modelState.phase == ModelPhase.ERROR) text.getString(R.string.model_attention) else text.getString(R.string.prepare_model), style = MaterialTheme.typography.titleSmall)
                                 if (modelState.busy || modelState.phase == ModelPhase.ERROR) ModelTransferProgress(modelState)
-                                else Text("轻量快读 0.6B · 质量优先 1.7B", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                else Text(text.getString(R.string.model_choices), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                             AppIcon(AppGlyph.Arrow, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
@@ -118,21 +122,21 @@ import java.util.Locale
                 if (importing || status != "导入 PDF，或打开示例文档") item(span = { GridItemSpan(maxLineSpan) }) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         if (importing) CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
-                        Text(status, Modifier.weight(1f).padding(start = if (importing) 10.dp else 0.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        if (importing) TextButton(onClick = onCancelImport) { Text("取消导入") }
+                        Text(displayStatus(status), Modifier.weight(1f).padding(start = if (importing) 10.dp else 0.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        if (importing) TextButton(onClick = onCancelImport) { Text(text.getString(R.string.cancel_import)) }
                     }
                 }
                 item(span = { GridItemSpan(maxLineSpan) }) {
                     Row(Modifier.padding(top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Text("最近文档", style = MaterialTheme.typography.titleMedium)
-                        Text("${documents.size} 份", Modifier.padding(start = 10.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(text.getString(R.string.recent_documents), style = MaterialTheme.typography.titleMedium)
+                        Text(pluralStringResource(R.plurals.document_count, documents.size, documents.size), Modifier.padding(start = 10.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
                 if (documents.isEmpty()) item(span = { GridItemSpan(maxLineSpan) }) {
                     Column(Modifier.fillMaxWidth().padding(vertical = 34.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(10.dp)) {
                         IconTile(AppGlyph.File, Modifier.size(52.dp), MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text("你的下一篇好文章，从这里开始", style = MaterialTheme.typography.titleSmall)
-                        Text("导入 PDF，或先打开示例文档。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(text.getString(R.string.empty_library_title), style = MaterialTheme.typography.titleSmall)
+                        Text(text.getString(R.string.empty_library_hint), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
                 items(documents, key = { it.id }) { document -> DocumentCard(document) { onOpen(document) } }
@@ -179,13 +183,14 @@ private fun documentSize(bytes: Long): String = if (bytes < 1048576) "${maxOf(1,
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable fun ReaderToolbar(title: String, onPage: () -> Unit, onAll: () -> Unit, onCancel: () -> Unit, onExport: () -> Unit) {
+    val text = LocalContext.current
     Surface(color = MaterialTheme.colorScheme.surface) {
         BoxWithConstraints(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 10.dp)) {
             val actions: @Composable () -> Unit = { FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                TextButton(onClick = onPage) { Text("本页") }
-                TextButton(onClick = onAll) { Text("全篇 / 继续") }
-                TextButton(onClick = onCancel) { Text("取消") }
-                TextButton(onClick = onExport) { Text("另存") }
+                TextButton(onClick = onPage) { Text(text.getString(R.string.translate_page)) }
+                TextButton(onClick = onAll) { Text(text.getString(R.string.translate_all)) }
+                TextButton(onClick = onCancel) { Text(text.getString(R.string.cancel)) }
+                TextButton(onClick = onExport) { Text(text.getString(R.string.save_copy)) }
             } }
             if (maxWidth >= 700.dp) Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(title, Modifier.weight(1f).padding(end = 16.dp), style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)

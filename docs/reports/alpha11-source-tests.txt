@@ -1,0 +1,32 @@
+
+> pararead-android@0.2.0 test
+> node --import ./scripts/upstream-loader.mjs --test test/source-contracts.test.mjs
+
+(node:10323) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/kjtang/Documents/app/pararead-android/.references/pararead/src/webview/segmenter/heuristic.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /Users/kjtang/Documents/app/pararead-android/.references/pararead/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ sentence IDs, spans and PDF rectangles are deterministic (6.44025ms)
+✔ ordered two-column content keeps the left column before the right (0.879333ms)
+✔ abbreviations, decimal values and URLs survive sentence splitting (0.120917ms)
+✔ language-specific glossary entries override flat entries (0.130417ms)
+✔ cache identity ignores layout whitespace and separates languages and models (1.55375ms)
+✔ reopening the disk cache returns translations without another model call (12.254083ms)
+✔ application-generated batch IDs are mapped back to the original sentence IDs (2.76525ms)
+✔ missing translations retry individually and failures never enter the cache (5.104708ms)
+✔ duplicate source sentences share a single model request (3.068875ms)
+✔ parser rejects empty values, unknown IDs and malformed JSON (0.476041ms)
+✔ GAP: duplicate reply IDs silently overwrite earlier translations (0.325208ms)
+✔ GAP: upstream HTTP translation client requests a non-streaming completion (21.625459ms)
+✔ GAP: changing page queues a new range without cancelling the previous request (1.727416ms)
+✔ stale translation replies are ignored after a document reset (0.52775ms)
+✔ PDF and panel selections share the same stable sentence reference (0.144333ms)
+✔ GAP: bundled PDF.js range transport reserves a full-length byte buffer (9.744083ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 227.476458

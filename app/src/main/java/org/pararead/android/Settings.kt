@@ -16,6 +16,9 @@ import java.security.KeyStore
 
 class Settings(context: Context) {
     private val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+    var uiLanguage: String
+        get() = prefs.getString("uiLanguage", "system")!!.takeIf { it in setOf("system", "zh-CN", "en") } ?: "system"
+        set(value) { require(value in setOf("system", "zh-CN", "en")); prefs.edit(commit = true) { putString("uiLanguage", value) } }
     var provider: String get() = prefs.getString("provider", "llama")!!; set(v) { prefs.edit().putString("provider", v).apply() }
     var baseUrl: String get() = prefs.getString("baseUrl", "http://127.0.0.1:8080/v1")!!; set(v) { prefs.edit().putString("baseUrl", v).apply() }
     var model: String get() = prefs.getString("model", "qwen3:1.7b")!!; set(v) { prefs.edit().putString("model", v).apply() }

@@ -1,133 +1,79 @@
-# ParaRead Android
+<p align="center"><img src="docs/branding/app-icon.png" width="88" alt="ParaRead Android 图标"></p>
 
-**原文与译文并排，让外语 PDF 更容易读下去。**
+<h1 align="center">ParaRead Android</h1>
+<p align="center"><strong>一份 PDF，两种语言，一起读懂。</strong></p>
 
-保留论文原有版面，点一句就能找到对应译文；在 Android 平板上，用本地 AI 辅助阅读论文和技术文档。
+在 Android 上对照阅读论文与技术文档：原始页面放在身边，译文逐句对应。查看公式、核对引用、理解上下文，让本地 AI 帮你读下去。
 
-[![Android CI](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml/badge.svg?branch=main)](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml) [![Android 9+](https://img.shields.io/badge/Android-9%2B-3DDC84?logo=android&logoColor=white)](#快速开始) [![代码许可：Apache-2.0](https://img.shields.io/badge/Code-Apache--2.0-blue)](LICENSE)
+[![Android CI](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml/badge.svg?branch=main)](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml) [![Android 9+](https://img.shields.io/badge/Android-9%2B-3DDC84?logo=android&logoColor=white)](#开始使用) [![代码：Apache-2.0](https://img.shields.io/badge/Code-Apache--2.0-blue)](LICENSE)
 
-**[下载预览版 APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.10/ParaRead-0.2.0-alpha.10-android-arm64-debug.apk)** · [全部版本](https://github.com/kejie-tang/pararead-android/releases) · [快速开始](#快速开始) · [English](README.md)
+**[下载 APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.11/ParaRead-0.2.0-alpha.11-android-arm64-debug.apk)** · [全部版本](https://github.com/kejie-tang/pararead-android/releases) · [English](README.md)
 
-基于 [ParaRead](https://github.com/Chuanyunux/pararead) 0.6.1 的独立、非官方 Android 移植与扩展。**当前为开发预览版，仅支持 ARM64；应用界面目前主要使用中文。**
+面向 **Android 9+ / ARM64** 的开发预览版，为平板设计，也可在手机使用。原生菜单支持**简体中文、English 和跟随系统**。基于 [ParaRead](https://github.com/Chuanyunux/pararead) 0.6.1 的独立、非官方适配。
 
-![自编示例的双语阅读布局，原句与译文面板通过选句高亮和连线对应](docs/reports/reader-landscape.png)
+![PDF 原文与逐句对齐的译文](docs/reports/reader-landscape.png)
 
-*截图使用自编示例，在桌面 Chromium 中模拟触控，用于展示布局与联动。右侧是明确标记的 Mock 输出，不是真实模型译文，也不是实体平板截图。*
+*阅读交互演示：桌面 Chromium 触摸模拟、自编示例文档和明确标注的 Mock 输出；不是实际模型译文或实体平板截图。*
 
-## 读译文，也随时看得见原文
+## 把时间花在阅读上
 
-读到陌生的术语或不确定的表达时，原句就在旁边。图表、公式与论文版面继续保留，方便把译文放回上下文核对。
-
-| 功能 | 阅读时能做什么 |
-| --- | --- |
-| 平板界面 | 卡片书库、阅读侧栏、分组设置，随系统切换浅色与深色主题。[查看 Android 实际截图](docs/reports/ui-refresh.md)。 |
-| 句子级对齐 | 点击原句或译文，双向定位对应内容；支持高亮、同高对齐与同步滚动。 |
-| 本地离线翻译 | llama.cpp 在设备上运行支持的 Qwen2.5、Qwen3、Qwen3.5 或 LFM2/2.5 GGUF，下载模型后即可使用本地翻译。 |
-| 按自己的节奏阅读 | 翻译选中段落、当前页、邻近页或全篇，需要时随时取消。 |
-| 保存阅读成果 | 复用译文缓存与阅读位置；全篇逐页保存进度，同一文档和配置重开后可继续。 |
-| 批注与导出 | 保留本地批注草稿，另存带批注的 PDF 副本。 |
-| 自己选择翻译配置 | 搜索 Hugging Face、选择量化文件，或下载默认模型，调整 CPU 线程数和术语表；也可选择兼容 API。 |
-| 测试本机速度 | 直接在 App 内运行真实模型测速，分别查看翻译和纯引擎 token/s，并导出结果。 |
-
-## 快速开始
-
-**设备要求：** Android 9 / API 28 及以上、ARM64，以及支持 `WebMessageListener` 的 Android System WebView。布局面向平板设计。
-
-1. **安装[预览版 APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.10/ParaRead-0.2.0-alpha.10-android-arm64-debug.apk)。** 当前下载为 debug 签名的 `0.2.0-alpha.10`。若旧版签名不同，可能需要卸载后安装；卸载会清除应用数据，请先另存重要的批注 PDF。
-2. **打开文档。** 点击“打开示例文档”，或通过系统文件选择器导入有可选中文字的 PDF。
-3. **选择本地模型。** 在首页或“设置 → 离线 GGUF”打开 **模型管理**。选择 **Qwen3-0.6B（397 MB）**轻量快读，或 **Qwen3-1.7B（1.36 GB）**质量优先；完整大小与 SHA-256 校验通过后自动启用。
-4. **开始阅读。** 点击句子，翻译本页，或启动全篇任务；在“目标语言”中调整译文语言。主动取消后，点击“全篇 / 继续”接续任务。
-
-### 本地模型
-
-| 项目 | 当前默认配置 |
-| --- | --- |
-| 模型 | Qwen3 1.7B，Q4_K_M，关闭思考 |
-| 下载量 | 约 **1.36 GB**，与 APK 分开下载 |
-| 可用空间 | 下载与校验阶段约需 **2.8 GB**，另需预留 PDF 空间 |
-| 推理方式 | 默认 CPU，可选 Vulkan GPU 实验加速与 CPU 回退；支持自动或手动线程数 |
-| 来源 | Ollama registry 的固定 GGUF 层，以 SHA-256 校验；**无需安装 Ollama** |
-| 搜索与导入 | Hugging Face 搜索、单文件 GGUF 下载；Qwen2.5、Qwen3、Qwen3.5、LFM2/2.5 文本模板 |
-
-Alpha.9 根据设备指令支持选择 CPU 内核（dotprod / FP16 / i8mm），并保留基础 ARM64 回退；测速详情与 JSON 显示实际内核。Vulkan 仍属实验功能，可能更慢或导致界面卡顿，阅读建议使用 CPU。见 [CPU 性能排查与验证](docs/reports/cpu-kernel-dispatch.md)，真机提升幅度仍需复测。
-
-Alpha.10 为每个模型会话复用一个 CPU 工作线程池，避免每个计算图重复创建、销毁线程，其余推理参数保持不变。见[线程池对比与后续优化评估](docs/reports/cpu-threadpool.md)。
-
-**管理模型：**首页和离线设置都可打开 **模型管理**。0.6B 与 1.7B 可以同时保留；点击“使用”离线切换，点击“删除”确认后单独移除。新下载自动启用，并保留其他已下载模型；失败后会重试原模型，重开 App 后也一样。详见[模型库行为与验证](docs/reports/model-library.md)。
-
-**更多模型：**进入 **模型管理 → 更多模型（Hugging Face）**，搜索模型名或输入 `org/repo`，查看模型许可后选择量化文件。下载固定到仓库提交，并按 LFS SHA-256 校验；成功后自动启用，并保留其他已下载模型。LFM2.5 暂属实验支持，小模型存在格式与漏译问题，见[模型实测与性能排查](docs/reports/model-compatibility.md)。
-
-**想更小、更快？**可以尝试 [Unsloth](https://huggingface.co/unsloth/Qwen3-0.6B-GGUF) 的 `Qwen3-0.6B-Q4_K_M.gguf`（**397 MB**）；官方 [Qwen Q8_0](https://huggingface.co/Qwen/Qwen3-0.6B-GGUF) 为 **639 MB**。它们适合快速浏览，小模型仍可能漏掉细节或翻错数字关系。具体结论、文件哈希和原始输出见[小模型实测与推荐](docs/reports/small-model-evaluation.md)。
-
-Alpha.5 逐句保存校验通过的译文，只重试失败句；重试时明确列出必需标记，最后尝试逐句纯文本兜底。引用等受保护内容缺失或重复时仍会拒绝保存，部分样本仍无法恢复，见[格式恢复实测](docs/reports/format-recovery.md)。从 Alpha.5 之前的版本升级会重新生成译文，Alpha.6–Alpha.10 沿用 Alpha.5 的缓存版本；默认下载仍为 Qwen3 1.7B。
-
-**350M–0.6B 新候选：**RWKV 0.4B 配合专用翻译提示和严格标记重试，已通过 Android 模拟器 18/18 组格式样本；本地 Q4 文件约 **301 MB**，但仍有漏译和数字关系误译。NanoTranslator-365M 的格式可恢复，含义却经常失真。这些适配尚未在已发布 App 中启用，详见[新增模型、原始输出与速度对比](docs/reports/mid-small-models.md)，以及此前的 [LFM350 实验](docs/reports/tiny-model-recovery.md)。
-
-下载通过 Android 系统队列执行，支持进度、取消、重试和重开后继续监控。删除模型会保留文档、阅读进度与译文缓存。实现和测试细节见[模型管理](docs/reports/model-management.md)与 [CPU 线程设置](docs/reports/cpu-threads.md)。
-
-### 原文会发到哪里
-
-- **本地模式：** 在设备内翻译。首次下载模型需要联网；本地推理不把原文发给远端翻译服务，也不会自动切换远端 API。
-- **API 模式：** 选中的待翻译文本与提示会发送到你配置的服务。外网端点要求 HTTPS，本地 HTTP 服务也可使用。
-- **Mock 模式：** 仅供体验交互和开发测试，输出有明确标记，不能用于判断翻译质量。
-
-导入的 PDF 会复制到应用私有目录，阅读状态、草稿和译文缓存也保存在本机，因此导入需要额外磁盘空间。API 与本地服务配置见[后端指南](docs/local-llama.md)。
-
-## 用一篇熟悉的论文试试看
-
-应用内置自编的六页 [ParaRead Reading Guide](samples/pararead-reading-guide.pdf)，包含双栏文字、公式、表格与矢量流程图。文字和图形采用 Apache-2.0，见[示例声明](samples/NOTICE)。
-
-也可以从 [arXiv 官方页面](https://arxiv.org/abs/1706.03762)下载 Vaswani 等人的 *Attention Is All You Need*（2017），再导入自己的副本。仓库、APK 和发布附件均不附带该论文；其[分发许可](https://arxiv.org/licenses/nonexclusive-distrib/1.0/license.html)与版权独立于本项目的代码许可证。Android 构建排除了上游 PDF.js 示例 PDF。
-
-## 速度测试
-
-**直接在 App 测自己的设备：**打开 **设置 → 离线 GGUF → 速度测试**，点击“开始测速”。需先下载或导入模型。测试使用设置中当前填写的 CPU 线程数，无需先保存。
-
-- 对自编的 158 词英文长段连续英译中四次：首次新加载模型测一次，模型已加载后再测三次，不使用译文缓存。
-- 显示首次流式响应、完成耗时，以及三次热模型测试的中位数。生成速度按底层实际 token 数除以生成阶段耗时计算，包含 JSON 格式 token。
-- 随后测三次 **pp512 / tg128 纯引擎基准**，排除格式约束、采样与逐 token 回调，并单独报告解码、采样/约束和回调耗时。
-- 支持取消和旋转屏幕。最近一次完整结果保存在本机，可导出 JSON，包含模型哈希、设备、线程数、引擎版本及四次原始数据。
-
-测试期间阅读器暂停，关闭后恢复。首次耗时包含模型加载，未清空系统文件缓存；首次响应可能是 JSON 语法。翻译与纯引擎是两种工作负载，都不代表整篇 PDF 吞吐或翻译质量。新版优化了 JSON 约束采样，并启用运行时选择的 KleidiAI ARM 内核；见[PocketPal 差距排查与实测边界](docs/reports/model-compatibility.md)。详见 [App 内测速说明与验证](docs/reports/app-speed-test.md)。
-
-### 早期参考数据
-
-测试日期：**2026-10-26**。使用真实 **Qwen3 1.7B Q4_K_M**，英译中、关闭思考、CPU 推理、上下文 4,096 tokens。以下为引擎/集成链路耗时；实体平板速度和 WebView 端到端延迟仍待测试。
-
-| 环境 | 工作负载 | 首个流式响应 | 完成耗时 | 样本数 |
-| --- | --- | --- | --- | --- |
-| M1 Pro 主机，6 线程 | 首次单句，模型尚未加载 | **1.70 秒** | **2.92 秒** | 3 次中位数 |
-| M1 Pro 主机，6 线程 | 四句批次，模型已加载 | **0.68 秒** | **5.42 秒** | 3 次中位数 |
-| Android ARM64 模拟器，自动 6 线程 | 首次两句，模型尚未加载 | 1.92 秒 | 9.79 秒 | 既有单次记录 |
-| Android ARM64 模拟器，自动 6 线程 | 取消后再次翻译两句，模型已加载 | 1.60 秒 | 9.31 秒 | 既有单次记录 |
-
-主机为 Apple M1 Pro、32 GiB RAM；模拟器为 8 vCPU、6 GiB RAM。Android 每个批次都包含 **3 次模型调用**：首轮批次校验未通过，再以两个单句修复，重试耗时全部计入。两端输入不同，不用于平台速度排名。首个流式响应可能只是 JSON 语法，不等于首个译词，也不是 tokens/s。首次耗时包含模型加载，未清空系统文件缓存。
+- **保留页面上下文。** 原文中的图表、公式与引用始终可见，译文在一旁对照。
+- **逐句找到对应内容。** 点击任意一侧，联动高亮、位置对齐与滚动。
+- **离线也能翻译。** 下载一次 GGUF，通过 llama.cpp 在设备上推理，无需安装 Ollama 或注册账号。
+- **按自己的节奏读。** 翻译选段、本页或全篇，保存校验通过的译文和逐页进度，下次继续。
+- **适合你的阅读习惯。** 保存批注、另存批注 PDF，设置术语表与翻译语言。
+- **方便管理模型。** 下载、切换、删除，也可在 Hugging Face 搜索其他模型。
 
 <details>
-<summary>自己跑一次真实模型测速</summary>
+<summary>查看 Android 界面</summary>
 
-配置好[源码构建环境](#从源码构建)，将环境变量指向本机的默认 GGUF。脚本会核验 SHA-256，启动三个独立 JVM/provider 会话，保留所有原始值、中位数和范围，不下载模型权重。
+<p><img src="docs/screenshots/library-zh.png" width="600" alt="Android 模拟器中的中文书库"></p>
+<p><img src="docs/screenshots/settings-zh.png" width="600" alt="中文设置与界面语言选择"></p>
 
-```sh
-export PARAREAD_GGUF="/absolute/path/Qwen3-1.7B-Q4_K_M.gguf"
-python3 scripts/benchmark_translation.py --runs 3 --threads 6
-```
-
-输出为 `artifacts/translation-speed/summary.json`，逐次运行日志保存在同级子目录；`--threads 0` 使用自动线程策略。详见[测试方法与数据](docs/benchmarks.md)、[主机原始记录](docs/reports/translation-speed-host.json)与 [Android 参考记录](docs/reports/cpu-threads-android-real.json)。
+以上为 Android 模拟器实际截图。原创双页图标已用于启动器，并提供随系统配色的单色版本。
 
 </details>
 
-## 当前进展
+## 开始使用
 
-**这是可以体验的开发预览版，实体平板验证仍待完成。** 证据覆盖 Kotlin 核心测试、JS/bridge、Android ARM64 模拟器检查（含真实模型测速与格式测试），以及 Chromium 阅读器与批注保存重开验证。真实 Qwen3 已通过宿主机和 Android ARM64 模拟器推理冒烟测试。范围见[验证记录](docs/reports/alpha3-verification.json)与[公开构建检查](docs/reports/public-upload.md)。
+1. **安装[预览版 APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.11/ParaRead-0.2.0-alpha.11-android-arm64-debug.apk)。** 需要 ARM64、Android 9+ 和较新的 Android System WebView。当前使用 debug 签名；相同签名的 alpha.8–alpha.10 可直接覆盖升级。
+2. **在“模型管理”选择模型。** 0.6B 适合轻量快读，1.7B 偏重译文质量。下载校验通过后自动启用，其他模型会保留。
+3. **导入 PDF，或打开示例文档。** 点击句子、翻译“本页”，或使用“全篇 / 继续”。PDF 需要可选中文字，暂不提供 OCR。
 
-实体平板性能、真模型持续阅读、学术翻译质量、强杀/重启恢复、无障碍和触控笔仍待验收。100/300/500 MiB 合成 PDF 测试只提供有限基线，不代表真实文档与模型并行运行的完整性能结论。本预览版不提供纯图片扫描件的 OCR 流程，未实现旧 VS Code 缓存导入；超过 512 页的表单字段修改目前拒绝保存，损坏或异常复杂 PDF 也可能触发明确的资源限制。细节见[兼容性](docs/compatibility.md)、[性能](docs/performance.md)和[任务清单](docs/tasks.md)。
+在**设置 → 界面语言**切换原生菜单，即时生效，与“源语言”“目标语言”分别设置。内嵌 PDF 查看器及原始第三方诊断信息可能保留各自的语言。
 
-**欢迎反馈真实平板上的使用体验。** [提交 Issue](https://github.com/kejie-tang/pararead-android/issues) 时，请附设备、Android/WebView 版本、后端/模型与复现步骤。需要提供 PDF 时，请使用你有权分发的小样本，不要上传 API Key 或私人文档。
+### 选择适合的模型
 
-## 从源码构建
+| 模型 | 适合场景 | 下载大小 | 新下载所需可用空间¹ |
+| --- | --- | ---: | ---: |
+| **Qwen3-0.6B Q4_K_M** | 快速浏览、预览 | 397 MB | 约 464 MB |
+| **Qwen3-1.7B Q4_K_M** | 质量优先，当前默认 | 1.36 GB | 约 1.43 GB |
 
-环境：**Node.js 24+**、**Python 3.9+**、**JDK 21**、**Android SDK 36**、**NDK 28.2.13676358**、**CMake 3.22.1**。设置 `JAVA_HOME` 与 `ANDROID_HOME`，或在 Android Studio 中配置 JDK 21。
+¹ 模型大小加 64 MiB 预留，不含 PDF 和其他已保存模型。Alpha.11 直接下载到模型目录的临时文件，检查 GGUF、大小和 SHA-256 后原地重命名，**不再需要第二份完整权重**。支持后台任务、网络重试和 HTTP Range 续传；App 观察到任务完成后登记并启用模型。升级前已在进行的系统下载仍通过旧安装流程完成。[实现与验证](docs/reports/alpha11.md)。
+
+0.6B 来自固定提交的 Unsloth Hugging Face 文件；1.7B 来自固定摘要的 Ollama registry 模型层。默认关闭思考。在**模型管理 → 更多模型（Hugging Face）**中可查找公开的单文件文本 GGUF；当前模板适配 Qwen2.5、Qwen3、Qwen3.5 和 LFM2/2.5。模型许可单独展示。[精确文件与兼容性实测](docs/reports/small-model-evaluation.md)。
+
+小模型仍可能漏译或翻错数字关系。格式校验和重试可以修复部分输出结构，无法保证语义准确；重要结论仍应对照原文。
+
+### 在自己的设备上测速
+
+打开**设置 → 离线 GGUF → 速度测试**，运行四次长段翻译和三次纯引擎 **pp512 / tg128**。结果记录原生 token 数、首次与热模型耗时、CPU 内核、线程数和实际后端，可导出完整 JSON。
+
+CPU 优化后，用户在**天玑 9400、Qwen3 1.7B Q4_K_M、CPU / 6 线程**上反馈：**翻译 26 token/s，tg128 为 23 token/s**。这是尚未附带原始导出的一台设备反馈，不代表所有设备表现。[CPU 排查与测试边界](docs/reports/cpu-threadpool.md)。
+
+默认使用 CPU，自动选择支持的指令内核并复用工作线程池。Vulkan 为实验选项，失败时回退 CPU；部分设备可能更慢或出现界面卡顿。[后端说明](docs/vulkan.md)。
+
+## 文档由你掌握
+
+- **本地模式：**设备上处理文档文字。下载模型需要网络，翻译不使用远程服务，也不会自动切换到云端。
+- **API 模式：**选中的文字和提示会发送到你配置的端点；远程服务要求 HTTPS，本机服务支持 HTTP。
+- **存储：**导入的 PDF、批注、阅读进度、译文与模型保存在 App 专属空间。相同签名覆盖升级会保留数据；**卸载或清除 App 数据会删除这些内容**，需要保留的批注 PDF 请先另存。单独删除模型会保留文档和译文。
+
+内置六页[操作示例](samples/pararead-reading-guide.pdf)为本项目原创，采用 Apache-2.0。要尝试 *Attention Is All You Need*，请从 [arXiv 官方页面](https://arxiv.org/abs/1706.03762)下载后导入；本项目不打包或重新授权该论文。
+
+## 构建与参与
+
+需要 **Node.js 24+**、**Python 3.9+**、**JDK 21**、**Android SDK 36**、**NDK 28.2.13676358**、**CMake 3.22.1**，以及 `glslc`、Ninja；配置 `JAVA_HOME` 和 `ANDROID_HOME`。
 
 ```sh
 npm ci
@@ -137,10 +83,10 @@ python3 scripts/fetch_llama.py
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
-两个获取脚本均按固定 Git blob 哈希核验上游文件。源码快照位于忽略的 `.references/`，构建不会下载模型权重。`-PskipNative` 仅用于不含 JNI 的 Mock 原型，不能用于离线推理验收。
+macOS 请用 `scripts/gradle.sh` 替代 `./gradlew`，通过 `brew install shaderc` 安装着色器编译器；Ubuntu 使用 `apt-get install glslc ninja-build`。源码依赖固定版本并校验，构建不下载模型权重。[构建与后端](docs/local-llama.md) · [签名与发布](docs/publishing.md)。
 
 <details>
-<summary>运行检查与查看技术文档</summary>
+<summary>检查命令与工程记录</summary>
 
 ```sh
 npm test
@@ -148,27 +94,21 @@ npm run check:reader
 npm run test:android-web
 npx playwright install chromium
 npm run test:reader
-./gradlew :core:test :app:lintDebug
+./gradlew :core:test :engine:llama:testDebugUnitTest :app:lintDebug
 ```
 
-Android instrumentation 需要连接 ARM64 设备或模拟器；真模型测试需要文档所述模型样本，请先查看报告再运行完整套件。大文件基准脚本也会生成大量测试数据，并操作连接的 debug 设备。
+Android instrumentation 需要 ARM64 设备或模拟器；可选真模型测试需准备报告中指定的本机文件。`-PskipNative` 仅生成 Mock 原型。
 
-- [架构](docs/architecture.md)与[消息协议](docs/bridge-protocol.md)。
-- [兼容性](docs/compatibility.md)、[测试记录](docs/reports/alpha3-verification.json)与[性能](docs/performance.md)。
-- [全篇恢复](docs/reports/whole-document-recovery.md)与[待办](docs/tasks.md)。
+[架构](docs/architecture.md) · [兼容性与限制](docs/compatibility.md) · [性能](docs/performance.md) · [全篇任务恢复](docs/reports/whole-document-recovery.md) · [小模型研究](docs/reports/mid-small-models.md) · [本次验证](docs/reports/alpha11.md)。
 
 </details>
 
-需要更新的 debug 构建时，进入 [Android CI](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml) → 成功的运行 → **Artifacts** → `pararead-android-debug-arm64`。下载需登录 GitHub，产物保留 14 天；不同运行的 debug 签名可能不同。带版本号的 APK、校验摘要和通知包放在 [Releases](https://github.com/kejie-tang/pararead-android/releases)，签名与发布步骤见[发布指南](docs/publishing.md)。
+当前仍为开发预览版，持续负载、无障碍、手写笔、复杂 PDF 和学术翻译质量仍需更多设备验证。欢迎[反馈问题](https://github.com/kejie-tang/pararead-android/issues)，附上设备、Android/WebView 版本、模型及复现步骤；性能问题可附测速 JSON。
 
-## 来源、致谢与许可
+## 致谢与许可
 
-基于 Chuanyunux 的 [ParaRead](https://github.com/Chuanyunux/pararead)，并保留其上游 **Mathematic Inc / vscode-pdf** 与 **Mozilla PDF.js** 归属。TypeScript/PDF.js 阅读器来自 ParaRead；本项目新增或适配 Android 宿主、文件访问、持久存储、翻译调度、模型管理和 JNI。离线推理由 [llama.cpp](https://github.com/ggml-org/llama.cpp) 与单独下载的 Qwen3 权重提供。
+基于 Chuanyunux 的 **[ParaRead](https://github.com/Chuanyunux/pararead)**；其声明感谢 Mathematic Inc 的 **vscode-pdf** 与 **Mozilla PDF.js**。本地推理使用 **llama.cpp / ggml**、Arm KleidiAI 和可选 Vulkan。本适配增加 Android 宿主、文件存储、翻译调度、模型管理与 JNI 集成；启动图标为本项目原创。
 
-Android 原创代码与适配修改采用 **[Apache License 2.0](LICENSE)**。第三方代码、字体、WASM 和模型内容保留各自许可；分发时保留 [NOTICE](NOTICE)、[第三方声明](THIRD_PARTY_NOTICES.md)和[许可原文](third_party/)。项目许可证不授予用户导入的 PDF、任意模型及译文的使用权。
+原创 Android 代码、适配修改及原创图形采用 **[Apache-2.0](LICENSE)**。第三方组件与单独下载的模型保留各自许可；分发时保留 [NOTICE](NOTICE)、[第三方声明](THIRD_PARTY_NOTICES.md)及[许可原文](third_party/)。App 许可证不授予任意 PDF、模型或译文的使用权。
 
-这是独立的非官方项目，与上游项目或模型提供方无官方隶属或背书关系，名称与商标归相应权利人。PocketPal、Readest、MJ PDF、PocketLLM 仅作行为或架构参考，未复制其代码或资源，见[来源与许可审查](docs/licenses.md)。
-
-[Vulkan 实验加速、CPU 回退与测速说明](docs/vulkan.md)。
-
-构建 alpha.8 需要宿主机 `glslc`（macOS：`brew install shaderc`；Ubuntu：`apt-get install glslc ninja-build`）。macOS 可用 `scripts/gradle.sh` 代替 `./gradlew`，自动加入 SDK Ninja 路径。
+本项目独立且非官方，不代表上游或模型提供方背书。PocketPal 等项目仅作行为与架构参考，未复制其代码或资产。[来源与许可核对](docs/licenses.md)。

@@ -13,6 +13,10 @@ import androidx.core.content.edit
 import androidx.core.net.toUri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.*
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.sync.withLock
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,7 +36,7 @@ class ModelViewModel(app: Application) : AndroidViewModel(app) {
     val manager = ModelManager(app, viewModelScope)
 }
 
-/** DownloadManager owns network work across Activity/process recreation; only verified private GGUFs are activated. */
+/** WorkManager owns new transfers; the legacy system-download monitor completes upgrades in place. */
 class ModelManager(context: Context, private val scope: CoroutineScope, val asset: ModelAsset = DefaultModel.asset) {
     private val app = context.applicationContext
     private val settings = Settings(app)
@@ -56,8 +60,13 @@ class ModelManager(context: Context, private val scope: CoroutineScope, val asse
         get() = prefs.getLong("id", 0)
         set(value) { prefs.edit(commit = true) { putLong("id", value) } }
 
+    private val workerId get() = prefs.getString("work", null)?.let { runCatching { UUID.fromString(it) }.getOrNull() }
+    private val workers get() = WorkManager.getInstance(app)
+    private fun partial() = prefs.getString("partial", null)?.takeIf { it == File(it).name && it.endsWith(".part") }?.let { File(files.directory, it) }
+
     init {
-        if (downloadId > 0) monitor()
+        if (workerId != null && prefs.getString("error", "").isNullOrEmpty()) monitorWorker(workerId!!, target)
+        else if (downloadId > 0) monitor()
         else if (state.value.installed?.sha256 == target.sha256 && state.value.message == "下载任务已移除，请重试") {
             prefs.edit { remove("error"); remove("retryDownload") }; update(ModelPhase.IDLE, "模型已就绪，思考模式已关闭")
         }
@@ -73,7 +82,9 @@ class ModelManager(context: Context, private val scope: CoroutineScope, val asse
     private fun clearTransfer() {
         val temp = staging
         if (downloadId > 0) downloads.remove(downloadId)
-        prefs.edit(commit = true) { putLong("id", 0); remove("file") }; temp.delete()
+        val part = partial()
+        prefs.edit(commit = true) { putLong("id", 0); remove("file"); remove("work"); remove("partial"); remove("partialHash") }
+        temp.delete(); part?.delete()
     }
     private fun failure(e: Exception, retryDownload: Boolean = false) {
         val message = e.message ?: "模型操作失败，请重试"
@@ -85,22 +96,68 @@ class ModelManager(context: Context, private val scope: CoroutineScope, val asse
         target = selected
         persistTarget()
         update(ModelPhase.DOWNLOADING, "正在准备下载…")
-        try {
-            require(target.bytes > 24 && target.bytes < Long.MAX_VALUE / 3 && target.sha256.matches(Regex("[a-f0-9]{64}"))) { "模型大小或 SHA-256 无效" }
-            require(target.url.startsWith("https://") || (BuildConfig.DEBUG && target.url.toUri().host in setOf("127.0.0.1", "localhost"))) { "模型下载地址必须使用 HTTPS" }
-            require(StatFs(files.directory.path).availableBytes >= target.bytes * 2 + 67108864L && StatFs(downloadDirectory.path).availableBytes >= target.bytes) { "空间不足，下载并校验约需 ${target.bytes * 2 / 1048576 + 64} MiB 可用空间" }
-            clearTransfer(); prefs.edit { remove("error") }
-            // DownloadManager can finish cleaning a cancelled job after a replacement has started.
-            prefs.edit(commit = true) {
-                putString("file", "model-${UUID.randomUUID()}.part")
-            }
-            val request = DownloadManager.Request(target.url.toUri()).setTitle("ParaRead · ${target.name}")
-                .setDescription("下载后校验 SHA-256 · 离线翻译")
-                .setMimeType("application/octet-stream").setDestinationUri(Uri.fromFile(staging))
-                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-            downloadId = downloads.enqueue(request)
-            monitor()
-        } catch (e: Exception) { failure(e, retryDownload = true) }
+        work?.cancel()
+        work = scope.launch {
+            try {
+                require(selected.bytes > 24 && selected.bytes < Long.MAX_VALUE / 3 && selected.sha256.matches(Regex("[a-f0-9]{64}"))) { "模型大小或 SHA-256 无效" }
+                require(selected.url.startsWith("https://") || (BuildConfig.DEBUG && selected.url.toUri().host in setOf("127.0.0.1", "localhost"))) { "模型下载地址必须使用 HTTPS" }
+                val previous = workerId
+                if (previous != null) withContext(Dispatchers.IO) { workers.cancelWorkById(previous).result.get(30, TimeUnit.SECONDS) }
+                val part = withContext(Dispatchers.IO) { ModelTransferLocks.forDirectory(files.directory.path).withLock {
+                    val existing = partial()
+                    val reusable = existing?.takeIf { prefs.getString("partialHash", "") == selected.sha256 && it.length() <= selected.bytes }
+                    if (reusable == null) existing?.delete()
+                    val file = reusable ?: File(files.directory, "model-${UUID.randomUUID()}.part")
+                    val required = selected.bytes - file.length() + 67108864L
+                    require(StatFs(files.directory.path).availableBytes >= required) { "空间不足，下载约需 ${required / 1048576 + 1} MiB 可用空间" }
+                    file
+                } }
+                val request = OneTimeWorkRequestBuilder<ModelDownloadWorker>()
+                    .setInputData(workDataOf("directory" to files.directory.absolutePath, "file" to part.name,
+                        "name" to selected.name, "url" to selected.url, "bytes" to selected.bytes, "sha256" to selected.sha256))
+                    .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+                    .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 10, TimeUnit.SECONDS).build()
+                prefs.edit(commit = true) {
+                    putString("work", request.id.toString()); putString("partial", part.name); putString("partialHash", selected.sha256)
+                    remove("error"); remove("retryDownload")
+                }
+                withContext(Dispatchers.IO) {
+                    workers.enqueueUniqueWork("model-${files.directory.canonicalPath}", ExistingWorkPolicy.REPLACE, request).result.get(30, TimeUnit.SECONDS)
+                }
+                monitorWorker(request.id, selected)
+            } catch (e: CancellationException) { throw e }
+            catch (e: Exception) { failure(e, retryDownload = true) }
+        }
+    }
+    private fun monitorWorker(id: UUID, asset: ModelAsset) {
+        update(ModelPhase.DOWNLOADING, "等待下载…")
+        work = scope.launch {
+            try {
+                workers.getWorkInfoByIdFlow(id).first { info ->
+                    if (workerId != id) return@first true
+                    if (info == null) return@first false
+                    val count = info.progress.getLong("completed", 0)
+                    when (info.state) {
+                        WorkInfo.State.SUCCEEDED -> {
+                            val data = info.outputData
+                            val model = InstalledModel(requireNotNull(data.getString("path")), requireNotNull(data.getString("sha256")), data.getLong("bytes", 0))
+                            require(model.sha256 == asset.sha256 && model.bytes == asset.bytes && File(model.path).isFile) { "模型文件不完整，请重试下载" }
+                            activate(model, asset.name, asset)
+                        }
+                        WorkInfo.State.FAILED -> failure(IllegalStateException(info.outputData.getString("error") ?: "模型下载失败，请重试"), retryDownload = true)
+                        WorkInfo.State.CANCELLED -> {
+                            withContext(Dispatchers.IO) { ModelTransferLocks.forDirectory(files.directory.path).withLock { clearTransfer() } }
+                            prefs.edit { remove("error"); remove("retryDownload") }; update(ModelPhase.IDLE, "已取消")
+                        }
+                        WorkInfo.State.RUNNING -> if (info.progress.getString("stage") == "verify") update(ModelPhase.VERIFYING, "正在校验模型…", count)
+                            else update(ModelPhase.DOWNLOADING, "正在下载 ${asset.name}…", count)
+                        else -> update(ModelPhase.PAUSED, if (info.runAttemptCount > 0) "网络中断，等待自动续传…" else "等待网络或系统调度…", partial()?.length() ?: 0)
+                    }
+                    info.state.isFinished
+                }
+            } catch (e: CancellationException) { throw e }
+            catch (e: Exception) { failure(e, retryDownload = true) }
+        }
     }
     private fun monitor() {
         val asset = target // A restored monitor verifies the persisted selection, not the default model.
@@ -181,7 +238,12 @@ class ModelManager(context: Context, private val scope: CoroutineScope, val asse
         update(ModelPhase.DELETING, "正在取消…")
         work = scope.launch {
             try {
-                previous?.join(); withContext(Dispatchers.IO) { clearTransfer(); files.removePartials() }
+                previous?.join()
+                val id = workerId
+                withContext(Dispatchers.IO) {
+                    if (id != null) workers.cancelWorkById(id).result.get(30, TimeUnit.SECONDS)
+                    ModelTransferLocks.forDirectory(files.directory.path).withLock { clearTransfer(); files.removePartials() }
+                }
                 prefs.edit { remove("error"); remove("retryDownload") }; update(ModelPhase.IDLE, "已取消")
             } catch (e: Exception) { if (e is CancellationException) throw e; failure(e) }
         }

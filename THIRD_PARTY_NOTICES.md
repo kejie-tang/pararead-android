@@ -1,6 +1,6 @@
 # Third-party notices / 第三方声明
 
-核对日期：2026-10-27。本文件区分直接复用的代码与资产、运行依赖、单独下载的模型及仅参考的项目。项目新增代码与适配修改使用根目录 [Apache-2.0 LICENSE](LICENSE)；下列第三方内容保留自己的权利与条件。
+核对日期：2026-10-28。本文件区分直接复用的代码与资产、运行依赖、单独下载的模型及仅参考的项目。项目新增代码与适配修改使用根目录 [Apache-2.0 LICENSE](LICENSE)；下列第三方内容保留自己的权利与条件。
 
 ## ParaRead、vscode-pdf 与 PDF.js
 
@@ -48,7 +48,7 @@ Vulkan 后端使用以下 Khronos 头文件；固定版本与下载摘要见 [up
 
 ## Android 运行依赖与开发工具
 
-Kotlin、AndroidX（含 Compose、Room、WebKit、Lifecycle）、kotlinx.coroutines、OkHttp/Okio 等主要运行依赖使用 Apache-2.0。具体解析版本、约束与传递依赖见 [debugRuntimeClasspath 清单](docs/reports/android-runtime-dependencies.txt)；这份依赖树是版本证据，**不代替各 artifact 内的完整第三方通知**。APK 合并保留相关 META-INF 许可文本，正式 Release 仍需按其实际解析结果复核原生与传递依赖通知。
+Kotlin、AndroidX（含 Compose、Room、WebKit、Lifecycle、WorkManager）、kotlinx.coroutines、OkHttp/Okio 等主要运行依赖使用 Apache-2.0。具体解析版本、约束与传递依赖见 [debugRuntimeClasspath 清单](docs/reports/android-runtime-dependencies.txt)；这份依赖树是版本证据，**不代替各 artifact 内的完整第三方通知**。APK 合并保留相关 META-INF 许可文本，正式 Release 仍需按其实际解析结果复核原生与传递依赖通知。
 
 TypeScript（Apache-2.0）、esbuild（MIT）、Playwright（Apache-2.0）属于构建/测试工具，不作为这些工具的运行程序随 APK 分发。`org.json:json` 仅用于 JVM compileOnly/test；Android 运行时使用系统实现，不将 Maven 的 JSON-java JAR 打入 APK。开发依赖有各自的许可，不能用项目 Apache 标识概括。
 
@@ -78,6 +78,10 @@ Android 构建排除上游 PDF.js 目录中的全部 PDF，避免同时把原 tr
 Vaswani et al. 的 *Attention Is All You Need*（2017）仅在 README 提供 [arXiv 官方链接](https://arxiv.org/abs/1706.03762)，由用户自行下载并导入；源码、APK 和发布附件不包含该论文。该条目的 [arXiv 非独占分发许可](https://arxiv.org/licenses/nonexclusive-distrib/1.0/license.html)不等同于向本项目授予重新分发许可。
 
 本仓库的代码许可证不替代用户 PDF、原文或生成译文的权利判断。
+
+## 原创启动图标
+
+`docs/branding/app-icon.svg`、对应 PNG 和 Android adaptive/monochrome vector 为本项目原创，采用项目 Apache-2.0 许可；未使用第三方图标或字体。
 
 ## 仅参考的项目与名称
 

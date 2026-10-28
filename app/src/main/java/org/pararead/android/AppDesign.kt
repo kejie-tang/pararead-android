@@ -15,6 +15,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -91,9 +92,13 @@ enum class AppGlyph { Book, Model, Settings, Plus, File, Arrow, Check, Trash, Cl
 }
 
 @Composable fun AppDialog(title: String, onClose: () -> Unit, subtitle: String = "", glyph: AppGlyph = AppGlyph.Settings,
-    closeLabel: String = "关闭", closeEnabled: Boolean = true, footer: (@Composable () -> Unit)? = null,
+    closeLabel: String? = null, closeEnabled: Boolean = true, footer: (@Composable () -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit) {
+    val text = LocalContext.current
+    val configuration = LocalConfiguration.current
     Dialog(onDismissRequest = { if (closeEnabled) onClose() }, properties = DialogProperties(usePlatformDefaultWidth = false)) {
+        // A Dialog creates another Android composition root; keep the chosen UI locale there too.
+        CompositionLocalProvider(LocalContext provides text, LocalConfiguration provides configuration) {
         Surface(Modifier.widthIn(max = 760.dp).fillMaxWidth(.94f).heightIn(max = (LocalConfiguration.current.screenHeightDp * .9f).dp),
             shape = RoundedCornerShape(28.dp), color = MaterialTheme.colorScheme.background, shadowElevation = 12.dp) {
             Column {
@@ -103,13 +108,14 @@ enum class AppGlyph { Book, Model, Settings, Plus, File, Arrow, Check, Trash, Cl
                         Text(title, style = MaterialTheme.typography.titleLarge)
                         if (subtitle.isNotBlank()) Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
-                    TextButton(onClick = onClose, enabled = closeEnabled) { Text(closeLabel) }
+                    TextButton(onClick = onClose, enabled = closeEnabled) { Text(closeLabel ?: text.getString(R.string.close)) }
                 }
                 Column(Modifier.weight(1f, fill = false).fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 24.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp), content = content)
                 if (footer != null) Row(Modifier.fillMaxWidth().padding(24.dp, 16.dp), horizontalArrangement = Arrangement.End) { footer() }
                 else Spacer(Modifier.height(24.dp))
             }
+        }
         }
     }
 }
@@ -126,9 +132,10 @@ enum class AppGlyph { Book, Model, Settings, Plus, File, Arrow, Check, Trash, Cl
     }
 }
 
-@Composable fun LanguagePicker(label: String, value: String, onChange: (String) -> Unit, modifier: Modifier = Modifier, autoLabel: String = "自动识别") {
+@Composable fun LanguagePicker(label: String, value: String, onChange: (String) -> Unit, modifier: Modifier = Modifier, autoLabel: String? = null) {
     var expanded by remember { mutableStateOf(false) }
-    val names = linkedMapOf("auto" to autoLabel, "zh-CN" to "简体中文", "zh-TW" to "繁體中文", "en" to "English", "ja" to "日本語", "ko" to "한국어", "fr" to "Français", "de" to "Deutsch", "es" to "Español", "pt" to "Português", "ru" to "Русский", "it" to "Italiano")
+    val text = LocalContext.current
+    val names = linkedMapOf("auto" to (autoLabel ?: text.getString(R.string.auto_detect)), "zh-CN" to "简体中文", "zh-TW" to "繁體中文", "en" to "English", "ja" to "日本語", "ko" to "한국어", "fr" to "Français", "de" to "Deutsch", "es" to "Español", "pt" to "Português", "ru" to "Русский", "it" to "Italiano")
     Column(modifier, verticalArrangement = Arrangement.spacedBy(7.dp)) {
         Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Box {

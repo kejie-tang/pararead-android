@@ -88,11 +88,11 @@ CPU 计算线程数独立于上下文所有权线程：设置 `cpuThreads=0` 自
 
 ## ADR-08：默认模型下载与删除
 
-默认模型标识为 `qwen3:1.7b`，固定 Ollama 官方 registry 的 GGUF layer SHA-256 `3d0b790534fe4b79525fc3692950408dca41171676ed7e21db57af5c65ef6ab6`，Q4_K_M、1,359,279,776 字节；应用不解析可变标签、不需要本机安装 Ollama。用户点击后由 DownloadManager 执行 HTTPS 下载，持久化任务 ID 和本次独立临时文件名；ViewModel 监控进度，Activity/进程重建后查询系统任务。系统负责联网等待和重试；完成后的私有目录校验安装在应用恢复时继续。
+默认模型标识为 `qwen3:1.7b`，固定 Ollama registry 的 GGUF layer SHA-256 `3d0b790534fe4b79525fc3692950408dca41171676ed7e21db57af5c65ef6ab6`，Q4_K_M、1,359,279,776 字节。Alpha.11 新下载使用 WorkManager 前台 worker，以 HTTPS 直接写入内部 `files/models/<uuid>.part`；任务 ID、固定目标和临时文件名持久化。网络中断保留这一份文件，HTTP Range 从实际长度恢复；服务器忽略 Range 时截断重下，范围或大小不匹配时拒绝发布。worker 在后台完成 GGUF/大小/SHA-256 校验并原子重命名，无第二份权重复制，下载前检查剩余字节加 64 MiB 预留。App 观察到成功任务后登记模型并启用。
 
-系统下载目录与私有模型目录分开，初始检查约两份模型加 64MiB 的可用空间。完成后经 DownloadManager 文件句柄以 256KiB 缓冲复制并计算 SHA-256，严格匹配完整大小和 GGUF magic，fsync 后原子 rename；更新模型路径/哈希/名称及离线 provider，再清理旧模型和下载暂存。手动导入共用 ModelFiles，不要求匹配默认模型摘要；架构由 JNI 再检查。取消/损坏输入保留已激活模型。每轮下载使用 UUID 文件名，避免取消旧任务后的延迟清理删除新任务文件。
+同目录锁协调写入、取消与清理；取消网络请求并等待占用锁的 worker 离开后清理暂存，不删除已保存模型。若进程在 rename 后、提交任务成功结果前退出，恢复时先验证已经发布的文件，不重新下载第二份。旧 DownloadManager 任务继续由兼容监控器完成，旧模型不搬迁、不重下。手动导入仍复制用户的原文件到私有目录，不删除原文件。
 
-删除清除已选模型设置、取消系统任务并删除应用模型目录的 GGUF/part；不操作 PDF、Room 或用户导入的原始文件。模型路径变化会关闭旧阅读/推理会话、取消推理；unlink 不截断已 mmap 的文件，底层关闭后释放磁盘占用。模型未就绪时提示下载或导入。
+删除仅清除指定模型与对应元数据；删除当前模型时清除选择，不操作 PDF、Room 或其他模型。路径变化会关闭旧阅读/推理会话；已 mmap 的文件在解除映射后释放实际存储。原生菜单使用英文默认资源及中文翻译，通过独立界面语言偏好即时切换；不修改翻译配置和缓存指纹，不重建正在打开的阅读器。详见 [alpha.11 验证](reports/alpha11.md)。
 
 关闭思考由 `/no_think` 和 Qwen3ChatTemplate 的空 `<think>…</think>` assistant 前缀共同实现，模板保持原有输出；API 后端继续发送 `chat_template_kwargs.enable_thinking=false`。默认没有开启思考的设置。下载测试、实际文件与外网验证边界见 [模型管理报告](reports/model-management.md)。
 

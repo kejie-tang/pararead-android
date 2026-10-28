@@ -1,0 +1,84 @@
+{
+  "version": "0.2.0-alpha.11",
+  "date": "2026-10-28",
+  "tests": {
+    "core": {
+      "tests": 52,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "engine": {
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "sourceContracts": {
+      "tests": 16,
+      "passed": 16,
+      "failures": 0
+    },
+    "android": {
+      "tests": 25,
+      "passed": 24,
+      "failures": 0,
+      "skipped": 1,
+      "seconds": 84.224,
+      "skippedReason": "Optional live HF model download requires hfLive=true"
+    },
+    "finalDialogLocaleChecks": {
+      "tests": 2,
+      "passed": 2,
+      "failures": 0,
+      "seconds": 7.258
+    },
+    "processStopRecovery": {
+      "scenarioCount": 1,
+      "phasesPassed": 2,
+      "seconds": [
+        0.503,
+        13.293
+      ],
+      "partialBytes": 262144,
+      "resumedRange": "bytes=262144-",
+      "singlePublishedFile": true
+    }
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 44
+  },
+  "artifacts": [
+    {
+      "file": "ParaRead-0.2.0-alpha.11-android-arm64-debug-notices.zip",
+      "bytes": 166145,
+      "sha256": "6c785f27bc3a0a17a27818eb3ad6ac42d25462330eb5bf568eb68d3e779023a2"
+    },
+    {
+      "file": "ParaRead-0.2.0-alpha.11-android-arm64-debug.apk",
+      "bytes": 81632581,
+      "sha256": "1dba28401cc017fb43c8f077128d38bc657d905baf816bafd8cc4624367cf3bc"
+    }
+  ],
+  "signatureSha256": "e044c8f329f42465866add4d041f29c498009361241610c8ee2de43ae6e87a45",
+  "checks": {
+    "apksigner": true,
+    "zip16KiBAlignment": true,
+    "elf16KiBAlignment": true,
+    "soleOriginalSample": true,
+    "noModelWeights": true,
+    "retainedNoticesMatchSource": true,
+    "arm64Only": true,
+    "fourCpuPlugins": true,
+    "vulkanPresent": true
+  },
+  "device": {
+    "api": 36,
+    "abi": "arm64-v8a",
+    "physical": false
+  },
+  "fullProductionCdnModelDownloadTested": false,
+  "downloadFixtureBytes": 8388612,
+  "nativeInferenceUnchangedFrom": "0.2.0-alpha.10"
+}

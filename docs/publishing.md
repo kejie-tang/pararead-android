@@ -60,17 +60,17 @@ base64 -i "$HOME/.android/keystores/pararead-release.jks" | gh secret set ANDROI
 
 ## 发布一个带版本号的 APK
 
-建议首个对外版本为 **`0.2.0-alpha.1`**，按开发预览标记。当前代码仍为 `0.2.0-dev`，本次上传不冒充稳定版，也未自动创建公开 Release。
+当前预览为 **`0.2.0-alpha.11`**（versionCode 11）。Releases 中的本机 debug 签名 APK 使用持续保留的本机证书；alpha.8–alpha.10 可直接覆盖升级。下面是以后配置正式签名、通过工作流生成发布草稿的流程，版本号以实际待发布版本为准。
 
-1. 在 [app/build.gradle.kts](../app/build.gradle.kts) 更新 `versionName`（例如 `0.2.0-alpha.1`）并递增 `versionCode`（当前为 1，首次发布可改为 2）。同步中英文 README 当前状态与下载链接和 [release-notes.md](release-notes.md)，提交并推送 main。
+1. 在 [app/build.gradle.kts](../app/build.gradle.kts) 更新 `versionName`（例如下一版 `0.2.0-alpha.12`）并递增 `versionCode`（例如 12）。同步中英文 README 当前状态与下载链接和 [release-notes.md](release-notes.md)，提交并推送 main。
 2. 等 Android CI 通过。在已验证的 main 提交上创建 tag；tag 必须等于 `v` 加 `versionName`：
 
    ```sh
-   git tag -a v0.2.0-alpha.1 -m "ParaRead Android 0.2.0-alpha.1"
-   git push origin v0.2.0-alpha.1
+   git tag -a v0.2.0-alpha.12 -m "ParaRead Android 0.2.0-alpha.12"
+   git push origin v0.2.0-alpha.12
    ```
 
-3. 打开 **Actions → Signed APK release draft → Run workflow**，分支选 `main`，tag 填 `v0.2.0-alpha.1`，保留 `prerelease=true`。
+3. 打开 **Actions → Signed APK release draft → Run workflow**，分支选 `main`，tag 填对应版本（例 `v0.2.0-alpha.12`），保留 `prerelease=true`。
 4. 工作流验证 tag 存在、位于 main 历史、匹配 versionName；重新测试并构建 **release** variant，使用环境密钥签名，校验 APK 签名、ZIP/ELF 16KiB 对齐、ARM64 JNI、唯一自编示例、无 GGUF 和通知原文。
 5. 打开 Releases 中新建的 **Draft / Pre-release**，核对版本说明、签名证书摘要、附件和真机测试范围，再点击 **Publish release**。草稿不会自动公开。GitHub Releases 可以直接承载 APK，不需要先上架 Play。[GitHub 官方发布说明](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository)
 

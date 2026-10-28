@@ -1,133 +1,79 @@
-# ParaRead Android
+<p align="center"><img src="docs/branding/app-icon.png" width="88" alt="ParaRead Android icon"></p>
 
-**Read PDFs in two languages, side by side.**
+<h1 align="center">ParaRead Android</h1>
+<p align="center"><strong>Your PDF. Two languages. One place to read.</strong></p>
 
-Keep the original page in view, tap a sentence to follow its translation, and use on-device AI to work through papers and technical documents on your Android tablet.
+Read papers and technical documents with the original page beside its translation. Follow a sentence, check a formula, and keep the context — with local AI running on your Android device.
 
-[![Android CI](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml/badge.svg?branch=main)](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml) [![Android 9+](https://img.shields.io/badge/Android-9%2B-3DDC84?logo=android&logoColor=white)](#quick-start) [![Code license: Apache-2.0](https://img.shields.io/badge/Code-Apache--2.0-blue)](LICENSE)
+[![Android CI](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml/badge.svg?branch=main)](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml) [![Android 9+](https://img.shields.io/badge/Android-9%2B-3DDC84?logo=android&logoColor=white)](#get-started) [![Code: Apache-2.0](https://img.shields.io/badge/Code-Apache--2.0-blue)](LICENSE)
 
-**[Download preview APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.10/ParaRead-0.2.0-alpha.10-android-arm64-debug.apk)** · [All releases](https://github.com/kejie-tang/pararead-android/releases) · [Quick start](#quick-start) · [简体中文](README.zh-CN.md)
+**[Download APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.11/ParaRead-0.2.0-alpha.11-android-arm64-debug.apk)** · [All releases](https://github.com/kejie-tang/pararead-android/releases) · [简体中文](README.zh-CN.md)
 
-An independent, unofficial Android adaptation of [ParaRead](https://github.com/Chuanyunux/pararead) 0.6.1. **Development preview:** ARM64 only; the app interface currently uses Chinese labels.
+A development preview for **Android 9+ / ARM64**, designed for tablets and usable on phones. Native menus support **English and Simplified Chinese**, with a system-language option. Independent, unofficial adaptation of [ParaRead](https://github.com/Chuanyunux/pararead) 0.6.1.
 
-![Side-by-side PDF reading with a selected sentence linked to its translation panel](docs/reports/reader-landscape.png)
+![PDF and sentence-aligned translation](docs/reports/reader-landscape.png)
 
-*Layout and interaction demo using the original sample guide in desktop Chromium with touch emulation. The panel shows labeled Mock output, not a real model translation or a physical-tablet capture.*
+*Reading interaction demo in desktop Chromium with touch emulation. Uses our original sample document and labeled Mock output; this is not a real-model or physical-tablet screenshot.*
 
-## Keep the context while you read
+## Made for reading, not copying and pasting
 
-A translation is easier to check when the source is right beside it. ParaRead Android keeps the PDF, its figures, and its page layout visible while you follow the translated text.
-
-| Feature | What you can do |
-| --- | --- |
-| Tablet interface | A card-based library, compact reading sidebar, grouped settings and system light/dark themes. [See the Android screenshots](docs/reports/ui-refresh.md). |
-| Sentence alignment | Tap the source or translation to find the matching sentence, with highlighting, vertical alignment, and linked scrolling. |
-| On-device translation | Run a supported Qwen2.5, Qwen3, Qwen3.5, or LFM2/2.5 GGUF locally through llama.cpp. After downloading the model, translate without a remote translation service. |
-| Flexible reading pace | Translate a selected passage, the current page, nearby pages, or the whole document. Cancel when needed. |
-| Saved progress | Reuse cached translations and reading positions. Whole-document jobs save a checkpoint after each page and can continue when reopened with matching settings. |
-| Notes and PDF export | Keep local annotation drafts and save an annotated PDF copy. |
-| Your translation setup | Search Hugging Face, choose a GGUF quantization, or download the default model; adjust CPU threads and terminology; optionally use an OpenAI-compatible API. |
-| Test your device | Run a real-model speed test inside the app, compare translation and raw engine token/s, and export the results. |
-
-## Quick start
-
-**You need:** Android 9 / API 28 or newer, an ARM64 device, and an Android System WebView with `WebMessageListener` support. The layout is designed for tablets.
-
-1. **Install the [preview APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.10/ParaRead-0.2.0-alpha.10-android-arm64-debug.apk).** The current download is debug-signed (`0.2.0-alpha.10`). If upgrading from a differently signed build, you may need to uninstall first; export important annotated PDFs before uninstalling, which removes app data.
-2. **Open a PDF.** Try **打开示例文档** (Open sample document), or import a PDF with selectable text through the system file picker.
-3. **Choose a local model.** Open **模型管理** (Model management) on the home screen or in **设置 → 离线 GGUF**. Download **Qwen3-0.6B (397 MB)** for quick reading or **Qwen3-1.7B (1.36 GB)** for quality priority. The app checks file size and SHA-256 before enabling it.
-4. **Start reading.** Tap a sentence, translate a page, or start a whole-document job. Change the target language in **目标语言** (Target language). After an explicit cancellation, use **全篇 / 继续** (Whole document / Continue) to resume.
-
-### The local model
-
-| | Current default |
-| --- | --- |
-| Model | Qwen3 1.7B, Q4_K_M, thinking disabled |
-| Download | About **1.36 GB**, separate from the APK |
-| Storage | About **2.8 GB free during download and verification**, plus space for PDFs |
-| Runtime | CPU by default; optional experimental Vulkan GPU with CPU fallback; automatic or manual CPU threads |
-| Source | A fixed, SHA-256-verified GGUF layer from the Ollama registry; **no Ollama app required** |
-| Model search / imports | Hugging Face search and single-file GGUF downloads; Qwen2.5, Qwen3, Qwen3.5 and LFM2/2.5 text templates |
-
-Alpha.9 adds CPU plugins selected by the device's instruction support (dotprod / FP16 / i8mm), with a baseline ARM64 fallback. Speed-test details and JSON identify the selected plugin. Vulkan remains experimental and can be slower or cause UI stutter; CPU is recommended for reading. See the [CPU investigation and validation](docs/reports/cpu-kernel-dispatch.md); physical-device gains still need measurement.
-
-Alpha.10 reuses one CPU worker pool per model session instead of creating and joining workers for each compute graph. It retains the existing inference settings. See the [threadpool comparison and remaining tuning assessment](docs/reports/cpu-threadpool.md).
-
-**Manage models:** open **模型管理** from the home screen or offline settings. Both recommended models can stay downloaded; tap **使用** (Use) to switch offline or **删除** (Delete) to remove one after confirmation. A new download becomes active automatically and keeps your other models. Failed downloads retry the same selection, including after reopening the app. See [model library behaviour and verification](docs/reports/model-library.md).
-
-**Choose another model:** open **模型管理 → 更多模型（Hugging Face）**. Search a model name or enter `org/repo`, inspect its license, and choose a quantization. Downloads are pinned to a repository commit and checked against its LFS SHA-256. A successful download activates that model and retains other saved models. LFM2.5 is experimental: small-model formatting and translation completeness have known failures. See the [actual model compatibility results](docs/reports/model-compatibility.md).
-
-**Want a smaller, faster model?** Try `Qwen3-0.6B-Q4_K_M.gguf` (**397 MB**) from [Unsloth](https://huggingface.co/unsloth/Qwen3-0.6B-GGUF). The official [Qwen Q8_0](https://huggingface.co/Qwen/Qwen3-0.6B-GGUF) is **639 MB**. These are candidates for fast preview reading; small models still miss details and can mistranslate numerical relations. See the [small-model tests, exact files and recommendations](docs/reports/small-model-evaluation.md).
-
-Alpha.5 saves independently validated sentences and retries only failures, with a marker checklist and a final single-sentence text fallback. Missing or duplicated protected content is still rejected; recovery can still fail. See the [actual recovery results](docs/reports/format-recovery.md). Alpha.5 introduced a new cache version, so upgrading from earlier versions regenerates translations; alpha.6–alpha.10 retain that version. The default download remains Qwen3 1.7B.
-
-**350M–0.6B research:** RWKV 0.4B now passes 18/18 Android emulator format workloads with a specialized translation prompt and exact-marker retries; a local Q4 file is **301 MB**. It still omits text and mistranslates some numerical relations. NanoTranslator-365M recovers its format but changes meaning. These adapters are not enabled in the released app. See the [new candidates, raw outputs and speed comparison](docs/reports/mid-small-models.md), plus the earlier [LFM350 experiments](docs/reports/tiny-model-recovery.md).
-
-Downloads use Android's system queue, with progress, cancellation, retry, and monitoring after reopening the app. Removing the model keeps your documents, reading progress, and translation cache. See [model management](docs/reports/model-management.md) and [CPU thread settings](docs/reports/cpu-threads.md) for implementation and test details (Chinese).
-
-### Where your text goes
-
-- **Local mode:** translation runs on the device. The model download needs a network connection; local inference does not send source text to a remote translation service. There is no automatic fallback to a remote API.
-- **API mode:** the selected sentences and translation prompt are sent to the endpoint you configure. Remote endpoints require HTTPS; local HTTP services are supported.
-- **Mock mode:** explicitly labeled output for trying the interface and running tests. It does not evaluate translation quality.
-
-Imported PDFs are copied to private app storage, alongside local reading state, drafts, and caches. Imports therefore need extra disk space. For API and local-server configuration, see the [backend guide](docs/local-llama.md) (Chinese).
-
-## Try a paper you know
-
-The app includes an original six-page [reading guide](samples/pararead-reading-guide.pdf), with two-column text, a formula, a table, and a vector diagram. Its text and artwork use Apache-2.0; see the [sample notice](samples/NOTICE).
-
-For a familiar research paper, download Vaswani et al., *Attention Is All You Need* (2017), from its [official arXiv page](https://arxiv.org/abs/1706.03762) and import your copy. The repository, APK, and release assets do not include that paper. Its [arXiv distribution license](https://arxiv.org/licenses/nonexclusive-distrib/1.0/license.html) and copyright remain separate from this project's code license. Upstream PDF.js sample PDFs are excluded from Android assets.
-
-## Speed test
-
-**Test your own device inside the app:** open **设置 → 离线 GGUF → 速度测试** (Settings → Offline GGUF → Speed test), then tap **开始测速**. Download or import a model first. The test uses the CPU thread count currently entered in Settings, including edits you have not saved.
-
-- Runs one fixed, original 158-word English-to-Chinese paragraph four times: once with a fresh model instance, then three times with the model loaded. The translation cache is bypassed.
-- Shows first stream response, completion time, and the median of the three warm runs. Generation speed uses native token counts, including JSON formatting tokens, divided by generation time.
-- Then measures three raw engine **pp512 / tg128** runs, excluding grammar, sampling and per-token UI callbacks. Reports decode, sampling/grammar and callback time separately.
-- Supports cancellation and screen rotation. The latest complete result stays on your device and can be exported as JSON with the model hash, device, threads, engine version, and all four samples.
-
-The reader pauses during testing and resumes after you close it. First-use timings include model loading; OS file caches are left intact. First response may be JSON syntax. Translation and raw engine results measure different workloads; neither establishes full-PDF throughput or translation quality. The new JSON sampler avoids a full vocabulary grammar scan for accepted candidate tokens, and ARM kernels use KleidiAI runtime dispatch. See the [PocketPal comparison and measured limits](docs/reports/model-compatibility.md). See [in-app test details](docs/reports/app-speed-test.md).
-
-### Earlier reference measurements
-
-Measured on **26 October 2026**, using the real **Qwen3 1.7B Q4_K_M** model, English-to-Chinese translation, thinking disabled, and CPU inference with a 4,096-token context. These are engine/integration timings; physical-tablet and WebView end-to-end latency are still unmeasured.
-
-| Environment | Workload | First stream update | Completed | Samples |
-| --- | --- | --- | --- | --- |
-| M1 Pro host, 6 threads | 1 sentence, model initially unloaded | **1.70 s** | **2.92 s** | Median of 3 |
-| M1 Pro host, 6 threads | 4 sentences, model already loaded | **0.68 s** | **5.42 s** | Median of 3 |
-| Android ARM64 emulator, auto 6 threads | 2 sentences, model initially unloaded | 1.92 s | 9.79 s | 1 prior run |
-| Android ARM64 emulator, auto 6 threads | 2 sentences, after cancellation, model loaded | 1.60 s | 9.31 s | 1 prior run |
-
-The host is an Apple M1 Pro with 32 GiB RAM; the emulator has 8 vCPUs and 6 GiB RAM. Each Android batch includes **3 model calls**: an invalid batch followed by two single-sentence repairs. Workloads differ, so these rows are not a platform ranking. First stream updates can contain JSON syntax; they are not the first translated word or tokens/s. First-use timings include model loading, with OS file caches left intact.
+- **Keep the page intact.** See figures, equations and references while reading the translation beside the PDF.
+- **Follow the same sentence.** Tap either side for matching highlights, alignment and linked scrolling.
+- **Read offline.** Download a GGUF once and translate on-device through llama.cpp. No Ollama app or account is required.
+- **Read at your pace.** Translate a selection, a page or the whole document. Validated translations and page checkpoints let you continue later.
+- **Make it yours.** Keep annotations, export an annotated PDF, customize terminology and choose your translation language.
+- **Manage models easily.** Download, switch or delete models; search Hugging Face when you want more choices.
 
 <details>
-<summary>Run the real-model speed test yourself</summary>
+<summary>See the Android interface</summary>
 
-After setting up the [source-build toolchain](#build-from-source), point to your local copy of the default GGUF. The benchmark checks its SHA-256, starts three fresh JVM/provider sessions, and saves all observations plus the median and range. It does not download model weights.
+<p><img src="docs/screenshots/library-en.png" width="600" alt="English library on the Android emulator"></p>
+<p><img src="docs/screenshots/settings-en.png" width="600" alt="English settings and interface-language selection"></p>
 
-```sh
-export PARAREAD_GGUF="/absolute/path/Qwen3-1.7B-Q4_K_M.gguf"
-python3 scripts/benchmark_translation.py --runs 3 --threads 6
-```
-
-Output: `artifacts/translation-speed/summary.json`, with per-run logs alongside it. Use `--threads 0` for the automatic thread policy. See [method and raw results](docs/benchmarks.md), [host observations](docs/reports/translation-speed-host.json), and the [Android reference](docs/reports/cpu-threads-android-real.json).
+Actual Android emulator captures. The original book icon is included as an adaptive launcher icon with a themed monochrome variant.
 
 </details>
 
-## Preview status
+## Get started
 
-**A working development preview, with physical-tablet validation still ahead.** Evidence covers core and bridge tests, Android ARM64 emulator checks including real-model speed and format tests, and a Chromium reading/annotation round trip. Real Qwen3 inference has also passed smoke checks on the host and an Android ARM64 emulator. See the [verification record](docs/reports/alpha3-verification.json) and [public build checks](docs/reports/public-upload.md).
+1. **Install the [preview APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.11/ParaRead-0.2.0-alpha.11-android-arm64-debug.apk).** Requires ARM64, Android 9+ and an up-to-date Android System WebView. This is a debug-signed preview. Same-signed alpha.8–alpha.10 installations can be updated in place.
+2. **Choose a model in Models.** Start with 0.6B for quick reading or 1.7B for stronger translations. Downloads are verified before activation; existing models are retained.
+3. **Import a PDF or open the sample.** Tap a sentence, translate **This page**, or use **All / Resume**. PDFs need selectable text; OCR is not included.
 
-Physical-tablet performance, sustained real-model reading sessions, academic translation quality, process-kill/reboot recovery, accessibility, and stylus behavior still need validation. Synthetic 100/300/500 MiB PDF tests establish a limited baseline, not a complete real-document performance claim. This preview does not provide an OCR workflow for image-only scans, and legacy VS Code cache import is not implemented. Form-field changes above 512 pages are currently rejected; damaged or unusually complex PDFs may also hit explicit resource limits. See [compatibility](docs/compatibility.md), [performance](docs/performance.md), and the [task list](docs/tasks.md) for details (Chinese).
+Change native menu language in **Settings → Interface language**. This applies immediately and stays separate from **Source language** and **Target language**. The embedded PDF viewer and raw third-party diagnostics may retain their own language.
 
-**Feedback from real tablets is especially useful.** [Open an issue](https://github.com/kejie-tang/pararead-android/issues) with your device, Android/WebView versions, backend/model, and reproduction steps. If sharing a PDF, use a small sample you have permission to distribute. Leave API keys and private documents out of reports.
+### Pick your model
 
-## Build from source
+| Model | Best fit | Download | Free space for a new download¹ |
+| --- | --- | ---: | ---: |
+| **Qwen3-0.6B Q4_K_M** | Quick reading and preview | 397 MB | About 464 MB |
+| **Qwen3-1.7B Q4_K_M** | Quality priority; current default | 1.36 GB | About 1.43 GB |
 
-Requirements: **Node.js 24+**, **Python 3.9+**, **JDK 21**, **Android SDK 36**, **NDK 28.2.13676358**, and **CMake 3.22.1**. Set `JAVA_HOME` and `ANDROID_HOME`, or configure Android Studio with JDK 21.
+¹ Model size plus a 64 MiB reserve, excluding PDFs and other saved models. Alpha.11 downloads directly into a temporary file beside the model, verifies GGUF/size/SHA-256 and renames it into place. **A second full weight copy is no longer needed.** Background work, network retry and HTTP Range resume are supported; completion is registered when the app observes the finished task. Older in-flight system downloads finish through the legacy installation path. [Implementation and checks](docs/reports/alpha11.md).
+
+The 0.6B file comes from a pinned Unsloth Hugging Face revision; 1.7B uses a pinned Ollama registry layer. Thinking is disabled. Other public, single-file text GGUFs can be found under **Models → More models on Hugging Face**. Current templates cover Qwen2.5, Qwen3, Qwen3.5 and LFM2/2.5. Model licenses are shown separately from the app license. [Exact files and compatibility results](docs/reports/small-model-evaluation.md).
+
+Small models can omit details or mistranslate numerical relations. Format validation and retries help recover malformed output; they do not establish translation accuracy. Check important claims against the source.
+
+### Performance you can measure
+
+Use **Settings → Offline GGUF → Speed test** for four long-paragraph translations and three raw **pp512 / tg128** engine runs. The app records native token counts, cold/warm timing, CPU plugin, thread count and backend; export the complete JSON for comparison.
+
+A user reported **26 token/s for translation and 23 token/s for tg128** on **Dimensity 9400, Qwen3 1.7B Q4_K_M, CPU / 6 threads**, following the CPU optimizations. This is one device report without a raw export, not a cross-device benchmark. [CPU investigation and limits](docs/reports/cpu-threadpool.md).
+
+CPU is the default. Instruction-specific CPU plugins and persistent worker reuse are automatic. Vulkan is experimental, with CPU fallback on failure; it can be slower or cause UI stutter on some devices. [Backend details](docs/vulkan.md).
+
+## Your documents stay under your control
+
+- **Local mode:** document text is processed on-device. Downloading a model needs internet; translation does not use a remote service. There is no automatic cloud fallback.
+- **API mode:** selected text and prompts go to the endpoint you configure. Remote servers require HTTPS; local HTTP is supported.
+- **Storage:** imported PDFs, annotations, reading state, translations and models live in app-owned storage. Updating with the same signature retains them. **Uninstalling or clearing app data removes them**; export annotated PDFs you want to keep. Deleting a model leaves PDFs and translations intact.
+
+The included six-page [sample guide](samples/pararead-reading-guide.pdf) is original Apache-2.0 material. To try *Attention Is All You Need*, download it from the [official arXiv page](https://arxiv.org/abs/1706.03762) and import your copy. That paper is not bundled or relicensed by this project.
+
+## Build and contribute
+
+Requirements: **Node.js 24+**, **Python 3.9+**, **JDK 21**, **Android SDK 36**, **NDK 28.2.13676358**, **CMake 3.22.1**, plus `glslc` and Ninja. Configure `JAVA_HOME` and `ANDROID_HOME`.
 
 ```sh
 npm ci
@@ -137,12 +83,10 @@ python3 scripts/fetch_llama.py
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
-Install a host `glslc` shader compiler before building (macOS: `brew install shaderc`; Ubuntu: `apt-get install glslc ninja-build`). On macOS, use `scripts/gradle.sh` in place of `./gradlew` to include the SDK Ninja directory. See the [Vulkan build guide](docs/vulkan.md).
-
-The source-fetch scripts verify pinned upstream Git blobs and the SHA-256 of the Arm kernel and Vulkan/SPIR-V header archives. Source snapshots live in the ignored `.references/` directory; model weights are not fetched by the build. `-PskipNative` produces a Mock-only prototype and cannot validate offline inference.
+On macOS, use `scripts/gradle.sh` instead of `./gradlew`; install the shader compiler with `brew install shaderc`. On Ubuntu: `apt-get install glslc ninja-build`. Source dependencies are pinned and verified; builds do not download model weights. [Build/backend guide](docs/local-llama.md) · [Signing and publishing](docs/publishing.md).
 
 <details>
-<summary>Run checks and find the technical docs</summary>
+<summary>Checks and engineering notes</summary>
 
 ```sh
 npm test
@@ -150,27 +94,21 @@ npm run check:reader
 npm run test:android-web
 npx playwright install chromium
 npm run test:reader
-./gradlew :core:test :app:lintDebug
+./gradlew :core:test :engine:llama:testDebugUnitTest :app:lintDebug
 ```
 
-Android instrumentation tests require an ARM64 device or emulator. The real-model tests need their documented model fixtures; see the reports before running the full suite. Large-PDF benchmark scripts also create substantial test data and use a connected debug device.
+Android instrumentation tests need an ARM64 device/emulator. Opt-in model tests need their documented local fixtures. `-PskipNative` builds a Mock-only prototype.
 
-Most detailed engineering documents are currently in Chinese:
-
-- [Architecture](docs/architecture.md) and [message protocol](docs/bridge-protocol.md).
-- [Compatibility](docs/compatibility.md), [test records](docs/reports/alpha3-verification.json), and [performance](docs/performance.md).
-- [Whole-document recovery](docs/reports/whole-document-recovery.md) and [remaining work](docs/tasks.md).
+[Architecture](docs/architecture.md) · [Compatibility and limits](docs/compatibility.md) · [Performance](docs/performance.md) · [Whole-document recovery](docs/reports/whole-document-recovery.md) · [Model research](docs/reports/mid-small-models.md) · [Latest validation](docs/reports/alpha11.md). Many detailed engineering notes are in Chinese.
 
 </details>
 
-For newer debug builds, open [Android CI](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml) → a successful run → **Artifacts** → `pararead-android-debug-arm64`. Sign-in is required and artifacts are retained for 14 days. CI debug signatures can change between runs. Versioned APKs, checksums, and notice bundles belong in [Releases](https://github.com/kejie-tang/pararead-android/releases); see the [signing and release guide](docs/publishing.md) (Chinese).
+This remains a development preview. Sustained device workloads, accessibility, stylus behavior, unusual PDFs and academic translation quality need broader validation. [Report an issue](https://github.com/kejie-tang/pararead-android/issues) with your device, Android/WebView versions, model and reproduction steps; include a speed-test JSON where relevant.
 
 ## Credits and license
 
-Built on [ParaRead](https://github.com/Chuanyunux/pararead) by Chuanyunux, whose upstream notices credit **vscode-pdf** by Mathematic Inc and **Mozilla PDF.js**. The TypeScript/PDF.js reader comes from ParaRead; this adaptation adds or modifies the Android host, file access, persistence, translation scheduling, model management, and JNI integration. Local inference uses [llama.cpp](https://github.com/ggml-org/llama.cpp) with Arm KleidiAI kernels and separately downloaded model weights.
+Built on **[ParaRead](https://github.com/Chuanyunux/pararead)** by Chuanyunux, whose notices credit **vscode-pdf** by Mathematic Inc and **Mozilla PDF.js**. Local inference uses **llama.cpp / ggml**, Arm KleidiAI and optional Vulkan. This adaptation adds the Android host, storage, translation scheduling, model management and JNI integration. The launcher artwork is original to this project.
 
-Android-original code and adaptation changes use **[Apache License 2.0](LICENSE)**. Third-party code, fonts, WASM, and model materials retain their own licenses. Keep the [NOTICE](NOTICE), [third-party disclosures](THIRD_PARTY_NOTICES.md), and [license originals](third_party/) with distributions. The project license does not grant rights to imported PDFs or arbitrary models and translations.
+Original Android code, adaptation changes and original artwork use **[Apache-2.0](LICENSE)**. Third-party components and separately downloaded models retain their own licenses. Preserve [NOTICE](NOTICE), [third-party disclosures](THIRD_PARTY_NOTICES.md) and [license originals](third_party/) with distributions. The app license does not grant rights to arbitrary PDFs, models or translations.
 
-This is an independent, unofficial project with no affiliation with or endorsement from the upstream projects or model providers. Names and trademarks belong to their respective owners. PocketPal, Readest, MJ PDF, and PocketLLM were behavioral or architectural references; their code and assets were not copied. See the [source and license review](docs/licenses.md) (Chinese).
-
-[Experimental Vulkan GPU: setup, fallback and benchmark notes](docs/vulkan.md).
+Independent and unofficial; no upstream project or model provider endorses this app. PocketPal and other apps were references for behavior and architecture; their code and assets were not copied. [Source and license review](docs/licenses.md).
