@@ -55,6 +55,9 @@ class Settings(context: Context) {
     fun clearModel() {
         prefs.edit(commit = true) { remove("modelPath"); remove("modelHash"); remove("modelLicense"); remove("modelRepository"); remove("modelRevision") }
     }
+    var readerFullscreen: Boolean
+        get() = prefs.getBoolean("readerFullscreen", false)
+        set(value) { prefs.edit().putBoolean("readerFullscreen", value).apply() }
     var translateRange: String get() = prefs.getString("translateRange", "nearby")!!; set(v) { prefs.edit().putString("translateRange", v).apply() }
     var apiKey: String
         get() = runCatching {

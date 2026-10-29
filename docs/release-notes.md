@@ -1,15 +1,29 @@
-ParaRead Android 0.2.0-alpha.11 — lean downloads and bilingual menus / 下载省空间与双语菜单
+# ParaRead Android 0.2.0-alpha.12 — restored translations and full-screen reading / 译文恢复与全屏阅读
 
-Model downloads now write directly into private model storage, verify GGUF, file size and SHA-256, then rename the same file into place. A second full weight copy is no longer needed: a new Qwen3-1.7B download needs about **1.43 GB** free, including the 64 MiB reserve; 0.6B needs about **464 MB**. Background work and HTTP Range resume retain progress after network interruptions and process restarts. Previously saved models are retained; old in-flight system downloads finish through the legacy path.
+## 中文
 
-- **Settings → Interface language:** choose System, 简体中文 or English. Native menus change immediately and the choice persists. Document source and translation target languages stay independent; the open reader is retained. The embedded PDF viewer and raw third-party diagnostics may retain their own language.
-- **English-default and Chinese READMEs:** clearer reading features, setup, model choices, space requirements, privacy, screenshots and license disclosures.
-- **Original launcher icon:** two facing pages with aligned lines, including adaptive and themed monochrome variants. Original artwork is Apache-2.0.
+- **重开 PDF 恢复译文。** 页面就绪后主动读取已保存的译文，手动翻译模式也能恢复显示。恢复只查本地缓存，不调用模型或 API；自动范围只补译未命中的句子。
+- **翻回旧页也能恢复。** 页面状态被内存淘汰后，再返回该页会重新读取持久缓存；过期会话和迟到回复不会覆盖新状态。
+- **可选全屏阅读。** 阅读工具栏新增“全屏”，隐藏左侧导航、顶部应用栏、状态信息及系统栏，保留 PDF.js 的翻页、缩放和译文开关。右下角按钮或 Android 返回键退出；记住偏好，切换不重建 WebView、不取消翻译。
+- 无数据库迁移；既有已提交译文按当前模型、语言及术语表等配置复用。译文仍在 App 专属数据库中，不会自动嵌入导出的批注 PDF。
 
-模型直接下载到私有模型目录的临时文件，完成校验后原子重命名，无须再复制一整份权重。支持后台下载、网络重试和断点续传；本次验证包含实际停止 App 进程后重新打开恢复下载。
+## English
 
-在 **设置 → 界面语言** 中可选跟随系统、简体中文或 English，即时生效并记住选择，不改变文档源语言、翻译目标或译文缓存。同步重写中英文 README，并加入原创双页书本图标。
+- **Restore translations when reopening a PDF**, including manual mode. Cache-only restoration does not call the model/API; automatic modes translate only missing sentences.
+- **Restore evicted pages** when returning to them, with deduplicated lookups and stale-reply protection.
+- **Optional full-screen reading** hides app navigation, toolbar, status text and system bars. PDF controls remain available. Exit with the bottom-right button or Android Back; the preference persists without recreating the reader or cancelling translation.
+- Existing committed translations remain usable with matching translation settings. No database migration or embedded-translation PDF export is introduced.
 
-Validation: 52 core tests, 8 engine tests and 16 source-contract tests passed. Android API 36 / ARM64 suite: **24 passed, 1 optional live Hugging Face test skipped**; two stronger locale checks passed after the final dialog-language fix. A separate two-phase process-stop/resume check passed. Lint: 0 errors, 44 warnings. [Checks, evidence and limits](https://github.com/kejie-tang/pararead-android/blob/main/docs/reports/alpha11.md).
+## Validation / 验证范围
 
-Android 9+ / ARM64, versionCode 11. Debug-signed preview with the same local certificate as alpha.8–alpha.10: install over those versions to retain documents, translations and models. APK, checksum file and retained notices are attached. Model weights and third-party papers are not bundled. Physical-device and manufacturer background-policy validation remain open; the CPU inference implementation is unchanged from alpha.10.
+Local checks: TypeScript, **21 Android Web tests**, **16 upstream source-contract tests**, reader asset build and the real PDF.js browser harness passed. The browser harness verifies visible translations after reopening in manual mode with zero new translation requests, bidirectional selection and incremental annotation saving. It uses desktop Edge/Chromium touch emulation, not Android hardware.
+
+New Android instrumentation coverage for Room restoration/full-screen UI and a Kotlin protocol assertion are included. The local Windows environment has no JDK/Android SDK; native build results are established separately by GitHub Actions. CI does not run Android instrumentation or physical-device validation.
+
+[Implementation and local evidence](https://github.com/kejie-tang/pararead-android/blob/main/docs/reports/reader-recovery-fullscreen.md).
+
+## Install and data safety / 安装与数据安全
+
+Android 9+ / ARM64, **versionCode 12**. APK signing compatibility with alpha.11 has not been established. **Do not uninstall an existing version merely to bypass a signature mismatch**: uninstalling deletes private PDFs, saved translations and models. A compatible in-place update requires the original signing identity. Read the final artifact/signing notes before installing.
+
+这是开发预览版。旧版已完成、校验并提交的译文可恢复；退出时仍在生成中的草稿不保证保存。模型权重和第三方论文不随 APK 分发。

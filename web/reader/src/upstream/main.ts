@@ -129,6 +129,7 @@ async function start() {
     store,
     post,
     range: isTranslateRange(config["translateRange"]) ? config["translateRange"] : "nearby",
+    restoreCached: sentences => window.paraRead.cachedTranslations(sentences),
   });
   const selection = new SelectionController();
   let hoverEnabled = config["selectOnHover"] !== false;

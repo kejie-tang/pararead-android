@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { TranslationClient } from '../web/reader/src/upstream/translation-client.ts';
 import vm from 'node:vm';
+import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
 
 const tick = () => new Promise(resolve => setImmediate(resolve));
@@ -79,7 +80,7 @@ test('checkpoint or extraction errors stop the job at the last durable page', as
 });
 
 async function bridgeHarness() {
-  const built=await build({entryPoints:[new URL('../web/reader/src/bridge.ts',import.meta.url).pathname],bundle:true,format:'iife',write:false});
+  const built=await build({entryPoints:[fileURLToPath(new URL('../web/reader/src/bridge.ts',import.meta.url))],bundle:true,format:'iife',write:false});
   const sent=[],legacy=[];
   const window={innerHeight:800,addEventListener(){},postMessage(m){legacy.push(m);},ParaReadNative:{postMessage(s){sent.push(JSON.parse(s));}}};
   const context=vm.createContext({window,document:{documentElement:{style:{}},body:{style:{}}},location:{origin:'https://appassets.androidplatform.net'},

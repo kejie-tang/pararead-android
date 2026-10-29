@@ -156,6 +156,7 @@ class ReaderHost(
             "session.error" -> report(p.optString("message").take(600))
             "page.visible" -> { epoch = maxOf(epoch, m.viewportEpoch); translationQueue.viewport(epoch) }
             "translation.request" -> translate(m)
+            "translation.cacheGet" -> restoreTranslations(m)
             "request.cancel" -> { translationQueue.cancel(p.getString("requestId")); pageChunks.clear() }
             "page.cacheGet" -> {
                 val value = withContext(Dispatchers.IO) { dao.page(source.revision, p.getInt("page")) }
@@ -214,8 +215,7 @@ class ReaderHost(
             "telemetry.event" -> metric(p.optString("name").take(80), p.optDouble("value", 0.0))
         }
     }
-    private suspend fun translate(m: Envelope) {
-        require(m.requestId !in inflight) { "DUPLICATE_REQUEST" }
+    private fun sentences(m: Envelope): List<SourceSentence> {
         val rows = m.payload.getJSONArray("sentences")
         require(rows.length() in 1..40) { "INVALID_SENTENCE_COUNT" }
         val ids = mutableSetOf<String>(); var bytes = 0
@@ -227,6 +227,23 @@ class ReaderHost(
             SourceSentence(id, text, group)
         }
         require(bytes <= 32768) { "SOURCE_TOO_LARGE" }
+        return sentences
+    }
+    /** Cache-only restoration never enters the inference queue or calls the provider. */
+    private suspend fun restoreTranslations(m: Envelope) {
+        val sentences = sentences(m)
+        var sequence = 0
+        for (sentence in sentences) {
+            val key = contentKey(sentence.text, config)
+            val cached = withContext(Dispatchers.IO) { dao.translation(key)?.translation } ?: continue
+            send(m.reply("translation.committed", JSONObject().put("sequence", sequence++).put("items", JSONArray()
+                .put(JSONObject().put("id", sentence.id).put("translation", cached).put("contentKey", key)))))
+        }
+        send(m.reply("translation.finished", JSONObject().put("failures", JSONArray())))
+    }
+    private suspend fun translate(m: Envelope) {
+        require(m.requestId !in inflight) { "DUPLICATE_REQUEST" }
+        val sentences = sentences(m)
         val priority = m.payload.optInt("priority", 1); require(priority in 0..3)
         if (priority == 3) {
             val job = requireNotNull(wholeJob) { "UNKNOWN_JOB" }

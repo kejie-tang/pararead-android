@@ -121,6 +121,9 @@ class TranslationTest {
     @Test fun protocolRejectsBadVersionAndUtf8Limit() {
         val message = Envelope("reader.ready", "s", "d", "r", "q", 0, 0, JSONObject())
         assertEquals("reader.ready", Envelope.parse(message.json().toString()).type)
+        val lookup = message.copy(type = "translation.cacheGet")
+        assertEquals("translation.cacheGet", Envelope.parse(lookup.json().toString()).type)
+        assertFails { Envelope.parse(message.copy(type = "translation.unknown").json().toString()) }
         assertFails { Envelope.parse(message.json().put("version", 99).toString()) }
         assertFails { Envelope.parse(message.json().put("payload", JSONObject().put("text", "中".repeat(22000))).toString()) }
         assertFails { Envelope.parse("{}") }

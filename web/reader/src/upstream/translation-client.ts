@@ -27,6 +27,7 @@ export interface TranslationClientOptions {
   store: SentenceStore;
   post: (message: WebviewToHost) => void | Promise<unknown>;
   range: TranslateRange;
+  restoreCached?: (sentences: readonly Sentence[]) => Promise<readonly { id: string; translation: string }[]>;
 }
 
 export class TranslationClient {
@@ -38,6 +39,8 @@ export class TranslationClient {
   readonly #owners = new Map<string, number>();
   readonly #listeners = new Set<(id: string, state: TranslationState) => void>();
   readonly #cancelledJobs = new Set<number>();
+  readonly #restoreCached: TranslationClientOptions["restoreCached"];
+  readonly #restores = new Map<number, Promise<void>>();
   #range: TranslateRange;
   #nextRequestId = 1;
   #runningJobId: number | null = null;
@@ -45,17 +48,15 @@ export class TranslationClient {
   /** Bumped on document reload so that stale work stops. */
   #generation = 0;
 
-  constructor({ app, store, post, range }: TranslationClientOptions) {
+  constructor({ app, store, post, range, restoreCached }: TranslationClientOptions) {
     this.#app = app;
     this.#store = store;
     this.#post = post;
     this.#range = range;
+    this.#restoreCached = restoreCached;
 
-    store.onPageReady((page) => {
-      if (this.#pagesInRange(this.#app.pdfViewer.currentPageNumber).includes(page.page)) {
-        void this.#request(textSentences(page), { retryErrors: false, priority: page.page === this.#app.pdfViewer.currentPageNumber ? 1 : 2 });
-      }
-    });
+    // Restore saved results even in manual mode, without requesting new translations.
+    store.onPageReady((page) => { void this.#preparePage(page); });
     app.eventBus.on("pagechanging", ({ pageNumber }: { pageNumber: number }) => {
       this.#applyRange(pageNumber);
     });
@@ -70,6 +71,9 @@ export class TranslationClient {
   }
 
   trim(current: number, radius: number): void {
+    for (const page of this.#restores.keys()) {
+      if (page !== this.#jobPage && Math.abs(page - current) > radius) this.#restores.delete(page);
+    }
     for (const id of this.#states.keys()) {
       const page = Number(id.match(/^p(\d+)/)?.[1]);
       if (page !== this.#jobPage && this.state(id).status !== "pending" && Math.abs(page - current) > radius) {
@@ -82,6 +86,7 @@ export class TranslationClient {
     this.#generation++;
     this.#states.clear();
     this.#owners.clear();
+    this.#restores.clear();
     for (const done of this.#requests.values()) {
       done.done();
     }
@@ -151,7 +156,11 @@ export class TranslationClient {
 
   /** Translates the paragraph containing `sentence` (explicit user action). */
   async translateBlockOf(sentence: Sentence): Promise<void> {
+    const generation = this.#generation;
     const page = await this.#store.ensure(sentence.page);
+    if (generation !== this.#generation) return;
+    if (this.#restoreCached) await this.#restorePage(page);
+    if (generation !== this.#generation) return;
     const block = page.blocks.find((b) => b.id === sentence.blockId);
     if (block !== undefined) {
       await this.#request([sentence, ...block.sentences.filter(s => s.id !== sentence.id)], { retryErrors: true, priority: 0 });
@@ -159,7 +168,11 @@ export class TranslationClient {
   }
 
   async translatePage(pageNumber: number): Promise<void> {
+    const generation = this.#generation;
     const page = await this.#store.ensure(pageNumber);
+    if (generation !== this.#generation) return;
+    if (this.#restoreCached) await this.#restorePage(page);
+    if (generation !== this.#generation) return;
     await this.#request(textSentences(page), { retryErrors: true, priority: 0 });
   }
 
@@ -174,11 +187,44 @@ export class TranslationClient {
     return pages.filter((n) => n >= 1 && n <= count);
   }
 
+  #restorePage(page: PageSegmentation): Promise<void> {
+    const existing = this.#restores.get(page.page);
+    if (existing) return existing;
+    const generation = this.#generation;
+    const sentences = textSentences(page);
+    const ids = new Set(sentences.map(s => s.id));
+    const pending = Promise.resolve().then(() => this.#restoreCached?.(sentences) ?? []).then(items => {
+      if (generation !== this.#generation || this.#restores.get(page.page) !== pending) return;
+      for (const { id, translation } of items) {
+        if (ids.has(id) && this.state(id).status === "none") this.#set(id, { status: "done", translation });
+      }
+    }).catch(() => {
+      // A failed lookup must not block explicit translation or poison future restores.
+      if (this.#restores.get(page.page) === pending) this.#restores.delete(page.page);
+    });
+    this.#restores.set(page.page, pending);
+    return pending;
+  }
+
+  async #preparePage(page: PageSegmentation): Promise<void> {
+    const generation = this.#generation;
+    if (this.#restoreCached) await this.#restorePage(page);
+    if (generation !== this.#generation) return;
+    const current = this.#app.pdfViewer.currentPageNumber;
+    if (this.#pagesInRange(current).includes(page.page)) {
+      await this.#request(textSentences(page), { retryErrors: false, priority: page.page === current ? 1 : 2 });
+    }
+  }
+
   #applyRange(current: number): void {
-    for (const n of this.#pagesInRange(current)) {
+    const generation = this.#generation;
+    // Manual mode still loads the current page's persisted results.
+    const pages = this.#restoreCached ? new Set([current, ...this.#pagesInRange(current)]) : this.#pagesInRange(current);
+    for (const n of pages) {
+      if (n < 1 || n > this.#app.pdfViewer.pagesCount) continue;
       void this.#store
         .ensure(n)
-        .then((page) => this.#request(textSentences(page), { retryErrors: false, priority: n === current ? 1 : 2 }))
+        .then((page) => generation === this.#generation ? this.#preparePage(page) : undefined)
         .catch(() => {
           // Reloaded while segmenting.
         });
@@ -198,6 +244,8 @@ export class TranslationClient {
         if (cancelled()) break;
         this.#jobPage = n;
         const page = await this.#store.ensure(n);
+        if (cancelled()) break;
+        if (this.#restoreCached) await this.#restorePage(page);
         if (cancelled()) break;
         const sentences = textSentences(page);
         // A visible-page request may already own these sentences. Do not advance past it.

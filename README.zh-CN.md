@@ -7,7 +7,7 @@
 
 [![Android CI](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml/badge.svg?branch=main)](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml) [![Android 9+](https://img.shields.io/badge/Android-9%2B-3DDC84?logo=android&logoColor=white)](#开始使用) [![代码：Apache-2.0](https://img.shields.io/badge/Code-Apache--2.0-blue)](LICENSE)
 
-**[下载 APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.11/ParaRead-0.2.0-alpha.11-android-arm64-debug.apk)** · [全部版本](https://github.com/kejie-tang/pararead-android/releases) · [English](README.md)
+**[下载 APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.12)** · [全部版本](https://github.com/kejie-tang/pararead-android/releases) · [English](README.md)
 
 面向 **Android 9+ / ARM64** 的开发预览版，为平板设计，也可在手机使用。原生菜单支持**简体中文、English 和跟随系统**。基于 [ParaRead](https://github.com/Chuanyunux/pararead) 0.6.1 的独立、非官方适配。
 
@@ -36,11 +36,17 @@
 
 ## 开始使用
 
-1. **安装[预览版 APK](https://github.com/kejie-tang/pararead-android/releases/download/v0.2.0-alpha.11/ParaRead-0.2.0-alpha.11-android-arm64-debug.apk)。** 需要 ARM64、Android 9+ 和较新的 Android System WebView。当前使用 debug 签名；相同签名的 alpha.8–alpha.10 可直接覆盖升级。
+1. **安装[预览版 APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.12)。** 需要 ARM64、Android 9+ 和较新的 Android System WebView。请先阅读 Release 中的签名与升级说明：不保证与 alpha.11 签名兼容。不要为绕过签名错误直接卸载旧版，卸载会删除私有文档、译文缓存和模型。
 2. **在“模型管理”选择模型。** 0.6B 适合轻量快读，1.7B 偏重译文质量。下载校验通过后自动启用，其他模型会保留。
 3. **导入 PDF，或打开示例文档。** 点击句子、翻译“本页”，或使用“全篇 / 继续”。PDF 需要可选中文字，暂不提供 OCR。
 
 在**设置 → 界面语言**切换原生菜单，即时生效，与“源语言”“目标语言”分别设置。内嵌 PDF 查看器及原始第三方诊断信息可能保留各自的语言。
+
+### 恢复译文与全屏阅读
+
+- 已完成并校验通过的译文自动保存在本地，退出 PDF 后重新打开会恢复显示，**手动翻译模式也能恢复，不会为了恢复而调用模型或 API**。自动模式只补译缺失句子；手动模式需点击句子或“本页 / 全篇”才翻译缺失内容。
+- 点击阅读工具栏的**全屏**，隐藏左侧导航、顶部应用栏、状态信息和系统栏，保留 PDF 自身的翻页、缩放及译文开关。右下角按钮或 Android 返回键退出全屏，再按返回键回到书库。全屏偏好会保存，下次打开 PDF 时沿用；切换不会重建阅读器或中断翻译。
+- 缓存按原文、模型、语言及术语表等配置区分。更换配置后不会套用旧配置的译文；译文保存在 App 数据中，不会自动写入导出的批注 PDF。
 
 ### 选择适合的模型
 

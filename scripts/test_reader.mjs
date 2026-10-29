@@ -1,7 +1,7 @@
 import { chromium } from '@playwright/test';
 import { createServer } from 'node:http';
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
-import { resolve, extname } from 'node:path';
+import { resolve, extname, sep } from 'node:path';
 import assert from 'node:assert/strict';
 const root = resolve(import.meta.dirname, '../app/build/generated/readerAssets/reader');
 const sample = await readFile(`${root}/sample.pdf`);
@@ -15,7 +15,7 @@ const server = createServer(async (req, res) => {
       ranges.push([begin, end]); res.setHeader('Content-Type', 'application/octet-stream'); res.end(sample.subarray(begin, end)); return;
     }
     const file = resolve(root, `.${url.pathname === '/' ? '/index.html' : url.pathname}`);
-    if (!file.startsWith(root + '/')) { res.writeHead(403).end(); return; }
+    if (!file.startsWith(root + sep)) { res.writeHead(403).end(); return; }
     const type = { '.mjs': 'text/javascript', '.css': 'text/css', '.html': 'text/html', '.json': 'application/json', '.wasm': 'application/wasm', '.svg': 'image/svg+xml', '.ftl': 'text/plain' }[extname(file)];
     if (type) res.setHeader('Content-Type', type);
     res.end(await readFile(file));
@@ -23,7 +23,7 @@ const server = createServer(async (req, res) => {
 });
 await new Promise(r => server.listen(0, '127.0.0.1', r));
 const port = server.address().port;
-const browser = await chromium.launch({ headless: true });
+const browser = await chromium.launch({ headless: true, ...(process.env.PLAYWRIGHT_CHANNEL ? { channel: process.env.PLAYWRIGHT_CHANNEL } : {}) });
 const errors = []; let result; let page;
 try {
   page = await browser.newPage({ viewport: { width: 1280, height: 800 }, hasTouch: true });
@@ -39,10 +39,22 @@ try {
     const send = (m, type, payload) => setTimeout(() => window.ParaReadNative.onmessage({ data: JSON.stringify({ ...session, ...m, type, payload }) }), 0);
     window.ParaReadNative = { postMessage(raw) {
       const m = JSON.parse(raw); window.__nativeMessages.push(m);
-      if (m.type === 'reader.ready') send(m, 'session.open', { length, token: 'test', reading: {}, settings: { targetLanguage: 'zh-CN', translateRange: 'page' }, debug: true });
+      if (m.type === 'reader.ready') send(m, 'session.open', { length, token: 'test', reading: {}, settings: { targetLanguage: 'zh-CN', translateRange: localStorage.getItem('test-range') ?? 'page' }, debug: true });
       if (m.type === 'page.cacheGet') send(m, 'page.cached', { page: null });
+      // Simulate the native durable cache across WebView reloads (not a production storage path).
+      if (m.type === 'translation.cacheGet') {
+        m.payload.sentences.forEach((s, sequence) => {
+          const translation = localStorage.getItem('test-cache:' + s.text);
+          if (translation) send(m, 'translation.committed', { sequence, items: [{ id: s.id, translation }] });
+        });
+        send(m, 'translation.finished', { failures: [], cancelled: false });
+      }
       if (m.type === 'translation.request') {
-        m.payload.sentences.forEach((s, sequence) => send(m, 'translation.committed', { sequence, items: [{ id: s.id, translation: '【模拟译文】' + s.text }] }));
+        m.payload.sentences.forEach((s, sequence) => {
+          const translation = '【模拟译文】' + s.text;
+          localStorage.setItem('test-cache:' + s.text, translation);
+          send(m, 'translation.committed', { sequence, items: [{ id: s.id, translation }] });
+        });
         send(m, 'translation.finished', { failures: [], cancelled: false });
       }
     } };
@@ -103,7 +115,15 @@ try {
     });
   }, undefined, { timeout: 3000 });
   await page.screenshot({ path: resolve(import.meta.dirname, '../docs/reports/reader-portrait.png') });
-  result = { status: 'passed', environment: 'Desktop Chromium, touch emulation; not Android or device', sample: 'Original ParaRead Reading Guide (Apache-2.0), 6 pages', rangeRequests: ranges.length, largestRange: Math.max(...ranges.map(([a, b]) => b - a)), bidirectionalSelection: true, portraitToolbarWithinPane: true, alignmentDeltaPx: alignment, incrementalSave: save, errors };
+  // Reopening in manual mode must hydrate the panel, not silently invoke translation again.
+  await page.evaluate(() => localStorage.setItem('test-range', 'manual'));
+  await page.reload();
+  await page.waitForFunction(() => window.paraRead?.opened && window.__bilingual?.store.readyPages().find(p => p.page === 1)
+    ?.blocks.filter(b => b.kind === 'text').flatMap(b => b.sentences).every(s => window.__bilingual.translations.state(s.id).status === 'done'));
+  await page.waitForFunction(() => document.querySelector('.bilingualSentence')?.textContent.includes('模拟译文'));
+  assert.equal(await page.evaluate(() => window.__nativeMessages.filter(m => m.type === 'translation.request').length), 0);
+  assert.ok(await page.evaluate(() => window.__nativeMessages.some(m => m.type === 'translation.cacheGet')));
+  result = { status: 'passed', manualReopenRestoresWithoutInference: true, environment: 'Desktop Chromium, touch emulation; not Android or device', sample: 'Original ParaRead Reading Guide (Apache-2.0), 6 pages', rangeRequests: ranges.length, largestRange: Math.max(...ranges.map(([a, b]) => b - a)), bidirectionalSelection: true, portraitToolbarWithinPane: true, alignmentDeltaPx: alignment, incrementalSave: save, errors };
   assert.equal(errors.filter(e => !e.includes('404')).length, 0, errors.join('\n'));
   console.log(JSON.stringify(result, null, 2));
 } catch (e) {

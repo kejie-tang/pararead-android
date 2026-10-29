@@ -19,7 +19,7 @@ const ready = new Promise<Session>(r => { resolveReady = r; });
 const waiters = new Map<string, { resolve: (m: Envelope) => void; timer: ReturnType<typeof setTimeout> }>();
 const streams = new Map<string, number>();
 const terminal = new Set<string>();
-const active = new Map<string, { legacyId: number; priority: number }>();
+const active = new Map<string, { legacyId: number; priority: number; cached?: { id: string; translation: string }[] }>();
 let runningJob: number | undefined;
 const cancelledJobs = new Set<number>();
 function post(type: string, payload: any = {}, requestId = `web-${++sequence}`) {
@@ -57,8 +57,11 @@ window.ParaReadNative.onmessage = ({ data }) => {
       if (terminal.has(m.requestId) || !active.has(m.requestId)) return;
       if (!Number.isInteger(m.payload.sequence) || m.payload.sequence <= (streams.get(m.requestId) ?? -1)) return;
       streams.set(m.requestId, m.payload.sequence);
-      if (m.type === 'translation.committed') legacy({ type: 'translations', requestId: active.get(m.requestId)!.legacyId, items: m.payload.items });
-      else legacy({ type: 'translationDraft', requestId: active.get(m.requestId)!.legacyId, items: m.payload.items });
+      const target = active.get(m.requestId)!;
+      if (target.cached) {
+        if (m.type === 'translation.committed') target.cached.push(...m.payload.items);
+      } else if (m.type === 'translation.committed') legacy({ type: 'translations', requestId: target.legacyId, items: m.payload.items });
+      else legacy({ type: 'translationDraft', requestId: target.legacyId, items: m.payload.items });
     }
     if (m.type === 'translation.finished' || m.type === 'protocol.error') {
       if (terminal.has(m.requestId)) return;
@@ -78,8 +81,9 @@ window.ParaReadNative.onmessage = ({ data }) => {
     if (m.type === 'document.save') void save();
   } catch (e) { console.error('Invalid host message', String(e)); }
 };
-async function translate(message: any) {
+async function translate(message: any, cacheOnly = false): Promise<{ id: string; translation: string }[]> {
   const failures: any[] = [];
+  const cached: { id: string; translation: string }[] = [];
   // Requests are bounded and sequential even when a PDF page contains thousands of sentences.
   let batch: any[] = []; let bytes = 0;
   const batches: any[][] = [];
@@ -93,25 +97,30 @@ async function translate(message: any) {
   const epoch = session.viewportEpoch;
   for (const sentences of batches) {
     if (message.jobId != null && cancelledJobs.has(message.jobId)) {
-      legacy({ type: 'translationDone', requestId: message.requestId, failures: [], cancelled: true }); return;
+      legacy({ type: 'translationDone', requestId: message.requestId, failures: [], cancelled: true }); return cached;
     }
-    const priority = message.jobId != null ? 3 : (message.priority ?? 1);
+    const priority = cacheOnly ? 0 : message.jobId != null ? 3 : (message.priority ?? 1);
     if (priority !== 0 && priority !== 3 && epoch !== session.viewportEpoch) break;
     const id = `translate-${++sequence}`;
-    active.set(id, { legacyId: message.requestId, priority });
+    active.set(id, { legacyId: message.requestId, priority, ...(cacheOnly ? { cached } : {}) });
     try {
       const response = await new Promise<Envelope>((resolve, reject) => {
-        const timer = setTimeout(() => { waiters.delete(id); post('request.cancel', { requestId: id }); reject(new Error('TRANSLATION_TIMEOUT')); }, 480000);
+        const timer = setTimeout(() => { waiters.delete(id); post('request.cancel', { requestId: id }); reject(new Error('TRANSLATION_TIMEOUT')); }, cacheOnly ? 15000 : 480000);
         waiters.set(id, { resolve, timer });
-        post('translation.request', { sentences, priority, jobId: message.jobId, page: Number(sentences[0].id.match(/^p(\d+)/)?.[1] ?? 1) }, id);
+        post(cacheOnly ? 'translation.cacheGet' : 'translation.request', { sentences, priority, jobId: message.jobId, page: Number(sentences[0].id.match(/^p(\d+)/)?.[1] ?? 1) }, id);
       });
       failures.push(...(response.payload.failures ?? []));
       if (response.type === 'protocol.error') failures.push(...sentences.map(s => ({ id: s.id, message: response.payload.code })));
-      if (response.payload.cancelled) { legacy({ type: 'translationDone', requestId: message.requestId, failures: [], cancelled: true }); return; }
+      if (response.payload.cancelled) { legacy({ type: 'translationDone', requestId: message.requestId, failures: [], cancelled: true }); return cached; }
     } catch (e) { failures.push(...sentences.map(s => ({ id: s.id, message: String(e) }))); }
     finally { active.delete(id); streams.delete(id); }
   }
-  legacy({ type: 'translationDone', requestId: message.requestId, failures });
+  if (cacheOnly && failures.length) throw new Error(String(failures[0].message));
+  if (!cacheOnly) legacy({ type: 'translationDone', requestId: message.requestId, failures });
+  return cached;
+}
+function cachedTranslations(sentences: { id: string; text: string; blockId: string }[]) {
+  return translate({ sentences: sentences.map(({ id, text, blockId }) => ({ id, text, group: blockId })) }, true);
 }
 window.acquireVsCodeApi = () => ({
   postMessage(m: any) {
@@ -200,5 +209,5 @@ async function save() {
   } catch (e) { post('session.error', { message: `保存失败: ${String(e)}` }); }
   finally { saveActive = false; if (saveQueued) { saveQueued = false; void save(); } }
 }
-Object.assign(window, { paraRead: { ready, post, request, viewport, pageCached, pageText, makeRangeTransport, save } });
+Object.assign(window, { paraRead: { ready, post, request, viewport, pageCached, pageText, cachedTranslations, makeRangeTransport, save } });
 post('reader.ready', { versions: [1], reader: '0.6.1-android', pdfjs: '6.2.108' });

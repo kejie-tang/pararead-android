@@ -4,6 +4,11 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.os.Debug
+import androidx.activity.compose.BackHandler
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -46,6 +51,7 @@ class MainActivity : ComponentActivity() {
     private var readerScope: CoroutineScope? = null
     private var readerRelease: Deferred<Unit>? = null
     private var selected by mutableStateOf<DocumentRecord?>(null)
+    private var readerFullscreen by mutableStateOf(false)
     private var readerVersion by mutableIntStateOf(0)
     private var documents by mutableStateOf<List<DocumentRecord>>(emptyList())
     private var status by mutableStateOf("导入 PDF，或打开示例文档")
@@ -60,6 +66,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         db = ReaderDatabase.open(this); repository = DocumentRepository(this, db.reader()); settings = Settings(this)
         uiLanguage = settings.uiLanguage
+        readerFullscreen = settings.readerFullscreen
         if (backendRecoveryChecked.compareAndSet(false, true)) settings.recoverInterruptedVulkan()
         lifecycleScope.launch {
             documents = withContext(Dispatchers.IO) { db.reader().documents() }
@@ -159,17 +166,36 @@ class MainActivity : ComponentActivity() {
             val array = JSONArray(); rows.forEach { row -> array.put(JSONObject().put("documentId", row.documentId).put("name", row.name).put("value", row.value).put("timestamp", row.timestamp)) }
             contentResolver.openOutputStream(it)?.use { out -> out.write(JSONObject().put("events", array).toString(2).toByteArray()) }
         } } }
+        val fullscreen = selected != null && readerFullscreen
+        val setFullscreen: (Boolean) -> Unit = { readerFullscreen = it; settings.readerFullscreen = it }
+        BackHandler(enabled = selected != null && !showSettings && !showModelLibrary && !showModelCatalog && !speedState.visible) {
+            if (fullscreen) setFullscreen(false) else { reopen(); selected = null }
+        }
+        DisposableEffect(fullscreen) {
+            val controller = WindowCompat.getInsetsController(window, window.decorView)
+            val previousBehavior = controller.systemBarsBehavior
+            if (fullscreen) {
+                controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+                controller.hide(WindowInsetsCompat.Type.systemBars())
+            } else controller.show(WindowInsetsCompat.Type.systemBars())
+            onDispose {
+                controller.systemBarsBehavior = previousBehavior
+                controller.show(WindowInsetsCompat.Type.systemBars())
+            }
+        }
+        Box(Modifier.fillMaxSize()) {
         AppShell(selected != null, modelState, onHome = { reopen(); selected = null },
-            onModels = { showModelLibrary = true }, onSettings = { showSettings = true }) {
+            onModels = { showModelLibrary = true }, onSettings = { showSettings = true }, fullscreen = fullscreen) {
             val document = selected
-            if (document != null) ReaderToolbar(document.name,
+            if (document != null && !fullscreen) ReaderToolbar(document.name,
                 onPage = { host?.command("translateCurrentPage") }, onAll = { host?.command("translateAll") },
-                onCancel = { host?.command("cancelTranslateAll") }, onExport = { export.launch("${document.name.removeSuffix(".pdf")}-annotated.pdf") })
-            if (document != null && settings.provider == "llama") Text(
+                onCancel = { host?.command("cancelTranslateAll") }, onExport = { export.launch("${document.name.removeSuffix(".pdf")}-annotated.pdf") },
+                onFullscreen = { setFullscreen(true) })
+            if (document != null && !fullscreen && settings.provider == "llama") Text(
                 displayStatus(localBackendStatus?.description ?: settings.backendRecoveryNotice.ifEmpty { "请求后端：${settings.inferenceBackend.label}" }),
                 Modifier.fillMaxWidth().padding(20.dp, 3.dp), style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
-            if (document != null && status != "导入 PDF，或打开示例文档") Text(displayStatus(status),
+            if (document != null && !fullscreen && status != "导入 PDF，或打开示例文档") Text(displayStatus(status),
                 Modifier.fillMaxWidth().padding(20.dp, 5.dp), style = MaterialTheme.typography.bodySmall,
                 color = if (status.contains("失败") || status.contains("无法")) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant)
             if (speedState.visible || speedState.busy) {
@@ -206,6 +232,15 @@ class MainActivity : ComponentActivity() {
                     }, modifier = Modifier.fillMaxWidth().weight(1f), onRelease = { it.destroy() })
                 }
             }
+        }
+        if (fullscreen) {
+            val exitFullscreen = LocalContext.current.getString(R.string.reader_exit_fullscreen)
+            SmallFloatingActionButton(onClick = { setFullscreen(false) },
+                modifier = Modifier.align(Alignment.BottomEnd).safeDrawingPadding().padding(12.dp)
+                    .testTag("reader-exit-fullscreen").semantics { contentDescription = exitFullscreen }) {
+                AppIcon(AppGlyph.Close)
+            }
+        }
         }
         if (showSettings) SettingsDialog(modelState = modelState,
             onSpeedTest = { threads, backend -> modelState.installed?.let { model ->

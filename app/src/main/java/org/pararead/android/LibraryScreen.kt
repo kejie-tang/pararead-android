@@ -22,12 +22,12 @@ import androidx.compose.ui.unit.sp
 import java.util.Locale
 
 @Composable fun AppShell(reading: Boolean, modelState: ModelState, onHome: () -> Unit, onModels: () -> Unit,
-    onSettings: () -> Unit, content: @Composable ColumnScope.() -> Unit) {
+    onSettings: () -> Unit, fullscreen: Boolean = false, content: @Composable ColumnScope.() -> Unit) {
     val text = LocalContext.current
     BoxWithConstraints(Modifier.fillMaxSize().safeDrawingPadding()) {
         val wide = maxWidth >= 840.dp
         Row(Modifier.fillMaxSize()) {
-            if (wide) Surface(Modifier.width(if (reading) 88.dp else 220.dp).fillMaxHeight(), color = MaterialTheme.colorScheme.surface) {
+            if (wide && !fullscreen) Surface(Modifier.width(if (reading) 88.dp else 220.dp).fillMaxHeight(), color = MaterialTheme.colorScheme.surface) {
                 Column(Modifier.fillMaxSize().padding(if (reading) 10.dp else 20.dp, 28.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Row(Modifier.padding(bottom = 34.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = if (reading) Arrangement.Center else Arrangement.spacedBy(12.dp)) {
@@ -47,7 +47,7 @@ import java.util.Locale
                 }
             }
             Column(Modifier.weight(1f).fillMaxHeight()) {
-                if (!wide) Row(Modifier.fillMaxWidth().padding(16.dp, 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                if (!wide && !fullscreen) Row(Modifier.fillMaxWidth().padding(16.dp, 8.dp), verticalAlignment = Alignment.CenterVertically) {
                     TextButton(onClick = onHome, contentPadding = PaddingValues(4.dp)) {
                         AppIcon(AppGlyph.Book); Spacer(Modifier.width(8.dp)); Text(if (reading) text.getString(R.string.library) else "ParaRead", style = MaterialTheme.typography.titleMedium)
                     }
@@ -182,7 +182,8 @@ private fun documentSize(bytes: Long): String = if (bytes < 1048576) "${maxOf(1,
 }
 
 @OptIn(ExperimentalLayoutApi::class)
-@Composable fun ReaderToolbar(title: String, onPage: () -> Unit, onAll: () -> Unit, onCancel: () -> Unit, onExport: () -> Unit) {
+@Composable fun ReaderToolbar(title: String, onPage: () -> Unit, onAll: () -> Unit, onCancel: () -> Unit, onExport: () -> Unit,
+    onFullscreen: () -> Unit) {
     val text = LocalContext.current
     Surface(color = MaterialTheme.colorScheme.surface) {
         BoxWithConstraints(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 10.dp)) {
@@ -191,6 +192,7 @@ private fun documentSize(bytes: Long): String = if (bytes < 1048576) "${maxOf(1,
                 TextButton(onClick = onAll) { Text(text.getString(R.string.translate_all)) }
                 TextButton(onClick = onCancel) { Text(text.getString(R.string.cancel)) }
                 TextButton(onClick = onExport) { Text(text.getString(R.string.save_copy)) }
+                TextButton(onClick = onFullscreen) { Text(text.getString(R.string.reader_fullscreen)) }
             } }
             if (maxWidth >= 700.dp) Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(title, Modifier.weight(1f).padding(end = 16.dp), style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
