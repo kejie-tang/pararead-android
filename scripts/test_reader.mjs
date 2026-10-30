@@ -123,7 +123,97 @@ try {
   await page.waitForFunction(() => document.querySelector('.bilingualSentence')?.textContent.includes('模拟译文'));
   assert.equal(await page.evaluate(() => window.__nativeMessages.filter(m => m.type === 'translation.request').length), 0);
   assert.ok(await page.evaluate(() => window.__nativeMessages.some(m => m.type === 'translation.cacheGet')));
-  result = { status: 'passed', manualReopenRestoresWithoutInference: true, environment: 'Desktop Chromium, touch emulation; not Android or device', sample: 'Original ParaRead Reading Guide (Apache-2.0), 6 pages', rangeRequests: ranges.length, largestRange: Math.max(...ranges.map(([a, b]) => b - a)), bidirectionalSelection: true, portraitToolbarWithinPane: true, alignmentDeltaPx: alignment, incrementalSave: save, errors };
+  // Use real touch input: synchronized/programmatic scrolling must never hide the controls.
+  await page.setViewportSize({ width: 1280, height: 800 });
+  const cdp = await page.context().newCDPSession(page);
+  const swipe = async (selector, direction) => {
+    const box = await page.locator(selector).boundingBox();
+    const x = box.x + box.width * .55, start = box.y + box.height * (direction > 0 ? .8 : .3);
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y: start }] });
+    for (let i = 1; i <= 12; i++) {
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x, y: start - direction * i * 14 }] });
+      await page.waitForTimeout(20);
+    }
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  };
+  const setFullscreen = async enabled => {
+    await page.evaluate(enabled => {
+      const base = window.__nativeMessages.find(m => m.type === 'session.opened');
+      window.ParaReadNative.onmessage({ data: JSON.stringify({ ...base, type: 'reader.command',
+        payload: { type: 'readerFullscreen', enabled, showControlsLabel: 'Show reader controls' } }) });
+    }, enabled);
+    await page.waitForFunction(enabled => document.body.classList.contains('readerFullscreen') === enabled, enabled);
+  };
+  const isHidden = () => page.evaluate(() => document.body.classList.contains('readerChromeHidden'));
+  await page.evaluate(() => { window.__bilingual.selection.clear(); window.getSelection().removeAllRanges(); });
+  await swipe('#viewerContainer', 1);
+  assert.equal(await isHidden(), false, 'Normal reading keeps the toolbar');
+  await setFullscreen(true);
+  await page.evaluate(() => { document.querySelector('#viewerContainer').scrollTop = 150; });
+  await page.waitForTimeout(200);
+  assert.equal(await isHidden(), false, 'Programmatic page movement must not toggle controls');
+  const chromeBefore = await page.locator('#viewerContainer').boundingBox();
+  const panelBefore = await page.locator('.bilingualBody').boundingBox();
+  await swipe('#viewerContainer', 1);
+  await page.waitForFunction(() => document.body.classList.contains('readerChromeHidden'));
+  assert.equal(await page.locator('#toolbarContainer').isVisible(), false);
+  assert.equal(await page.locator('.bilingualHeader').isVisible(), false);
+  const chromeAfter = await page.locator('#viewerContainer').boundingBox();
+  const panelAfter = await page.locator('.bilingualBody').boundingBox();
+  assert.ok(chromeAfter.height >= chromeBefore.height + 30);
+  assert.ok(panelAfter.height >= panelBefore.height + 30);
+  await page.screenshot({ path: resolve(import.meta.dirname, '../docs/reports/reader-hidden-controls.png') });
+  await swipe('#viewerContainer', -1);
+  await page.waitForFunction(() => !document.body.classList.contains('readerChromeHidden'));
+  // The translation pane follows the same gesture, without synchronization feedback.
+  await swipe('.bilingualBody', 1);
+  await page.waitForFunction(() => document.body.classList.contains('readerChromeHidden'));
+  await page.locator('#readerShowControls').click();
+  assert.equal(await isHidden(), false);
+  await page.evaluate(() => {
+    const b = window.__bilingual;
+    const s = b.store.readyPages()[0].blocks.filter(b => b.role === 'paragraph').flatMap(b => b.sentences)[0];
+    b.selection.pin(s, 'pdf');
+  });
+  await swipe('#viewerContainer', 1);
+  assert.equal(await isHidden(), false, 'Pinned sentences keep their controls');
+  await page.evaluate(() => {
+    window.__bilingual.selection.clear();
+    const range = document.createRange(); range.selectNodeContents(document.querySelector('.bilingualSentence'));
+    window.getSelection().addRange(range);
+  });
+  await swipe('#viewerContainer', 1);
+  assert.equal(await isHidden(), false, 'Native text selection keeps its controls');
+  await page.evaluate(() => window.getSelection().removeAllRanges());
+  await page.locator('#editorFreeTextButton').click();
+  await page.waitForFunction(() => window.PDFViewerApplication.pdfViewer.annotationEditorMode > 0);
+  await swipe('#viewerContainer', 1);
+  assert.equal(await isHidden(), false, 'Annotation tools keep their controls');
+  await page.locator('#editorFreeTextButton').click();
+  await page.waitForFunction(() => window.PDFViewerApplication.pdfViewer.annotationEditorMode === 0);
+  await page.evaluate(() => { document.querySelector('#viewerContainer').scrollTop = 150; });
+  await swipe('#viewerContainer', 1);
+  await page.waitForFunction(() => document.body.classList.contains('readerChromeHidden'));
+  await setFullscreen(false);
+  assert.equal(await isHidden(), false, 'Leaving fullscreen restores both toolbars');
+  assert.equal(await page.locator('#readerShowControls').isVisible(), false);
+  await page.setViewportSize({ width: 411, height: 900 });
+  await setFullscreen(true);
+  await page.evaluate(() => { window.__bilingual.selection.clear(); document.querySelector('#viewerContainer').scrollTop = 150; });
+  await swipe('#viewerContainer', 1);
+  await page.waitForFunction(() => document.body.classList.contains('readerChromeHidden'));
+  const narrowPane = await page.locator('#outerContainer').boundingBox();
+  const narrowButton = await page.locator('#readerShowControls').boundingBox();
+  assert.ok(narrowButton.x >= narrowPane.x && narrowButton.x + narrowButton.width <= narrowPane.x + narrowPane.width,
+    'The reveal button must stay inside the PDF pane on narrow screens');
+  await page.locator('#readerShowControls').click();
+  assert.equal(await isHidden(), false);
+  await setFullscreen(false);
+  const fullscreenControls = { pdfSwipeHides: true, reverseSwipeShows: true, panelSwipeHides: true, revealButton: true,
+    ignoresProgrammaticScroll: true, protectsSentenceAndTextSelection: true, protectsAnnotationTools: true,
+    normalModeUnchanged: true, exitRestoresControls: true, narrowRevealButtonReachable: true, pdfHeightGain: chromeAfter.height - chromeBefore.height,
+    translationHeightGain: panelAfter.height - panelBefore.height };
+  result = { status: 'passed', manualReopenRestoresWithoutInference: true, fullscreenControls, environment: 'Desktop Chromium, touch emulation; not Android or device', sample: 'Original ParaRead Reading Guide (Apache-2.0), 6 pages', rangeRequests: ranges.length, largestRange: Math.max(...ranges.map(([a, b]) => b - a)), bidirectionalSelection: true, portraitToolbarWithinPane: true, alignmentDeltaPx: alignment, incrementalSave: save, errors };
   assert.equal(errors.filter(e => !e.includes('404')).length, 0, errors.join('\n'));
   console.log(JSON.stringify(result, null, 2));
 } catch (e) {

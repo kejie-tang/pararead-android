@@ -21,7 +21,7 @@
 | Kotlin → JS | translation.committed | 精确校验并 DB commit 后逐句 `{id,translation,contentKey}` |
 | Kotlin → JS | translation.finished | failures 与 cancelled；所有 pending 结算 |
 | JS → Kotlin | request.cancel | 对应请求取消；翻译通过 finished(cancelled=true) 确认退出，没有独立 request.cancelled 消息 |
-| Kotlin → JS | reader.command | translateCurrentPage/translateAll/cancelTranslateAll；translateAll 带原生 jobId 和 startPage 恢复游标 |
+| Kotlin → JS | reader.command | translateCurrentPage/translateAll/cancelTranslateAll；translateAll 带原生 jobId 和 startPage 恢复游标；readerFullscreen 带 enabled 和 showControlsLabel，同步原生全屏状态及唤回按钮名称 |
 | JS → Kotlin | job.progress / job.finished | jobId、total；progress 带 done 和 failed（当前页是否有未完成句）；finished 带 COMPLETED/CANCELLED/ERROR |
 | Kotlin → JS | job.saved | 原生确认 JobRecord 已持久保存并返回 status；JS 等待确认才处理下一页，保存失败停止任务 |
 | JS → Kotlin | reading.save | 合并页/位置/缩放/旋转/选句/栏状态；reading.saved 确认 |
@@ -45,3 +45,5 @@ PDF 二进制不走 JSON。范围端点 `/documents/<opaque-token>/ranges?begin=
 页面分段就绪后先执行只读译文恢复，包含 manual 模式；重新打开、翻页及内存淘汰后返回页面都会恢复。自动范围只为未命中句子发起翻译；manual 模式的未命中句子保持未翻译。恢复按页去重，reset/淘汰后的迟到响应不回填旧状态，配置变化重建会话并使用新指纹。译文仍存于既有 TranslationRecord，无数据库迁移。
 
 兼容适配：原 translate/translations/translationDone 保持 UI 形状；getState/setState 改为宿主 reading.panelState；翻译/保存/作业游标由 Kotlin 权威确认。未实现独立 translation.started、settings.applied 或共享订阅计数，不应根据 Phase 1 草案推断这些能力存在。
+
+全屏状态也随 session.open.settings 的 readerFullscreen 和 showControlsLabel 初始化。宿主切换全屏或菜单语言时通过 reader.command 更新，不重建 WebView 或翻译会话。工具栏收起只跟随 PDF/译文区域的触摸、滚轮和阅读键输入，不订阅同步滚动事件；批注工具、选句、原生文本选择、编辑控件和打开的菜单阻止收起。收起状态不持久保存，重新进入先显示菜单。

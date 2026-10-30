@@ -56,6 +56,33 @@ class ReaderRecoveryUiTest {
         .putExtra("sample", true).putExtra("mock", true)
         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
 
+    private fun gesture(scenario: ActivityScenario<MainActivity>, selector: String, direction: Int = 0) {
+        if (direction == 0) {
+            // A WebView consumes a tap during an active fling to stop scrolling.
+            var previous = ""; var stable = 0
+            for (i in 0 until 25) {
+                val position = evaluate(scenario, "[document.querySelector('#viewerContainer').scrollTop,document.querySelector('.bilingualBody').scrollTop]")
+                stable = if (position == previous) stable + 1 else 0
+                if (stable >= 3) break
+                previous = position; Thread.sleep(100)
+            }
+        }
+        val box = JSONObject(evaluate(scenario, "(()=>{const r=document.querySelector(${JSONObject.quote(selector)}).getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height,d:devicePixelRatio}})()"))
+        var left = 0; var top = 0
+        scenario.onActivity { activity ->
+            val location = IntArray(2); find(activity.window.decorView)!!.getLocationOnScreen(location)
+            left = location[0]; top = location[1]
+        }
+        val density = box.getDouble("d")
+        val x = left + ((box.getDouble("x") + box.getDouble("w") * .55) * density).toInt()
+        val from = top + ((box.getDouble("y") + box.getDouble("h") * if (direction > 0) .8 else .3) * density).toInt()
+        val to = top + ((box.getDouble("y") + box.getDouble("h") * if (direction > 0) .35 else .75) * density).toInt()
+        val command = if (direction == 0) "input tap $x $from" else "input swipe $x $from $x $to 450"
+        android.os.ParcelFileDescriptor.AutoCloseInputStream(
+            InstrumentationRegistry.getInstrumentation().uiAutomation.executeShellCommand(command)
+        ).use { it.readBytes() }
+    }
+
     private fun withManualReader(test: (Settings) -> Unit) {
         val settings = Settings(context)
         val provider = settings.provider; val range = settings.translateRange
@@ -196,6 +223,80 @@ class ReaderRecoveryUiTest {
             settings.glossary = oldGlossary
             db.openHelper.writableDatabase.execSQL("DELETE FROM TranslationRecord WHERE fingerprint = ?", arrayOf(fingerprint))
             runBlocking { if (oldReading != null) db.reader().reading(oldReading) else db.openHelper.writableDatabase.execSQL("DELETE FROM ReadingRecord WHERE documentId = ?", arrayOf(document.id)) }
+            db.close()
+        }
+    }
+
+    @Test fun fullscreenControlsFollowReadingGesturesWithoutRecreatingReader() = withManualReader { _ ->
+        ActivityScenario.launch<MainActivity>(sample()).use { scenario ->
+            waitFor(scenario, "window.paraRead?.opened && window.__bilingual?.store.readyPages().length > 0")
+            compose.onNodeWithText("Full screen").performClick()
+            waitFor(scenario, "document.body.classList.contains('readerFullscreen')")
+            evaluate(scenario, "window.__bilingual.selection.clear(); window.getSelection().removeAllRanges(); window.__chromeMarker='same-reader'")
+            val before = JSONObject(evaluate(scenario, "({pdf:document.querySelector('#viewerContainer').clientHeight,panel:document.querySelector('.bilingualBody').clientHeight})"))
+            gesture(scenario, "#viewerContainer", 1)
+            waitFor(scenario, "document.body.classList.contains('readerChromeHidden')")
+            val after = JSONObject(evaluate(scenario, "({pdf:document.querySelector('#viewerContainer').clientHeight,panel:document.querySelector('.bilingualBody').clientHeight})"))
+            assertTrue(after.getInt("pdf") > before.getInt("pdf") + 20)
+            assertTrue(after.getInt("panel") > before.getInt("panel") + 20)
+            assertEquals("false", evaluate(scenario, "document.querySelector('#readerShowControls').hidden"))
+            compose.onNodeWithTag("reader-exit-fullscreen").assertIsDisplayed()
+            if (InstrumentationRegistry.getArguments().getString("captureReaderValidation") == "true") {
+                java.io.File(context.filesDir, "reader-hidden-controls-bounds.json").writeText(JSONObject().put("before", before).put("after", after).toString(2))
+                InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot().let { bitmap ->
+                    java.io.File(context.filesDir, "reader-hidden-controls.png").outputStream().use { bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it) }
+                    bitmap.recycle()
+                }
+            }
+            gesture(scenario, "#viewerContainer", -1)
+            waitFor(scenario, "!document.body.classList.contains('readerChromeHidden')")
+            gesture(scenario, ".bilingualBody", 1)
+            waitFor(scenario, "document.body.classList.contains('readerChromeHidden')")
+            gesture(scenario, "#readerShowControls")
+            waitFor(scenario, "!document.body.classList.contains('readerChromeHidden')")
+            evaluate(scenario, "window.__bilingual.selection.pin(window.__bilingual.store.readyPages()[0].blocks.filter(b=>b.role==='paragraph').flatMap(b=>b.sentences)[0],'pdf')")
+            gesture(scenario, "#viewerContainer", 1)
+            assertEquals("false", evaluate(scenario, "document.body.classList.contains('readerChromeHidden')"))
+            assertEquals("\"same-reader\"", evaluate(scenario, "window.__chromeMarker"))
+            evaluate(scenario, "window.__bilingual.selection.clear()")
+            scenario.recreate()
+            waitFor(scenario, "window.paraRead?.opened && document.body.classList.contains('readerFullscreen')")
+            assertEquals("false", evaluate(scenario, "document.body.classList.contains('readerChromeHidden')"))
+            gesture(scenario, "#viewerContainer", 1)
+            waitFor(scenario, "document.body.classList.contains('readerChromeHidden')")
+            scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
+            waitFor(scenario, "!document.body.classList.contains('readerFullscreen') && !document.body.classList.contains('readerChromeHidden')")
+            compose.onNodeWithText("Full screen").assertIsDisplayed()
+        }
+    }
+
+    @Test fun fullscreenCanCollapseWhenEnteredBeforeReaderFinishesLoading() = withManualReader { _ ->
+        val db = ReaderDatabase.open(context)
+        val document = runBlocking { DocumentRepository(context, db.reader()).sample() }
+        val previous = runBlocking { db.reader().reading(document.id) }
+        try {
+            runBlocking { db.reader().reading(ReadingRecord(document.id, "{}")) }
+            ActivityScenario.launch<MainActivity>(Intent(context, MainActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)).use { scenario ->
+                compose.onNodeWithText("Open sample document").performClick()
+                compose.onNodeWithText("Full screen").performClick()
+                waitFor(scenario, "window.paraRead?.opened")
+                waitFor(scenario, "document.body.classList.contains('readerFullscreen')")
+                gesture(scenario, "#viewerContainer", 1)
+                waitFor(scenario, "document.body.classList.contains('readerChromeHidden')")
+                if (InstrumentationRegistry.getArguments().getString("captureReaderValidation") == "true") {
+                    Thread.sleep(250)
+                    android.os.ParcelFileDescriptor.AutoCloseInputStream(
+                        InstrumentationRegistry.getInstrumentation().uiAutomation.executeShellCommand("screencap -p /sdcard/alpha13-release-reader.png")
+                    ).use { it.readBytes() }
+                }
+                gesture(scenario, "#readerShowControls")
+                waitFor(scenario, "!document.body.classList.contains('readerChromeHidden')")
+                scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
+                waitFor(scenario, "!document.body.classList.contains('readerFullscreen')")
+            }
+        } finally {
+            runBlocking { if (previous != null) db.reader().reading(previous) else db.openHelper.writableDatabase.execSQL("DELETE FROM ReadingRecord WHERE documentId = ?", arrayOf(document.id)) }
             db.close()
         }
     }

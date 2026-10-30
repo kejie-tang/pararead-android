@@ -215,6 +215,7 @@ class MainActivity : ComponentActivity() {
                     catch (e: Exception) { if (e is CancellationException) throw e; status = "无法打开文档，请重新导入：${e.message}" }
                 }
                 source?.let { file ->
+                    val showControlsLabel = LocalContext.current.getString(R.string.reader_show_controls)
                     AndroidView(factory = {
                         val config = settings.config()
                         val provider: TranslationProvider = when (config.provider) {
@@ -229,7 +230,8 @@ class MainActivity : ComponentActivity() {
                         ReaderHost(this@MainActivity, file, db.reader(), rs, config, provider,
                             report = { status = it }, saveRequested = { export.launch("annotated.pdf") }, chooseLanguage = { showSettings = true },
                             rendererGone = { lifecycleScope.launch { delay(200); reopen() } }).also { host = it }.createWebView()
-                    }, modifier = Modifier.fillMaxWidth().weight(1f), onRelease = { it.destroy() })
+                    }, update = { host?.setFullscreen(fullscreen, showControlsLabel) },
+                        modifier = Modifier.fillMaxWidth().weight(1f), onRelease = { it.destroy() })
                 }
             }
         }

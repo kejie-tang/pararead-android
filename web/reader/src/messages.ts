@@ -26,6 +26,8 @@ export interface FailedItem {
 export type HostToWebview = { type: "translationDraft"; requestId: number; items: {id: string; translation: string}[] }
   /** Reopen the document from disk (external change or revert). */
   | { type: "reload" }
+  /** Native full-screen state; keep the same reader and document session. */
+  | { type: "readerFullscreen"; enabled: boolean; showControlsLabel?: string }
   /** Ask for the current document bytes, including annotation edits. */
   | { type: "getData"; requestId: number }
   /** The document was written; the webview resets its modified state. */

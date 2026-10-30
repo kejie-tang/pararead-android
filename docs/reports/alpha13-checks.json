@@ -1,0 +1,64 @@
+{
+  "date": "2026-10-30",
+  "androidApi": 36,
+  "physicalDevice": false,
+  "jvm": {
+    "core": {
+      "tests": 52,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "engine": {
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "debugLint": {
+    "Warning": 45
+  },
+  "releaseLint": {
+    "Warning": 45
+  },
+  "tablet": {
+    "testsPassed": 10,
+    "seconds": 34.674,
+    "controls": {
+      "before": {
+        "panel": 723,
+        "pdf": 723
+      },
+      "after": {
+        "panel": 755,
+        "pdf": 755
+      }
+    }
+  },
+  "phone": {
+    "testsPassed": 4,
+    "seconds": 21.298,
+    "controls": {
+      "before": {
+        "panel": 822,
+        "pdf": 831
+      },
+      "after": {
+        "panel": 863,
+        "pdf": 863
+      }
+    }
+  },
+  "certificateSha256": "e044c8f329f42465866add4d041f29c498009361241610c8ee2de43ae6e87a45",
+  "localReleaseEntryRegression": {
+    "tabletPassed": true,
+    "tabletSeconds": 3.917,
+    "phonePassed": true,
+    "phoneSeconds": 4.43,
+    "earlyFullscreen": true,
+    "swipeHides": true,
+    "arrowRestores": true,
+    "backExits": true
+  }
+}

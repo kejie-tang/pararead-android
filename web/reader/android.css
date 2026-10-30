@@ -27,3 +27,26 @@ html, body { height: 100vh; height: 100dvh; }
 }
 .bilingualBody { overscroll-behavior: contain; }
 @media (max-width: 700px) { .bilingualTitle { display: none; } .bilingualHeader { padding: 4px; } .bilingualHeaderTools { gap: 2px; } }
+/* Collapse both headers without changing PDF.js's toolbar sizing variables. */
+body.readerChromeHidden #toolbarContainer { visibility: hidden; pointer-events: none; }
+body.readerChromeHidden #viewerContainer { inset-block-start: 0; }
+body.readerChromeHidden .bilingualHeader { display: none; }
+#readerShowControls {
+  position: absolute;
+  inset-block-start: 4px;
+  inset-inline-end: 10px;
+  z-index: 3;
+  width: 48px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgb(128 128 128 / 0.25);
+  border-radius: 16px;
+  color: CanvasText;
+  background: color-mix(in srgb, Canvas 92%, transparent);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.12);
+  cursor: pointer;
+}
+#readerShowControls[hidden] { display: none; }
+#readerShowControls svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+#readerShowControls:focus-visible { outline: 2px solid #4b98cf; outline-offset: 2px; }

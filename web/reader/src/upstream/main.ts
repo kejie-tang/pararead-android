@@ -39,6 +39,7 @@ import { ColumnOrderSegmenter } from "../reading-order";
 import { SelectionController } from "./selection";
 import { SentenceStore } from "./sentence-store";
 import { TranslationClient } from "./translation-client";
+import { ReaderChrome } from "../reader-chrome";
 
 function isTranslateRange(value: unknown): value is TranslateRange {
   return value === "page" || value === "nearby" || value === "manual";
@@ -183,6 +184,8 @@ async function start() {
     }
   });
   const sync = new ScrollSync({ app, store, panel, selection });
+  const chrome = new ReaderChrome(app, panel, selection, android.settings.showControlsLabel ?? "Show reader controls");
+  chrome.setFullscreen(android.settings.readerFullscreen === true);
   const connector = new Connector(app, panel, selection);
   window.paraRead.evict = () => {
     const current = app.pdfViewer.currentPageNumber;
@@ -213,6 +216,11 @@ async function start() {
       return;
     }
     const message = event.data;
+    if (message.type === "readerFullscreen") {
+      chrome.setFullscreen(message.enabled);
+      if (message.showControlsLabel) chrome.setLabel(message.showControlsLabel);
+      return;
+    }
     if (message.type === "settings") {
       hoverEnabled = message.selectOnHover;
       if (message.targetLanguage !== targetLanguage) {

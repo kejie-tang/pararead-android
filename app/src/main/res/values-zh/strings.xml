@@ -27,6 +27,7 @@
     <string name="save_copy">另存</string>
     <string name="reader_fullscreen">全屏</string>
     <string name="reader_exit_fullscreen">退出全屏</string>
+    <string name="reader_show_controls">显示阅读工具栏</string>
     <string name="local_gguf">本机 GGUF</string>
     <string name="no_model">尚未选择模型</string>
     <string name="models_subtitle">选择适合你的阅读节奏</string>

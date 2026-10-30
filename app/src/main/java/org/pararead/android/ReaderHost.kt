@@ -26,6 +26,8 @@ class ReaderHost(
     val sessionId = UUID.randomUUID().toString()
     private var proxy: JavaScriptReplyProxy? = null
     private var ready = false
+    private var readerFullscreen = false
+    private var showControlsLabel = context.getString(R.string.reader_show_controls)
     private var closed = false
     private var epoch = 0
     private val configurationRevision = 1
@@ -141,7 +143,8 @@ class ReaderHost(
             "reader.ready" -> {
                 require(!ready) { "ALREADY_OPEN" }; ready = true
                 send(base("session.open", JSONObject().put("token", source.token).put("length", source.length).put("reading", reading)
-                    .put("debug", BuildConfig.DEBUG).put("settings", JSONObject().put("targetLanguage", config.targetLanguage).put("translateRange", Settings(context).translateRange).put("selectOnHover", true))))
+                    .put("debug", BuildConfig.DEBUG).put("settings", JSONObject().put("targetLanguage", config.targetLanguage).put("translateRange", Settings(context).translateRange).put("selectOnHover", true)
+                        .put("readerFullscreen", readerFullscreen).put("showControlsLabel", showControlsLabel))))
             }
             "session.opened" -> {
                 pageCount = p.getInt("pages"); require(pageCount > 0)
@@ -295,6 +298,13 @@ class ReaderHost(
         wholeJobStarted = true
         send(base("reader.command", JSONObject().put("type", "translateAll").put("jobId", job.jobId).put("startPage", job.nextPage)))
         reportJob()
+    }
+    fun setFullscreen(enabled: Boolean, label: String) {
+        if (readerFullscreen == enabled && showControlsLabel == label) return
+        readerFullscreen = enabled; showControlsLabel = label
+        if (ready && !closed) scope.launch {
+            send(base("reader.command", JSONObject().put("type", "readerFullscreen").put("enabled", enabled).put("showControlsLabel", label)))
+        }
     }
     fun command(type: String) { scope.launch {
       try {

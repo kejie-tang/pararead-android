@@ -27,6 +27,7 @@
     <string name="save_copy">Save a copy</string>
     <string name="reader_fullscreen">Full screen</string>
     <string name="reader_exit_fullscreen">Exit full screen</string>
+    <string name="reader_show_controls">Show reader controls</string>
     <string name="local_gguf">Local GGUF</string>
     <string name="no_model">No model selected</string>
     <string name="models_subtitle">Find your reading pace</string>

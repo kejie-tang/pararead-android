@@ -73,6 +73,10 @@ window.ParaReadNative.onmessage = ({ data }) => {
       clearTimeout(waiter.timer); waiters.delete(m.requestId); waiter.resolve(m);
     }
     if (m.type === 'reader.command') {
+      if (m.payload.type === 'readerFullscreen') {
+        session.settings.readerFullscreen = m.payload.enabled === true;
+        if (m.payload.showControlsLabel) session.settings.showControlsLabel = m.payload.showControlsLabel;
+      }
       if (m.payload.type === 'settings') session.settings = { ...session.settings, ...m.payload };
       if (m.payload.type === 'translateAll') { runningJob = m.payload.jobId; cancelledJobs.delete(m.payload.jobId); }
       if (m.payload.type === 'cancelTranslateAll' && runningJob !== undefined) cancelledJobs.add(runningJob);
