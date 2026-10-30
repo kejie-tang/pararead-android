@@ -212,7 +212,7 @@ class ReaderRecoveryUiTest {
                 val afterTranslation = requests()
                 scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
                 compose.onNodeWithText("Your library").assertIsDisplayed()
-                compose.onNodeWithText(document.name).performClick()
+                compose.onNodeWithTag("continue-reading").performClick()
                 waitFor(scenario, complete)
                 assertEquals(saved, evaluate(scenario, rows))
                 compose.onNodeWithText("This page").performClick()

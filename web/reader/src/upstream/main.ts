@@ -248,8 +248,17 @@ async function start() {
     }
   });
 
+  // PDF.js initializes its view asynchronously after loading the pages. Give it the
+  // native bookmark too, so its later initial-view pass cannot reset Room's page.
+  const savedPage = Math.max(1, Number(android.reading?.page) || 1);
+  (app as any).initialBookmark = android.reading?.location || `page=${savedPage}&zoom=${android.reading?.zoom || "auto"}`;
+  (app as any).initialRotation = android.reading?.rotation ?? 0;
   await app.open({ ...config, url: undefined, length: android.length, range: window.paraRead.makeRangeTransport((globalThis as any).pdfjsLib, android), disableAutoFetch: true, disableStream: true, rangeChunkSize: 262144 });
   await app.pdfViewer.pagesPromise;
+  await new Promise<void>(resolve => {
+    const initialized = () => { if ((app as any).isInitialViewSet) resolve(); else requestAnimationFrame(initialized); };
+    initialized();
+  });
   const [, hash] = config.url.split("#");
   if (hash !== undefined && hash !== "") {
     app.pdfLinkService.setHash(decodeURIComponent(hash));

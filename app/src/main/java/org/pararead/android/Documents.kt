@@ -14,6 +14,19 @@ import kotlin.coroutines.coroutineContext
 /** Immutable private snapshot: supports seekable SAF files, pipes, cloud providers and lost grants uniformly. */
 class DocumentRepository(private val context: Context, private val dao: ReaderDao) {
     private val directory = File(context.filesDir, "documents").apply { mkdirs() }
+    suspend fun rename(document: DocumentRecord, name: String) = withContext(Dispatchers.IO) {
+        val title = name.trim()
+        require(title.isNotEmpty() && title.length <= 200)
+        dao.rename(document.id, title)
+    }
+    suspend fun delete(document: DocumentRecord) = withContext(Dispatchers.IO) {
+        val draft = dao.draft(document.id)
+        dao.deleteDocument(document.id, document.revision)
+        // Never follow the original content URI: only the app-owned snapshot and draft are removed.
+        File(directory, "${document.id}.pdf").delete()
+        draft?.let { File(it.path).takeIf { file -> file.parentFile?.canonicalFile == context.filesDir.canonicalFile }?.delete() }
+        DocumentThumbnails.remove(context, document.id)
+    }
     private fun prefix(input: InputStream, limit: Int): ByteArray {
         val bytes = ByteArray(limit); var offset = 0
         while (offset < limit) { val count = input.read(bytes, offset, limit - offset); if (count < 0) break; if (count > 0) offset += count }
@@ -57,9 +70,9 @@ class DocumentRepository(private val context: Context, private val dao: ReaderDa
             val target = File(directory, "$hash.pdf")
             if (target.exists()) temp.delete() else check(temp.renameTo(target))
             val existing = dao.documents().firstOrNull { it.id == hash }
-            val document = DocumentRecord(hash, uri, name, target.absolutePath, "sha256:$hash", length)
+            val document = existing?.copy(uri = uri) ?: DocumentRecord(hash, uri, name, target.absolutePath, "sha256:$hash", length)
             dao.document(document)
-            return existing?.copy(opened = document.opened) ?: document
+            return document
         } finally { temp.delete() }
     }
 }

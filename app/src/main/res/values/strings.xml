@@ -1,4 +1,19 @@
 <resources>
+    <string name="all_documents">All documents</string>
+    <string name="sorted_recent_reading">Recently opened</string>
+    <string name="continue_reading">Continue reading</string>
+    <string name="reading_page">Page %1$d of %2$d</string>
+    <string name="reading_page_only">Page %1$d</string>
+    <string name="document_page_size">%1$d pages · %2$s</string>
+    <string name="not_read_yet">Not opened yet</string>
+    <string name="document_translations_saved">Saved translations</string>
+    <string name="document_actions">Actions for %1$s</string>
+    <string name="rename_document">Rename</string>
+    <string name="document_name">Document name</string>
+    <string name="save_document_name">Save</string>
+    <string name="document_operation_failed">Could not save this change. Please try again.</string>
+    <string name="delete_document_title">Delete %1$s?</string>
+    <string name="delete_document_text">Removes this PDF’s app copy, reading history and annotation draft. Your original file and shared translation cache are kept.</string>
     <string name="close">Close</string>
     <string name="auto_detect">Detect automatically</string>
     <string name="library">Library</string>

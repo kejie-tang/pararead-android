@@ -7,7 +7,7 @@ Read papers and technical documents with the original page beside its translatio
 
 [![Android CI](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml/badge.svg?branch=main)](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml) [![Android 9+](https://img.shields.io/badge/Android-9%2B-3DDC84?logo=android&logoColor=white)](#get-started) [![Code: Apache-2.0](https://img.shields.io/badge/Code-Apache--2.0-blue)](LICENSE)
 
-**[Download APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.13)** · [All releases](https://github.com/kejie-tang/pararead-android/releases) · [简体中文](README.zh-CN.md)
+**[Download APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.14)** · [All releases](https://github.com/kejie-tang/pararead-android/releases) · [简体中文](README.zh-CN.md)
 
 A development preview for **Android 9+ / ARM64**, designed for tablets and usable on phones. Native menus support **English and Simplified Chinese**, with a system-language option. Independent, unofficial adaptation of [ParaRead](https://github.com/Chuanyunux/pararead) 0.6.1.
 
@@ -23,6 +23,7 @@ A development preview for **Android 9+ / ARM64**, designed for tablets and usabl
 - **Read at your pace.** Translate a selection, a page or the whole document. Validated translations and page checkpoints let you continue later.
 - **Make it yours.** Keep annotations, export an annotated PDF, customize terminology and choose your translation language.
 - **Manage models easily.** Download, switch or delete models; search Hugging Face when you want more choices.
+- **Find your place.** A compact library shows first-page previews, reading progress and saved-translation indicators. Resume your most recently opened PDF, or rename and remove documents from their menus.
 
 <details>
 <summary>See the Android interface</summary>
@@ -36,7 +37,7 @@ Actual Android emulator captures. The original book icon is included as an adapt
 
 ## Get started
 
-1. **Install the [preview APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.13).** Requires ARM64, Android 9+ and an up-to-date Android System WebView. The preview signing identity is retained for in-place upgrades; see the [validation and upgrade notes](docs/reports/alpha13.md). Do not uninstall an existing installation just to bypass a signature error; uninstalling deletes private documents, translations and models.
+1. **Install the [preview APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.14).** Requires ARM64, Android 9+ and an up-to-date Android System WebView. The preview signing identity is retained for in-place upgrades; see the [validation and upgrade notes](docs/reports/alpha14.md). Do not uninstall an existing installation just to bypass a signature error; uninstalling deletes private documents, translations and models.
 2. **Choose a model in Models.** Start with 0.6B for quick reading or 1.7B for stronger translations. Downloads are verified before activation; existing models are retained.
 3. **Import a PDF or open the sample.** Tap a sentence, translate **This page**, or use **All / Resume**. PDFs need selectable text; OCR is not included.
 

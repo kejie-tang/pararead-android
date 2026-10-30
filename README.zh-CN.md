@@ -7,7 +7,7 @@
 
 [![Android CI](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml/badge.svg?branch=main)](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml) [![Android 9+](https://img.shields.io/badge/Android-9%2B-3DDC84?logo=android&logoColor=white)](#开始使用) [![代码：Apache-2.0](https://img.shields.io/badge/Code-Apache--2.0-blue)](LICENSE)
 
-**[下载 APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.13)** · [全部版本](https://github.com/kejie-tang/pararead-android/releases) · [English](README.md)
+**[下载 APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.14)** · [全部版本](https://github.com/kejie-tang/pararead-android/releases) · [English](README.md)
 
 面向 **Android 9+ / ARM64** 的开发预览版，为平板设计，也可在手机使用。原生菜单支持**简体中文、English 和跟随系统**。基于 [ParaRead](https://github.com/Chuanyunux/pararead) 0.6.1 的独立、非官方适配。
 
@@ -23,6 +23,7 @@
 - **按自己的节奏读。** 翻译选段、本页或全篇，保存校验通过的译文和逐页进度，下次继续。
 - **适合你的阅读习惯。** 保存批注、另存批注 PDF，设置术语表与翻译语言。
 - **方便管理模型。** 下载、切换、删除，也可在 Hugging Face 搜索其他模型。
+- **接着上次的位置读。** 紧凑书库展示首页缩略图、阅读进度和译文保存状态，顶部继续阅读最近打开的 PDF，文档菜单支持重命名与删除。
 
 <details>
 <summary>查看 Android 界面</summary>
@@ -36,7 +37,7 @@
 
 ## 开始使用
 
-1. **安装[预览版 APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.13)。** 需要 ARM64、Android 9+ 和较新的 Android System WebView。预览版沿用原签名以便覆盖升级；详见[验证与升级说明](docs/reports/alpha13.md)。不要为绕过签名错误直接卸载旧版，卸载会删除私有文档、译文缓存和模型。
+1. **安装[预览版 APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.14)。** 需要 ARM64、Android 9+ 和较新的 Android System WebView。预览版沿用原签名以便覆盖升级；详见[验证与升级说明](docs/reports/alpha14.md)。不要为绕过签名错误直接卸载旧版，卸载会删除私有文档、译文缓存和模型。
 2. **在“模型管理”选择模型。** 0.6B 适合轻量快读，1.7B 偏重译文质量。下载校验通过后自动启用，其他模型会保留。
 3. **导入 PDF，或打开示例文档。** 点击句子、翻译“本页”，或使用“全篇 / 继续”。PDF 需要可选中文字，暂不提供 OCR。
 

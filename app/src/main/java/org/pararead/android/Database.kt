@@ -2,6 +2,8 @@ package org.pararead.android
 
 import android.content.Context
 import androidx.room.*
+import kotlinx.coroutines.flow.Flow
+import org.json.JSONObject
 import org.pararead.core.*
 
 @Entity data class DocumentRecord(@PrimaryKey val id: String, val uri: String, val name: String, val path: String,
@@ -15,9 +17,26 @@ data class PageRecord(val revision: String, val page: Int, val segmenterVersion:
 @Entity data class JobRecord(@PrimaryKey val id: String, val documentId: String, val json: String, val status: String)
 @Entity data class PerformanceRecord(@PrimaryKey(autoGenerate = true) val id: Long = 0, val documentId: String,
     val name: String, val value: Double, val timestamp: Long = System.currentTimeMillis())
+data class LibraryDocument(@Embedded val document: DocumentRecord, val readingJson: String?) {
+    fun reading(): JSONObject = runCatching { JSONObject(readingJson ?: "{}") }.getOrDefault(JSONObject())
+}
 @Dao interface ReaderDao {
     @Query("SELECT * FROM DocumentRecord ORDER BY opened DESC") suspend fun documents(): List<DocumentRecord>
     @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun document(value: DocumentRecord)
+    @Query("SELECT DocumentRecord.*, ReadingRecord.json AS readingJson FROM DocumentRecord LEFT JOIN ReadingRecord ON DocumentRecord.id = ReadingRecord.documentId ORDER BY DocumentRecord.opened DESC")
+    fun library(): Flow<List<LibraryDocument>>
+    @Query("UPDATE DocumentRecord SET opened = :time WHERE id = :id") suspend fun opened(id: String, time: Long)
+    @Query("UPDATE DocumentRecord SET name = :name WHERE id = :id") suspend fun rename(id: String, name: String)
+    @Query("DELETE FROM DocumentRecord WHERE id = :id") suspend fun deleteDocumentRecord(id: String)
+    @Query("DELETE FROM ReadingRecord WHERE documentId = :id") suspend fun deleteReading(id: String)
+    @Query("DELETE FROM JobRecord WHERE documentId = :id") suspend fun deleteJobs(id: String)
+    @Query("DELETE FROM PerformanceRecord WHERE documentId = :id") suspend fun deletePerformance(id: String)
+    @Query("DELETE FROM PageRecord WHERE revision = :revision OR revision LIKE :draftPrefix") suspend fun deletePages(revision: String, draftPrefix: String)
+    @Transaction suspend fun deleteDocument(id: String, revision: String) {
+        deleteReading(id); deleteDraft(id); deleteJobs(id); deletePerformance(id)
+        deletePages(revision, "$revision:draft:%"); deleteDocumentRecord(id)
+        // Sentence translations are shared between PDFs and must survive another document's deletion.
+    }
     @Query("SELECT * FROM TranslationRecord WHERE `key` = :key") suspend fun translation(key: String): TranslationRecord?
     @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun translation(value: TranslationRecord)
     @Query("SELECT * FROM PageRecord WHERE revision = :revision AND page = :page AND segmenterVersion = 2") suspend fun page(revision: String, page: Int): PageRecord?

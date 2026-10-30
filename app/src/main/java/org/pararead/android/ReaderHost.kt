@@ -36,6 +36,7 @@ class ReaderHost(
     private val inflight = mutableSetOf<String>()
     private val pageChunks = mutableMapOf<Int, Array<String?>>()
     private var reading = JSONObject()
+    private val readingMutex = Mutex()
     private val jobMutex = Mutex()
     private val jobKey = "whole:${source.document.id}"
     private var wholeJob: WholeDocumentJob? = null
@@ -148,6 +149,8 @@ class ReaderHost(
             }
             "session.opened" -> {
                 pageCount = p.getInt("pages"); require(pageCount > 0)
+                persistReading(JSONObject().put("pageCount", pageCount))
+                withContext(Dispatchers.IO) { dao.opened(source.document.id, System.currentTimeMillis()) }
                 report("${source.document.name} · $pageCount 页 · ${if (config.provider == "mock") "模拟翻译" else config.model}")
                 metric("open_ms", (SystemClock.elapsedRealtime() - started).toDouble())
                 jobMutex.withLock {
@@ -169,9 +172,7 @@ class ReaderHost(
             }
             "page.textChunk" -> savePage(m)
             "reading.save" -> {
-                p.keys().forEach { reading.put(it, p.get(it)) }
-                val snapshot = reading.toString()
-                withContext(Dispatchers.IO) { dao.reading(ReadingRecord(source.document.id, snapshot)) }
+                persistReading(p)
                 send(m.reply("reading.saved", JSONObject()))
             }
             "annotation.changed" -> {
@@ -233,12 +234,21 @@ class ReaderHost(
         return sentences
     }
     /** Cache-only restoration never enters the inference queue or calls the provider. */
+    private suspend fun persistReading(update: JSONObject) = readingMutex.withLock {
+        update.keys().forEach { reading.put(it, update.get(it)) }
+        val snapshot = reading.toString()
+        withContext(NonCancellable + Dispatchers.IO) { dao.reading(ReadingRecord(source.document.id, snapshot)) }
+    }
+    private suspend fun markTranslationsSaved() {
+        if (!reading.optBoolean("translationsSaved")) persistReading(JSONObject().put("translationsSaved", true))
+    }
     private suspend fun restoreTranslations(m: Envelope) {
         val sentences = sentences(m)
         var sequence = 0
         for (sentence in sentences) {
             val key = contentKey(sentence.text, config)
             val cached = withContext(Dispatchers.IO) { dao.translation(key)?.translation } ?: continue
+            markTranslationsSaved()
             send(m.reply("translation.committed", JSONObject().put("sequence", sequence++).put("items", JSONArray()
                 .put(JSONObject().put("id", sentence.id).put("translation", cached).put("contentKey", key)))))
         }
@@ -256,7 +266,7 @@ class ReaderHost(
         inflight += m.requestId
         val terminal = AtomicBoolean(false); var seq = 0; val start = SystemClock.elapsedRealtime()
         val work = TranslationWork(m.requestId, m.viewportEpoch, priority, sentences, config,
-            committed = { s, text, key -> send(m.reply("translation.committed", JSONObject().put("sequence", seq++).put("items", JSONArray().put(JSONObject().put("id", s.id).put("translation", text).put("contentKey", key))))) },
+            committed = { s, text, key -> markTranslationsSaved(); send(m.reply("translation.committed", JSONObject().put("sequence", seq++).put("items", JSONArray().put(JSONObject().put("id", s.id).put("translation", text).put("contentKey", key))))) },
             finished = { failures, cancelled ->
                 if (terminal.compareAndSet(false, true)) {
                     inflight -= m.requestId

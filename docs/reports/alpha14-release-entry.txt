@@ -1,0 +1,8 @@
+
+org.pararead.android.ReaderRecoveryUiTest:.
+
+Time: 3.978
+
+OK (1 test)
+
+

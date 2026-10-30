@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.first
 import org.json.JSONArray
 import org.json.JSONObject
 import org.pararead.core.*
@@ -53,7 +54,7 @@ class MainActivity : ComponentActivity() {
     private var selected by mutableStateOf<DocumentRecord?>(null)
     private var readerFullscreen by mutableStateOf(false)
     private var readerVersion by mutableIntStateOf(0)
-    private var documents by mutableStateOf<List<DocumentRecord>>(emptyList())
+    private var documents by mutableStateOf<List<LibraryDocument>>(emptyList())
     private var status by mutableStateOf("导入 PDF，或打开示例文档")
     private var localBackendStatus by mutableStateOf<BackendStatus?>(null)
     private var showSettings by mutableStateOf(false)
@@ -69,9 +70,9 @@ class MainActivity : ComponentActivity() {
         readerFullscreen = settings.readerFullscreen
         if (backendRecoveryChecked.compareAndSet(false, true)) settings.recoverInterruptedVulkan()
         lifecycleScope.launch {
-            documents = withContext(Dispatchers.IO) { db.reader().documents() }
+            documents = db.reader().library().first()
             val restored = savedInstanceState?.getString("documentId")
-            selected = documents.firstOrNull { it.id == restored }
+            selected = documents.firstOrNull { it.document.id == restored }?.document
             if (BuildConfig.DEBUG && intent.getBooleanExtra("sample", false)) {
                 if (intent.getBooleanExtra("mock", false)) settings.provider = "mock"
                 selected = repository.sample()
@@ -83,6 +84,7 @@ class MainActivity : ComponentActivity() {
                 selected = fixture
             }
         }
+        lifecycleScope.launch { db.reader().library().collect { documents = it } }
         setContent { AppLanguage(uiLanguage) { ParaReadTheme {
             val dark = isSystemInDarkTheme()
             SideEffect { WindowCompat.getInsetsController(window, window.decorView).apply {
@@ -94,8 +96,9 @@ class MainActivity : ComponentActivity() {
     override fun onSaveInstanceState(outState: Bundle) { outState.putString("documentId", selected?.id); super.onSaveInstanceState(outState) }
     private fun reopen() {
         val previous = host; val pending = readerRelease
-        previous?.close(); readerScope?.cancel(); host = null
-        readerRelease = lifecycleScope.async { pending?.await(); previous?.awaitProviderClosed(); Unit }
+        val previousScope = readerScope
+        previous?.close(); previousScope?.cancel(); host = null
+        readerRelease = lifecycleScope.async { pending?.await(); previousScope?.coroutineContext?.get(Job)?.join(); previous?.awaitProviderClosed(); Unit }
         readerVersion++
     }
     private fun runImport(block: suspend () -> Unit) {
@@ -125,7 +128,7 @@ class MainActivity : ComponentActivity() {
         }
         val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> uri?.let {
             runCatching { contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION) }
-            runImport { val doc = repository.import(it) { bytes -> lifecycleScope.launch { status = "正在导入 ${bytes / 1048576} MiB…" } }; reopen(); selected = doc; documents = withContext(Dispatchers.IO) { db.reader().documents() } }
+            runImport { val doc = repository.import(it) { bytes -> lifecycleScope.launch { status = "正在导入 ${bytes / 1048576} MiB…" } }; reopen(); selected = doc }
         } }
         val modelPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> uri?.let {
             modelViewModel.manager.import(it)
@@ -203,8 +206,10 @@ class MainActivity : ComponentActivity() {
             } else if (document == null) {
                 LibraryScreen(documents, modelState, importing, status,
                     onImport = { picker.launch(arrayOf("application/pdf")) },
-                    onSample = { runImport { selected = repository.sample(); documents = withContext(Dispatchers.IO) { db.reader().documents() } } },
-                    onOpen = { selected = it }, onModels = { showModelLibrary = true }, onCancelImport = { importTask?.cancel() })
+                    onSample = { runImport { selected = repository.sample() } },
+                    onOpen = { selected = it }, onModels = { showModelLibrary = true }, onCancelImport = { importTask?.cancel() },
+                    onRename = { doc, name -> repository.rename(doc, name) },
+                    onDelete = { doc -> readerRelease?.await(); repository.delete(doc) })
             } else key(document.id, readerVersion) {
                 var source by remember { mutableStateOf<RangeSource?>(null) }
                 LaunchedEffect(document.id, readerVersion) {

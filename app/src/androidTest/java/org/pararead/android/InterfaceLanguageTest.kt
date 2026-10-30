@@ -63,10 +63,12 @@ class InterfaceLanguageTest {
 
     @Test fun changingMenuLanguageKeepsTheOpenReaderInstance() {
         val settings = Settings(context); val original = settings.uiLanguage; val provider = settings.provider
+        val fullscreen = settings.readerFullscreen
         fun find(view: View): WebView? = if (view is WebView) view else if (view is ViewGroup)
             (0 until view.childCount).firstNotNullOfOrNull { find(view.getChildAt(it)) } else null
         try {
             settings.uiLanguage = "zh-CN"
+            settings.readerFullscreen = false
             val intent = Intent(context, MainActivity::class.java).putExtra("sample", true).putExtra("mock", true)
             ActivityScenario.launch<MainActivity>(intent).use { scenario ->
                 var before: WebView? = null
@@ -77,6 +79,6 @@ class InterfaceLanguageTest {
                 compose.onNodeWithText("This page").assertExists()
                 scenario.onActivity { assertSame(before, find(it.window.decorView)) }
             }
-        } finally { settings.uiLanguage = original; settings.provider = provider }
+        } finally { settings.uiLanguage = original; settings.provider = provider; settings.readerFullscreen = fullscreen }
     }
 }

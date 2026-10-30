@@ -1,0 +1,8 @@
+
+org.pararead.android.DocumentLibraryTest:.
+
+Time: 6.037
+
+OK (1 test)
+
+
