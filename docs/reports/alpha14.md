@@ -19,6 +19,7 @@
 - 9 项 Android instrumentation 回归通过：DocumentLibraryTest、ReaderRecoveryUiTest、InterfaceLanguageTest。覆盖同内容重导入、最近打开顺序、重命名保留进度、原件保留、删除隔离、共享译文保留、缩略图生成与清理、真实 PDF 页码恢复、译文恢复不推理、全屏与菜单语言。
 - alpha.14 的书库完整交互另在手机 1080×2400 / 480dpi（360dp 宽）与平板 1920×1200 / 240dpi（1280dp 宽）各通过 1 项，包含打开第 2 页、返回、重命名、中英文 Activity 重建和删除确认。[手机输出](alpha14-android-phone.txt) · [平板输出](alpha14-android-tablet.txt)。
 - TypeScript、Android Web 回归和真实 PDF.js Chromium 触摸测试通过，浏览器错误列表为空；涵盖双向选句、手动缓存恢复、全屏手势、窄屏工具栏和增量批注导出。[浏览器结果](alpha14-browser.json)。
+- 本机实际签名 release APK 也通过普通书库入口、提前进入全屏、滑动收起、箭头恢复与返回退出测试。[release 输出](alpha14-release-entry.txt)。
 - [英文平板截图](../screenshots/library-en.png) · [中文平板截图](../screenshots/library-zh.png)。截图来自实际模拟器，使用临时生成的测试 PDF 和预置译文保存状态。
 
 本次验证聚焦书库管理与阅读恢复，未重新测试实体设备推理性能或模型翻译质量。
