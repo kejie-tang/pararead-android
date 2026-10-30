@@ -4,7 +4,6 @@ import android.content.Intent
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
-import androidx.compose.ui.test.assertDoesNotExist
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -46,13 +45,16 @@ class ReaderRecoveryUiTest {
     private fun waitFor(scenario: ActivityScenario<MainActivity>, js: String) {
         val end = System.currentTimeMillis() + 90000
         while (System.currentTimeMillis() < end) {
+            // Advance Compose's test clock so asynchronous document selection can recompose.
+            compose.waitForIdle()
             if (evaluate(scenario, "Boolean($js)") == "true") return
             Thread.sleep(200)
         }
         fail("Reader condition timed out: $js")
     }
     private fun sample() = Intent(context, MainActivity::class.java)
-        .putExtra("sample", true).putExtra("mock", true).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        .putExtra("sample", true).putExtra("mock", true)
+        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
 
     private fun withManualReader(test: (Settings) -> Unit) {
         val settings = Settings(context)
@@ -73,7 +75,8 @@ class ReaderRecoveryUiTest {
         try {
             ActivityScenario.launch<MainActivity>(sample()).use { scenario ->
                 waitFor(scenario, "window.paraRead?.opened && window.__bilingual")
-                evaluate(scenario, "window.__bilingual.translations.reset(); window.__bilingual.store.ensure(1).then(p=>window.__restoreSentences=p.blocks.filter(b=>b.kind==='text').flatMap(b=>b.sentences))")
+                // Figure labels intentionally render as placeholders rather than sentence spans.
+                evaluate(scenario, "window.__bilingual.translations.reset(); window.__bilingual.store.ensure(1).then(p=>window.__restoreSentences=p.blocks.filter(b=>b.kind==='text'&&b.role==='paragraph').flatMap(b=>b.sentences))")
                 waitFor(scenario, "window.__restoreSentences?.length > 1")
                 val sentence = JSONObject(evaluate(scenario, "window.__restoreSentences[0]"))
                 val id = sentence.getString("id"); val text = sentence.getString("text")
@@ -106,17 +109,46 @@ class ReaderRecoveryUiTest {
 
     @Test fun fullscreenHidesChromeKeepsWebViewAndSupportsExitAndRecreation() = withManualReader { settings ->
         ActivityScenario.launch<MainActivity>(sample()).use { scenario ->
+            scenario.onActivity { assertTrue("Sample launch extras must reach the Activity", it.intent.getBooleanExtra("sample", false)) }
             waitFor(scenario, "window.paraRead?.opened")
             evaluate(scenario, "window.__fullscreenMarker='same-webview'")
             var original: WebView? = null
-            scenario.onActivity { original = find(it.window.decorView) }
+            var beforeWidth = 0; var beforeHeight = 0; var wide = false
+            scenario.onActivity {
+                original = find(it.window.decorView)
+                beforeWidth = original!!.width; beforeHeight = original!!.height
+                wide = it.resources.configuration.screenWidthDp >= 840
+            }
             compose.onNodeWithText("Full screen").performClick()
             compose.onNodeWithTag("reader-exit-fullscreen").assertIsDisplayed()
             compose.onNodeWithText("Full screen").assertDoesNotExist()
             compose.onNodeWithText("Settings").assertDoesNotExist()
+            compose.waitUntil(10000) { original!!.height > beforeHeight + 50 && (!wide || original!!.width > beforeWidth + 50) }
+            compose.waitUntil(10000) {
+                var hidden = false
+                scenario.onActivity { hidden = androidx.core.view.ViewCompat.getRootWindowInsets(it.window.decorView)
+                    ?.isVisible(androidx.core.view.WindowInsetsCompat.Type.systemBars()) == false }
+                hidden
+            }
+            compose.waitForIdle()
+            // WebView's native bounds change before Chromium receives its new viewport.
+            val afterWidth = original!!.width; val afterHeight = original!!.height
+            waitFor(scenario, "Math.abs(innerWidth*devicePixelRatio-$afterWidth)<=2 && Math.abs(innerHeight*devicePixelRatio-$afterHeight)<=2")
             scenario.onActivity { assertSame("Toggling fullscreen must not recreate the reader", original, find(it.window.decorView)) }
             assertEquals("\"same-webview\"", evaluate(scenario, "window.__fullscreenMarker"))
             assertTrue(settings.readerFullscreen)
+            if (InstrumentationRegistry.getArguments().getString("captureReaderValidation") == "true") {
+                java.io.File(context.filesDir, "reader-fullscreen-bounds.json").writeText(JSONObject()
+                    .put("beforeWidth", beforeWidth).put("beforeHeight", beforeHeight)
+                    .put("fullscreenWidth", original!!.width).put("fullscreenHeight", original!!.height)
+                    .put("wideLayout", wide).put("sameWebView", true).toString(2))
+                InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot().let { bitmap ->
+                    java.io.File(context.filesDir, "reader-fullscreen.png").outputStream().use {
+                        bitmap.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, it)
+                    }
+                    bitmap.recycle()
+                }
+            }
             compose.onNodeWithTag("reader-exit-fullscreen").performClick()
             compose.onNodeWithText("Full screen").assertIsDisplayed()
             assertFalse(settings.readerFullscreen)
@@ -127,6 +159,44 @@ class ReaderRecoveryUiTest {
             scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
             compose.onNodeWithText("Full screen").assertIsDisplayed()
             assertFalse(settings.readerFullscreen)
+        }
+    }
+
+    @Test fun translatedPageSurvivesLibraryExitWithoutAnotherTranslationRequest() = withManualReader { settings ->
+        val db = ReaderDatabase.open(context)
+        val oldGlossary = settings.glossary
+        val document = runBlocking { DocumentRepository(context, db.reader()).sample() }
+        val oldReading = runBlocking { db.reader().reading(document.id) }
+        settings.glossary = JSONObject().put("validation", "library-reopen-${System.nanoTime()}").toString()
+        val fingerprint = settings.config().fingerprint()
+        fun requests() = runBlocking { db.reader().performance().count { it.documentId == document.id && it.name == "translation_ms" } }
+        val complete = "window.__bilingual?.store.readyPages().find(p=>p.page===1)?.blocks.filter(b=>b.kind==='text').flatMap(b=>b.sentences).every(s=>window.__bilingual.translations.state(s.id).status==='done')"
+        val rows = "window.__bilingual.store.readyPages().find(p=>p.page===1).blocks.filter(b=>b.kind==='text').flatMap(b=>b.sentences).map(s=>({id:s.id,translation:window.__bilingual.translations.state(s.id).translation}))"
+        try {
+            runBlocking { db.reader().reading(ReadingRecord(document.id, "{}")) }
+            ActivityScenario.launch<MainActivity>(sample()).use { scenario ->
+                waitFor(scenario, "window.paraRead?.opened && window.__bilingual?.store.readyPages().length > 0")
+                val before = requests()
+                compose.onNodeWithText("This page").performClick()
+                waitFor(scenario, complete)
+                compose.waitUntil(10000) { requests() > before }
+                val saved = evaluate(scenario, rows)
+                assertTrue(saved.contains("模拟译文"))
+                val afterTranslation = requests()
+                scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
+                compose.onNodeWithText("Your library").assertIsDisplayed()
+                compose.onNodeWithText(document.name).performClick()
+                waitFor(scenario, complete)
+                assertEquals(saved, evaluate(scenario, rows))
+                compose.onNodeWithText("This page").performClick()
+                compose.waitForIdle()
+                assertEquals("Reopening and requesting a cached page must not enter the translation queue", afterTranslation, requests())
+            }
+        } finally {
+            settings.glossary = oldGlossary
+            db.openHelper.writableDatabase.execSQL("DELETE FROM TranslationRecord WHERE fingerprint = ?", arrayOf(fingerprint))
+            runBlocking { if (oldReading != null) db.reader().reading(oldReading) else db.openHelper.writableDatabase.execSQL("DELETE FROM ReadingRecord WHERE documentId = ?", arrayOf(document.id)) }
+            db.close()
         }
     }
 }

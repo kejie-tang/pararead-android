@@ -1,0 +1,56 @@
+{
+  "date": "2026-10-30",
+  "applicationCommit": "69f9e3a3b557b224ac440367f91352d2e8193abe",
+  "variantForInstrumentation": "debug",
+  "androidApi": 36,
+  "abi": "arm64-v8a",
+  "physicalDevice": false,
+  "jvm": {
+    "core": {
+      "tests": 52,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "engine": {
+      "tests": 8,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "lint": {
+    "Warning": 45
+  },
+  "tablet": {
+    "passed": 9,
+    "seconds": 31.488,
+    "size": "1920x1200",
+    "density": 240,
+    "fullscreen": {
+      "beforeWidth": 1788,
+      "beforeHeight": 982,
+      "fullscreenWidth": 1920,
+      "fullscreenHeight": 1132,
+      "wideLayout": true,
+      "sameWebView": true
+    }
+  },
+  "phone": {
+    "passed": 3,
+    "repeatsSubsetOfTablet": true,
+    "seconds": 16.141,
+    "size": "1080x2400",
+    "density": 420,
+    "fullscreen": {
+      "beforeWidth": 1080,
+      "beforeHeight": 1668,
+      "fullscreenWidth": 1080,
+      "fullscreenHeight": 2264,
+      "wideLayout": false,
+      "sameWebView": true
+    }
+  },
+  "ciReleaseApkSha256": "ad7036461cc0987a7ed254d22f35acac0c5dd87e927fa03219b0e256e3a80aa5",
+  "ciReleaseCertificateSha256": "e044c8f329f42465866add4d041f29c498009361241610c8ee2de43ae6e87a45"
+}

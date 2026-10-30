@@ -16,14 +16,20 @@
 
 ## Validation / 验证范围
 
-Local checks: TypeScript, **21 Android Web tests**, **16 upstream source-contract tests**, reader asset build and the real PDF.js browser harness passed. The browser harness verifies visible translations after reopening in manual mode with zero new translation requests, bidirectional selection and incremental annotation saving. It uses desktop Edge/Chromium touch emulation, not Android hardware.
+Local checks passed: TypeScript, **21 Android Web tests**, **16 upstream source-contract tests**, the real PDF.js browser harness, **52 Kotlin core tests**, **8 engine JVM tests**, app/test APK compilation and Android Lint (0 errors, 45 warnings).
 
-New Android instrumentation coverage for Room restoration/full-screen UI and a Kotlin protocol assertion are included. The local Windows environment has no JDK/Android SDK; native build results are established separately by GitHub Actions. CI does not run Android instrumentation or physical-device validation.
+On an **API 36 ARM64 Android emulator**, 9 instrumentation tests passed in tablet layout; the 3 reader recovery/full-screen tests also passed in phone layout. They verify visible Room translations after reopening without additional inference, returning through the library, full-screen dimensions and system bars, the same WebView, exit/Back handling, task recovery, annotations and language settings. Translation fixtures use Mock or seeded cache; this is not physical-device performance or model-quality validation.
 
-[Implementation and local evidence](https://github.com/kejie-tang/pararead-android/blob/main/docs/reports/reader-recovery-fullscreen.md).
+The actual GitHub release APK passed checksum/signature/alignment checks, in-place installation and a separate reader UI smoke test. Both the signed release workflow and Android CI passed for application commit `69f9e3a`. The subsequent test/CI update adds instrumentation APK compilation; emulator tests were run locally.
+
+[Android validation, signing and upgrade evidence](https://github.com/kejie-tang/pararead-android/blob/main/docs/reports/alpha12-local-validation.md) · [Implementation notes](https://github.com/kejie-tang/pararead-android/blob/main/docs/reports/reader-recovery-fullscreen.md).
 
 ## Install and data safety / 安装与数据安全
 
-Android 9+ / ARM64, **versionCode 12**. APK signing compatibility with alpha.11 has not been established. **Do not uninstall an existing version merely to bypass a signature mismatch**: uninstalling deletes private PDFs, saved translations and models. A compatible in-place update requires the original signing identity. Read the final artifact/signing notes before installing.
+Android 9+ / ARM64, **versionCode 12**. The GitHub alpha.12 release APK uses the same persistent preview certificate as the alpha.11 Release APK. An in-place update was verified on the ARM64 emulator, retaining documents and the installed model. This does not cover temporary-key debug APKs downloaded from other CI runs.
+
+Certificate SHA-256: `e044c8f329f42465866add4d041f29c498009361241610c8ee2de43ae6e87a45`. The certificate has an Android Debug identity and is retained for preview upgrades. **Do not uninstall an existing version merely to bypass a signature mismatch**: uninstalling deletes private PDFs, saved translations and models.
+
+已确认 GitHub alpha.12 Release APK 与 alpha.11 Release APK 同签名，模拟器覆盖升级保留文档和模型。此结论不适用于使用临时密钥的 CI debug APK。
 
 这是开发预览版。旧版已完成、校验并提交的译文可恢复；退出时仍在生成中的草稿不保证保存。模型权重和第三方论文不随 APK 分发。

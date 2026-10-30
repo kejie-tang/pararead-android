@@ -1,0 +1,107 @@
+
+> pararead-android@0.2.0 test
+> node --import ./scripts/upstream-loader.mjs --test test/source-contracts.test.mjs
+
+(node:69122) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/kjtang/Documents/app/pararead-android/.references/pararead/src/webview/segmenter/heuristic.ts is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to /Users/kjtang/Documents/app/pararead-android/.references/pararead/package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+✔ sentence IDs, spans and PDF rectangles are deterministic (4.467208ms)
+✔ ordered two-column content keeps the left column before the right (0.741084ms)
+✔ abbreviations, decimal values and URLs survive sentence splitting (0.144167ms)
+✔ language-specific glossary entries override flat entries (0.142792ms)
+✔ cache identity ignores layout whitespace and separates languages and models (0.7325ms)
+✔ reopening the disk cache returns translations without another model call (7.169042ms)
+✔ application-generated batch IDs are mapped back to the original sentence IDs (1.704208ms)
+✔ missing translations retry individually and failures never enter the cache (2.223792ms)
+✔ duplicate source sentences share a single model request (0.998583ms)
+✔ parser rejects empty values, unknown IDs and malformed JSON (0.150958ms)
+✔ GAP: duplicate reply IDs silently overwrite earlier translations (0.062042ms)
+✔ GAP: upstream HTTP translation client requests a non-streaming completion (13.97525ms)
+✔ GAP: changing page queues a new range without cancelling the previous request (1.23275ms)
+✔ stale translation replies are ignored after a document reset (0.34825ms)
+✔ PDF and panel selections share the same stable sentence reference (0.091166ms)
+✔ GAP: bundled PDF.js range transport reserves a full-length byte buffer (5.417167ms)
+ℹ tests 16
+ℹ suites 0
+ℹ pass 16
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 156.709875
+
+> pararead-android@0.2.0 check:reader
+> tsc -p web/reader/src/upstream/tsconfig.json
+
+
+> pararead-android@0.2.0 test:android-web
+> node --import ./scripts/upstream-loader.mjs --test test/android-*.test.mjs
+
+✔ resume skips durable pages and waits for native checkpoint acknowledgement (3.629791ms)
+✔ cancel during segmentation never submits or checkpoints the partial page (1.213667ms)
+✔ cancel during inference keeps the page cursor and stops subsequent pages (0.904167ms)
+✔ whole-document work waits for visible-page work before counting a page (0.828542ms)
+✔ checkpoint or extraction errors stop the job at the last durable page (0.518917ms)
+✔ bridge cancellation stops remaining chunks of a large job page (42.390667ms)
+✔ bridge checkpoint promises require a successful durable native acknowledgement (4.60225ms)
+✔ sparse store allocates by fetched chunks, supports boundaries and eviction (2.778875ms)
+✔ patch is pinned and eliminates whole source copies in reader/save (25.144625ms)
+✔ saving one editor annotation in a 16320-page book visits only its edited page (22.658459ms)
+✔ tapping a pending sentence upgrades priority without stale cancellation clearing its new request (1.1765ms)
+✔ two-column block ordering keeps heading bands, IDs and coordinates (0.402417ms)
+✔ bridge rejects stale sessions and duplicate/out-of-order translation messages (37.626208ms)
+✔ manual reopening restores saved sentences without a translation request (2.670667ms)
+✔ automatic mode restores first and translates only missing sentences (0.976208ms)
+✔ returning to an evicted page restores it again without retranslation (0.923667ms)
+✔ manual page changes restore the new page but never request missing translations (0.494791ms)
+✔ late cache replies after reset or eviction cannot repopulate stale state (0.573208ms)
+✔ failed cache lookups can be retried and unrelated sentence IDs are ignored (0.3905ms)
+✔ explicit translation also waits for cache and skips already saved sentences (0.375834ms)
+✔ cache bridge batches restoration, validates sessions and never posts translation.request (42.2195ms)
+ℹ tests 21
+ℹ suites 0
+ℹ pass 21
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 137.019375
+
+> pararead-android@0.2.0 test:reader
+> npm run build:reader && node scripts/test_reader.mjs
+
+
+> pararead-android@0.2.0 build:reader
+> node scripts/build_reader.mjs
+
+Reader assets: /Users/kjtang/Documents/app/pararead-android/app/build/generated/readerAssets/reader
+Loading
+CONSOLE warning No available adapters.
+CONSOLE log PDF f7c9a88d83ea6940ff2f868717bd4dab [1.4 ReportLab PDF Library - (opensource) / anonymous] (PDF.js: 6.2.108 [0365cbde0])
+Rendered and translated
+Touch sentence { id: 'p1-b5-s2', x: 378.38552664655595, y: 255.95915032679727 }
+Both directions selected
+CONSOLE warning Warning: Font "Helv" is not available -- attempting to fallback to a default font.
+Portrait toolbar bounds {"pane":{"x":0,"y":0,"width":380,"height":800,"top":0,"right":380,"bottom":800,"left":0},"groups":[{"id":"toolbarViewerLeft","box":{"x":1,"y":2,"width":107,"height":28,"top":2,"right":108,"bottom":30,"left":1}},{"id":"toolbarViewerMiddle","box":{"x":118.5,"y":2,"width":59,"height":28,"top":2,"right":177.5,"bottom":30,"left":118.5}},{"id":"toolbarViewerRight","box":{"x":188,"y":2,"width":191,"height":28,"top":2,"right":379,"bottom":30,"left":188}}]}
+CONSOLE warning No available adapters.
+CONSOLE log PDF f7c9a88d83ea6940ff2f868717bd4dab [1.4 ReportLab PDF Library - (opensource) / anonymous] (PDF.js: 6.2.108 [0365cbde0])
+{
+  "status": "passed",
+  "manualReopenRestoresWithoutInference": true,
+  "environment": "Desktop Chromium, touch emulation; not Android or device",
+  "sample": "Original ParaRead Reading Guide (Apache-2.0), 6 pages",
+  "rangeRequests": 2,
+  "largestRange": 15143,
+  "bidirectionalSelection": true,
+  "portraitToolbarWithinPane": true,
+  "alignmentDeltaPx": 0.3058619281047186,
+  "incrementalSave": {
+    "suffixLength": 1013,
+    "pages": 6,
+    "values": [
+      "ParaRead save test"
+    ]
+  },
+  "errors": []
+}

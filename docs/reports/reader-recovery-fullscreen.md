@@ -1,5 +1,7 @@
 # PDF 译文恢复与全屏阅读
 
+后续验证（2026-10-30）：Android 编译、模拟器回归、实际 release APK 签名及覆盖安装均已完成，见 [alpha.12 本地 Android 验证](alpha12-local-validation.md)。下面保留最初 Windows 环境的实现记录与当时的验证范围。
+
 基于 `kejie-tang/pararead-android` 的 main 提交 `86d366ae456002d4f9ffe86f77808461d6bda630`。
 
 ## 修复

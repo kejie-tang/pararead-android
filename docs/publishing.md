@@ -22,7 +22,7 @@ Android 原创代码与适配修改继续采用 Apache-2.0。保留根 [LICENSE]
 
 ## 先下载开发 APK
 
-每次推送 main、提交 PR 或手动触发 [Android CI](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml)，都会进行源码哈希核验、16 项上游契约、TypeScript、13 项 JS/bridge、Chromium 阅读器回归、Kotlin 核心测试、ARM64 JNI 构建和 Lint。
+每次推送 main、提交 PR 或手动触发 [Android CI](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml)，都会进行源码哈希核验、16 项上游契约、TypeScript、21 项 JS/bridge、Chromium 阅读器回归、Kotlin 核心与引擎测试、ARM64 JNI 构建、Android 测试 APK 编译和 Lint。
 
 成功后：打开本次 Actions 运行 → Artifacts → `pararead-android-debug-arm64` → 解压 ZIP → 安装 `*-debug.apk`。需要登录 GitHub，Artifacts 保留 14 天；自动附带通知 ZIP 和 `SHA256SUMS.txt`。APK 不内置模型；应用内另行下载。
 
@@ -60,9 +60,9 @@ base64 -i "$HOME/.android/keystores/pararead-release.jks" | gh secret set ANDROI
 
 ## 发布一个带版本号的 APK
 
-当前预览为 **`0.2.0-alpha.11`**（versionCode 11）。Releases 中的本机 debug 签名 APK 使用持续保留的本机证书；alpha.8–alpha.10 可直接覆盖升级。下面是以后配置正式签名、通过工作流生成发布草稿的流程，版本号以实际待发布版本为准。
+当前预览为 **`0.2.0-alpha.12`**（versionCode 12）。GitHub release APK 由签名工作流构建，继续使用 alpha.11 Release APK 的持久预览证书；已通过模拟器覆盖升级并保留文档和模型，见[验证记录](reports/alpha12-local-validation.md)。证书身份仍为 Android Debug，不等同于正式生产签名。下面以 alpha.12 说明发布草稿的流程；后续发布时替换版本号并递增 versionCode。
 
-1. 在 [app/build.gradle.kts](../app/build.gradle.kts) 更新 `versionName`（例如下一版 `0.2.0-alpha.12`）并递增 `versionCode`（例如 12）。同步中英文 README 当前状态与下载链接和 [release-notes.md](release-notes.md)，提交并推送 main。
+1. 在 [app/build.gradle.kts](../app/build.gradle.kts) 更新 `versionName`（本例为 `0.2.0-alpha.12`）并递增 `versionCode`（本例为 12）。同步中英文 README 当前状态与下载链接和 [release-notes.md](release-notes.md)，提交并推送 main。
 2. 等 Android CI 通过。在已验证的 main 提交上创建 tag；tag 必须等于 `v` 加 `versionName`：
 
    ```sh

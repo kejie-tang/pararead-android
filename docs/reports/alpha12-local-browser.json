@@ -1,0 +1,19 @@
+{
+  "status": "passed",
+  "manualReopenRestoresWithoutInference": true,
+  "environment": "Desktop Chromium, touch emulation; not Android or device",
+  "sample": "Original ParaRead Reading Guide (Apache-2.0), 6 pages",
+  "rangeRequests": 2,
+  "largestRange": 15143,
+  "bidirectionalSelection": true,
+  "portraitToolbarWithinPane": true,
+  "alignmentDeltaPx": 0.3058619281047186,
+  "incrementalSave": {
+    "suffixLength": 1013,
+    "pages": 6,
+    "values": [
+      "ParaRead save test"
+    ]
+  },
+  "errors": []
+}

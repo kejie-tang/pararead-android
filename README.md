@@ -36,7 +36,7 @@ Actual Android emulator captures. The original book icon is included as an adapt
 
 ## Get started
 
-1. **Install the [preview APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.12).** Requires ARM64, Android 9+ and an up-to-date Android System WebView. Read the release's signing/upgrade notes first: compatibility with the alpha.11 signing certificate is not guaranteed. Do not uninstall an existing installation just to bypass a signature error; uninstalling deletes private documents, translations and models.
+1. **Install the [preview APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.12).** Requires ARM64, Android 9+ and an up-to-date Android System WebView. The alpha.12 Release APK keeps the alpha.11 Release signing certificate; an in-place update was verified in an ARM64 Android emulator. See the [validation and upgrade notes](docs/reports/alpha12-local-validation.md). Do not uninstall an existing installation just to bypass a signature error; uninstalling deletes private documents, translations and models.
 2. **Choose a model in Models.** Start with 0.6B for quick reading or 1.7B for stronger translations. Downloads are verified before activation; existing models are retained.
 3. **Import a PDF or open the sample.** Tap a sentence, translate **This page**, or use **All / Resume**. PDFs need selectable text; OCR is not included.
 

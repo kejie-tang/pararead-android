@@ -43,8 +43,8 @@ jobs:
           npm run test:android-web
           npx playwright install --with-deps chromium
           npm run test:reader
-      - name: Build ARM64 debug APK and run checks
-        run: ./gradlew --no-daemon :core:test :engine:llama:testDebugUnitTest :app:assembleDebug :app:lintDebug
+      - name: Build ARM64 app and instrumentation APKs and run checks
+        run: ./gradlew --no-daemon :core:test :engine:llama:testDebugUnitTest :app:assembleDebug :app:assembleDebugAndroidTest :app:lintDebug
       - name: Verify and package artifacts
         run: |
           mkdir -p artifacts

@@ -36,7 +36,7 @@
 
 ## 开始使用
 
-1. **安装[预览版 APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.12)。** 需要 ARM64、Android 9+ 和较新的 Android System WebView。请先阅读 Release 中的签名与升级说明：不保证与 alpha.11 签名兼容。不要为绕过签名错误直接卸载旧版，卸载会删除私有文档、译文缓存和模型。
+1. **安装[预览版 APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.12)。** 需要 ARM64、Android 9+ 和较新的 Android System WebView。alpha.12 Release APK 已确认与 alpha.11 Release 同签名，并通过 ARM64 Android 模拟器覆盖升级；详见[验证与升级说明](docs/reports/alpha12-local-validation.md)。不要为绕过签名错误直接卸载旧版，卸载会删除私有文档、译文缓存和模型。
 2. **在“模型管理”选择模型。** 0.6B 适合轻量快读，1.7B 偏重译文质量。下载校验通过后自动启用，其他模型会保留。
 3. **导入 PDF，或打开示例文档。** 点击句子、翻译“本页”，或使用“全篇 / 继续”。PDF 需要可选中文字，暂不提供 OCR。
 
