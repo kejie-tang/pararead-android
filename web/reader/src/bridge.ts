@@ -104,7 +104,10 @@ async function translate(message: any, cacheOnly = false): Promise<{ id: string;
       legacy({ type: 'translationDone', requestId: message.requestId, failures: [], cancelled: true }); return cached;
     }
     const priority = cacheOnly ? 0 : message.jobId != null ? 3 : (message.priority ?? 1);
-    if (priority !== 0 && priority !== 3 && epoch !== session.viewportEpoch) break;
+    if (priority !== 0 && priority !== 3 && epoch !== session.viewportEpoch) {
+      legacy({ type: 'translationDone', requestId: message.requestId, failures: [], cancelled: true });
+      return cached;
+    }
     const id = `translate-${++sequence}`;
     active.set(id, { legacyId: message.requestId, priority, ...(cacheOnly ? { cached } : {}) });
     try {
@@ -113,6 +116,11 @@ async function translate(message: any, cacheOnly = false): Promise<{ id: string;
         waiters.set(id, { resolve, timer });
         post(cacheOnly ? 'translation.cacheGet' : 'translation.request', { sentences, priority, jobId: message.jobId, page: Number(sentences[0].id.match(/^p(\d+)/)?.[1] ?? 1) }, id);
       });
+      if (response.type === 'protocol.error' && response.payload.code === 'STALE_VIEWPORT') {
+        // A page turn is cancellation, not a failed sentence to leave in error.
+        legacy({ type: 'translationDone', requestId: message.requestId, failures: [], cancelled: true });
+        return cached;
+      }
       failures.push(...(response.payload.failures ?? []));
       if (response.type === 'protocol.error') failures.push(...sentences.map(s => ({ id: s.id, message: response.payload.code })));
       if (response.payload.cancelled) { legacy({ type: 'translationDone', requestId: message.requestId, failures: [], cancelled: true }); return cached; }

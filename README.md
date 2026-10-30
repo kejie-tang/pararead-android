@@ -7,7 +7,7 @@ Read papers and technical documents with the original page beside its translatio
 
 [![Android CI](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml/badge.svg?branch=main)](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml) [![Android 9+](https://img.shields.io/badge/Android-9%2B-3DDC84?logo=android&logoColor=white)](#get-started) [![Code: Apache-2.0](https://img.shields.io/badge/Code-Apache--2.0-blue)](LICENSE)
 
-**[Download APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.14)** · [All releases](https://github.com/kejie-tang/pararead-android/releases) · [简体中文](README.zh-CN.md)
+**[Download APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.15)** · [All releases](https://github.com/kejie-tang/pararead-android/releases) · [简体中文](README.zh-CN.md)
 
 A development preview for **Android 9+ / ARM64**, designed for tablets and usable on phones. Native menus support **English and Simplified Chinese**, with a system-language option. Independent, unofficial adaptation of [ParaRead](https://github.com/Chuanyunux/pararead) 0.6.1.
 
@@ -37,7 +37,7 @@ Actual Android emulator captures. The original book icon is included as an adapt
 
 ## Get started
 
-1. **Install the [preview APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.14).** Requires ARM64, Android 9+ and an up-to-date Android System WebView. The preview signing identity is retained for in-place upgrades; see the [validation and upgrade notes](docs/reports/alpha14.md). Do not uninstall an existing installation just to bypass a signature error; uninstalling deletes private documents, translations and models.
+1. **Install the [preview APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.15).** Requires ARM64, Android 9+ and an up-to-date Android System WebView. The preview signing identity is retained for in-place upgrades; see the [validation and upgrade notes](docs/reports/alpha15.md). Do not uninstall an existing installation just to bypass a signature error; uninstalling deletes private documents, translations and models.
 2. **Choose a model in Models.** Start with 0.6B for quick reading or 1.7B for stronger translations. Downloads are verified before activation; existing models are retained.
 3. **Import a PDF or open the sample.** Tap a sentence, translate **This page**, or use **All / Resume**. PDFs need selectable text; OCR is not included.
 
@@ -46,6 +46,7 @@ Change native menu language in **Settings → Interface language**. This applies
 ### Restore translations and read full screen
 
 - Reopening a PDF automatically restores saved translations, including in **manual** mode, without calling the model or API. Automatic modes translate only cache misses; manual mode leaves them untranslated until you explicitly translate.
+- **Click to select, translate the current page automatically.** Hovering does not select sentences or control translation. New installations default to current-page translation; choose Current page, Nearby pages or Manual in Settings. Page turns take ownership of old speculative work without requiring a sentence click. Existing range preferences are retained.
 - Tap **Full screen** in the reading toolbar to hide the app navigation, toolbar, status messages and system bars. In alpha.13, swiping up to continue reading hides both PDF and translation headers; swiping down or tapping the small arrow restores them. Controls stay visible during annotation, sentence/text selection, and zoom gestures. Normal reading keeps its toolbar. Use the bottom-right exit button or Android Back to leave full screen; Back again returns to the library. The preference persists, and toggling does not recreate the reader or interrupt translation.
 - Cached translations are separated by source text and translation configuration (including model, language and glossary). They stay in app storage and are not embedded in exported annotated PDFs.
 

@@ -144,7 +144,7 @@ class ReaderHost(
             "reader.ready" -> {
                 require(!ready) { "ALREADY_OPEN" }; ready = true
                 send(base("session.open", JSONObject().put("token", source.token).put("length", source.length).put("reading", reading)
-                    .put("debug", BuildConfig.DEBUG).put("settings", JSONObject().put("targetLanguage", config.targetLanguage).put("translateRange", Settings(context).translateRange).put("selectOnHover", true)
+                    .put("debug", BuildConfig.DEBUG).put("settings", JSONObject().put("targetLanguage", config.targetLanguage).put("translateRange", Settings(context).translateRange).put("selectOnHover", false)
                         .put("readerFullscreen", readerFullscreen).put("showControlsLabel", showControlsLabel))))
             }
             "session.opened" -> {

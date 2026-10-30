@@ -58,7 +58,7 @@ class Settings(context: Context) {
     var readerFullscreen: Boolean
         get() = prefs.getBoolean("readerFullscreen", false)
         set(value) { prefs.edit().putBoolean("readerFullscreen", value).apply() }
-    var translateRange: String get() = prefs.getString("translateRange", "nearby")!!; set(v) { prefs.edit().putString("translateRange", v).apply() }
+    var translateRange: String get() = prefs.getString("translateRange", "page")!!; set(v) { prefs.edit().putString("translateRange", v).apply() }
     var apiKey: String
         get() = runCatching {
             val stored = prefs.getString("apiKey", null) ?: return ""

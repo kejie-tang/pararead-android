@@ -5,8 +5,10 @@ set(CMAKE_CXX_STANDARD 17)
 set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
 set(GGML_BACKEND_DL ON CACHE BOOL "" FORCE)
 set(GGML_VULKAN ON CACHE BOOL "" FORCE)
-find_program(PARAREAD_HOST_CC NAMES cc gcc NO_CMAKE_FIND_ROOT_PATH REQUIRED)
-find_program(PARAREAD_HOST_CXX NAMES c++ g++ NO_CMAKE_FIND_ROOT_PATH REQUIRED)
+# Keep the existing Unix compiler preference, but support a standalone Windows
+# LLVM/MinGW host toolchain for the Vulkan shader generator as well.
+find_program(PARAREAD_HOST_CC NAMES cc gcc clang NO_CMAKE_FIND_ROOT_PATH REQUIRED)
+find_program(PARAREAD_HOST_CXX NAMES c++ g++ clang++ NO_CMAKE_FIND_ROOT_PATH REQUIRED)
 configure_file("${CMAKE_CURRENT_LIST_DIR}/../../../../../cmake/vulkan-host-toolchain.cmake.in"
     "${CMAKE_BINARY_DIR}/pararead-vulkan-host.cmake" @ONLY)
 set(GGML_VULKAN_SHADERS_GEN_TOOLCHAIN "${CMAKE_BINARY_DIR}/pararead-vulkan-host.cmake" CACHE FILEPATH "" FORCE)

@@ -361,6 +361,8 @@ class MainActivity : ComponentActivity() {
                         FilterChip(selected = range == value, onClick = { range = value }, label = { Text(name) })
                     }
                 }
+                Text(text.getString(R.string.translation_range_hint), style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             TextButton(onClick = { advanced = !advanced }) {
                 AppIcon(AppGlyph.Sliders, Modifier.size(18.dp)); Spacer(Modifier.width(8.dp)); Text(if (advanced) text.getString(R.string.hide_advanced) else text.getString(R.string.advanced))

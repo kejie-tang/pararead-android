@@ -1,0 +1,34 @@
+{
+    "version":  "0.2.0-alpha.15",
+    "baseCommit":  "e0a1a237f8f64403befdbab5631685d07df39b62",
+    "groups":  [
+                   {
+                       "name":  "Core",
+                       "tests":  52,
+                       "failures":  0,
+                       "errors":  0,
+                       "skipped":  0
+                   },
+                   {
+                       "name":  "Engine",
+                       "tests":  9,
+                       "failures":  0,
+                       "errors":  0,
+                       "skipped":  0
+                   }
+               ],
+    "instrumentationExecuted":  false,
+    "realModelExecuted":  false,
+    "nativeThinkingPromptRegression":  "passed",
+    "lint":  {
+                 "errors":  0,
+                 "warnings":  50
+             },
+    "instrumentationApkCompiled":  true,
+    "localDebugApkSha256":  "8581f71d5bc19dd332350fd97a03723112a462c0676ed2935de077e9eb890eb2",
+    "localDebugCertificateSha256":  "46819ee36ae2e8b8559f19fbefda36355cccc0b25eccbbe9cefa21bba1a2e27c",
+    "localDebugIsPublishedArtifact":  false,
+    "webTests":  30,
+    "upstreamContracts":  16,
+    "typeScript":  "passed"
+}

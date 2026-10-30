@@ -2,4 +2,6 @@ set(CMAKE_SYSTEM_NAME "@CMAKE_HOST_SYSTEM_NAME@")
 set(CMAKE_SYSTEM_PROCESSOR "@CMAKE_HOST_SYSTEM_PROCESSOR@")
 set(CMAKE_C_COMPILER "@PARAREAD_HOST_CC@")
 set(CMAKE_CXX_COMPILER "@PARAREAD_HOST_CXX@")
-set(CMAKE_MAKE_PROGRAM "@CMAKE_MAKE_PROGRAM@" CACHE FILEPATH "" FORCE)
+# AGP may supply a Windows path with backslashes; keep it literal rather than
+# interpreting sequences such as \U when this generated file is parsed.
+set(CMAKE_MAKE_PROGRAM [=[@CMAKE_MAKE_PROGRAM@]=] CACHE FILEPATH "" FORCE)

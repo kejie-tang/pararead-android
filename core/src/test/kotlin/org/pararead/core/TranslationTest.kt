@@ -137,7 +137,8 @@ class TranslationTest {
             val p = OpenAICompatibleProvider(server.url("/v1").toString(), "qwen")
             val events = p.generate(ModelPrompt("system", "user")).toList()
             assertEquals("中文😀", (events.last() as ProviderEvent.Complete).text)
-            assertTrue(server.takeRequest().body.readUtf8().contains("\"enable_thinking\":false"))
+            val requestBody = JSONObject(server.takeRequest().body.readUtf8())
+            assertFalse(requestBody.getJSONObject("chat_template_kwargs").getBoolean("enable_thinking"))
             server.enqueue(MockResponse().setHeader("Content-Type", "text/event-stream").setBody("data: $chunk\n\ndata: [DONE]\n\n"))
             assertFails { p.generate(ModelPrompt("s", "u")).toList() }; Unit
         } finally { server.shutdown() }

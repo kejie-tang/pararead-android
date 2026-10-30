@@ -118,6 +118,7 @@
     <string name="target_language">Target language</string>
     <string name="follow_system">System</string>
     <string name="translation_range">Auto-translation range</string>
+    <string name="translation_range_hint">Current page and Nearby pages translate automatically as you read. Manual requires tapping a sentence or a translation action. Sentences are selected by clicking, not hovering.</string>
     <string name="current_page">Current page</string>
     <string name="nearby_pages">Nearby pages</string>
     <string name="manual">Manual</string>

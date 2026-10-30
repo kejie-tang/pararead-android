@@ -118,6 +118,7 @@
     <string name="target_language">目标语言</string>
     <string name="follow_system">跟随系统</string>
     <string name="translation_range">自动翻译范围</string>
+    <string name="translation_range_hint">“当前页”和“邻页”会自动翻译正在阅读的页面；“手动”需点击句子或翻译按钮。句子仅在点击时选中，悬停不会选中。</string>
     <string name="current_page">当前页</string>
     <string name="nearby_pages">邻近页</string>
     <string name="manual">手动</string>

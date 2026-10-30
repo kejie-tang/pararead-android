@@ -18,7 +18,7 @@ await build({ entryPoints: [`${root}/web/reader/src/entry.ts`], outfile: `${out}
   platform: 'browser', format: 'esm', target: 'es2022', sourcemap: true,
   banner: { js: '/*! ParaRead Android: modified ParaRead 0.6.1, Apache-2.0. Attribution and changes: licenses/project/NOTICE and licenses/pararead/NOTICE. */' },
   plugins: [{ name: 'pdfjs-external', setup(b) { b.onResolve({ filter: /\/viewer\.mjs$/ }, () => ({ path: './pdfjs/web/viewer.mjs', external: true })); } }] });
-const config = { url: '', resourceRoot: 'https://appassets.androidplatform.net/', debug: true, targetLanguage: 'zh-CN', translateRange: 'nearby',
+const config = { url: '', resourceRoot: 'https://appassets.androidplatform.net/', debug: true, targetLanguage: 'zh-CN', translateRange: 'page', selectOnHover: false,
   ...Object.fromEntries(Object.entries({ sandboxBundleSrc: 'build/pdf.sandbox.mjs', cMapUrl: 'web/cmaps/', iccUrl: 'web/iccs/',
     standardFontDataUrl: 'web/standard_fonts/', wasmUrl: 'web/wasm/', imageResourcesPath: 'web/images/' }).map(([k, v]) => [k, `./pdfjs/${v}`])) };
 const attribute = JSON.stringify(config).replaceAll('"', '&quot;');

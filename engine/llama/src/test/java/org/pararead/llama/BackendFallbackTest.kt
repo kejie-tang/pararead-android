@@ -13,6 +13,8 @@ class BackendFallbackTest {
     private val prompt = ModelPrompt("Translate.", "A model.", 1)
     private class FakeRuntime : LlamaRuntime {
         val loads = mutableListOf<Boolean>()
+        val prompts = mutableListOf<String>()
+        var modelArchitecture = "qwen3"
         val freed = mutableListOf<Long>()
         var failLoad = false
         var failGenerate = false
@@ -30,13 +32,14 @@ class BackendFallbackTest {
             return if (vulkan) 2L else 1L
         }
         override fun generate(handle: Long, prompt: String, callback: TokenCallback, expectedResults: Int, constrainJson: Boolean, greedy: Boolean): LongArray {
+            prompts += prompt
             entered.countDown()
             if (blocking) { check(released.await(5, TimeUnit.SECONDS)); error("INFERENCE_CANCELLED") }
             check(callback.onBytes((if (handle == 2L && failGenerate) "错误 GPU 草稿" else output).toByteArray()))
             if (handle == 2L && failGenerate) error("NONFINITE_LOGITS")
             return longArrayOf(4, 3, 10, 30, 2, 20, 1)
         }
-        override fun architecture(handle: Long) = "qwen3"
+        override fun architecture(handle: Long) = modelArchitecture
         override fun device(handle: Long) = if (handle == 2L) "Test GPU" else "CPU"
         override fun benchmark(handle: Long, promptTokens: Int, generatedTokens: Int, callback: TokenCallback): DoubleArray {
             if (failBenchmark) error("VULKAN_DEVICE_LOST")
@@ -44,6 +47,24 @@ class BackendFallbackTest {
         }
         override fun cancel(handle: Long) { cancelled = true; released.countDown() }
         override fun free(handle: Long) { freed += handle }
+    }
+    @Test fun qwenNativePromptsDisableThinkingForBothBackendsAndOutputFormats() = runBlocking {
+        for (architecture in listOf("qwen3", "qwen35")) for (backend in InferenceBackend.entries) {
+            for (format in ModelOutputFormat.entries) {
+                val runtime = FakeRuntime().apply { modelArchitecture = architecture }
+                val provider = LlamaCppProvider("test", requestedBackend = backend, native = runtime)
+                try {
+                    val request = prompt.copy(user = "A model.\n/no_think", outputFormat = format)
+                    provider.generate(request).toList()
+                    val input = runtime.prompts.single()
+                    assertEquals(ModelChatTemplate.render(architecture, request), input)
+                    assertTrue("$architecture / $backend / $format must close thinking before generation",
+                        input.endsWith("<|im_start|>assistant\n<think>\n\n</think>\n\n"))
+                    assertEquals(1, Regex("<think>").findAll(input).count())
+                    assertEquals(1, Regex("</think>").findAll(input).count())
+                } finally { provider.closeAndJoin() }
+            }
+        }
     }
     @Test fun cpuDefaultNeverLoadsVulkan() = runBlocking {
         val runtime = FakeRuntime()

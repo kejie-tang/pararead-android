@@ -35,7 +35,7 @@ export class TranslationClient {
   readonly #store: SentenceStore;
   readonly #post: (message: WebviewToHost) => void | Promise<unknown>;
   readonly #states = new Map<string, TranslationState>();
-  readonly #requests = new Map<number, { done: () => void; ids: string[]; settled: Promise<void> }>();
+  readonly #requests = new Map<number, { done: () => void; ids: string[]; settled: Promise<void>; epoch: number; priority: number }>();
   readonly #owners = new Map<string, number>();
   readonly #listeners = new Set<(id: string, state: TranslationState) => void>();
   readonly #cancelledJobs = new Set<number>();
@@ -43,6 +43,7 @@ export class TranslationClient {
   readonly #restores = new Map<number, Promise<void>>();
   #range: TranslateRange;
   #nextRequestId = 1;
+  #viewportEpoch = 0;
   #runningJobId: number | null = null;
   #jobPage: number | null = null;
   /** Bumped on document reload so that stale work stops. */
@@ -58,6 +59,7 @@ export class TranslationClient {
     // Restore saved results even in manual mode, without requesting new translations.
     store.onPageReady((page) => { void this.#preparePage(page); });
     app.eventBus.on("pagechanging", ({ pageNumber }: { pageNumber: number }) => {
+      this.#viewportEpoch++;
       this.#applyRange(pageNumber);
     });
   }
@@ -285,7 +287,15 @@ export class TranslationClient {
   ): Promise<void> {
     const todo = sentences.filter((s) => {
       const { status } = this.state(s.id);
-      return status === "none" || (retryErrors && status === "error") || (priority === 0 && jobId === undefined && status === "pending");
+      const owner = this.#requests.get(this.#owners.get(s.id) ?? -1);
+      // Native cancels speculative work when the viewport changes. Its terminal
+      // reply is asynchronous: reclaim old pending rows now, rather than letting
+      // them suppress this page's request until the user clicks a sentence.
+      const reclaimAuto = jobId === undefined && (priority === 1 || priority === 2) && owner !== undefined &&
+        (owner.priority === 1 || owner.priority === 2) &&
+        (owner.epoch !== this.#viewportEpoch || (priority === 1 && owner.priority === 2));
+      return status === "none" || (retryErrors && status === "error") ||
+        (status === "pending" && jobId === undefined && (priority === 0 || reclaimAuto));
     });
     if (todo.length === 0) {
       return Promise.resolve();
@@ -297,7 +307,8 @@ export class TranslationClient {
     }
     let resolve!: () => void;
     const settled = new Promise<void>(r => { resolve = r; });
-    this.#requests.set(requestId, {done: resolve, ids: todo.map(s => s.id), settled});
+    this.#requests.set(requestId, {done: resolve, ids: todo.map(s => s.id), settled,
+      epoch: this.#viewportEpoch, priority: jobId === undefined ? priority : 3});
     try {
       this.#post({
         type: "translate",

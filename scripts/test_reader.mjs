@@ -37,9 +37,10 @@ try {
     window.Worker = class extends WorkerBase { constructor(...args) { super(...args); this.addEventListener('error',e=>console.error('WorkerError',e.message,e.filename,e.lineno)); } };
     const session = { version: 1, sessionId: 'test-session', documentId: 'test-document', documentRevision: 'sha256:test', configRevision: 1, viewportEpoch: 0 };
     const send = (m, type, payload) => setTimeout(() => window.ParaReadNative.onmessage({ data: JSON.stringify({ ...session, ...m, type, payload }) }), 0);
+    const pendingPrefetch = new Map();
     window.ParaReadNative = { postMessage(raw) {
       const m = JSON.parse(raw); window.__nativeMessages.push(m);
-      if (m.type === 'reader.ready') send(m, 'session.open', { length, token: 'test', reading: {}, settings: { targetLanguage: 'zh-CN', translateRange: localStorage.getItem('test-range') ?? 'page' }, debug: true });
+      if (m.type === 'reader.ready') send(m, 'session.open', { length, token: 'test', reading: {}, settings: { targetLanguage: 'zh-CN', translateRange: localStorage.getItem('test-range') ?? 'page', selectOnHover: false }, debug: true });
       if (m.type === 'page.cacheGet') send(m, 'page.cached', { page: null });
       // Simulate the native durable cache across WebView reloads (not a production storage path).
       if (m.type === 'translation.cacheGet') {
@@ -49,7 +50,13 @@ try {
         });
         send(m, 'translation.finished', { failures: [], cancelled: false });
       }
+      if (m.type === 'request.cancel' && pendingPrefetch.has(m.payload.requestId)) {
+        const old = pendingPrefetch.get(m.payload.requestId); pendingPrefetch.delete(m.payload.requestId);
+        // Native cancellation acknowledgement can arrive after the new viewport request.
+        setTimeout(() => send(old, 'translation.finished', { failures: [], cancelled: true }), 80);
+      }
       if (m.type === 'translation.request') {
+        if (m.payload.priority === 2) { pendingPrefetch.set(m.requestId, m); return; }
         m.payload.sentences.forEach((s, sequence) => {
           const translation = '【模拟译文】' + s.text;
           localStorage.setItem('test-cache:' + s.text, translation);
@@ -74,6 +81,13 @@ try {
     const box = pv.div.getBoundingClientRect();
     return { id: s.id, x: box.left + x + pv.div.clientLeft, y: box.top + y + pv.div.clientTop };
   });
+  // Hovering is not selection, and disabling it must not disable page translation.
+  await page.mouse.move(first.x, first.y);
+  await page.waitForTimeout(400);
+  assert.equal(await page.evaluate(() => window.__bilingual.selection.current), null);
+  await page.locator(`.bilingualSentence[data-id="${first.id}"]`).hover();
+  await page.waitForTimeout(400);
+  assert.equal(await page.evaluate(() => window.__bilingual.selection.current), null);
   console.log('Touch sentence',first);
   await page.touchscreen.tap(first.x, first.y);
   await page.waitForFunction(id => window.__bilingual.selection.current?.sentence.id === id, first.id);
@@ -115,6 +129,24 @@ try {
     });
   }, undefined, { timeout: 3000 });
   await page.screenshot({ path: resolve(import.meta.dirname, '../docs/reports/reader-portrait.png') });
+  // Use a fresh session so resize/selection work above cannot have translated
+  // page 2 already. The fake native host deliberately holds prefetch requests.
+  await page.evaluate(() => {
+    for (const key of Object.keys(localStorage)) if (key.startsWith('test-cache:')) localStorage.removeItem(key);
+    localStorage.setItem('test-range', 'nearby');
+  });
+  await page.reload();
+  await page.waitForFunction(() => window.paraRead?.opened && window.PDFViewerApplication.pdfViewer.currentPageNumber === 1);
+  await page.waitForFunction(() => window.__nativeMessages.some(m => m.type === 'translation.request' && m.payload.priority === 2 && m.payload.page === 2));
+  for (const pageNumber of [2, 6]) {
+    await page.evaluate(n => { window.PDFViewerApplication.pdfViewer.currentPageNumber = n; }, pageNumber);
+    await page.waitForFunction(n => {
+      const sentences = window.__bilingual.store.readyPages().find(p => p.page === n)?.blocks.filter(b => b.kind === 'text').flatMap(b => b.sentences);
+      return sentences?.length > 0 && sentences.every(s => window.__bilingual.translations.state(s.id).status === 'done');
+    }, pageNumber);
+    assert.equal(await page.evaluate(() => window.__bilingual.selection.current), null);
+    assert.ok(await page.evaluate(n => window.__nativeMessages.some(m => m.type === 'translation.request' && m.payload.priority === 1 && m.payload.page === n), pageNumber));
+  }
   // Reopening in manual mode must hydrate the panel, not silently invoke translation again.
   await page.evaluate(() => localStorage.setItem('test-range', 'manual'));
   await page.reload();
@@ -213,11 +245,11 @@ try {
     ignoresProgrammaticScroll: true, protectsSentenceAndTextSelection: true, protectsAnnotationTools: true,
     normalModeUnchanged: true, exitRestoresControls: true, narrowRevealButtonReachable: true, pdfHeightGain: chromeAfter.height - chromeBefore.height,
     translationHeightGain: panelAfter.height - panelBefore.height };
-  result = { status: 'passed', manualReopenRestoresWithoutInference: true, fullscreenControls, environment: 'Desktop Chromium, touch emulation; not Android or device', sample: 'Original ParaRead Reading Guide (Apache-2.0), 6 pages', rangeRequests: ranges.length, largestRange: Math.max(...ranges.map(([a, b]) => b - a)), bidirectionalSelection: true, portraitToolbarWithinPane: true, alignmentDeltaPx: alignment, incrementalSave: save, errors };
+  result = { status: 'passed', hoverDisabledClickSelectionWorks: true, jumpedPagesTranslateWithoutSelection: [2, 6], cancelledPrefetchPromotedToCurrentPage: true, manualReopenRestoresWithoutInference: true, fullscreenControls, environment: 'Desktop Chromium, touch emulation; not Android or device', sample: 'Original ParaRead Reading Guide (Apache-2.0), 6 pages', rangeRequests: ranges.length, largestRange: Math.max(...ranges.map(([a, b]) => b - a)), bidirectionalSelection: true, portraitToolbarWithinPane: true, alignmentDeltaPx: alignment, incrementalSave: save, errors };
   assert.equal(errors.filter(e => !e.includes('404')).length, 0, errors.join('\n'));
   console.log(JSON.stringify(result, null, 2));
 } catch (e) {
-  console.error(await page.evaluate(() => ({messages: window.__nativeMessages?.slice(-8), pages: window.PDFViewerApplication?.pdfDocument?.numPages, rendered: window.__bilingual?.store.readyPages().length, content: document.body.innerText.slice(-500)})));
+  console.error(await page.evaluate(() => ({currentPage: window.PDFViewerApplication?.pdfViewer?.currentPageNumber, requests: window.__nativeMessages?.filter(m => m.type === 'translation.request').map(m => ({page:m.payload.page,priority:m.payload.priority})), messages: window.__nativeMessages?.slice(-8), pages: window.PDFViewerApplication?.pdfDocument?.numPages, rendered: window.__bilingual?.store.readyPages().length, content: document.body.innerText.slice(-500)})));
   result = { status: 'failed', error: String(e), errors, rangeRequests: ranges.length };
   console.error(e.stack); console.error(JSON.stringify(result, null, 2)); process.exitCode = 1;
 } finally {

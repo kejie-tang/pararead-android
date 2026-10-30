@@ -1,0 +1,41 @@
+{
+  "status": "passed",
+  "hoverDisabledClickSelectionWorks": true,
+  "jumpedPagesTranslateWithoutSelection": [
+    2,
+    6
+  ],
+  "cancelledPrefetchPromotedToCurrentPage": true,
+  "manualReopenRestoresWithoutInference": true,
+  "fullscreenControls": {
+    "pdfSwipeHides": true,
+    "reverseSwipeShows": true,
+    "panelSwipeHides": true,
+    "revealButton": true,
+    "ignoresProgrammaticScroll": true,
+    "protectsSentenceAndTextSelection": true,
+    "protectsAnnotationTools": true,
+    "normalModeUnchanged": true,
+    "exitRestoresControls": true,
+    "narrowRevealButtonReachable": true,
+    "pdfHeightGain": 32,
+    "translationHeightGain": 33
+  },
+  "environment": "Desktop Chromium, touch emulation; not Android or device",
+  "sample": "Original ParaRead Reading Guide (Apache-2.0), 6 pages",
+  "rangeRequests": 3,
+  "largestRange": 15143,
+  "bidirectionalSelection": true,
+  "portraitToolbarWithinPane": true,
+  "alignmentDeltaPx": 0.3058619281047186,
+  "incrementalSave": {
+    "suffixLength": 1014,
+    "pages": 6,
+    "values": [
+      "ParaRead save test"
+    ]
+  },
+  "errors": [
+    "Failed to load resource: the server responded with a status of 404 (Not Found)"
+  ]
+}
