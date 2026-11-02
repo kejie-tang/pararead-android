@@ -20,7 +20,7 @@ function harness({ range = 'manual', restoreCached } = {}) {
     range, restoreCached, post: message => { sent.push(message); },
   });
   const turn = n => { viewer.currentPageNumber = n; handlers.get('pagechanging')({ pageNumber: n }); };
-  return { client, sent, page, turn, publish: n => publish(page(n)) };
+  return { client, sent, page, viewer, turn, publish: n => publish(page(n)) };
 }
 
 test('manual reopening restores saved sentences without a translation request', async () => {
@@ -109,13 +109,48 @@ test('explicit translation also waits for cache and skips already saved sentence
   await pending;
 });
 
+for (const allCached of [false, true]) test(`whole-document translation reuses saved pages and only requests misses (all cached: ${allCached})`, async () => {
+  const previousWindow = globalThis.window;
+  globalThis.window = { paraRead: { evict() {} } };
+  const lookups = [];
+  const h = harness({ restoreCached: async sentences => {
+    lookups.push(sentences.map(s => s.id));
+    return sentences.filter(s => allCached || s.id !== 'p2-b0-s1').map(s => ({ id: s.id, translation: '已保存的正确译文' }));
+  } });
+  h.viewer.pagesCount = 3;
+  try {
+    h.client.handle({ type: 'translateAll', jobId: 99 }); await tick();
+    const requests = h.sent.filter(m => m.type === 'translate');
+    assert.equal(requests.length, allCached ? 0 : 1);
+    if (!allCached) {
+      assert.deepEqual(requests[0].sentences.map(s => s.id), ['p2-b0-s1']);
+      h.client.handle({ type: 'translations', requestId: requests[0].requestId, items: [{ id: 'p2-b0-s1', translation: '补充缺失译文' }] });
+      h.client.handle({ type: 'translationDone', requestId: requests[0].requestId, failures: [] });
+      await tick();
+    }
+    assert.equal(lookups.length, 3);
+    assert.deepEqual(h.sent.filter(m => m.type === 'translateAllProgress').map(m => [m.done, m.failed]), [[1, false], [2, false], [3, false]]);
+    assert.equal(h.sent.find(m => m.type === 'translateAllDone')?.status, 'COMPLETED');
+    assert.equal(h.client.state('p1-b0-s0').translation, '已保存的正确译文');
+  } finally { h.client.reset(); globalThis.window = previousWindow; }
+});
+
+test('cancellation notice expires without hiding errors or leaving a blank status row', async () => {
+  const main = await readFile(new URL('../app/src/main/java/org/pararead/android/MainActivity.kt', import.meta.url), 'utf8');
+  assert.match(main, /LaunchedEffect\(status\)/);
+  assert.match(main, /readerNoticeDuration\(notice\)/);
+  assert.match(main, /if \(status == notice\) status = ""/);
+  assert.match(main, /status\.isNotBlank\(\)/);
+});
+
 test('cache bridge batches restoration, validates sessions and never posts translation.request', async () => {
   const protocol = await readFile(new URL('../core/src/main/kotlin/org/pararead/core/Protocol.kt', import.meta.url), 'utf8');
   assert.match(protocol, /"translation\.cacheGet"/, 'native protocol must admit the cache-only request');
   const host = await readFile(new URL('../app/src/main/java/org/pararead/android/ReaderHost.kt', import.meta.url), 'utf8');
   assert.match(host, /"translation\.cacheGet" -> restoreTranslations\(m\)/);
   const restore = host.slice(host.indexOf('private suspend fun restoreTranslations'), host.indexOf('private suspend fun translate('));
-  assert.match(restore, /dao\.translation\(key\)/);
+  assert.match(restore, /dao\.translations\(keys\.values\.distinct\(\)\)/, 'one bounded batch query, not per-sentence IO');
+  assert.match(restore, /TranslationQuality\.accepts/, 'bad English copies must still be rejected');
   assert.doesNotMatch(restore, /translationQueue|provider\./, 'restoration must not call inference');
   const built = await build({ entryPoints: [fileURLToPath(new URL('../web/reader/src/bridge.ts', import.meta.url))],
     bundle: true, format: 'iife', write: false });

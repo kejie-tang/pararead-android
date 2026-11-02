@@ -149,6 +149,13 @@ class MainActivity : ComponentActivity() {
     }
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
     @Composable private fun App() {
+        LaunchedEffect(status) {
+            val notice = status
+            readerNoticeDuration(notice)?.let { duration ->
+                delay(duration)
+                if (status == notice) status = ""
+            }
+        }
         val modelState by modelViewModel.manager.state.collectAsState()
         val speedState by speedTestViewModel.state.collectAsState()
         val needsForeground = selected != null || showSettings || showModelLibrary || showModelCatalog || speedState.visible || speedState.busy || modelState.busy
@@ -272,7 +279,7 @@ class MainActivity : ComponentActivity() {
                 displayStatus(localBackendStatus?.description ?: settings.backendRecoveryNotice.ifEmpty { "请求后端：${settings.inferenceBackend.label}" }),
                 Modifier.fillMaxWidth().padding(20.dp, 3.dp), style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
-            if (document != null && !fullscreen && status != "导入 PDF，或打开示例文档") Text(displayStatus(status),
+            if (document != null && !fullscreen && status.isNotBlank() && status != "导入 PDF，或打开示例文档") Text(displayStatus(status),
                 Modifier.fillMaxWidth().padding(20.dp, 5.dp), style = MaterialTheme.typography.bodySmall,
                 color = if (status.contains("失败") || status.contains("无法")) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant)
             if (speedState.visible || speedState.busy || (document != null && !foregroundReady)) {

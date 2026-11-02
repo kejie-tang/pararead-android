@@ -1,37 +1,35 @@
-# ParaRead Android 0.2.0-alpha.16 — 书库全部翻译与英文照抄校验 / library pretranslation and source-copy validation
+# ParaRead Android 0.2.0-alpha.17 — 翻页提速与缓存复用 / page priority and cache reuse
 
 ## 中文
 
-- **书库竖向菜单新增“全部翻译”。** 无须打开阅读界面，逐个文档在后台提取、翻译并逐页保存；书库显示排队、已处理页数、暂停和失败状态，可取消、继续或重试。打开文档或模型/设置界面会先停止后台任务并等待模型释放，不改变预翻译文档的阅读位置和最近阅读排序。
-- **修复英文原文被当成中文译文接受、缓存及恢复的校验缺口。** JSON、纯文本、长句片段和旧缓存共用质量检查；不合格结果进入有限重试，正常缓存保留，不清空数据库或整体更换缓存指纹。公式、URL、代码、数字和短专名可原样保留。此检查不保证语义完整或翻译准确。
-- **完成不等于全部成功。** 含失败句的页面会计入失败页，不能显示“全部翻译完成”；处理结束后可重试补译。旧版全篇进度首次继续时会重新扫描缓存，避免把旧英文照抄当作已完成；有效译文不会因此重新推理。
-- **补齐后台可靠性。** 分页落库和逐页任务进度均等待确认；加入前后台独占交接、可等待的取消清理、进度写入所有权检查、跨数据库连接进度刷新和错误出口。
-- **Ollama thinking 关闭更明确。** 常规 Ollama 端口的兼容 API 发送 `reasoning_effort=none`；其他兼容服务保留既有参数，不凭 Qwen 模型别名添加 Ollama 专用设置。
-- 保留 alpha.15 的跳页自动翻译、单击选中、手动模式缓存恢复，以及书库管理、阅读位置恢复和全屏工具栏交互。
+- **取消提示不再常驻。** “全篇已取消”约 2.5 秒后自动消失，并移除空白状态行。新的进度或错误不会被旧提示的计时器清除；书库中的可继续任务状态仍然保留。
+- **全篇优先复用已有译文。** 保留有效译文与缓存指纹，只补缺失或未通过质量校验的句子。缓存恢复按桥接批次一次查询（每批最多 40 句），减少逐句读取和线程切换；内存中已完成的句子不再重复查库。
+- **跨页自动翻译优先当前页。** 当前页自动请求可抢占低优先级的全篇/邻页预取推理，无须再点击句子来提升优先级。先等待旧推理安全释放资源，再执行当前页；不打断更高优先级的显式选中请求。全篇任务随后继续，已提交译文不会重新推理。
+- **保留可靠进度。** 当前页与全篇请求交接时，旧回复不能覆盖新请求；当前页临时失败后，全篇续跑仍可恢复有效结果。分页落库和任务进度仍等待确认，不提前计为成功。
+- 保留 alpha.16 的书库后台全部翻译、英文照抄质量检查，以及既有阅读位置、缓存、批注和全屏交互。手动翻译模式仍需显式操作，不会被改成自动模式。
 
 ## English
 
-- Library document menus now offer **Translate all**, without entering the reader. Durable per-page jobs show queued/running/paused/partial-failure progress, with cancel/resume/retry. Foreground reading and model operations wait for background resources to be released. Pretranslation does not change reading position or recent-reading order.
-- Chinese-target output and cache reads reject ordinary English copying through shared JSON/text/fragment validation and bounded recovery. Good caches and fingerprints are retained. Equations, URLs, code and short proper names can remain unchanged; this is not a semantic-accuracy guarantee.
-- Failed pages are reported as partial completion, never full translation success. Legacy whole-document cursors are rechecked once using their valid sentence caches.
-- Adds page-save/checkpoint acknowledgements, exclusive resource handoff, joined cancellation, job-write fencing, cross-connection library invalidation and fatal-error exits.
-- Standard-port Ollama API requests explicitly disable reasoning with `reasoning_effort=none`; Qwen model aliases alone do not change unrelated compatible servers.
-- Retains alpha.15 reader interactions, library management, reading restoration and full-screen controls.
+- Whole-document cancellation feedback dismisses after about **2.5 seconds**, without leaving an empty status row. A stale timer cannot clear newer progress/errors; resumable library job state remains durable.
+- Whole-document translation reuses valid saved results and requests only missing/invalid sentences. Cache-only restoration uses one bounded Room query per bridge batch (at most 40 sentences), skipping in-memory completed results. No fingerprint bump or cache wipe.
+- Automatic current-page work can preempt lower-priority whole-book/prefetch inference, without a sentence click. Cancellation is drained before the next inference owner starts. Explicit selection keeps its higher priority; preempted whole-book work resumes using committed cache rows.
+- Ownership and durable checkpoint acknowledgements are preserved. Resumed whole-book output can recover a failed visible-page request, but cannot overwrite a newer pending/successful owner.
+- Retains alpha.16 background library translation, source-copy validation, reading restoration, annotations and fullscreen behavior. Existing manual-mode preferences remain explicit.
 
 ## Validation / 验证边界
 
-Real local **qwen3:0.6b** testing used two short original sentences, **CPU / two threads / 1024-token context / thinking off**, after the user explicitly approved this fallback. The translation queue repaired an English cache entry in one model request, preserved a good Chinese entry and reopened with no further inference. GPU testing was blocked by the host driver; it was not silently replaced by CPU before permission.
+Local validation includes **42 Web/host-contract tests**, **16 upstream-contract tests**, **72 Core JVM tests (71 passed, one opt-in real-model test skipped)** and **9 App JVM tests**. Priority tests cover all 16 incoming/running combinations, queue ordering, joined cancellation and completed-cache reuse. Whole-book tests verify zero inference requests when fully cached, and only missing sentences when partially cached. Actual Edge/PDF.js checks include automatic page 2/page 6 translation scheduling, cache reopening, selection/fullscreen and annotation saving.
 
-A real desktop Edge/PDF.js regression uses an **869-byte, two-page generated PDF** to check headless extraction, page/checkpoint barriers, reload/resume and no viewer/canvas/reading-history writes. Its Native bridge, durable storage and translation responses are simulated. JVM tests, TypeScript/Web regressions, native APK/test-APK compilation, Lint, signatures and alignment are checked separately. [Detailed evidence](https://github.com/kejie-tang/pararead-android/blob/main/docs/reports/alpha16.md).
+A **read-only Android API 37 x86_64 emulator** ran the local patched debug smoke build with the explicitly labelled **Mock** provider and the original approximately **15 KB / six-page PDF**. Screenshots show cancellation feedback visible shortly after cancellation and absent later, without a blank row; entering page 6 without pressing a translation button produced automatic mock results. This debug smoke build intentionally excluded native libraries; native-enabled compilation, Lint and packaging are checked separately. It is not a signed-upgrade package or proof of native GGUF inference.
 
-**No Android physical-device, emulator or instrumentation execution was performed for this version.** In particular, desktop headless tests do not establish detached Android WebView/Worker behavior. No real Qwen3:1.7b or whole-paper inference reproduction is claimed. Android foreground-service quotas and OEM restrictions may interrupt long jobs; resume from the library menu.
+No real model inference, model download, physical-device or instrumentation execution was performed for these follow-up fixes. The earlier user-approved tiny two-thread qwen3:0.6b CPU test remains alpha.16 evidence, not a new alpha.17 performance measurement. No immediate-result timing guarantee is made: extraction, safe cancellation and model speed still apply. See [validation details](https://github.com/kejie-tang/pararead-android/blob/main/docs/reports/alpha17.md).
 
 ## Install / 安装
 
-Android 9+ / ARM64, **versionCode 16**. The signed release must retain certificate SHA-256:
+Android 9+ / ARM64, **versionCode 17**. The signed release retains certificate SHA-256:
 
 ```text
 e044c8f329f42465866add4d041f29c498009361241610c8ee2de43ae6e87a45
 ```
 
-Install over the previous same-signed preview to retain data. **Do not uninstall to bypass an upgrade/signature error**: uninstalling deletes private PDFs, translations and models. This is the retained legacy Android Debug preview identity, not a new production identity. APK, notices and SHA-256 checksums are attached; model weights and third-party papers are not bundled.
+Install over the previous same-signed preview to retain private PDFs, translations, models and reading state. **Do not uninstall to bypass an upgrade/signature error.** APK, notices and SHA-256 checksums are attached. Model weights and third-party papers are not bundled.

@@ -49,6 +49,7 @@ data class LibraryDocument(@Embedded val document: DocumentRecord, val readingJs
         // Sentence translations are shared between PDFs and must survive another document's deletion.
     }
     @Query("SELECT * FROM TranslationRecord WHERE `key` = :key") suspend fun translation(key: String): TranslationRecord?
+    @Query("SELECT * FROM TranslationRecord WHERE `key` IN (:keys)") suspend fun translations(keys: List<String>): List<TranslationRecord>
     @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun translation(value: TranslationRecord)
     @Query("SELECT * FROM PageRecord WHERE revision = :revision AND page = :page AND segmenterVersion = 2") suspend fun page(revision: String, page: Int): PageRecord?
     @Insert(onConflict = OnConflictStrategy.REPLACE) suspend fun page(value: PageRecord)

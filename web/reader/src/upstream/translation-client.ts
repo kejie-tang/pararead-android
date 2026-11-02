@@ -122,7 +122,14 @@ export class TranslationClient {
       case "translations":
         if (this.#requests.has(message.requestId)) {
           for (const { id, translation } of message.items) {
-            if (this.#owners.get(id) === message.requestId) this.#set(id, { status: "done", translation });
+            const owner = this.#owners.get(id);
+            // A preempted whole-book request can resume after the visible-page request
+            // has failed/cancelled. Its durable accepted result is still useful then.
+            if (owner === message.requestId || (owner === undefined &&
+              this.#requests.get(message.requestId)?.priority === 3 &&
+              this.#requests.get(message.requestId)?.ids.includes(id) && this.state(id).status !== "done")) {
+              this.#set(id, { status: "done", translation });
+            }
           }
         }
         return true;
@@ -209,7 +216,8 @@ export class TranslationClient {
     const existing = this.#restores.get(page.page);
     if (existing) return existing;
     const generation = this.#generation;
-    const sentences = textSentences(page);
+    const sentences = textSentences(page).filter(s => this.state(s.id).status !== "done");
+    if (!sentences.length) return Promise.resolve();
     const ids = new Set(sentences.map(s => s.id));
     const pending = Promise.resolve().then(() => this.#restoreCached?.(sentences) ?? []).then(items => {
       if (generation !== this.#generation || this.#restores.get(page.page) !== pending) return;
@@ -309,9 +317,10 @@ export class TranslationClient {
       // Native cancels speculative work when the viewport changes. Its terminal
       // reply is asynchronous: reclaim old pending rows now, rather than letting
       // them suppress this page's request until the user clicks a sentence.
-      const reclaimAuto = jobId === undefined && (priority === 1 || priority === 2) && owner !== undefined &&
-        (owner.priority === 1 || owner.priority === 2) &&
-        (owner.epoch !== this.#viewportEpoch || (priority === 1 && owner.priority === 2));
+      const reclaimAuto = jobId === undefined && owner !== undefined &&
+        (((priority === 1 || priority === 2) && (owner.priority === 1 || owner.priority === 2) &&
+          (owner.epoch !== this.#viewportEpoch || (priority === 1 && owner.priority === 2))) ||
+          (priority === 1 && owner.priority === 3));
       return status === "none" || (retryErrors && status === "error") ||
         (status === "pending" && jobId === undefined && (priority === 0 || reclaimAuto));
     });

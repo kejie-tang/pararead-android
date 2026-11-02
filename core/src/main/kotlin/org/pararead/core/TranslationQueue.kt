@@ -14,7 +14,7 @@ data class TranslationWork(val id: String, val epoch: Int, val priority: Int, va
     val finished: suspend (List<Pair<String, String>>, Boolean) -> Unit,
     val delta: suspend (SourceSentence, String) -> Unit = { _, _ -> })
 
-/** One inference owner. Selection preempts speculative work; whole-book work enters one page at a time. */
+/** One inference owner. Selection/current-page work preempts lower priorities; whole-book work enters one page at a time. */
 class TranslationQueue(private val scope: CoroutineScope, private val cache: TranslationCache, private val provider: () -> TranslationProvider) {
     private class Preempted : CancellationException("SELECTION_PREEMPTED")
     private data class Entry(val work: TranslationWork, val order: Long)
@@ -41,7 +41,7 @@ class TranslationQueue(private val scope: CoroutineScope, private val cache: Tra
             if (queue.size >= 64 || queue.any { it.work.id == work.id } || current?.first?.id == work.id) return false
             queue.add(Entry(work, counter.incrementAndGet()))
         }
-        current?.let { (w, job) -> if (work.priority == 0 && w.priority >= 1) job.cancel(Preempted()) }
+        current?.let { (w, job) -> if (work.priority in 0..1 && w.priority > work.priority) job.cancel(Preempted()) }
         wake.trySend(Unit)
         return true
     }

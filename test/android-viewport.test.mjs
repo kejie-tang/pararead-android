@@ -21,7 +21,7 @@ function harness(range = 'nearby') {
   const turn = n => { viewer.currentPageNumber = n; handlers.get('pagechanging')({ pageNumber: n }); };
   const requests = n => sent.filter(m => m.type === 'translate' && m.sentences.some(s => s.id === `p${n}-b0-s0`));
   const finish = (request, cancelled = false) => client.handle({ type: 'translationDone', requestId: request.requestId, failures: [], cancelled });
-  return { client, sent, turn, requests, finish };
+  return { client, sent, viewer, turn, requests, finish };
 }
 
 test('jumping to a prefetched page takes ownership before the old viewport cancellation arrives', async () => {
@@ -84,16 +84,27 @@ test('jumping into a later chapter translates its page without selection and lea
   assert.equal(manual.sent.length, 0, 'An explicitly selected manual mode still disables automatic translation');
 });
 
-test('visible-page work does not steal a whole-document request', async () => {
+for (const visibleFails of [false, true]) test(`visible page promotes whole-book work and preserves its durable result (visible fails: ${visibleFails})`, async () => {
   const previousWindow = globalThis.window;
   globalThis.window = { paraRead: { evict() {} } };
-  const h = harness('manual');
+  const h = harness('manual'); h.viewer.pagesCount = 1;
+  const id = 'p1-b0-s0';
   try {
     h.client.handle({ type: 'translateAll', jobId: 44, startPage: 1 }); await tick();
     const whole = h.requests(1)[0]; assert.equal(whole.jobId, 44);
     h.client.handle({ type: 'settings', translateRange: 'page' }); await tick();
-    assert.equal(h.requests(1).length, 1);
-    h.client.handle({ type: 'cancelTranslateAll' }); h.finish(whole, true); await tick();
+    const visible = h.requests(1).at(-1);
+    assert.equal(h.requests(1).length, 2);
+    assert.equal(visible.priority, 1);
+    if (!visibleFails) h.client.handle({ type: 'translations', requestId: visible.requestId, items: [{ id, translation: '当前页译文' }] });
+    h.client.handle({ type: 'translationDone', requestId: visible.requestId,
+      failures: visibleFails ? [{ id, message: 'Temporary failure' }] : [] });
+    assert.equal(h.sent.some(m => m.type === 'translateAllProgress'), false, 'Checkpoint must still wait for the original whole-book request');
+    h.client.handle({ type: 'translations', requestId: whole.requestId, items: [{ id, translation: '续跑缓存译文' }] });
+    h.finish(whole); await tick();
+    assert.equal(h.client.state(id).translation, visibleFails ? '续跑缓存译文' : '当前页译文');
+    assert.equal(h.sent.find(m => m.type === 'translateAllProgress')?.failed, false);
+    assert.equal(h.sent.find(m => m.type === 'translateAllDone')?.status, 'COMPLETED');
   } finally { h.client.reset(); globalThis.window = previousWindow; }
 });
 

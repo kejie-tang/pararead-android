@@ -266,12 +266,16 @@ class ReaderHost(
     }
     private suspend fun restoreTranslations(m: Envelope) {
         val sentences = sentences(m)
+        val keys = sentences.associateWith { contentKey(it.text, config) }
+        // Bridge batches are bounded to 40 rows. One query instead of one IO hop per sentence.
+        val saved = withContext(Dispatchers.IO) { dao.translations(keys.values.distinct()).associateBy { it.key } }
         var sequence = 0
+        var markedSaved = false
         for (sentence in sentences) {
-            val key = contentKey(sentence.text, config)
-            val cached = withContext(Dispatchers.IO) { dao.translation(key)?.translation }
+            val key = keys.getValue(sentence)
+            val cached = saved[key]?.translation
                 ?.takeIf { TranslationQuality.accepts(sentence.text, it, config) } ?: continue
-            markTranslationsSaved()
+            if (!markedSaved) { markTranslationsSaved(); markedSaved = true }
             send(m.reply("translation.committed", JSONObject().put("sequence", sequence++).put("items", JSONArray()
                 .put(JSONObject().put("id", sentence.id).put("translation", cached).put("contentKey", key)))))
         }

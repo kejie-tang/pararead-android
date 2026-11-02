@@ -1,0 +1,27 @@
+{
+  "version": "0.2.0-alpha.17",
+  "versionCode": 17,
+  "scope": "Local source validation before CI/signing; not physical-device or model-performance evidence",
+  "jvm": {
+    "core": { "tests": 72, "passed": 71, "skipped": 1, "failures": 0, "errors": 0 },
+    "app": { "tests": 9, "passed": 9, "skipped": 0, "failures": 0, "errors": 0 },
+    "engine": { "tests": 9, "passed": 9, "skipped": 0, "failures": 0, "errors": 0, "runtime": "fake" }
+  },
+  "web": { "typeScript": "passed", "hostContractsPassed": 42, "upstreamContractsPassed": 16, "realEdgeReader": "passed", "nativeBridge": "simulated" },
+  "android": {
+    "nativeEnabledDebugApkCompilation": "passed",
+    "instrumentationApkCompilation": "passed",
+    "instrumentationExecution": false,
+    "physicalDeviceExecution": false,
+    "lint": { "errors": 0, "warnings": 53 },
+    "localDebugSignatureVerification": "passed",
+    "zipAndElf16KiBAlignment": "passed",
+    "distributionChecks": "passed",
+    "emulatorSmoke": { "system": "Android API37 x86_64", "avd": "read-only", "provider": "mock", "fixture": "Original six-page approximately 15KB sample", "nativeLibrariesIncludedInSmokeBuild": false, "cancellationNoticeObservedToDisappear": true, "page6AutomaticTranslationWithoutButton": true }
+  },
+  "modelInferencePerformed": false,
+  "modelDownloadsPerformed": false,
+  "cacheFingerprintChanged": false,
+  "databaseEntitiesChanged": false,
+  "publishedCertificateSha256Required": "e044c8f329f42465866add4d041f29c498009361241610c8ee2de43ae6e87a45"
+}

@@ -7,7 +7,7 @@
 
 [![Android CI](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml/badge.svg?branch=main)](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml) [![Android 9+](https://img.shields.io/badge/Android-9%2B-3DDC84?logo=android&logoColor=white)](#开始使用) [![代码：Apache-2.0](https://img.shields.io/badge/Code-Apache--2.0-blue)](LICENSE)
 
-**[下载 APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.16)** · [全部版本](https://github.com/kejie-tang/pararead-android/releases) · [English](README.md)
+**[下载 APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.17)** · [全部版本](https://github.com/kejie-tang/pararead-android/releases) · [English](README.md)
 
 面向 **Android 9+ / ARM64** 的开发预览版，为平板设计，也可在手机使用。原生菜单支持**简体中文、English 和跟随系统**。基于 [ParaRead](https://github.com/Chuanyunux/pararead) 0.6.1 的独立、非官方适配。
 
@@ -38,7 +38,7 @@
 
 ## 开始使用
 
-1. **安装[预览版 APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.16)。** 需要 ARM64、Android 9+ 和较新的 Android System WebView。预览版沿用原签名以便覆盖升级；详见[验证与升级说明](docs/reports/alpha16.md)。不要为绕过签名错误直接卸载旧版，卸载会删除私有文档、译文缓存和模型。
+1. **安装[预览版 APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.17)。** 需要 ARM64、Android 9+ 和较新的 Android System WebView。预览版沿用原签名以便覆盖升级；详见[验证与升级说明](docs/reports/alpha17.md)。不要为绕过签名错误直接卸载旧版，卸载会删除私有文档、译文缓存和模型。
 2. **在“模型管理”选择模型。** 0.6B 适合轻量快读，1.7B 偏重译文质量。下载校验通过后自动启用，其他模型会保留。
 3. **导入 PDF，或打开示例文档。** 点击句子、翻译“本页”，或使用“全篇 / 继续”。PDF 需要可选中文字，暂不提供 OCR。
 
@@ -47,13 +47,15 @@
 ### 恢复译文与全屏阅读
 
 - 已完成并校验通过的译文自动保存在本地，退出 PDF 后重新打开会恢复显示，**手动翻译模式也能恢复，不会为了恢复而调用模型或 API**。自动模式只补译缺失句子；手动模式需点击句子或“本页 / 全篇”才翻译缺失内容。
-- **单击选中，当前页自动翻译。** 悬停不会选中句子，也不会控制是否自动翻译。首次使用默认自动翻译当前页；在**设置 → 自动翻译范围**可选择当前页、邻页或手动。跳页时当前页会接管旧的邻页任务，无须先点击句子；已保存的范围选择仍保留。
+- **单击选中，当前页自动翻译。** 悬停不会选中句子，也不会控制是否自动翻译。首次使用默认自动翻译当前页；在**设置 → 自动翻译范围**可选择当前页、邻页或手动。跳页时当前页自动提优先级，可抢占低优先级的全篇及邻页预取推理，无须先点击句子；切换前仍等待旧推理安全释放资源；已保存的范围选择仍保留。
 - 点击阅读工具栏的**全屏**，隐藏左侧导航、顶部应用栏、状态信息和系统栏，alpha.13 中，上滑继续阅读时会收起 PDF 工具栏和译文顶部栏，下滑或点击小箭头恢复；批注、句子或文字选择及双指缩放时保持菜单显示。普通阅读模式保留工具栏。右下角按钮或 Android 返回键退出全屏，再按返回键回到书库。全屏偏好会保存，下次打开 PDF 时沿用；切换不会重建阅读器或中断翻译。
 - 缓存按原文、模型、语言及术语表等配置区分。更换配置后不会套用旧配置的译文；译文保存在 App 数据中，不会自动写入导出的批注 PDF。
 
 ### 先翻译，再阅读
 
 在书库文档竖向菜单选择**全部翻译**。任务逐个执行，逐页保存进度，不改变阅读位置或最近阅读排序。打开文档、模型或设置界面会暂停后台任务，等待模型安全释放后再进入。可从同一菜单**继续全部翻译**；全部页处理结束后，如有失败，选择**重试失败译文**，保留正常缓存、补译缺失内容。有失败页时不会显示“全部翻译完成”。
+
+全篇优先复用有效译文，只补缺失或不合格句子，并按批次读取缓存。取消提示约 2.5 秒后消失，书库中的可继续任务状态仍保留。[alpha.17 验证](docs/reports/alpha17.md)。
 
 Android 后台服务与系统配额可能中断长任务，不保证每种设备始终后台运行。中文目标会检查英文照抄，并选择性重新验证旧缓存；公式、URL、代码和短专名可原样保留。这不是语义准确性保证。[验证与边界](docs/reports/alpha16.md)。
 
