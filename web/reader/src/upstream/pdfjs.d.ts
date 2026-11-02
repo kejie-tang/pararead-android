@@ -44,6 +44,7 @@ interface PdfjsTextContent {
 
 interface PdfjsPageProxy {
   view: number[];
+  cleanup(): boolean;
   getTextContent(params?: {
     includeMarkedContent?: boolean;
     disableNormalization?: boolean;
@@ -68,6 +69,20 @@ interface PdfjsDocumentProxy {
   getPage(pageNumber: number): Promise<PdfjsPageProxy>;
   getData(): Promise<Uint8Array>;
   saveDocument(): Promise<Uint8Array>;
+}
+
+interface PdfjsRangeTransport {
+  abort(): void;
+}
+
+interface PdfjsLoadingTask {
+  promise: Promise<PdfjsDocumentProxy>;
+  destroy(): Promise<void>;
+}
+
+interface PdfjsLibrary {
+  GlobalWorkerOptions: { workerSrc: string };
+  getDocument(options: Record<string, unknown>): PdfjsLoadingTask;
 }
 
 interface PdfjsViewer {

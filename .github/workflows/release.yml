@@ -64,6 +64,7 @@ jobs:
           npm run test:android-web
           npx playwright install --with-deps chromium
           npm run test:reader
+          npm run test:background-reader
       - name: Restore private signing key
         env:
           KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
@@ -81,7 +82,7 @@ jobs:
           PARAREAD_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           PARAREAD_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
-          ./gradlew --no-daemon :core:test :engine:llama:testDebugUnitTest :app:assembleRelease :app:lintRelease
+          ./gradlew --no-daemon :core:test :engine:llama:testDebugUnitTest :app:testDebugUnitTest :app:assembleRelease :app:lintRelease
           mkdir -p artifacts
           ./gradlew --no-daemon :app:dependencies --configuration releaseRuntimeClasspath > artifacts/release-runtime-dependencies.txt
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs app/build/outputs/apk/release/app-release.apk

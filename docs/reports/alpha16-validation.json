@@ -1,0 +1,105 @@
+{
+  "version": "0.2.0-alpha.16",
+  "versionCode": 16,
+  "generatedAt": "2026-11-02T07:59:08.408Z",
+  "scope": "Local checks; Android APK/test APK compiled, no device execution.",
+  "jvm": {
+    "core": {
+      "tests": 69,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "app": {
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "engine": {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "realModelTestOptIn": true,
+    "publicCiSkipsOnlyTheLocalModelTest": true
+  },
+  "web": {
+    "typecheck": "passed",
+    "androidWebAndHostContracts": 38,
+    "upstreamContracts": 16,
+    "readerBrowser": "alpha16-browser.json",
+    "backgroundBrowser": "alpha16-background-browser.json",
+    "desktopBrowserOnly": true,
+    "nativeBridgeAndBrowserTranslations": "simulated"
+  },
+  "realModel": {
+    "baseModel": "qwen3:0.6b",
+    "backend": "CPU",
+    "cpuFallbackExplicitlyApprovedByUser": true,
+    "cpuThreads": 2,
+    "contextTokens": 1024,
+    "originalShortSentences": 2,
+    "wholePaperInference": false,
+    "thinkingOff": {
+      "nativeApi": "think=false",
+      "ollamaOpenAiApi": "reasoning_effort=none",
+      "chatTemplateEnableThinking": false
+    },
+    "repairRequests": 1,
+    "copiedEnglishCacheRepaired": true,
+    "validCachePreserved": true,
+    "reopenInferenceRequests": 0,
+    "repairedTranslation": "读者还记得最后一页。",
+    "semanticAccuracyNotGuaranteed": true,
+    "downloadedModelWeights": false
+  },
+  "gpu": {
+    "inferenceVerified": false,
+    "blockers": [
+      "Vulkan loader could not find a usable AMD ICD",
+      "ROCm invalid device function"
+    ],
+    "systemDriverModified": false,
+    "originalOllamaServiceReconfigured": false,
+    "cpuTextTestingStartedOnlyAfterExplicitPermission": true
+  },
+  "android": {
+    "nativeEnabled": true,
+    "skipNative": false,
+    "buildWorkers": 2,
+    "debugApk": "compiled",
+    "instrumentationApk": "compiled only",
+    "lint": {
+      "errors": 0,
+      "warnings": 53
+    },
+    "apkSignatureVerification": "passed (local debug identity)",
+    "zipAndElf16KiBAlignment": "passed",
+    "physicalDeviceExecution": false,
+    "emulatorExecution": false,
+    "instrumentationExecution": false,
+    "detachedAndroidWebViewExecution": false,
+    "androidGgufInference": false
+  },
+  "dataSafety": {
+    "sentenceFingerprintsUnchanged": true,
+    "goodTranslationsRetained": true,
+    "legacyJobPagesRevalidatedOnce": true,
+    "backgroundDoesNotMarkRead": true,
+    "thirdPartyPapersOrFullExtractedTextCommitted": false
+  },
+  "release": {
+    "expectedCertificateSha256": "e044c8f329f42465866add4d041f29c498009361241610c8ee2de43ae6e87a45",
+    "localDebugCannotOverwritePublishedApp": true,
+    "signedReleaseVerificationRequiredBeforePublication": true
+  },
+  "limits": [
+    "Not a real Qwen3:1.7b whole-paper reproduction",
+    "Desktop PDF.js does not prove Android Worker execution",
+    "Language/copy checks do not prove semantic completeness",
+    "System foreground-service quotas may pause long jobs",
+    "Resume keeps earlier failed-page counts; explicit retry after completion rechecks missing translations"
+  ]
+}

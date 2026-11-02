@@ -14,12 +14,16 @@ import java.util.concurrent.TimeUnit
 class OpenAICompatibleProvider(
     private val baseUrl: String, private val model: String, private val apiKey: String = "",
     private val client: OkHttpClient = OkHttpClient.Builder().callTimeout(120, TimeUnit.SECONDS).readTimeout(60, TimeUnit.SECONDS).build(),
+    private val ollamaThinkingOff: Boolean = isOllamaEndpoint(baseUrl),
 ) : TranslationProvider {
     override fun generate(prompt: ModelPrompt) = callbackFlow {
         val body = JSONObject().put("model", model).put("temperature", 0.2).put("max_tokens", 2048).put("stream", true)
             .put("chat_template_kwargs", JSONObject().put("enable_thinking", false))
             .put("messages", JSONArray().put(JSONObject().put("role", "system").put("content", prompt.system))
                 .put(JSONObject().put("role", "user").put("content", prompt.user)))
+        // Ollama's OpenAI adapter ignores chat_template_kwargs. Its explicit off switch
+        // is reasoning_effort=none; /no_think alone can still exhaust the token budget.
+        if (ollamaThinkingOff) body.put("reasoning_effort", "none")
         if (prompt.outputFormat == ModelOutputFormat.TRANSLATION_JSON) body.put("response_format", JSONObject().put("type", "json_object"))
         val url = baseUrl.trimEnd('/') + "/chat/completions"
         val builder = Request.Builder().url(url).post(body.toString().toRequestBody("application/json".toMediaType()))
@@ -79,6 +83,8 @@ class OpenAICompatibleProvider(
         awaitClose { call.cancel() }
     }
     companion object {
+        fun isOllamaEndpoint(url: String): Boolean =
+            runCatching { java.net.URI(url).port == 11434 }.getOrDefault(false)
         fun isLocalHttp(url: String): Boolean {
             val host = runCatching { java.net.URI(url).host }.getOrNull() ?: return false
             return url.startsWith("http://") && (host in setOf("localhost", "127.0.0.1", "10.0.2.2", "[::1]") ||

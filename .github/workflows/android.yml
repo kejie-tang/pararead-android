@@ -43,8 +43,9 @@ jobs:
           npm run test:android-web
           npx playwright install --with-deps chromium
           npm run test:reader
+          npm run test:background-reader
       - name: Build ARM64 app and instrumentation APKs and run checks
-        run: ./gradlew --no-daemon :core:test :engine:llama:testDebugUnitTest :app:assembleDebug :app:assembleDebugAndroidTest :app:lintDebug
+        run: ./gradlew --no-daemon :core:test :engine:llama:testDebugUnitTest :app:testDebugUnitTest :app:assembleDebug :app:assembleDebugAndroidTest :app:lintDebug
       - name: Verify and package artifacts
         run: |
           mkdir -p artifacts

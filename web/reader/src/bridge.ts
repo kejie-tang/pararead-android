@@ -1,6 +1,6 @@
 /* Android host adapter. ParaRead UI modules remain in ./upstream (Apache-2.0). */
 export {};
-type Session = { sessionId: string; documentId: string; documentRevision: string; length: number; token: string;
+export type Session = { sessionId: string; documentId: string; documentRevision: string; length: number; token: string;
   viewportEpoch: number; configRevision: number; reading: any; settings: any; debug: boolean };
 type Envelope = { version: number; type: string; sessionId: string; documentId: string; documentRevision: string;
   requestId: string; viewportEpoch: number; configRevision: number; payload: any };
@@ -140,6 +140,7 @@ window.acquireVsCodeApi = () => ({
     else if (m.type === 'translateAllProgress' || m.type === 'translateAllDone') {
       return request(m.type === 'translateAllProgress' ? 'job.progress' : 'job.finished', m).then(response => {
         if (response.type === 'protocol.error') throw new Error(response.payload.code);
+        if (response.type !== 'job.saved') throw new Error('EXPECTED_JOB_SAVED');
         if (m.type === 'translateAllProgress' && response.payload.status !== 'RUNNING') throw new Error('JOB_STOPPED');
         if (m.type === 'translateAllDone') { cancelledJobs.delete(m.jobId); if (runningJob === m.jobId) runningJob = undefined; }
       });
@@ -156,7 +157,7 @@ let inflight = 0;
 const rangeWaiters: (() => void)[] = [];
 async function rangeSlot() { if (inflight >= 4) await new Promise<void>(r => rangeWaiters.push(r)); else inflight++; }
 function rangeRelease() { const next = rangeWaiters.shift(); if (next) next(); else inflight--; }
-function makeRangeTransport(pdfjs: any, s: Session) {
+function makeRangeTransport(pdfjs: any, s: Session, onError?: (error: unknown) => void) {
   const abort = new AbortController();
   const transport = new pdfjs.PDFDataRangeTransport(s.length, new Uint8Array(0), true);
   transport.requestDataRange = (begin: number, end: number) => {
@@ -166,6 +167,7 @@ function makeRangeTransport(pdfjs: any, s: Session) {
       for (let offset = begin; offset < end; offset += 262144) {
         await rangeSlot();
         try {
+          if (abort.signal.aborted) return;
           const limit = Math.min(end, offset + 262144);
           const response = await fetch(`/documents/${s.token}/ranges?begin=${offset}&end=${limit}`, { signal: abort.signal });
           if (!response.ok) throw new Error(`RANGE_HTTP_${response.status}`);
@@ -174,8 +176,13 @@ function makeRangeTransport(pdfjs: any, s: Session) {
           merged.set(chunk, offset - begin);
         } finally { rangeRelease(); }
       }
-      transport.onDataRange(begin, merged);
-    })().catch(e => { abort.abort(); (window.PDFViewerApplication as any)?.close?.(); post('session.error', { message: String(e) }); });
+      if (!abort.signal.aborted) transport.onDataRange(begin, merged);
+    })().catch(e => {
+      if (abort.signal.aborted) return;
+      abort.abort();
+      if (onError) onError(e);
+      else { (window.PDFViewerApplication as any)?.close?.(); post('session.error', { message: String(e) }); }
+    });
   };
   transport.abort = () => abort.abort();
   return transport;
@@ -189,10 +196,18 @@ async function pageCached(page: number) {
   const response = await request('page.cacheGet', { page }, 3000);
   return response.payload.page ?? null;
 }
-function pageText(page: any) {
+async function pageText(page: { page: number }): Promise<void> {
   const data = JSON.stringify(page); const size = 5000; const count = Math.ceil(data.length / size);
-  if (count > 64) { post('telemetry.event', { name: 'PAGE_TEXT_TOO_LARGE', value: data.length }); return; }
-  for (let i = 0; i < count; i++) post('page.textChunk', { page: page.page, chunkIndex: i, chunkCount: count, data: data.slice(i * size, (i + 1) * size) });
+  if (count > 64) throw new Error('PAGE_TEXT_TOO_LARGE');
+  for (let i = 0; i < count; i++) {
+    const payload = { page: page.page, chunkIndex: i, chunkCount: count, data: data.slice(i * size, (i + 1) * size) };
+    if (i < count - 1) post('page.textChunk', payload);
+    else {
+      const response = await request('page.textChunk', payload, 30000);
+      if (response.type === 'protocol.error') throw new Error(response.payload.code);
+      if (response.type !== 'page.saved' || response.payload.page !== page.page) throw new Error('EXPECTED_PAGE_SAVED');
+    }
+  }
 }
 let saveActive = false;
 let saveQueued = false;

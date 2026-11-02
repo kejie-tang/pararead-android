@@ -14,8 +14,12 @@ import type { PageSegmentation, Segmenter, Sentence, TextItemInput } from "./seg
 /** Max distance (PDF units) from a click to a sentence rectangle to count as a hit. */
 const HIT_SLOP = 3;
 
+export interface TextDocumentContext {
+  readonly pdfDocument: Pick<PdfjsDocumentProxy, "getPage"> | null;
+}
+
 export class SentenceStore {
-  readonly #app: PdfjsApplication;
+  readonly #app: TextDocumentContext;
   readonly #segmenter: Segmenter;
   #pages = new Map<number, Promise<PageSegmentation>>();
   #ready = new Map<number, PageSegmentation>();
@@ -24,7 +28,7 @@ export class SentenceStore {
   /** Bumped on document reload so that stale results are dropped. */
   #generation = 0;
 
-  constructor(app: PdfjsApplication, segmenter: Segmenter) {
+  constructor(app: TextDocumentContext, segmenter: Segmenter) {
     this.#app = app;
     this.#segmenter = segmenter;
   }
@@ -118,7 +122,8 @@ export class SentenceStore {
     if (generation !== this.#generation) {
       throw new Error("Document was reloaded.");
     }
-    window.paraRead.pageText(result);
+    await window.paraRead.pageText(result);
+    if (generation !== this.#generation) throw new Error("Document was reloaded.");
     return this.#publish(result);
   }
 

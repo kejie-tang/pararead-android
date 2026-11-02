@@ -30,8 +30,12 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.lifecycleScope
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.json.JSONArray
 import org.json.JSONObject
 import org.pararead.core.*
@@ -51,6 +55,13 @@ class MainActivity : ComponentActivity() {
     private var host: ReaderHost? = null
     private var readerScope: CoroutineScope? = null
     private var readerRelease: Deferred<Unit>? = null
+    private val cleanupScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+    private var releaseForeground: (suspend () -> Unit)? = null
+    private var failForeground: (() -> Unit)? = null
+    private val foregroundAcquisition = Mutex()
+    private var foregroundReady by mutableStateOf(false)
+    private var foregroundError by mutableStateOf<String?>(null)
+    private var backgroundWork by mutableStateOf<List<WorkInfo>>(emptyList())
     private var selected by mutableStateOf<DocumentRecord?>(null)
     private var readerFullscreen by mutableStateOf(false)
     private var readerVersion by mutableIntStateOf(0)
@@ -85,6 +96,9 @@ class MainActivity : ComponentActivity() {
             }
         }
         lifecycleScope.launch { db.reader().library().collect { documents = it } }
+        lifecycleScope.launch {
+            WorkManager.getInstance(this@MainActivity).getWorkInfosByTagFlow(BackgroundTranslations.TAG).collect { backgroundWork = it }
+        }
         setContent { AppLanguage(uiLanguage) { ParaReadTheme {
             val dark = isSystemInDarkTheme()
             SideEffect { WindowCompat.getInsetsController(window, window.decorView).apply {
@@ -94,11 +108,34 @@ class MainActivity : ComponentActivity() {
         } } }
     }
     override fun onSaveInstanceState(outState: Bundle) { outState.putString("documentId", selected?.id); super.onSaveInstanceState(outState) }
+    private suspend fun acquireForeground() = foregroundAcquisition.withLock {
+        if (releaseForeground == null) {
+            val lease = BackgroundTranslations.enterForeground(this)
+            releaseForeground = { lease.release() }
+            failForeground = lease::failClosed
+        }
+    }
+    private fun failForegroundCleanup() {
+        failForeground?.invoke(); failForeground = null; releaseForeground = null
+        foregroundReady = false
+        foregroundError = applicationContext.withAppLanguage().getString(R.string.translation_cleanup_failed)
+        status = foregroundError!!
+    }
     private fun reopen() {
         val previous = host; val pending = readerRelease
         val previousScope = readerScope
-        previous?.close(); previousScope?.cancel(); host = null
-        readerRelease = lifecycleScope.async { pending?.await(); previousScope?.coroutineContext?.get(Job)?.join(); previous?.awaitProviderClosed(); Unit }
+        previous?.prepareToStop()
+        host = null; readerScope = null
+        readerRelease = cleanupScope.async(start = CoroutineStart.UNDISPATCHED) {
+            try {
+                try { pending?.await() }
+                finally {
+                    if (previous != null) previous.stopAndJoin(null) // Keep visible-reader recovery cursor.
+                    else previousScope?.coroutineContext?.get(Job)?.cancelAndJoin()
+                }
+            } catch (e: Throwable) { failForegroundCleanup(); throw e }
+            Unit
+        }
         readerVersion++
     }
     private fun runImport(block: suspend () -> Unit) {
@@ -114,12 +151,45 @@ class MainActivity : ComponentActivity() {
     @Composable private fun App() {
         val modelState by modelViewModel.manager.state.collectAsState()
         val speedState by speedTestViewModel.state.collectAsState()
+        val needsForeground = selected != null || showSettings || showModelLibrary || showModelCatalog || speedState.visible || speedState.busy || modelState.busy
+        LaunchedEffect(needsForeground) {
+            if (needsForeground) {
+                foregroundReady = false
+                foregroundError = null
+                try {
+                    acquireForeground()
+                    foregroundReady = true
+                } catch (e: CancellationException) { throw e }
+                catch (_: Exception) {
+                    foregroundError = applicationContext.withAppLanguage().getString(R.string.translation_cleanup_failed)
+                    status = foregroundError!!
+                }
+            } else {
+                foregroundReady = false
+                try {
+                    readerRelease?.await()
+                    withContext(NonCancellable) {
+                        releaseForeground?.invoke(); releaseForeground = null; failForeground = null
+                    }
+                } catch (e: CancellationException) { throw e }
+                catch (_: Exception) { failForegroundCleanup() }
+            }
+        }
+        val translationStates = remember(backgroundWork, documents) {
+            val latest = BackgroundTranslations.latestByDocument(backgroundWork)
+            documents.mapNotNull { item ->
+                val work = latest[item.document.id]
+                work?.let {
+                    val queued = it.state in setOf(WorkInfo.State.ENQUEUED, WorkInfo.State.BLOCKED) ||
+                        (it.state == WorkInfo.State.RUNNING && it.progress.getInt("total", 0) == 0)
+                    item.document.id to LibraryTranslationState(queued = queued,
+                        running = it.state == WorkInfo.State.RUNNING && !queued,
+                        error = BackgroundTranslations.failureFor(it, item.translationJob()))
+                }
+            }.toMap()
+        }
         LaunchedEffect(modelState.installed?.path, modelState.installed?.sha256) {
-            val previous = host
-            previous?.close(); readerScope?.cancel(); host = null
-            readerRelease?.await()
-            previous?.awaitProviderClosed()
-            readerVersion++
+            reopen(); readerRelease?.await()
         }
         LaunchedEffect(Unit) {
             withFrameNanos { }
@@ -131,7 +201,11 @@ class MainActivity : ComponentActivity() {
             runImport { val doc = repository.import(it) { bytes -> lifecycleScope.launch { status = "正在导入 ${bytes / 1048576} MiB…" } }; reopen(); selected = doc }
         } }
         val modelPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> uri?.let {
-            modelViewModel.manager.import(it)
+            lifecycleScope.launch {
+                try { acquireForeground(); modelViewModel.manager.import(it) }
+                catch (e: CancellationException) { throw e }
+                catch (_: Exception) { failForegroundCleanup() }
+            }
         } }
         val notificationPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
         val downloadModel: (ModelAsset) -> Unit = { asset ->
@@ -201,15 +275,45 @@ class MainActivity : ComponentActivity() {
             if (document != null && !fullscreen && status != "导入 PDF，或打开示例文档") Text(displayStatus(status),
                 Modifier.fillMaxWidth().padding(20.dp, 5.dp), style = MaterialTheme.typography.bodySmall,
                 color = if (status.contains("失败") || status.contains("无法")) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant)
-            if (speedState.visible || speedState.busy) {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text(LocalContext.current.getString(R.string.reader_paused), color = MaterialTheme.colorScheme.onSurfaceVariant) }
+            if (speedState.visible || speedState.busy || (document != null && !foregroundReady)) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) { Text(foregroundError ?: LocalContext.current.getString(
+                    if (document != null && !foregroundReady) R.string.translation_stopping else R.string.reader_paused), color = MaterialTheme.colorScheme.onSurfaceVariant) }
             } else if (document == null) {
                 LibraryScreen(documents, modelState, importing, status,
                     onImport = { picker.launch(arrayOf("application/pdf")) },
                     onSample = { runImport { selected = repository.sample() } },
                     onOpen = { selected = it }, onModels = { showModelLibrary = true }, onCancelImport = { importTask?.cancel() },
                     onRename = { doc, name -> repository.rename(doc, name) },
-                    onDelete = { doc -> readerRelease?.await(); repository.delete(doc) })
+                    onDelete = { doc -> readerRelease?.await(); BackgroundTranslations.cancelAndAwait(this@MainActivity, doc.id); repository.delete(doc) },
+                    translationStates = translationStates,
+                    onTranslateAll = { doc -> lifecycleScope.launch {
+                        try {
+                            readerRelease?.await()
+                            if (selected != null || showSettings || showModelLibrary || showModelCatalog || speedTestViewModel.state.value.visible || speedTestViewModel.state.value.busy || modelViewModel.manager.state.value.busy) {
+                                status = applicationContext.withAppLanguage().getString(R.string.translation_foreground_active)
+                                return@launch
+                            }
+                            // A just-closed reader may still be releasing its native model.
+                            withContext(NonCancellable) { releaseForeground?.invoke(); releaseForeground = null; failForeground = null }
+                            val outcome = BackgroundTranslations.enqueue(this@MainActivity, doc.id)
+                            status = applicationContext.withAppLanguage().getString(when (outcome) {
+                                BackgroundTranslations.EnqueueResult.ENQUEUED -> R.string.translation_enqueued
+                                BackgroundTranslations.EnqueueResult.ALREADY_QUEUED -> R.string.translation_already_queued
+                                BackgroundTranslations.EnqueueResult.FOREGROUND_ACTIVE -> R.string.translation_foreground_active
+                                BackgroundTranslations.EnqueueResult.INVALID_CONFIG -> R.string.translation_invalid_config
+                                BackgroundTranslations.EnqueueResult.CLEANUP_FAILED -> R.string.translation_cleanup_failed
+                            })
+                        } catch (e: CancellationException) { throw e }
+                        catch (e: Exception) { status = "无法启动全部翻译：${e.message?.take(180)}" }
+                    } },
+                    onCancelTranslation = { doc -> lifecycleScope.launch {
+                        status = applicationContext.withAppLanguage().getString(R.string.translation_stopping)
+                        try {
+                            BackgroundTranslations.cancelAndAwait(this@MainActivity, doc.id)
+                            status = applicationContext.withAppLanguage().getString(R.string.translation_cancelled)
+                        } catch (e: CancellationException) { throw e }
+                        catch (e: Exception) { status = "无法停止翻译：${e.message?.take(180)}" }
+                    } })
             } else key(document.id, readerVersion) {
                 var source by remember { mutableStateOf<RangeSource?>(null) }
                 LaunchedEffect(document.id, readerVersion) {
@@ -222,12 +326,13 @@ class MainActivity : ComponentActivity() {
                 source?.let { file ->
                     val showControlsLabel = LocalContext.current.getString(R.string.reader_show_controls)
                     AndroidView(factory = {
-                        val config = settings.config()
+                        val runtime = settings.runtimeSnapshot()
+                        val config = runtime.config
                         val provider: TranslationProvider = when (config.provider) {
                             "mock" -> MockTranslationProvider()
-                            "api" -> OpenAICompatibleProvider(settings.baseUrl, settings.model, settings.apiKey)
-                            else -> LlamaCppProvider(settings.modelPath, settings.cpuThreads,
-                                requestedBackend = settings.inferenceBackend,
+                            "api" -> OpenAICompatibleProvider(runtime.baseUrl, config.model, runtime.apiKey)
+                            else -> LlamaCppProvider(runtime.modelPath, runtime.cpuThreads,
+                                requestedBackend = runtime.backend,
                                 onBackendChanged = { value -> lifecycleScope.launch { localBackendStatus = value } },
                                 onVulkanSession = settings::markVulkanSession).also { localBackendStatus = it.backendStatus }
                         }
@@ -249,7 +354,12 @@ class MainActivity : ComponentActivity() {
             }
         }
         }
-        if (showSettings) SettingsDialog(modelState = modelState,
+        if ((showSettings || showModelLibrary || showModelCatalog) && !foregroundReady) AlertDialog(
+            onDismissRequest = { showSettings = false; showModelLibrary = false; showModelCatalog = false },
+            confirmButton = {}, text = { Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+                CircularProgressIndicator(Modifier.size(24.dp)); Text(foregroundError ?: LocalContext.current.getString(R.string.translation_stopping))
+            } })
+        if (showSettings && foregroundReady) SettingsDialog(modelState = modelState,
             onSpeedTest = { threads, backend -> modelState.installed?.let { model ->
                 val previous = host; reopen()
                 speedTestViewModel.open(model, threads, backend) { readerRelease?.await(); previous?.awaitProviderClosed() }
@@ -258,15 +368,15 @@ class MainActivity : ComponentActivity() {
             onExportGlossary = { glossaryExport.launch("pararead-glossary.json") },
             onMetrics = { metrics.launch("pararead-performance.json") },
             onSave = { showSettings = false; reopen() }, onClose = { showSettings = false })
-        if (speedState.visible) SpeedTestDialog(speedState, onStart = speedTestViewModel::start,
-            onCancel = speedTestViewModel::cancel, onClose = speedTestViewModel::dismiss,
+        if (speedState.visible) SpeedTestDialog(speedState, onStart = { if (foregroundReady) speedTestViewModel.start() },
+            canStart = foregroundReady, onCancel = speedTestViewModel::cancel, onClose = speedTestViewModel::dismiss,
             onExport = { if (speedTestViewModel.prepareExport()) speedExport.launch("pararead-speed-test.json") })
-        if (showModelLibrary) ModelLibraryDialog(modelState, actionsEnabled = !speedState.busy,
+        if (showModelLibrary && foregroundReady) ModelLibraryDialog(modelState, actionsEnabled = !speedState.busy,
             onDownload = downloadModel, onUse = modelViewModel.manager::select,
             onDelete = { modelViewModel.manager.delete(it) }, onRetry = modelViewModel.manager::retry,
             onCancel = modelViewModel.manager::cancel, onImport = { modelPicker.launch(arrayOf("*/*")) },
             onMore = { showModelCatalog = true }, onClose = { showModelLibrary = false })
-        if (showModelCatalog) {
+        if (showModelCatalog && foregroundReady) {
             val catalogState by modelCatalogViewModel.state.collectAsState()
             ModelCatalogDialog(catalogState, modelState.installed?.sha256, modelCatalogViewModel::query,
                 modelCatalogViewModel::search, modelCatalogViewModel::details, modelCatalogViewModel::back,
@@ -389,5 +499,23 @@ class MainActivity : ComponentActivity() {
         super.onStop()
         lifecycleScope.launch(Dispatchers.IO) { selected?.let { db.reader().performance(PerformanceRecord(documentId = it.id, name = "app_pss_kib", value = Debug.getPss().toDouble())) } }
     }
-    override fun onDestroy() { host?.close(); readerScope?.cancel(); super.onDestroy() }
+    override fun onDestroy() {
+        reopen()
+        val speedModel = speedTestViewModel
+        val modelManager = modelViewModel.manager
+        cleanupScope.launch {
+            try {
+                readerRelease?.await()
+                // ViewModels survive recreation; their native/model mutations must retain admission.
+                speedModel.awaitCurrentOperation()
+                modelManager.awaitLocalMutation()
+                releaseForeground?.invoke(); releaseForeground = null; failForeground = null
+            } catch (_: Exception) { failForegroundCleanup() }
+            finally {
+                withContext(NonCancellable) { db.close() }
+                cleanupScope.cancel()
+            }
+        }
+        super.onDestroy()
+    }
 }

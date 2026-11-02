@@ -18,7 +18,7 @@ private fun tps(value: Double) = String.format(Locale.ROOT, "%.1f token/s", valu
 private fun share(nanos: Long, total: Double) = String.format(Locale.ROOT, "%.1f%%", nanos * 100 / total)
 
 @Composable
-fun SpeedTestDialog(state: SpeedTestState, onStart: () -> Unit, onCancel: () -> Unit, onClose: () -> Unit, onExport: () -> Unit) {
+fun SpeedTestDialog(state: SpeedTestState, onStart: () -> Unit, onCancel: () -> Unit, onClose: () -> Unit, onExport: () -> Unit, canStart: Boolean = true) {
     val text = LocalContext.current
     var elapsed by remember { mutableLongStateOf(0) }
     var details by remember { mutableStateOf(false) }
@@ -32,7 +32,7 @@ fun SpeedTestDialog(state: SpeedTestState, onStart: () -> Unit, onCancel: () -> 
     AppDialog(text.getString(R.string.speed_title), onClose, text.getString(R.string.speed_subtitle), AppGlyph.Sliders,
         closeLabel = text.getString(R.string.close_speed), closeEnabled = !state.busy, footer = {
             if (state.busy) TextButton(enabled = state.phase != SpeedPhase.CANCELLING, onClick = onCancel) { Text(text.getString(R.string.cancel_speed)) }
-            else Button(onClick = onStart) { Text(if (state.phase == SpeedPhase.READY) text.getString(R.string.start_speed) else text.getString(R.string.run_again)) }
+            else Button(enabled = canStart, onClick = onStart) { Text(if (state.phase == SpeedPhase.READY) text.getString(R.string.start_speed) else text.getString(R.string.run_again)) }
         }) {
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
             SettingsSection(text.getString(R.string.method), AppGlyph.Sliders) {

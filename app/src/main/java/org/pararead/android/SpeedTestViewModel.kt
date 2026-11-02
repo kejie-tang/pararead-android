@@ -143,6 +143,9 @@ class SpeedTestViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    /** Retained benchmarks keep the old Activity lease until native cleanup really finishes. */
+    suspend fun awaitCurrentOperation() { job?.join() }
+
     fun cancel() {
         if (!state.value.busy || state.value.phase == SpeedPhase.CANCELLING) return
         mutable.value = state.value.copy(phase = SpeedPhase.CANCELLING, message = "正在取消并释放模型…")

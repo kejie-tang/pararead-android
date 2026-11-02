@@ -69,7 +69,8 @@ class TranslationQueue(private val scope: CoroutineScope, private val cache: Tra
                 currentCoroutineContext().ensureActive()
                 val key = contentKey(s.text, w.config)
                 val cached = cache.get(key)
-                if (cached == null) missing += s else w.committed(s, cached, key)
+                if (cached == null || !TranslationQuality.accepts(s.text, cached, w.config)) missing += s
+                else w.committed(s, cached, key)
             }
             val batches = mutableListOf<List<SourceSentence>>()
             var pending = mutableListOf<SourceSentence>(); var chars = 0
@@ -132,7 +133,8 @@ class TranslationQueue(private val scope: CoroutineScope, private val cache: Tra
             val translated = StringBuilder()
             for (part in parts) {
                 val key = contentKey(part, w.config)
-                val value = cache.get(key) ?: infer(listOf(original.copy(text = part)), w.copy(delta = { _, text -> w.delta(original, translated.toString() + text) }), attempt).let { result ->
+                val value = cache.get(key)?.takeIf { TranslationQuality.accepts(part, it, w.config) }
+                    ?: infer(listOf(original.copy(text = part)), w.copy(delta = { _, text -> w.delta(original, translated.toString() + text) }), attempt).let { result ->
                     require(result.rejected.isEmpty()) { result.rejected.first().second }
                     result.accepted.single().second
                 }.also {
@@ -172,6 +174,6 @@ class TranslationQueue(private val scope: CoroutineScope, private val cache: Tra
                 is ProviderEvent.Complete -> { check(result == null); result = event.text }
             }
         }
-        return StructuredTranslation.validateEach(requireNotNull(result), batch, protected)
+        return StructuredTranslation.validateEach(requireNotNull(result), batch, protected, w.config)
     }
 }

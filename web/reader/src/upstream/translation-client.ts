@@ -22,16 +22,24 @@ export type TranslationState =
 
 const NONE: TranslationState = { status: "none" };
 
+export interface TranslationDocumentContext {
+  pageCount(): number;
+  currentPage(): number;
+  onPageChanging?(listener: (page: number) => void): void;
+}
+
 export interface TranslationClientOptions {
-  app: PdfjsApplication;
+  app: Pick<PdfjsApplication, "pdfViewer" | "eventBus"> | TranslationDocumentContext;
   store: SentenceStore;
   post: (message: WebviewToHost) => void | Promise<unknown>;
   range: TranslateRange;
   restoreCached?: (sentences: readonly Sentence[]) => Promise<readonly { id: string; translation: string }[]>;
+  onPageCompleted?: (page: number) => void | Promise<void>;
+  onFatal?: (error: unknown) => void;
 }
 
 export class TranslationClient {
-  readonly #app: PdfjsApplication;
+  readonly #app: TranslationDocumentContext;
   readonly #store: SentenceStore;
   readonly #post: (message: WebviewToHost) => void | Promise<unknown>;
   readonly #states = new Map<string, TranslationState>();
@@ -40,6 +48,8 @@ export class TranslationClient {
   readonly #listeners = new Set<(id: string, state: TranslationState) => void>();
   readonly #cancelledJobs = new Set<number>();
   readonly #restoreCached: TranslationClientOptions["restoreCached"];
+  readonly #onPageCompleted: TranslationClientOptions["onPageCompleted"];
+  readonly #onFatal: TranslationClientOptions["onFatal"];
   readonly #restores = new Map<number, Promise<void>>();
   #range: TranslateRange;
   #nextRequestId = 1;
@@ -49,8 +59,14 @@ export class TranslationClient {
   /** Bumped on document reload so that stale work stops. */
   #generation = 0;
 
-  constructor({ app, store, post, range, restoreCached }: TranslationClientOptions) {
-    this.#app = app;
+  constructor({ app, store, post, range, restoreCached, onPageCompleted, onFatal }: TranslationClientOptions) {
+    this.#app = "pdfViewer" in app ? {
+      pageCount: () => app.pdfViewer.pagesCount,
+      currentPage: () => app.pdfViewer.currentPageNumber,
+      onPageChanging: listener => app.eventBus.on("pagechanging", ({ pageNumber }: { pageNumber: number }) => listener(pageNumber)),
+    } : app;
+    this.#onPageCompleted = onPageCompleted;
+    this.#onFatal = onFatal;
     this.#store = store;
     this.#post = post;
     this.#range = range;
@@ -58,7 +74,7 @@ export class TranslationClient {
 
     // Restore saved results even in manual mode, without requesting new translations.
     store.onPageReady((page) => { void this.#preparePage(page); });
-    app.eventBus.on("pagechanging", ({ pageNumber }: { pageNumber: number }) => {
+    this.#app.onPageChanging?.((pageNumber) => {
       this.#viewportEpoch++;
       this.#applyRange(pageNumber);
     });
@@ -125,7 +141,7 @@ export class TranslationClient {
         }
         return true;
       case "translateCurrentPage":
-        void this.translatePage(this.#app.pdfViewer.currentPageNumber);
+        void this.translatePage(this.#app.currentPage());
         return true;
       case "translateAll":
         void this.#translateAll(message.jobId, message.startPage ?? 1);
@@ -135,7 +151,7 @@ export class TranslationClient {
         return true;
       case "settings":
         this.#range = message.translateRange;
-        this.#applyRange(this.#app.pdfViewer.currentPageNumber);
+        this.#applyRange(this.#app.currentPage());
         return true;
       case "retryFailed":
         // Clear stale errors (e.g. "API key not set"), then translate the range again.
@@ -144,7 +160,7 @@ export class TranslationClient {
             this.#set(id, NONE);
           }
         }
-        this.#applyRange(this.#app.pdfViewer.currentPageNumber);
+        this.#applyRange(this.#app.currentPage());
         return true;
       default:
         return false;
@@ -153,7 +169,7 @@ export class TranslationClient {
 
   /** Applies the translate range to the current page, e.g. after a document loads. */
   refresh(): void {
-    this.#applyRange(this.#app.pdfViewer.currentPageNumber);
+    this.#applyRange(this.#app.currentPage());
   }
 
   /** Translates the paragraph containing `sentence` (explicit user action). */
@@ -179,7 +195,7 @@ export class TranslationClient {
   }
 
   #pagesInRange(current: number): number[] {
-    const count = this.#app.pdfViewer.pagesCount;
+    const count = this.#app.pageCount();
     const pages =
       this.#range === "page"
         ? [current]
@@ -212,7 +228,7 @@ export class TranslationClient {
     const generation = this.#generation;
     if (this.#restoreCached) await this.#restorePage(page);
     if (generation !== this.#generation) return;
-    const current = this.#app.pdfViewer.currentPageNumber;
+    const current = this.#app.currentPage();
     if (this.#pagesInRange(current).includes(page.page)) {
       await this.#request(textSentences(page), { retryErrors: false, priority: page.page === current ? 1 : 2 });
     }
@@ -223,7 +239,7 @@ export class TranslationClient {
     // Manual mode still loads the current page's persisted results.
     const pages = this.#restoreCached ? new Set([current, ...this.#pagesInRange(current)]) : this.#pagesInRange(current);
     for (const n of pages) {
-      if (n < 1 || n > this.#app.pdfViewer.pagesCount) continue;
+      if (n < 1 || n > this.#app.pageCount()) continue;
       void this.#store
         .ensure(n)
         .then((page) => generation === this.#generation ? this.#preparePage(page) : undefined)
@@ -237,7 +253,7 @@ export class TranslationClient {
     if (this.#runningJobId !== null) return;
     this.#runningJobId = jobId;
     const generation = this.#generation;
-    const total = this.#app.pdfViewer.pagesCount;
+    const total = this.#app.pageCount();
     let status: "COMPLETED" | "CANCELLED" | "ERROR" = "COMPLETED";
     const cancelled = () => this.#cancelledJobs.has(jobId) || generation !== this.#generation;
     try {
@@ -259,15 +275,17 @@ export class TranslationClient {
         const failed = sentences.some(s => this.state(s.id).status !== "done");
         // The native host acknowledges the durable cursor before the next page is extracted.
         await this.#post({ type: "translateAllProgress", jobId, done: n, total, failed });
-        window.paraRead.evict?.();
+        if (this.#onPageCompleted) await this.#onPageCompleted(n);
+        else window.paraRead.evict?.();
       }
       if (cancelled()) status = "CANCELLED";
-    } catch {
+    } catch (error) {
       status = cancelled() ? "CANCELLED" : "ERROR";
+      if (status === "ERROR") this.#onFatal?.(error);
     } finally {
       this.#runningJobId = null; this.#jobPage = null;
       try { await this.#post({ type: "translateAllDone", jobId, total, status }); }
-      catch { /* The last durable cursor is retained if the host has gone away. */ }
+      catch (error) { this.#onFatal?.(error); /* The last durable cursor is retained. */ }
       finally { this.#cancelledJobs.delete(jobId); }
     }
   }

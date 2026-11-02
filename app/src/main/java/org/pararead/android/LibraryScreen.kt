@@ -75,9 +75,15 @@ import java.util.Locale
     }
 }
 
+data class LibraryTranslationState(val queued: Boolean = false, val running: Boolean = false, val error: String? = null) {
+    val active get() = queued || running
+}
+
 @Composable fun LibraryScreen(documents: List<LibraryDocument>, modelState: ModelState, importing: Boolean, status: String,
     onImport: () -> Unit, onSample: () -> Unit, onOpen: (DocumentRecord) -> Unit, onModels: () -> Unit, onCancelImport: () -> Unit,
-    onRename: suspend (DocumentRecord, String) -> Unit, onDelete: suspend (DocumentRecord) -> Unit) {
+    onRename: suspend (DocumentRecord, String) -> Unit, onDelete: suspend (DocumentRecord) -> Unit,
+    translationStates: Map<String, LibraryTranslationState> = emptyMap(),
+    onTranslateAll: (DocumentRecord) -> Unit = {}, onCancelTranslation: (DocumentRecord) -> Unit = {}) {
     val text = LocalContext.current
     val scope = rememberCoroutineScope()
     var rename by remember { mutableStateOf<DocumentRecord?>(null) }
@@ -85,7 +91,7 @@ import java.util.Locale
     var title by remember { mutableStateOf("") }
     var busy by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf(false) }
-    val continuing = documents.firstOrNull { it.reading().let { reading -> reading.has("page") || reading.optInt("pageCount") > 0 } }
+    val continuing = documents.firstOrNull { it.reading().let { reading -> reading.has("page") || reading.has("location") } }
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
         BoxWithConstraints(Modifier.widthIn(max = 1000.dp).fillMaxSize()) {
             val padding = if (maxWidth < 600.dp) 20.dp else 36.dp
@@ -135,6 +141,10 @@ import java.util.Locale
                         if (importing) TextButton(onClick = onCancelImport) { Text(text.getString(R.string.cancel_import)) }
                     }
                 }
+                if (translationStates.values.any { it.active }) item {
+                    Text(text.getString(R.string.background_translation_hint), style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
                 item {
                     Row(Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                         Text(text.getString(R.string.all_documents), Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
@@ -145,9 +155,10 @@ import java.util.Locale
                     Text(text.getString(R.string.empty_library_hint), Modifier.padding(vertical = 20.dp), color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 items(documents, key = { it.document.id }) { item ->
-                    DocumentRow(item, onClick = { onOpen(item.document) },
+                    DocumentRow(item, translationStates[item.document.id], onClick = { onOpen(item.document) },
                         onRename = { rename = item.document; title = item.document.name; error = false },
-                        onDelete = { delete = item.document; error = false })
+                        onDelete = { delete = item.document; error = false },
+                        onTranslateAll = { onTranslateAll(item.document) }, onCancelTranslation = { onCancelTranslation(item.document) })
                 }
                 if (documents.isNotEmpty()) item {
                     TextButton(onClick = onSample) { Text(text.getString(R.string.open_sample)) }
@@ -217,7 +228,8 @@ import java.util.Locale
 }
 
 @OptIn(ExperimentalLayoutApi::class)
-@Composable private fun DocumentRow(item: LibraryDocument, onClick: () -> Unit, onRename: () -> Unit, onDelete: () -> Unit) {
+@Composable private fun DocumentRow(item: LibraryDocument, translationState: LibraryTranslationState?, onClick: () -> Unit,
+    onRename: () -> Unit, onDelete: () -> Unit, onTranslateAll: () -> Unit, onCancelTranslation: () -> Unit) {
     val text = LocalContext.current
     val reading = remember(item.readingJson) { item.reading() }
     var menu by remember { mutableStateOf(false) }
@@ -232,22 +244,73 @@ import java.util.Locale
                 val metadata = if (count > 0) text.getString(R.string.document_page_size, count, documentSize(item.document.length)) else documentSize(item.document.length)
                 Text(metadata, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(if (count > 0) text.getString(R.string.reading_page, reading.optInt("page", 1).coerceIn(1, count), count)
+                    Text(if (count > 0 && reading.has("page")) text.getString(R.string.reading_page, reading.optInt("page", 1).coerceIn(1, count), count)
                         else if (reading.has("page")) text.getString(R.string.reading_page_only, reading.optInt("page", 1).coerceAtLeast(1)) else text.getString(R.string.not_read_yet),
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     if (reading.optBoolean("translationsSaved")) SavedTranslationLabel()
                 }
+                DocumentTranslationProgress(item, translationState)
             }
             Box {
                 IconButton(onClick = { menu = true }, modifier = Modifier.testTag("document-menu-${item.document.id}")) {
                     AppIcon(AppGlyph.More, Modifier.size(21.dp).rotate(90f).semantics { contentDescription = text.getString(R.string.document_actions, item.document.name) })
                 }
                 DropdownMenu(expanded = menu, onDismissRequest = { menu = false }) {
+                    val job = item.translationJob()
+                    val action = when {
+                        job?.status == org.pararead.core.WholeJobStatus.COMPLETED && job.failedPages > 0 -> R.string.translation_retry
+                        job?.status in setOf(org.pararead.core.WholeJobStatus.CANCELLED, org.pararead.core.WholeJobStatus.ERROR, org.pararead.core.WholeJobStatus.RUNNING) -> R.string.translation_resume
+                        else -> R.string.library_translate_all
+                    }
+                    DropdownMenuItem(text = { Text(text.getString(action)) }, enabled = translationState?.active != true,
+                        modifier = Modifier.testTag("translate-all-${item.document.id}"), onClick = { menu = false; onTranslateAll() })
+                    if (translationState?.active == true) DropdownMenuItem(text = { Text(text.getString(R.string.translation_cancel)) },
+                        modifier = Modifier.testTag("cancel-translation-${item.document.id}"), onClick = { menu = false; onCancelTranslation() })
                     DropdownMenuItem(text = { Text(text.getString(R.string.rename_document)) }, onClick = { menu = false; onRename() })
                     DropdownMenuItem(text = { Text(text.getString(R.string.delete), color = MaterialTheme.colorScheme.error) },
                         leadingIcon = { AppIcon(AppGlyph.Trash, tint = MaterialTheme.colorScheme.error) }, onClick = { menu = false; onDelete() })
                 }
             }
+        }
+    }
+}
+
+@Composable private fun DocumentTranslationProgress(item: LibraryDocument, state: LibraryTranslationState?) {
+    val text = LocalContext.current
+    val job = remember(item.jobJson) { item.translationJob() }
+    if (job == null && state == null) return
+    val failed = job?.failedPages ?: 0
+    val needsReview = job != null && !item.translationsVerified()
+    val fullSuccess = job?.status == org.pararead.core.WholeJobStatus.COMPLETED && failed == 0 && !needsReview
+    val label = when {
+        state?.error == "PARTIAL_FAILURE" -> text.getString(R.string.translation_partial)
+        state?.error != null -> text.getString(R.string.translation_error)
+        state?.queued == true -> text.getString(R.string.translation_queued)
+        state?.running == true -> text.getString(R.string.translation_running)
+        needsReview -> text.getString(R.string.translation_needs_review)
+        fullSuccess -> text.getString(R.string.translation_completed)
+        job?.status == org.pararead.core.WholeJobStatus.COMPLETED -> text.getString(R.string.translation_partial)
+        else -> text.getString(R.string.translation_paused)
+    }
+    val color = when {
+        state?.error != null || failed > 0 -> MaterialTheme.colorScheme.error
+        fullSuccess && state?.active != true -> MaterialTheme.colorScheme.tertiary
+        else -> MaterialTheme.colorScheme.onSurfaceVariant
+    }
+    Column(Modifier.fillMaxWidth().testTag("translation-progress-${item.document.id}"), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+        Text(if (job != null) text.getString(R.string.translation_page_progress, label, job.done, job.total) else label,
+            style = MaterialTheme.typography.bodySmall, color = color)
+        if (job != null) LinearProgressIndicator(progress = { job.done.toFloat() / job.total }, modifier = Modifier.fillMaxWidth(), drawStopIndicator = {})
+        else if (state?.running == true) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+        if (failed > 0) Text(text.getString(R.string.translation_failed_pages, failed), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+        state?.error?.let { code ->
+            val message = when {
+                code.contains("CONFIG_CHANGED") -> R.string.translation_config_changed
+                code.contains("DOCUMENT_MISSING") || code.contains("DOCUMENT_NOT_FOUND") -> R.string.translation_document_missing
+                code.contains("CLEANUP_FAILED") -> R.string.translation_cleanup_failed
+                else -> R.string.translation_retry_hint
+            }
+            Text(text.getString(message), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
         }
     }
 }

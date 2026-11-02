@@ -23,9 +23,9 @@
  * extended with annotation saving and the bilingual reading features.
  */
 
-// Loads the pdf.js viewer (kept external to the bundle; resolved at runtime
-// relative to dist/webview/main.mjs).
-import "../../assets/pdf.js/web/viewer.mjs";
+// The viewer is loaded only for interactive sessions, never for background work.
+import { startBackgroundTranslation } from "../background-translation";
+import type { Session } from "../bridge";
 import { DEFAULT_TARGET_LANGUAGE } from "../languages";
 import type { HostToWebview, TranslateRange, WebviewToHost } from "../messages";
 import { Connector } from "./connector";
@@ -61,55 +61,57 @@ function loadConfig(): Record<string, unknown> & { url: string } {
   throw new Error("Could not load configuration.");
 }
 
-(globalThis as any).pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('./pdfjs/build/pdf.worker.mjs', location.href).href;
+const pdfjs = (globalThis as typeof globalThis & { pdfjsLib: PdfjsLibrary }).pdfjsLib;
+pdfjs.GlobalWorkerOptions.workerSrc = new URL('./pdfjs/build/pdf.worker.mjs', location.href).href;
 const config = loadConfig();
 for (const key of ["sandboxBundleSrc", "cMapUrl", "iccUrl", "standardFontDataUrl", "wasmUrl", "imageResourcesPath"]) {
   if (typeof config[key] === "string") config[key] = new URL(config[key] as string, location.href).href;
 }
-let android: any;
+let android: Session;
 setStrings(config["strings"]);
-
-const options = window.PDFViewerApplicationOptions;
-options.set("defaultUrl", "");
-options.set("workerSrc", new URL("./pdfjs/build/pdf.worker.mjs", location.href).href);
-options.set("disablePreferences", true);
-options.set("enableScripting", false);
-options.set("maxCanvasPixels", 4 * 1024 * 1024);
-options.set("maxCanvasDim", 8192);
-options.set("rangeChunkSize", 262144);
-options.set("disableAutoFetch", true);
-options.set("disableStream", true);
-options.set("defaultZoomValue", config["defaultZoomValue"] ?? "auto");
-options.set("sidebarViewOnLoad", config["sidebarViewOnLoad"] ?? 0);
-for (const key of [
-  "sandboxBundleSrc",
-  "cMapUrl",
-  "iccUrl",
-  "standardFontDataUrl",
-  "wasmUrl",
-  "imageResourcesPath",
-] as const) {
-  options.set(key, config[key]);
-}
-
-// Prevent pdf.js from intercepting Ctrl+P/Cmd+P and triggering the print dialog.
-document.addEventListener(
-  "keydown",
-  (e) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === "p") {
-      e.preventDefault();
-      e.stopImmediatePropagation();
-    }
-  },
-  true,
-);
-
-const app = window.PDFViewerApplication;
 
 async function start() {
   android = await window.paraRead.ready;
   Object.assign(config, android.settings);
   config["debug"] = android.debug === true;
+  if (android.settings.backgroundTranslation === true) {
+    await startBackgroundTranslation({ pdfjs, session: android, config, bridge: window.paraRead, post });
+    return;
+  }
+  const configureViewer = () => {
+    const options = window.PDFViewerApplicationOptions;
+    options.set("defaultUrl", "");
+    options.set("workerSrc", new URL("./pdfjs/build/pdf.worker.mjs", location.href).href);
+    options.set("disablePreferences", true);
+    options.set("enableScripting", false);
+    options.set("maxCanvasPixels", 4 * 1024 * 1024);
+    options.set("maxCanvasDim", 8192);
+    options.set("rangeChunkSize", 262144);
+    options.set("disableAutoFetch", true);
+    options.set("disableStream", true);
+    options.set("defaultZoomValue", config["defaultZoomValue"] ?? "auto");
+    options.set("sidebarViewOnLoad", config["sidebarViewOnLoad"] ?? 0);
+    for (const key of ["sandboxBundleSrc", "cMapUrl", "iccUrl", "standardFontDataUrl", "wasmUrl", "imageResourcesPath"]) {
+      options.set(key, config[key]);
+    }
+  };
+  // A late dynamic import can start PDF.js immediately. Configure it at its
+  // pre-run event, before preferences or viewer components are initialized.
+  document.addEventListener("webviewerloaded", configureViewer, { once: true });
+  await import("../../assets/pdf.js/web/viewer.mjs");
+  configureViewer();
+  const options = window.PDFViewerApplicationOptions;
+
+  // Prevent pdf.js from intercepting Ctrl+P/Cmd+P and triggering the print dialog.
+  document.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "p") {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+    }
+  }, true);
+
+  const app = window.PDFViewerApplication;
+
   await app.initializedPromise;
   options.set("workerSrc", new URL("./pdfjs/build/pdf.worker.mjs", location.href).href);
   options.set("enableScripting", false);

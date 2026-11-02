@@ -42,6 +42,7 @@ try {
       const m = JSON.parse(raw); window.__nativeMessages.push(m);
       if (m.type === 'reader.ready') send(m, 'session.open', { length, token: 'test', reading: {}, settings: { targetLanguage: 'zh-CN', translateRange: localStorage.getItem('test-range') ?? 'page', selectOnHover: false }, debug: true });
       if (m.type === 'page.cacheGet') send(m, 'page.cached', { page: null });
+      if (m.type === 'page.textChunk' && m.payload.chunkIndex === m.payload.chunkCount - 1) send(m, 'page.saved', { page: m.payload.page });
       // Simulate the native durable cache across WebView reloads (not a production storage path).
       if (m.type === 'translation.cacheGet') {
         m.payload.sentences.forEach((s, sequence) => {

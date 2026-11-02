@@ -150,18 +150,17 @@ object StructuredTranslation {
         val value = raw.trim()
         require(value.isNotEmpty()) { "EMPTY_TRANSLATION" }
         require(!value.startsWith("```") && !value.startsWith("{") && !value.startsWith("[")) { "UNEXPECTED_TEXT_WRAPPER" }
-        if (c.targetLanguage.lowercase() in setOf("zh-cn", "zh-hans", "zh", "简体中文")) {
-            require(value.any { it in '\u4e00'..'\u9fff' }) { "EXPECTED_CHINESE_TRANSLATION" }
-        }
-        return protected.restore(value)
+        val restored = protected.restore(value)
+        TranslationQuality.requireValid(protected.restore(protected.text), restored, c)
+        return restored
     }
-    fun validate(raw: String, sentences: List<SourceSentence>, protected: List<ProtectedText>): List<Pair<SourceSentence, String>> {
-        val result = validateEach(raw, sentences, protected)
+    fun validate(raw: String, sentences: List<SourceSentence>, protected: List<ProtectedText>, config: TranslationConfig = TranslationConfig()): List<Pair<SourceSentence, String>> {
+        val result = validateEach(raw, sentences, protected, config)
         require(result.rejected.isEmpty()) { result.rejected.first().second }
         return result.accepted
     }
     /** Only complete JSON with unique, known IDs may contribute independently validated rows. */
-    fun validateEach(raw: String, sentences: List<SourceSentence>, protected: List<ProtectedText>): TranslationValidation {
+    fun validateEach(raw: String, sentences: List<SourceSentence>, protected: List<ProtectedText>, config: TranslationConfig = TranslationConfig()): TranslationValidation {
         require(sentences.size == protected.size)
         require(raw.toByteArray().size <= 262144) { "OUTPUT_TOO_LARGE" }
         require(!raw.contains("<think>") && !raw.contains("</think>")) { "THINKING_OUTPUT" }
@@ -189,7 +188,9 @@ object StructuredTranslation {
                 val value = outputs["s${i + 1}"] ?: error("RESULT_COUNT_MISMATCH")
                 require(value is String) { "INVALID_TRANSLATION_TYPE" }
                 require(value.isNotBlank()) { "EMPTY_TRANSLATION" }
-                accepted += s to protected[i].restore(value.trim())
+                val restored = protected[i].restore(value.trim())
+                TranslationQuality.requireValid(s.text, restored, config)
+                accepted += s to restored
             } catch (e: Exception) { rejected += s to (e.message ?: "INVALID_TRANSLATION").take(512) }
         }
         return TranslationValidation(accepted, rejected)

@@ -214,6 +214,10 @@ class ModelManager(context: Context, private val scope: CoroutineScope, val asse
         }
         prefs.edit { remove("error"); remove("retryDownload") }; update(ModelPhase.IDLE, "模型已就绪，思考模式已关闭")
     }
+    /** Local mutations can outlive a dialog; downloads themselves remain WorkManager-owned. */
+    suspend fun awaitLocalMutation() {
+        if (state.value.phase in setOf(ModelPhase.IMPORTING, ModelPhase.SWITCHING, ModelPhase.DELETING)) work?.join()
+    }
     fun import(uri: Uri) {
         if (state.value.busy) return
         update(ModelPhase.IMPORTING, "正在导入 GGUF…")

@@ -14,6 +14,11 @@ import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 import java.security.KeyStore
 
+data class TranslationRuntimeSnapshot(val config: TranslationConfig, val modelPath: String, val cpuThreads: Int,
+    val backend: InferenceBackend, val baseUrl: String, val apiKey: String) {
+    override fun toString() = "TranslationRuntimeSnapshot(provider=${config.provider}, target=${config.targetLanguage})"
+}
+
 class Settings(context: Context) {
     private val prefs = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
     var uiLanguage: String
@@ -60,17 +65,18 @@ class Settings(context: Context) {
         set(value) { prefs.edit().putBoolean("readerFullscreen", value).apply() }
     var translateRange: String get() = prefs.getString("translateRange", "page")!!; set(v) { prefs.edit().putString("translateRange", v).apply() }
     var apiKey: String
-        get() = runCatching {
-            val stored = prefs.getString("apiKey", null) ?: return ""
-            val values = stored.split(':')
-            val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-            cipher.init(Cipher.DECRYPT_MODE, key(), GCMParameterSpec(128, Base64.decode(values[0], Base64.NO_WRAP)))
-            String(cipher.doFinal(Base64.decode(values[1], Base64.NO_WRAP)), Charsets.UTF_8)
-        }.getOrDefault("")
+        get() = decryptApiKey(prefs.getString("apiKey", null))
         set(value) {
             val cipher = Cipher.getInstance("AES/GCM/NoPadding"); cipher.init(Cipher.ENCRYPT_MODE, key())
             prefs.edit().putString("apiKey", Base64.encodeToString(cipher.iv, Base64.NO_WRAP) + ":" + Base64.encodeToString(cipher.doFinal(value.toByteArray()), Base64.NO_WRAP)).apply()
         }
+    private fun decryptApiKey(stored: String?): String = runCatching {
+        if (stored == null) return ""
+        val values = stored.split(':')
+        val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+        cipher.init(Cipher.DECRYPT_MODE, key(), GCMParameterSpec(128, Base64.decode(values[0], Base64.NO_WRAP)))
+        String(cipher.doFinal(Base64.decode(values[1], Base64.NO_WRAP)), Charsets.UTF_8)
+    }.getOrDefault("")
     private fun key(): SecretKey {
         val store = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
         (store.getKey("pararead-api", null) as? SecretKey)?.let { return it }
@@ -79,14 +85,27 @@ class Settings(context: Context) {
                 .setBlockModes(KeyProperties.BLOCK_MODE_GCM).setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE).build())
         }.generateKey()
     }
-    fun config(): TranslationConfig {
+    fun config(): TranslationConfig = config(prefs.all)
+    /** SharedPreferences.all is one atomic map snapshot, unlike a series of live getters. */
+    fun runtimeSnapshot(): TranslationRuntimeSnapshot {
+        val values = prefs.all
+        return TranslationRuntimeSnapshot(config(values), values["modelPath"] as? String ?: "",
+            (values["cpuThreads"] as? Int ?: 0).coerceAtLeast(0), InferenceBackend.from(values["inferenceBackend"] as? String),
+            values["baseUrl"] as? String ?: "http://127.0.0.1:8080/v1", decryptApiKey(values["apiKey"] as? String))
+    }
+    private fun config(values: Map<String, *>): TranslationConfig {
+        fun string(key: String, default: String) = values[key] as? String ?: default
+        val target = string("targetLanguage", "zh-CN")
         val locale = java.util.Locale.getDefault().toLanguageTag().lowercase()
-        val effective = if (targetLanguage != "auto") targetLanguage else when {
+        val effective = if (target != "auto") target else when {
             locale.startsWith("zh-tw") || locale.startsWith("zh-hk") || locale.contains("hant") -> "zh-TW"
             locale.startsWith("zh") -> "zh-CN"
             locale.substringBefore('-') in setOf("en","ja","ko","fr","de","es","pt","ru","it") -> locale.substringBefore('-')
             else -> "en"
         }
-        return TranslationConfig(provider, model, if (provider == "api") "endpoint:$baseUrl" else modelHash, sourceLanguage, effective, glossary, batchSize)
+        val provider = string("provider", "llama")
+        return TranslationConfig(provider, string("model", "qwen3:1.7b"),
+            if (provider == "api") "endpoint:${string("baseUrl", "http://127.0.0.1:8080/v1")}" else string("modelHash", "unloaded"),
+            string("sourceLanguage", "auto"), effective, string("glossary", "{}"), values["batchSize"] as? Int ?: 4)
     }
 }

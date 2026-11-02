@@ -22,6 +22,9 @@ class ReaderHost(
     private val scope: CoroutineScope, private val config: TranslationConfig, private val provider: TranslationProvider,
     private val report: (String) -> Unit, private val saveRequested: () -> Unit, private val chooseLanguage: () -> Unit,
     private val rendererGone: () -> Unit,
+    private val backgroundTranslation: Boolean = false,
+    private val onJobChanged: (WholeDocumentJob) -> Unit = {},
+    private val onFatal: (String) -> Unit = {},
 ) : Closeable {
     val sessionId = UUID.randomUUID().toString()
     private var proxy: JavaScriptReplyProxy? = null
@@ -29,6 +32,12 @@ class ReaderHost(
     private var readerFullscreen = false
     private var showControlsLabel = context.getString(R.string.reader_show_controls)
     private var closed = false
+    private var stopping = false
+    private var detached = false
+    private val opened = CompletableDeferred<Unit>()
+    private val stopMutex = Mutex()
+    private val pageMutex = Mutex()
+    private var persistedJobJson: String? = null
     private var epoch = 0
     private val configurationRevision = 1
     private val started = SystemClock.elapsedRealtime()
@@ -55,7 +64,7 @@ class ReaderHost(
     @Suppress("SetJavaScriptEnabled")
     fun createWebView(): WebView {
         if (!WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
-            report("请更新 Android System WebView 后重新打开文档")
+            fatal("请更新 Android System WebView 后重新打开文档")
             webView = WebView(context).apply { loadData("<p>Please update Android System WebView.</p>", "text/html", "utf-8") }
             return webView
         }
@@ -94,15 +103,15 @@ class ReaderHost(
                     return true
                 }
                 override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {
-                    close(); view.destroy(); report("阅读器进程已恢复，请重新打开文档"); rendererGone(); return true
+                    fatal("阅读器进程已退出，请重新打开文档"); close(); view.destroy(); rendererGone(); return true
                 }
                 override fun onReceivedError(view: WebView, request: WebResourceRequest, error: WebResourceError) {
-                    if (request.isForMainFrame) report("阅读器加载失败：${error.description}")
+                    if (request.isForMainFrame) fatal("阅读器加载失败：${error.description}")
                 }
             }
         }
         WebViewCompat.addWebMessageListener(webView, "ParaReadNative", setOf("https://appassets.androidplatform.net")) { _, message, origin, mainFrame, reply ->
-            if (!mainFrame || origin.toString().trimEnd('/') != "https://appassets.androidplatform.net" || closed) return@addWebMessageListener
+            if (!mainFrame || origin.toString().trimEnd('/') != "https://appassets.androidplatform.net" || closed || detached) return@addWebMessageListener
             proxy = reply
             val raw = message.data ?: return@addWebMessageListener
             scope.launch {
@@ -118,13 +127,19 @@ class ReaderHost(
                     val code = (e.message ?: "INVALID_MESSAGE").take(512)
                     envelope?.let { send(it.reply("protocol.error", JSONObject().put("code", code))) }
                     Log.w("ParaReadHost", "Bridge rejected: $code")
+                    if (backgroundTranslation && !stopping) fatal(code)
                 }
             }
         }
         scope.launch {
-            reading = withContext(Dispatchers.IO) { dao.reading(source.document.id)?.let { JSONObject(it.json) } ?: JSONObject() }
-            wholeJob = withContext(Dispatchers.IO) { dao.job(jobKey)?.let { runCatching { WholeDocumentJob.parse(it.json) }.getOrNull() } }
-            if (!closed) webView.loadUrl("https://appassets.androidplatform.net/reader/index.html")
+            try {
+                reading = withContext(Dispatchers.IO) { dao.reading(source.document.id)?.let { JSONObject(it.json) } ?: JSONObject() }
+                val saved = withContext(Dispatchers.IO) { dao.job(jobKey) }
+                persistedJobJson = saved?.json
+                wholeJob = saved?.let { runCatching { WholeDocumentJob.parse(it.json) }.getOrNull() }
+                if (!closed) webView.loadUrl("https://appassets.androidplatform.net/reader/index.html")
+            } catch (e: CancellationException) { throw e }
+            catch (e: Exception) { fatal("BOOTSTRAP_FAILED: ${e.message?.take(180)}") }
         }
         return webView
     }
@@ -132,7 +147,7 @@ class ReaderHost(
     private fun base(type: String, payload: JSONObject = JSONObject(), id: String = "host-${UUID.randomUUID()}") =
         Envelope(type, sessionId, source.document.id, source.revision, id, epoch, configurationRevision, payload)
     private suspend fun send(envelope: Envelope) = withContext(Dispatchers.Main.immediate) {
-        if (!closed && WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
+        if (!closed && !detached && WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
             val text = envelope.json().toString()
             require(text.toByteArray().size <= Envelope.MAX_BYTES) { "REPLY_TOO_LARGE" }
             proxy?.postMessage(text)
@@ -144,26 +159,33 @@ class ReaderHost(
             "reader.ready" -> {
                 require(!ready) { "ALREADY_OPEN" }; ready = true
                 send(base("session.open", JSONObject().put("token", source.token).put("length", source.length).put("reading", reading)
-                    .put("debug", BuildConfig.DEBUG).put("settings", JSONObject().put("targetLanguage", config.targetLanguage).put("translateRange", Settings(context).translateRange).put("selectOnHover", false)
+                    .put("debug", BuildConfig.DEBUG).put("settings", JSONObject().put("backgroundTranslation", backgroundTranslation).put("targetLanguage", config.targetLanguage).put("translateRange", if (backgroundTranslation) "manual" else Settings(context).translateRange).put("selectOnHover", false)
                         .put("readerFullscreen", readerFullscreen).put("showControlsLabel", showControlsLabel))))
             }
             "session.opened" -> {
                 pageCount = p.getInt("pages"); require(pageCount > 0)
                 persistReading(JSONObject().put("pageCount", pageCount))
-                withContext(Dispatchers.IO) { dao.opened(source.document.id, System.currentTimeMillis()) }
+                if (!backgroundTranslation) withContext(Dispatchers.IO) { dao.opened(source.document.id, System.currentTimeMillis()) }
                 report("${source.document.name} · $pageCount 页 · ${if (config.provider == "mock") "模拟翻译" else config.model}")
                 metric("open_ms", (SystemClock.elapsedRealtime() - started).toDouble())
                 jobMutex.withLock {
                     if (wholeJob?.matches(source.revision, config, pageCount) != true) wholeJob = null
-                    if (wholeJob?.status == WholeJobStatus.RUNNING) startWholeJob()
-                    else if (wholeJob?.status in setOf(WholeJobStatus.CANCELLED, WholeJobStatus.ERROR)) reportJob()
+                    if (backgroundTranslation) beginWholeJob()
+                    else if (wholeJob?.status == WholeJobStatus.RUNNING) {
+                        // Old cursors predate language validation: scan their cache once, without
+                        // deleting good translations or trusting previously copied English pages.
+                        if (hasCurrentCachePolicy()) { persistJob(wholeJob!!); startWholeJob() }
+                        else beginWholeJob()
+                    } else if (wholeJob?.status in setOf(WholeJobStatus.CANCELLED, WholeJobStatus.ERROR)) reportJob()
                 }
+                opened.complete(Unit)
             }
-            "session.error" -> report(p.optString("message").take(600))
+            "session.error" -> fatal(p.optString("message").take(600))
             "page.visible" -> { epoch = maxOf(epoch, m.viewportEpoch); translationQueue.viewport(epoch) }
             "translation.request" -> translate(m)
             "translation.cacheGet" -> restoreTranslations(m)
-            "request.cancel" -> { translationQueue.cancel(p.getString("requestId")); pageChunks.clear() }
+            // Cancelling an obsolete translation must not discard another page's pending save.
+            "request.cancel" -> translationQueue.cancel(p.getString("requestId"))
             "page.cacheGet" -> {
                 val value = withContext(Dispatchers.IO) { dao.page(source.revision, p.getInt("page")) }
                 val payload = JSONObject().put("page", value?.let { JSONObject(it.json) } ?: JSONObject.NULL)
@@ -172,7 +194,7 @@ class ReaderHost(
             }
             "page.textChunk" -> savePage(m)
             "reading.save" -> {
-                persistReading(p)
+                if (!backgroundTranslation) persistReading(p)
                 send(m.reply("reading.saved", JSONObject()))
             }
             "annotation.changed" -> {
@@ -247,7 +269,8 @@ class ReaderHost(
         var sequence = 0
         for (sentence in sentences) {
             val key = contentKey(sentence.text, config)
-            val cached = withContext(Dispatchers.IO) { dao.translation(key)?.translation } ?: continue
+            val cached = withContext(Dispatchers.IO) { dao.translation(key)?.translation }
+                ?.takeIf { TranslationQuality.accepts(sentence.text, it, config) } ?: continue
             markTranslationsSaved()
             send(m.reply("translation.committed", JSONObject().put("sequence", sequence++).put("items", JSONArray()
                 .put(JSONObject().put("id", sentence.id).put("translation", cached).put("contentKey", key)))))
@@ -255,6 +278,7 @@ class ReaderHost(
         send(m.reply("translation.finished", JSONObject().put("failures", JSONArray())))
     }
     private suspend fun translate(m: Envelope) {
+        require(!stopping && !closed) { "SESSION_STOPPING" }
         require(m.requestId !in inflight) { "DUPLICATE_REQUEST" }
         val sentences = sentences(m)
         val priority = m.payload.optInt("priority", 1); require(priority in 0..3)
@@ -277,7 +301,7 @@ class ReaderHost(
             delta = { s, text -> if (text.toByteArray().size < 48000) send(m.reply("translation.delta", JSONObject().put("sequence", seq++).put("items", JSONArray().put(JSONObject().put("id", s.id).put("translation", text))))) })
         if (!translationQueue.submit(work)) { inflight -= m.requestId; error("QUEUE_FULL") }
     }
-    private suspend fun savePage(m: Envelope) {
+    private suspend fun savePage(m: Envelope) = pageMutex.withLock {
         val p = m.payload; val page = p.getInt("page"); val count = p.getInt("chunkCount"); val index = p.getInt("chunkIndex")
         require(page > 0 && count in 1..64 && index in 0 until count && p.getString("data").length <= 5000)
         require(pageChunks.size < 8 || pageChunks.containsKey(page)) { "PAGE_QUEUE_FULL" }
@@ -286,11 +310,19 @@ class ReaderHost(
         if (chunks.all { it != null }) {
             val json = chunks.joinToString("") { it!! }; require(JSONObject(json).getInt("page") == page)
             withContext(Dispatchers.IO) { dao.page(PageRecord(source.revision, page, json = json)) }; pageChunks.remove(page)
+            send(m.reply("page.saved", JSONObject().put("page", page)))
         }
     }
-    private suspend fun persistJob(job: WholeDocumentJob) {
-        withContext(Dispatchers.IO) { dao.job(JobRecord(jobKey, source.document.id, job.json().toString(), job.status.name)) }
+    private suspend fun persistJob(job: WholeDocumentJob) = withContext(NonCancellable) {
+        val policy = checkpointCachePolicy(job.nextPage, persistedJobJson)
+        val json = job.json().put("owner", sessionId).put("cachePolicy", policy).toString()
+        val saved = withContext(Dispatchers.IO) {
+            dao.saveJobIfCurrent(JobRecord(jobKey, source.document.id, json, job.status.name), persistedJobJson)
+        }
+        check(saved) { "JOB_OWNERSHIP_LOST" }
+        persistedJobJson = json
         wholeJob = job
+        runCatching { onJobChanged(job) }.onFailure { Log.w("ParaReadHost", "Job observer failed", it) }
     }
     private fun reportJob() {
         val job = wholeJob ?: return
@@ -316,17 +348,24 @@ class ReaderHost(
             send(base("reader.command", JSONObject().put("type", "readerFullscreen").put("enabled", enabled).put("showControlsLabel", label)))
         }
     }
+    private fun hasCurrentCachePolicy() = hasCurrentTranslationCachePolicy(persistedJobJson)
+    /** Caller holds jobMutex; background and visible readers share the same durable protocol. */
+    private suspend fun beginWholeJob() {
+        if (wholeJobStarted) { reportJob(); return }
+        val previous = wholeJob
+        val old = previous?.takeIf { hasCurrentCachePolicy() }
+        val id = maxOf(System.currentTimeMillis(), (previous?.jobId ?: 0L) + 1)
+        val next = if (old != null && old.status != WholeJobStatus.COMPLETED)
+            old.copy(jobId = id, status = WholeJobStatus.RUNNING)
+        else WholeDocumentJob(id, source.revision, sha256(config.fingerprint()), pageCount)
+        persistJob(next); startWholeJob()
+    }
     fun command(type: String) { scope.launch {
       try {
         if (type == "translateAll" || type == "cancelTranslateAll") jobMutex.withLock {
             if (pageCount == 0) { report("请等待文档打开后再翻译"); return@withLock }
             if (type == "translateAll") {
-                if (wholeJobStarted) { reportJob(); return@withLock }
-                val old = wholeJob
-                val id = maxOf(System.currentTimeMillis(), (old?.jobId ?: 0L) + 1)
-                val next = if (old != null && old.status != WholeJobStatus.COMPLETED) old.copy(jobId = id, status = WholeJobStatus.RUNNING)
-                    else WholeDocumentJob(id, source.revision, sha256(config.fingerprint()), pageCount)
-                persistJob(next); startWholeJob()
+                beginWholeJob()
             } else {
                 try {
                     wholeJob?.takeIf { it.status == WholeJobStatus.RUNNING }?.let { persistJob(it.finish(WholeJobStatus.CANCELLED)); reportJob() }
@@ -372,10 +411,51 @@ class ReaderHost(
         val uri = Uri.parse(url)
         if (uri.scheme in setOf("https", "http", "mailto")) runCatching { context.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, uri)) }
     }
+    /** Stop bridge replies immediately, before Compose may release/destroy the old view. */
+    fun prepareToStop() {
+        stopping = true; detached = true; translationQueue.cancelAll()
+    }
     override fun close() {
         if (closed) return
         closed = true; translationQueue.cancelAll(); autoSave?.cancel(); pageChunks.clear()
-        exportTemp?.delete(); source.close(); provider.close()
+        exportTemp?.delete()
+        try { source.close() } finally { provider.close() }
+    }
+    private fun fatal(message: String) {
+        report(message)
+        if (!opened.isCompleted) opened.completeExceptionally(IllegalStateException(message))
+        onFatal(message)
+    }
+    suspend fun awaitOpened() { opened.await() }
+    /** External owners await this barrier before handing native/model or job ownership over. */
+    suspend fun stopAndJoin(status: WholeJobStatus? = WholeJobStatus.CANCELLED) = withContext(NonCancellable) {
+        stopMutex.withLock {
+            try {
+                withContext(Dispatchers.Main.immediate) {
+                    stopping = true
+                    translationQueue.cancelAll()
+                    try {
+                        jobMutex.withLock {
+                            if (status != null) wholeJob?.takeIf { it.status == WholeJobStatus.RUNNING }?.let { persistJob(it.finish(status)) }
+                        }
+                    } catch (e: Exception) {
+                        // A checkpoint/ownership failure is not an unconfirmed native release.
+                        Log.w("ParaReadHost", "Could not persist stopping cursor", e)
+                        runCatching { fatal("PROGRESS_SAVE_FAILED") }
+                    } finally {
+                        try { close() } finally { scope.cancel() }
+                    }
+                }
+            } finally {
+                try {
+                    try { scope.coroutineContext[Job]?.join() } finally { awaitProviderClosed() }
+                } finally {
+                    withContext(Dispatchers.Main.immediate) {
+                        if (::webView.isInitialized) { try { webView.stopLoading() } finally { webView.destroy() } }
+                    }
+                }
+            }
+        }
     }
     suspend fun awaitProviderClosed() { (provider as? org.pararead.llama.LlamaCppProvider)?.closeAndJoin() }
 }
