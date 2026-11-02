@@ -60,17 +60,17 @@ base64 -i "$HOME/.android/keystores/pararead-release.jks" | gh secret set ANDROI
 
 ## 发布一个带版本号的 APK
 
-当前预览为 **`0.2.0-alpha.17`**（versionCode 17）。GitHub release APK 由签名工作流构建，继续使用既有持久预览证书；本次取消提示、缓存批读和当前页优先调度见[验证记录](reports/alpha17.md)。证书身份仍为 Android Debug，不等同于正式生产签名。下面以 alpha.17 说明发布草稿的流程；后续发布时替换版本号并递增 versionCode。
+当前预览为 **`0.2.0-alpha.18`**（versionCode 18）。GitHub release APK 由签名工作流构建，继续使用既有持久预览证书；本次书库暂停提示自动收起与译文正文内错误反馈见[验证记录](reports/alpha18.md)。证书身份仍为 Android Debug，不等同于正式生产签名。下面以 alpha.18 说明发布草稿的流程；后续发布时替换版本号并递增 versionCode。
 
-1. 在 [app/build.gradle.kts](../app/build.gradle.kts) 更新 `versionName`（本例为 `0.2.0-alpha.17`）并递增 `versionCode`（本例为 17）。同步中英文 README 当前状态与下载链接和 [release-notes.md](release-notes.md)，提交并推送 main。
+1. 在 [app/build.gradle.kts](../app/build.gradle.kts) 更新 `versionName`（本例为 `0.2.0-alpha.18`）并递增 `versionCode`（本例为 18）。同步中英文 README 当前状态与下载链接和 [release-notes.md](release-notes.md)，提交并推送 main。
 2. 等 Android CI 通过。在已验证的 main 提交上创建 tag；tag 必须等于 `v` 加 `versionName`：
 
    ```sh
-   git tag -a v0.2.0-alpha.17 -m "ParaRead Android 0.2.0-alpha.17"
-   git push origin v0.2.0-alpha.17
+   git tag -a v0.2.0-alpha.18 -m "ParaRead Android 0.2.0-alpha.18"
+   git push origin v0.2.0-alpha.18
    ```
 
-3. 打开 **Actions → Signed APK release draft → Run workflow**，分支选 `main`，tag 填对应版本（例 `v0.2.0-alpha.17`），保留 `prerelease=true`。
+3. 打开 **Actions → Signed APK release draft → Run workflow**，分支选 `main`，tag 填对应版本（例 `v0.2.0-alpha.18`），保留 `prerelease=true`。
 4. 工作流验证 tag 存在、位于 main 历史、匹配 versionName；重新测试并构建 **release** variant，使用环境密钥签名，校验 APK 签名、ZIP/ELF 16KiB 对齐、ARM64 JNI、唯一自编示例、无 GGUF 和通知原文。
 5. 打开 Releases 中新建的 **Draft / Pre-release**，核对版本说明、签名证书摘要、附件和真机测试范围，再点击 **Publish release**。草稿不会自动公开。GitHub Releases 可以直接承载 APK，不需要先上架 Play。[GitHub 官方发布说明](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository)
 

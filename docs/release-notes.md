@@ -1,32 +1,32 @@
-# ParaRead Android 0.2.0-alpha.17 — 翻页提速与缓存复用 / page priority and cache reuse
+# ParaRead Android 0.2.0-alpha.18 — 清爽暂停提示与明确翻译错误 / Quiet pauses and inline translation errors
 
 ## 中文
 
-- **取消提示不再常驻。** “全篇已取消”约 2.5 秒后自动消失，并移除空白状态行。新的进度或错误不会被旧提示的计时器清除；书库中的可继续任务状态仍然保留。
-- **全篇优先复用已有译文。** 保留有效译文与缓存指纹，只补缺失或未通过质量校验的句子。缓存恢复按桥接批次一次查询（每批最多 40 句），减少逐句读取和线程切换；内存中已完成的句子不再重复查库。
-- **跨页自动翻译优先当前页。** 当前页自动请求可抢占低优先级的全篇/邻页预取推理，无须再点击句子来提升优先级。先等待旧推理安全释放资源，再执行当前页；不打断更高优先级的显式选中请求。全篇任务随后继续，已提交译文不会重新推理。
-- **保留可靠进度。** 当前页与全篇请求交接时，旧回复不能覆盖新请求；当前页临时失败后，全篇续跑仍可恢复有效结果。分页落库和任务进度仍等待确认，不提前计为成功。
-- 保留 alpha.16 的书库后台全部翻译、英文照抄质量检查，以及既有阅读位置、缓存、批注和全屏交互。手动翻译模式仍需显式操作，不会被改成自动模式。
+- **暂停提示不再常驻。** 书库中无错误、无需复核的闲置“已暂停，可继续，*/*页”行约 **2.5 秒**后收起，连同进度条和空白间距一起隐藏。只改变显示，不删除任务或已保存的页进度；仍可从文档菜单“继续全部翻译”。恢复排队、开始翻译或出现新错误时，会取消旧计时器并显示当前状态。
+- **翻译失败不再伪装成英文译文。** 某句最终失败时，译文位置直接显示失败原因及点击重试提示，不再退回英文原句。错误采用明确样式，长错误码可换行，浅色/深色模式均可读；诊断文字按纯文本显示。提示及第三方错误码可能保留原语言。
+- **重试不影响好译文。** 重试成功后，错误被正常译文替换；相邻已完成译文继续保留。生成中的中文仍是草稿，必须通过完整校验和持久化才能成为成功译文；不把不合格草稿强行当成翻译成功。正常等待、主动取消和切页取消保持原行为，不误报失败。
+- 保留 alpha.17 的当前页优先自动翻译、有效缓存复用和取消提示超时，以及后台全篇翻译、阅读位置、批注和全屏行为。未修改模型引擎、提示词、缓存指纹或数据库结构。
 
 ## English
 
-- Whole-document cancellation feedback dismisses after about **2.5 seconds**, without leaving an empty status row. A stale timer cannot clear newer progress/errors; resumable library job state remains durable.
-- Whole-document translation reuses valid saved results and requests only missing/invalid sentences. Cache-only restoration uses one bounded Room query per bridge batch (at most 40 sentences), skipping in-memory completed results. No fingerprint bump or cache wipe.
-- Automatic current-page work can preempt lower-priority whole-book/prefetch inference, without a sentence click. Cancellation is drained before the next inference owner starts. Explicit selection keeps its higher priority; preempted whole-book work resumes using committed cache rows.
-- Ownership and durable checkpoint acknowledgements are preserved. Resumed whole-book output can recover a failed visible-page request, but cannot overwrite a newer pending/successful owner.
-- Retains alpha.16 background library translation, source-copy validation, reading restoration, annotations and fullscreen behavior. Existing manual-mode preferences remain explicit.
+- The library's idle, healthy paused-progress row dismisses after about **2.5 seconds**, including its bar/spacing. The durable cursor and document-menu resume action remain. Queued/running work, errors, failed pages and review warnings do not expire; a changed job/state cancels the old timer.
+- A failed sentence now shows its failure reason and retry hint directly in the translation pane, instead of reverting to the English source. Long diagnostics wrap, light/dark error colors remain readable, and diagnostic content is rendered as text rather than HTML. Existing localization and raw diagnostic language are preserved.
+- A successful retry replaces the error without resubmitting accepted neighbours. Drafts still require complete validation/persistence; unvalidated Chinese drafts are not promoted to success. Normal waiting and cancellation behavior is unchanged.
+- Retains alpha.17 current-page priority, cache reuse, background jobs, reading restoration, annotations and fullscreen behavior. No engine, prompt, cache-fingerprint or database-schema change.
 
 ## Validation / 验证边界
 
-Local validation includes **42 Web/host-contract tests**, **16 upstream-contract tests**, **72 Core JVM tests (71 passed, one opt-in real-model test skipped)** and **9 App JVM tests**. Priority tests cover all 16 incoming/running combinations, queue ordering, joined cancellation and completed-cache reuse. Whole-book tests verify zero inference requests when fully cached, and only missing sentences when partially cached. Actual Edge/PDF.js checks include automatic page 2/page 6 translation scheduling, cache reopening, selection/fullscreen and annotation saving.
+Local checks passed: **48 Web/host-contract tests + 16 upstream-contract tests**, TypeScript, **72 Core JVM tests (71 passed, one opt-in real-model test skipped)**, **13 App JVM tests**, and **9 Engine JVM tests** (fake runtime). Five focused Web tests cover draft-to-error rendering, safe literal text, cancellation, retry success and accepted-neighbour preservation. Pause-policy tests retain active/error/review states and the resume cursor.
 
-A **read-only Android API 37 x86_64 emulator** ran the local patched debug smoke build with the explicitly labelled **Mock** provider and the original approximately **15 KB / six-page PDF**. Screenshots show cancellation feedback visible shortly after cancellation and absent later, without a blank row; entering page 6 without pressing a translation button produced automatic mock results. This debug smoke build intentionally excluded native libraries; native-enabled compilation, Lint and packaging are checked separately. It is not a signed-upgrade package or proof of native GGUF inference.
+Full native-enabled ARM64 debug APK and instrumentation APK compilation, Lint (**0 errors / 53 warnings**), debug signature, ZIP/ELF **16KiB alignment**, notices and no-model distribution checks passed. A local debug APK has a different certificate and is not a published-release upgrade package.
 
-No real model inference, model download, physical-device or instrumentation execution was performed for these follow-up fixes. The earlier user-approved tiny two-thread qwen3:0.6b CPU test remains alpha.16 evidence, not a new alpha.17 performance measurement. No immediate-result timing guarantee is made: extraction, safe cancellation and model speed still apply. See [validation details](https://github.com/kejie-tang/pararead-android/blob/main/docs/reports/alpha17.md).
+Actual desktop Edge DOM checks passed for visible inline errors, long-code wrapping, literal diagnostic text, successful retry, preserved neighbouring translation, and light/dark styling. Translation events in that check are simulated; it is not Android execution or model inference. This version has no new local emulator, physical-device, instrumentation execution, model inference/download or full-paper validation. Earlier alpha.16/alpha.17 model/emulator results remain historical evidence, not a new alpha.18 measurement. CI and signed release workflows separately recheck the source and run their configured browser/build gates. See [validation details](https://github.com/kejie-tang/pararead-android/blob/main/docs/reports/alpha18.md).
+
+This is an error-display improvement, not a guarantee that qwen3:0.6b (or any model) will always produce valid/accurate translations. Failure details are session UI, not successful cached translations; reopening can restore valid results or request missing ones again.
 
 ## Install / 安装
 
-Android 9+ / ARM64, **versionCode 17**. The signed release retains certificate SHA-256:
+Android 9+ / ARM64, **versionCode 18**. The signed release must retain certificate SHA-256:
 
 ```text
 e044c8f329f42465866add4d041f29c498009361241610c8ee2de43ae6e87a45

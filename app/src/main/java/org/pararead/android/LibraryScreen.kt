@@ -18,6 +18,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -282,6 +283,16 @@ data class LibraryTranslationState(val queued: Boolean = false, val running: Boo
     val failed = job?.failedPages ?: 0
     val needsReview = job != null && !item.translationsVerified()
     val fullSuccess = job?.status == org.pararead.core.WholeJobStatus.COMPLETED && failed == 0 && !needsReview
+    val noticeDuration = libraryPausedNoticeDuration(job, state, needsReview)
+    var noticeVisible by remember(item.document.id, item.jobJson, noticeDuration) { mutableStateOf(true) }
+    LaunchedEffect(item.document.id, item.jobJson, noticeDuration) {
+        noticeDuration?.let { duration ->
+            delay(duration)
+            noticeVisible = false
+        }
+    }
+    // Drop the entire pause-only row, including its bar/spacing, but keep the persisted resume cursor.
+    if (noticeDuration != null && !noticeVisible) return
     val label = when {
         state?.error == "PARTIAL_FAILURE" -> text.getString(R.string.translation_partial)
         state?.error != null -> text.getString(R.string.translation_error)

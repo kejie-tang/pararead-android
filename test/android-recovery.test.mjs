@@ -143,6 +143,23 @@ test('cancellation notice expires without hiding errors or leaving a blank statu
   assert.match(main, /status\.isNotBlank\(\)/);
 });
 
+test('library pause notice expires only in UI and a changed job cancels its timer', async () => {
+  const library = await readFile(new URL('../app/src/main/java/org/pararead/android/LibraryScreen.kt', import.meta.url), 'utf8');
+  const progress = library.slice(library.indexOf('@Composable private fun DocumentTranslationProgress'),
+    library.indexOf('@Composable private fun SavedTranslationLabel'));
+  assert.match(progress, /libraryPausedNoticeDuration\(job, state, needsReview\)/);
+  assert.match(progress, /remember\(item\.document\.id, item\.jobJson, noticeDuration\)/);
+  assert.match(progress, /LaunchedEffect\(item\.document\.id, item\.jobJson, noticeDuration\)/);
+  assert.match(progress, /delay\(duration\)\s+noticeVisible = false/);
+  const hidden = progress.indexOf('if (noticeDuration != null && !noticeVisible) return');
+  assert.ok(hidden >= 0 && hidden < progress.indexOf('Column('), 'hide the bar and its spacing, not only the text');
+  assert.doesNotMatch(progress, /dao\.|saveJob|updateJob|deleteJob|onCancelTranslation\(/, 'the timeout must not change the durable job');
+  const menu = library.slice(library.indexOf('DropdownMenu(expanded = menu'), library.indexOf('@Composable private fun DocumentTranslationProgress'));
+  assert.match(menu, /WholeJobStatus\.CANCELLED/);
+  assert.match(menu, /R\.string\.translation_resume/);
+  assert.match(menu, /onTranslateAll\(\)/, 'the resume action remains available after the notice disappears');
+});
+
 test('cache bridge batches restoration, validates sessions and never posts translation.request', async () => {
   const protocol = await readFile(new URL('../core/src/main/kotlin/org/pararead/core/Protocol.kt', import.meta.url), 'utf8');
   assert.match(protocol, /"translation\.cacheGet"/, 'native protocol must admit the cache-only request');

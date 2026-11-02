@@ -6,6 +6,11 @@ html, body { height: 100vh; height: 100dvh; }
 .bilingualHeaderButton, .bilingualToggle { min-height: 40px; }
 .bilingualSentence { cursor: pointer; }
 .bilingualSentence:focus-visible { outline: 2px solid #4b98cf; }
+/* Failure details replace the translation, including long diagnostic codes. */
+.bilingualSentence[data-status="error"] { color: var(--vscode-errorForeground, #b3261e); overflow-wrap: anywhere; }
+@media (prefers-color-scheme: dark) {
+  .bilingualSentence[data-status="error"] { color: var(--vscode-errorForeground, #ffb4ab); }
+}
 #openFile, #printButton, #downloadButton, #secondaryOpenFile, #secondaryPrint, #secondaryDownload { display: none !important; }
 /* PDF.js breakpoints normally use the whole window; the PDF occupies only one pane. */
 #outerContainer { container: pdf-pane / inline-size; }

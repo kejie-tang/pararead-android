@@ -12,8 +12,8 @@ android {
         applicationId = "org.pararead.android"
         minSdk = 28
         targetSdk = 36
-        versionCode = 17
-        versionName = "0.2.0-alpha.17"
+        versionCode = 18
+        versionName = "0.2.0-alpha.18"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         ndk { abiFilters += "arm64-v8a" }
     }

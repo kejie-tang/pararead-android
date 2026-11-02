@@ -415,18 +415,21 @@ export class TranslationPanel {
   }
 }
 
-/** Shows the translation, or the original (dimmed) until it is available. */
-function renderSentence(
+/** Shows committed text, a pending draft, or an inline failure; only unready text uses the original. */
+export function renderSentence(
   span: HTMLElement,
   sentence: Sentence,
   state: TranslationState,
   spaced: boolean,
 ): void {
   span.dataset["status"] = state.status;
+  const error = state.status === "error" ? t("translationFailed", state.message) : "";
   // Sentences are separated by a space, except in Chinese and Japanese.
-  span.textContent =
-    state.status === "done" ? `${state.translation}${spaced ? " " : ""}` : state.status === "pending" && state.draft ? `${state.draft} ▍` : withSpace(sentence.text);
-  span.title = state.status === "error" ? t("translationFailed", state.message) : "";
+  // Errors belong in the translated text, not just a hover tooltip on the English source.
+  span.textContent = state.status === "error" ? withSpace(error)
+    : state.status === "done" ? `${state.translation}${spaced ? " " : ""}`
+    : state.status === "pending" && state.draft ? `${state.draft} ▍` : withSpace(sentence.text);
+  span.title = error;
 }
 
 /**
