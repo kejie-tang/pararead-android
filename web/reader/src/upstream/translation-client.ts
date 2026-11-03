@@ -28,11 +28,16 @@ export interface TranslationDocumentContext {
   onPageChanging?(listener: (page: number) => void): void;
 }
 
+/** Both PDF text extraction and TXT indexing expose this small, geometry-free contract. */
+export type TranslationSentenceStore = Pick<SentenceStore, "onPageReady" | "ensure">;
+
 export interface TranslationClientOptions {
   app: Pick<PdfjsApplication, "pdfViewer" | "eventBus"> | TranslationDocumentContext;
-  store: SentenceStore;
+  store: TranslationSentenceStore;
   post: (message: WebviewToHost) => void | Promise<unknown>;
   range: TranslateRange;
+  /** Immutable for this reader session; mode switches reopen through native drain barriers. */
+  readingOnly?: boolean;
   restoreCached?: (sentences: readonly Sentence[]) => Promise<readonly { id: string; translation: string }[]>;
   onPageCompleted?: (page: number) => void | Promise<void>;
   onFatal?: (error: unknown) => void;
@@ -40,7 +45,8 @@ export interface TranslationClientOptions {
 
 export class TranslationClient {
   readonly #app: TranslationDocumentContext;
-  readonly #store: SentenceStore;
+  readonly #readingOnly: boolean;
+  readonly #store: TranslationSentenceStore;
   readonly #post: (message: WebviewToHost) => void | Promise<unknown>;
   readonly #states = new Map<string, TranslationState>();
   readonly #requests = new Map<number, { done: () => void; ids: string[]; settled: Promise<void>; epoch: number; priority: number }>();
@@ -59,7 +65,7 @@ export class TranslationClient {
   /** Bumped on document reload so that stale work stops. */
   #generation = 0;
 
-  constructor({ app, store, post, range, restoreCached, onPageCompleted, onFatal }: TranslationClientOptions) {
+  constructor({ app, store, post, range, readingOnly = false, restoreCached, onPageCompleted, onFatal }: TranslationClientOptions) {
     this.#app = "pdfViewer" in app ? {
       pageCount: () => app.pdfViewer.pagesCount,
       currentPage: () => app.pdfViewer.currentPageNumber,
@@ -70,6 +76,7 @@ export class TranslationClient {
     this.#store = store;
     this.#post = post;
     this.#range = range;
+    this.#readingOnly = readingOnly;
     this.#restoreCached = restoreCached;
 
     // Restore saved results even in manual mode, without requesting new translations.
@@ -113,6 +120,7 @@ export class TranslationClient {
 
   /** Handles host messages; returns whether the message was consumed. */
   handle(message: HostToWebview): boolean {
+    if (this.#readingOnly && ["translationDraft", "translations", "translationDone", "translateCurrentPage", "translateAll", "cancelTranslateAll", "settings", "retryFailed"].includes(message.type)) return true;
     switch (message.type) {
       case "translationDraft":
         if (this.#requests.has(message.requestId)) for (const {id, translation} of message.items) {
@@ -181,6 +189,7 @@ export class TranslationClient {
 
   /** Translates the paragraph containing `sentence` (explicit user action). */
   async translateBlockOf(sentence: Sentence): Promise<void> {
+    if (this.#readingOnly) return;
     const generation = this.#generation;
     const page = await this.#store.ensure(sentence.page);
     if (generation !== this.#generation) return;
@@ -193,6 +202,7 @@ export class TranslationClient {
   }
 
   async translatePage(pageNumber: number): Promise<void> {
+    if (this.#readingOnly) return;
     const generation = this.#generation;
     const page = await this.#store.ensure(pageNumber);
     if (generation !== this.#generation) return;
@@ -213,6 +223,7 @@ export class TranslationClient {
   }
 
   #restorePage(page: PageSegmentation): Promise<void> {
+    if (this.#readingOnly) return Promise.resolve();
     const existing = this.#restores.get(page.page);
     if (existing) return existing;
     const generation = this.#generation;
@@ -233,6 +244,7 @@ export class TranslationClient {
   }
 
   async #preparePage(page: PageSegmentation): Promise<void> {
+    if (this.#readingOnly) return;
     const generation = this.#generation;
     if (this.#restoreCached) await this.#restorePage(page);
     if (generation !== this.#generation) return;
@@ -243,6 +255,7 @@ export class TranslationClient {
   }
 
   #applyRange(current: number): void {
+    if (this.#readingOnly) return;
     const generation = this.#generation;
     // Manual mode still loads the current page's persisted results.
     const pages = this.#restoreCached ? new Set([current, ...this.#pagesInRange(current)]) : this.#pagesInRange(current);
@@ -258,7 +271,7 @@ export class TranslationClient {
   }
 
   async #translateAll(jobId: number, startPage: number): Promise<void> {
-    if (this.#runningJobId !== null) return;
+    if (this.#readingOnly || this.#runningJobId !== null) return;
     this.#runningJobId = jobId;
     const generation = this.#generation;
     const total = this.#app.pageCount();
@@ -311,6 +324,7 @@ export class TranslationClient {
     sentences: readonly Sentence[],
     { retryErrors, jobId, priority = 1 }: { retryErrors: boolean; jobId?: number; priority?: number },
   ): Promise<void> {
+    if (this.#readingOnly) return Promise.resolve();
     const todo = sentences.filter((s) => {
       const { status } = this.state(s.id);
       const owner = this.#requests.get(this.#owners.get(s.id) ?? -1);

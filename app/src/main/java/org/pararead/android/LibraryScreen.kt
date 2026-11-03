@@ -135,7 +135,7 @@ data class LibraryTranslationState(val queued: Boolean = false, val running: Boo
                         }
                     }
                 }
-                if (importing || status != "导入 PDF，或打开示例文档") item {
+                if (importing || status != "导入 PDF / TXT，或打开示例文档") item {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         if (importing) CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
                         Text(displayStatus(status), Modifier.weight(1f).padding(start = if (importing) 10.dp else 0.dp), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -349,23 +349,43 @@ private fun documentSize(bytes: Long): String = if (bytes < 1048576) "${maxOf(1,
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable fun ReaderToolbar(title: String, onPage: () -> Unit, onAll: () -> Unit, onCancel: () -> Unit, onExport: () -> Unit,
-    onFullscreen: () -> Unit) {
+    onFullscreen: () -> Unit, canExport: Boolean = true, readingOnly: Boolean = false, modeSwitching: Boolean = false,
+    onReadingOnlyChange: (Boolean) -> Unit = {}) {
     val text = LocalContext.current
+    val actionShape = RoundedCornerShape(12.dp)
+    val actionModifier = Modifier.heightIn(min = 48.dp)
+    val actionPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp)
     Surface(color = MaterialTheme.colorScheme.surface) {
-        BoxWithConstraints(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 10.dp)) {
-            val actions: @Composable () -> Unit = { FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                TextButton(onClick = onPage) { Text(text.getString(R.string.translate_page)) }
-                TextButton(onClick = onAll) { Text(text.getString(R.string.translate_all)) }
-                TextButton(onClick = onCancel) { Text(text.getString(R.string.cancel)) }
-                TextButton(onClick = onExport) { Text(text.getString(R.string.save_copy)) }
-                TextButton(onClick = onFullscreen) { Text(text.getString(R.string.reader_fullscreen)) }
-            } }
-            if (maxWidth >= 700.dp) Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(title, Modifier.weight(1f).padding(end = 16.dp), style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                actions()
-            } else Column {
-                Text(title, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                actions()
+        // Keep the title out of the actions' width budget, including on tablets and at large font sizes.
+        Column(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Text(title, Modifier.fillMaxWidth(), style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                FilterChip(selected = readingOnly, onClick = { onReadingOnlyChange(!readingOnly) }, enabled = !modeSwitching,
+                    modifier = actionModifier.testTag("reader-reading-only"), shape = actionShape,
+                    colors = FilterChipDefaults.filterChipColors(selectedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        selectedLabelColor = MaterialTheme.colorScheme.onSecondaryContainer, selectedLeadingIconColor = MaterialTheme.colorScheme.onSecondaryContainer),
+                    leadingIcon = { AppIcon(if (readingOnly) AppGlyph.Check else AppGlyph.Book, Modifier.size(18.dp)) },
+                    label = { Text(text.getString(R.string.reader_reading_only)) })
+                Button(onClick = onPage, enabled = !readingOnly && !modeSwitching,
+                    modifier = actionModifier, shape = actionShape, contentPadding = actionPadding,
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary, contentColor = MaterialTheme.colorScheme.onSecondary)) {
+                    AppIcon(AppGlyph.Globe, Modifier.size(18.dp)); Spacer(Modifier.width(6.dp)); Text(text.getString(R.string.translate_page))
+                }
+                FilledTonalButton(onClick = onAll, enabled = !readingOnly && !modeSwitching,
+                    modifier = actionModifier, shape = actionShape, contentPadding = actionPadding) {
+                    Text(text.getString(R.string.translate_all))
+                }
+                OutlinedButton(onClick = onCancel, enabled = !readingOnly && !modeSwitching,
+                    modifier = actionModifier, shape = actionShape, contentPadding = actionPadding) {
+                    Text(text.getString(R.string.cancel))
+                }
+                if (canExport) OutlinedButton(onClick = onExport, modifier = actionModifier, shape = actionShape, contentPadding = actionPadding) {
+                    AppIcon(AppGlyph.Download, Modifier.size(18.dp)); Spacer(Modifier.width(6.dp)); Text(text.getString(R.string.save_copy))
+                }
+                OutlinedButton(onClick = onFullscreen, modifier = actionModifier, shape = actionShape, contentPadding = actionPadding) {
+                    AppIcon(AppGlyph.External, Modifier.size(18.dp)); Spacer(Modifier.width(6.dp)); Text(text.getString(R.string.reader_fullscreen))
+                }
             }
         }
     }

@@ -14,7 +14,9 @@
     "test:android-web": "node --import ./scripts/upstream-loader.mjs --test test/android-*.test.mjs",
     "check:reader": "tsc -p web/reader/src/upstream/tsconfig.json",
     "test:reader": "npm run build:reader && node scripts/test_reader.mjs",
-    "test:background-reader": "node scripts/test_background_reader.mjs"
+    "test:background-reader": "node scripts/test_background_reader.mjs",
+    "test:text-reader": "npm run build:reader && node scripts/test_text_reader.mjs",
+    "test:reading-only-pdf": "npm run build:reader && node scripts/test_reading_only_pdf.mjs --generated"
   },
   "devDependencies": {
     "esbuild": "0.28.2",

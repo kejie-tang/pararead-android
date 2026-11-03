@@ -1,35 +1,35 @@
-# ParaRead Android 0.2.0-alpha.18 — 清爽暂停提示与明确翻译错误 / Quiet pauses and inline translation errors
+# ParaRead Android 0.2.0-alpha.19 — TXT、只阅读与焕新控件 / TXT, Read only and refreshed controls
 
 ## 中文
 
-- **暂停提示不再常驻。** 书库中无错误、无需复核的闲置“已暂停，可继续，*/*页”行约 **2.5 秒**后收起，连同进度条和空白间距一起隐藏。只改变显示，不删除任务或已保存的页进度；仍可从文档菜单“继续全部翻译”。恢复排队、开始翻译或出现新错误时，会取消旧计时器并显示当前状态。
-- **翻译失败不再伪装成英文译文。** 某句最终失败时，译文位置直接显示失败原因及点击重试提示，不再退回英文原句。错误采用明确样式，长错误码可换行，浅色/深色模式均可读；诊断文字按纯文本显示。提示及第三方错误码可能保留原语言。
-- **重试不影响好译文。** 重试成功后，错误被正常译文替换；相邻已完成译文继续保留。生成中的中文仍是草稿，必须通过完整校验和持久化才能成为成功译文；不把不合格草稿强行当成翻译成功。正常等待、主动取消和切页取消保持原行为，不误报失败。
-- 保留 alpha.17 的当前页优先自动翻译、有效缓存复用和取消提示超时，以及后台全篇翻译、阅读位置、批注和全屏行为。未修改模型引擎、提示词、缓存指纹或数据库结构。
+- **新增 TXT 阅读器。** 支持导入 TXT，自动识别或手动选择 UTF-8、UTF-16LE/BE、GB18030、GBK；提供固定内容分页、页码跳转、章节目录、12–32 字号及阅读位置恢复。自动编码识别并非绝对可靠，乱码时请重新导入并指定编码。
+- **平板左右对照。** 宽屏 TXT 左侧原文、右侧译文，逐段对齐；手机上下排列，隐藏原文后恢复单栏。字号和方向变化不改变翻译页标识或断点。分页按内容，不是屏幕高度，页内仍可滚动。
+- **PDF/TXT 共用“只阅读”。** 可记忆的独立选项，仅显示原文，不请求译文缓存或调用模型/API；保留翻页、字号/缩放、全屏和阅读进度。PDF 继续支持批注及导出。退出只阅读后仍可使用原有译文缓存；书库中明确启动的后台翻译独立保留。
+- **安全切换模式。** 先确认阅读位置及必要的 PDF 批注保存，再重开阅读器；保存失败保留原模式与当前编辑。全篇断点、正常译文和既有文档继续保留。
+- **焕新阅读控件。** 圆角按钮、主次操作、分组工具栏、页码/目录输入、字号滑块及原文开关，统一浅深色主题和键盘焦点。翻译错误使用低调灰色，无红色波浪线，仍显示诊断并可重试。
+- TXT 复用现有翻译、缓存和书库全篇翻译；不转换为 PDF，不提供 PDF 专属批注或导出。未改数据库结构、模型引擎、提示词及全局缓存指纹，不清除用户数据。
 
 ## English
 
-- The library's idle, healthy paused-progress row dismisses after about **2.5 seconds**, including its bar/spacing. The durable cursor and document-menu resume action remain. Queued/running work, errors, failed pages and review warnings do not expire; a changed job/state cancels the old timer.
-- A failed sentence now shows its failure reason and retry hint directly in the translation pane, instead of reverting to the English source. Long diagnostics wrap, light/dark error colors remain readable, and diagnostic content is rendered as text rather than HTML. Existing localization and raw diagnostic language are preserved.
-- A successful retry replaces the error without resubmitting accepted neighbours. Drafts still require complete validation/persistence; unvalidated Chinese drafts are not promoted to success. Normal waiting and cancellation behavior is unchanged.
-- Retains alpha.17 current-page priority, cache reuse, background jobs, reading restoration, annotations and fullscreen behavior. No engine, prompt, cache-fingerprint or database-schema change.
+- **TXT reader:** automatic or explicit UTF-8, UTF-16LE/BE, GB18030 and GBK import; stable content pages, page/chapter navigation, 12–32 font sizes and restored reading position. Encoding detection is fallible; reimport with an explicit encoding if needed.
+- **Aligned tablet layout:** source left, translation right, paragraph by paragraph; stacked on phones and single-column with source hidden. Font/orientation changes preserve translation identities and checkpoints. Content pages scroll internally rather than repaginating to screen height.
+- **Shared PDF/TXT Read only:** a remembered option showing originals without translation-cache requests, model loading or inference. Navigation, fullscreen and reading state remain; PDF annotations/export remain available. Existing translation caches and explicitly requested library background jobs are retained.
+- **Save before switching:** acknowledged reading-state/annotation persistence precedes reopening the reader; failures preserve the current mode and edits.
+- **Refreshed controls:** rounded, grouped actions; clearer primary buttons, page/chapter fields, font slider and source switch; coherent light/dark styles and keyboard focus. Translation errors are subdued gray without red wavy underlines, retaining diagnostics and retry.
+- Retains background translation and valid caches. No engine, prompt, global cache-fingerprint or database-schema change; no data wipe. TXT does not become a PDF and has no PDF annotation/export controls.
 
 ## Validation / 验证边界
 
-Local checks passed: **48 Web/host-contract tests + 16 upstream-contract tests**, TypeScript, **72 Core JVM tests (71 passed, one opt-in real-model test skipped)**, **13 App JVM tests**, and **9 Engine JVM tests** (fake runtime). Five focused Web tests cover draft-to-error rendering, safe literal text, cancellation, retry success and accepted-neighbour preservation. Pause-policy tests retain active/error/review states and the resume cursor.
+Local checks: **120 Web/upstream tests**, TypeScript, **94 Core JVM tests (93 passed, one optional real-model test skipped)**, **18 App JVM tests** and **9 Engine JVM tests** using a fake runtime. Full native-enabled ARM64 debug APK and instrumentation APK builds, Lint (**0 errors / 54 warnings**, full build check), debug signature, ZIP/ELF **16KiB alignment**, notices and no-model distribution checks passed.
 
-Full native-enabled ARM64 debug APK and instrumentation APK compilation, Lint (**0 errors / 53 warnings**), debug signature, ZIP/ELF **16KiB alignment**, notices and no-model distribution checks passed. A local debug APK has a different certificate and is not a published-release upgrade package.
-
-Actual desktop Edge DOM checks passed for visible inline errors, long-code wrapping, literal diagnostic text, successful retry, preserved neighbouring translation, and light/dark styling. Translation events in that check are simulated; it is not Android execution or model inference. This version has no new local emulator, physical-device, instrumentation execution, model inference/download or full-paper validation. Earlier alpha.16/alpha.17 model/emulator results remain historical evidence, not a new alpha.18 measurement. CI and signed release workflows separately recheck the source and run their configured browser/build gates. See [validation details](https://github.com/kejie-tang/pararead-android/blob/main/docs/reports/alpha18.md).
-
-This is an error-display improvement, not a guarantee that qwen3:0.6b (or any model) will always produce valid/accurate translations. Failure details are session UI, not successful cached translations; reopening can restore valid results or request missing ones again.
+Actual desktop Edge checks cover normal PDF reading, annotations/fullscreen, headless PDF translation, TXT navigation/chapters/fonts/cache/background barriers, and PDF/TXT Read only save success/failure. UI checks cover 320/360/800/1280 widths, light/dark, 44px Web buttons, body/source/enabled-button contrast ≥4.5, enlarged UI text and keyboard focus. Native bridge, persistence and translation events in browsers are simulated. These checks are **not Android-device, instrumentation-execution or real-model evidence**. No new device/emulator run or model download/inference was performed; earlier releases' model/device results remain historical. CI and signing workflows separately rerun their configured gates, including both new browser suites. See [alpha.19 validation](https://github.com/kejie-tang/pararead-android/blob/main/docs/reports/alpha19.md).
 
 ## Install / 安装
 
-Android 9+ / ARM64, **versionCode 18**. The signed release must retain certificate SHA-256:
+Android 9+ / ARM64, **versionCode 19**. The signed release must retain certificate SHA-256:
 
 ```text
 e044c8f329f42465866add4d041f29c498009361241610c8ee2de43ae6e87a45
 ```
 
-Install over the previous same-signed preview to retain private PDFs, translations, models and reading state. **Do not uninstall to bypass an upgrade/signature error.** APK, notices and SHA-256 checksums are attached. Model weights and third-party papers are not bundled.
+Same-signed previews can be upgraded in place, retaining private documents, translations, models and reading state. **不要为绕过签名错误卸载旧版 / Do not uninstall to bypass a signature error.** The persistent preview certificate identifies as Android Debug; this is not a production-signing claim. APK, notices and SHA-256 checksums are attached. No model weights or third-party papers are bundled.

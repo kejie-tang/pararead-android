@@ -13,7 +13,7 @@
     <string name="save_document_name">保存</string>
     <string name="document_operation_failed">未能保存这次修改，请重试。</string>
     <string name="delete_document_title">删除“%1$s”？</string>
-    <string name="delete_document_text">删除此 PDF 的 App 内副本、阅读记录与批注草稿。外部原文件和共享译文缓存会保留。</string>
+    <string name="delete_document_text">删除此文档的 App 内副本、阅读记录与批注草稿。外部原文件和共享译文缓存会保留。</string>
     <string name="close">关闭</string>
     <string name="auto_detect">自动识别</string>
     <string name="library">书库</string>
@@ -24,9 +24,12 @@
     <string name="ready_locally">本机已就绪</string>
     <string name="my_library">我的书库</string>
     <string name="read_together">原文与译文，一起读懂。</string>
-    <string name="import_pdf">导入 PDF</string>
+    <string name="import_pdf">导入 PDF / TXT</string>
+    <string name="text_encoding_title">TXT 文件编码</string>
+    <string name="text_encoding_hint">自动识别依次尝试 BOM、UTF-8、GB18030。如文字异常，可重新导入并选择正确编码，原有文档会保留。</string>
+    <string name="text_import_confirm">导入</string>
     <string name="read_across_languages">让外文阅读更轻松</string>
-    <string name="library_intro">导入 PDF，逐句翻译与原文对照。\n也可以先用示例文档体验。</string>
+    <string name="library_intro">导入 PDF 或 TXT，逐句翻译与原文对照。\n也可以先用示例文档体验。</string>
     <string name="open_sample">打开示例文档</string>
     <string name="model_preparing">模型准备中</string>
     <string name="model_attention">模型需要处理</string>
@@ -35,11 +38,14 @@
     <string name="cancel_import">取消导入</string>
     <string name="recent_documents">最近文档</string>
     <string name="empty_library_title">你的下一篇好文章，从这里开始</string>
-    <string name="empty_library_hint">导入 PDF，或先打开示例文档。</string>
+    <string name="empty_library_hint">导入 PDF 或 TXT，或先打开示例文档。</string>
     <string name="translate_page">本页</string>
     <string name="translate_all">全篇 / 继续</string>
     <string name="cancel">取消</string>
     <string name="save_copy">另存</string>
+    <string name="reader_reading_only">只阅读</string>
+    <string name="reader_reading_only_disabled">只阅读模式下已停用翻译。</string>
+    <string name="reader_mode_switch_failed">最近的更改未能保存，阅读模式未切换，请重试。</string>
     <string name="reader_fullscreen">全屏</string>
     <string name="reader_exit_fullscreen">退出全屏</string>
     <string name="reader_show_controls">显示阅读工具栏</string>
@@ -143,7 +149,7 @@
     <string name="free_space_hint">下载约需 %1$s 可用空间（含预留）</string>
     <string name="license_format">许可：%1$s</string>
     <string name="delete_model_title">删除 %1$s？</string>
-    <string name="delete_model_text">将释放 %1$s 空间。PDF、译文和阅读进度会保留。</string>
+    <string name="delete_model_text">将释放 %1$s 空间。文档、译文和阅读进度会保留。</string>
     <plurals name="document_count"><item quantity="other">%1$d 份</item></plurals>
     <string name="repo_downloads">%1$s\n下载量 %2$d</string>
     <string name="model_license_format">模型许可：%1$s</string>

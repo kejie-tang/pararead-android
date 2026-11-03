@@ -7,13 +7,17 @@ Read papers and technical documents with the original page beside its translatio
 
 [![Android CI](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml/badge.svg?branch=main)](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml) [![Android 9+](https://img.shields.io/badge/Android-9%2B-3DDC84?logo=android&logoColor=white)](#get-started) [![Code: Apache-2.0](https://img.shields.io/badge/Code-Apache--2.0-blue)](LICENSE)
 
-**[Download APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.18)** · [All releases](https://github.com/kejie-tang/pararead-android/releases) · [简体中文](README.zh-CN.md)
+**[Download APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.19)** · [All releases](https://github.com/kejie-tang/pararead-android/releases) · [简体中文](README.zh-CN.md)
 
 A development preview for **Android 9+ / ARM64**, designed for tablets and usable on phones. Native menus support **English and Simplified Chinese**, with a system-language option. Independent, unofficial adaptation of [ParaRead](https://github.com/Chuanyunux/pararead) 0.6.1.
 
 ![PDF and sentence-aligned translation](docs/reports/reader-landscape.png)
 
 *Reading interaction demo in desktop Chromium with touch emulation. Uses our original sample document and labeled Mock output; this is not a real-model or physical-tablet screenshot.*
+
+### New in alpha.19: TXT and Read only
+
+Import TXT with automatic or explicit encoding, content pagination, chapters and adjustable fonts. Tablets show original text on the left and paragraph-aligned translation on the right; phones use a stacked layout. PDF and TXT share a persistent **Read only** option: originals only, without translation or model loading, while retaining caches and reading progress. Rounded controls and unified light/dark styling make the reader easier to use. See the [TXT guide](docs/txt-reader.md), [read-only guide](docs/reading-only.md) (Chinese), and [alpha.19 validation](docs/reports/alpha19.md).
 
 ## Made for reading, not copying and pasting
 
@@ -38,15 +42,15 @@ Actual Android emulator captures. The original book icon is included as an adapt
 
 ## Get started
 
-1. **Install the [preview APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.18).** Requires ARM64, Android 9+ and an up-to-date Android System WebView. The preview signing identity is retained for in-place upgrades; see the [validation and upgrade notes](docs/reports/alpha18.md). Do not uninstall an existing installation just to bypass a signature error; uninstalling deletes private documents, translations and models.
-2. **Choose a model in Models.** Start with 0.6B for quick reading or 1.7B for stronger translations. Downloads are verified before activation; existing models are retained.
-3. **Import a PDF or open the sample.** Tap a sentence, translate **This page**, or use **All / Resume**. PDFs need selectable text; OCR is not included.
+1. **Install the [preview APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.19).** Requires ARM64, Android 9+ and an up-to-date Android System WebView. The preview signing identity is retained for in-place upgrades; see the [validation and upgrade notes](docs/reports/alpha19.md). Do not uninstall an existing installation just to bypass a signature error; uninstalling deletes private documents, translations and models.
+2. **For translation, choose a model in Models.** Start with 0.6B for quick reading or 1.7B for stronger translations. Downloads are verified before activation; existing models are retained. **Read only** needs no model.
+3. **Import a PDF/TXT or open the sample.** Enable **Read only**, translate **This page**, or use **All / Resume**. TXT offers an encoding choice; PDFs need selectable text, and OCR is not included.
 
 Change native menu language in **Settings → Interface language**. This applies immediately and stays separate from **Source language** and **Target language**. The embedded PDF viewer and raw third-party diagnostics may retain their own language.
 
 ### Restore translations and read full screen
 
-- Reopening a PDF automatically restores saved translations, including in **manual** mode, without calling the model or API. Automatic modes translate only cache misses; manual mode leaves them untranslated until you explicitly translate.
+- Outside **Read only**, reopening a PDF or TXT automatically restores saved translations, including in **manual** mode, without calling the model or API. Automatic modes translate only cache misses; manual mode leaves them untranslated until you explicitly translate.
 - **Click to select, translate the current page automatically.** Hovering does not select sentences or control translation. New installations default to current-page translation; choose Current page, Nearby pages or Manual in Settings. Page turns promote current-page work ahead of lower-priority whole-book/prefetch inference without a sentence click; safe cancellation still completes before inference changes owners. Existing range preferences are retained.
 - Tap **Full screen** in the reading toolbar to hide the app navigation, toolbar, status messages and system bars. In alpha.13, swiping up to continue reading hides both PDF and translation headers; swiping down or tapping the small arrow restores them. Controls stay visible during annotation, sentence/text selection, and zoom gestures. Normal reading keeps its toolbar. Use the bottom-right exit button or Android Back to leave full screen; Back again returns to the library. The preference persists, and toggling does not recreate the reader or interrupt translation.
 - Failed sentences show the error and retry hint directly in the translation pane instead of reverting to English source text. Tap to retry; accepted neighbouring translations remain intact. Waiting/cancellation behavior is unchanged, and unvalidated drafts are not saved as successful translations.
@@ -85,7 +89,7 @@ CPU is the default. Instruction-specific CPU plugins and persistent worker reuse
 
 - **Local mode:** document text is processed on-device. Downloading a model needs internet; translation does not use a remote service. There is no automatic cloud fallback.
 - **API mode:** selected text and prompts go to the endpoint you configure. Remote servers require HTTPS; local HTTP is supported.
-- **Storage:** imported PDFs, annotations, reading state, translations and models live in app-owned storage. Updating with the same signature retains them. **Uninstalling or clearing app data removes them**; export annotated PDFs you want to keep. Deleting a model leaves PDFs and translations intact.
+- **Storage:** imported PDFs/TXT, annotations, reading state, translations and models live in app-owned storage. Updating with the same signature retains them. **Uninstalling or clearing app data removes them**; export annotated PDFs you want to keep. Deleting a model leaves PDFs and translations intact.
 
 The included six-page [sample guide](samples/pararead-reading-guide.pdf) is original Apache-2.0 material. To try *Attention Is All You Need*, download it from the [official arXiv page](https://arxiv.org/abs/1706.03762) and import your copy. That paper is not bundled or relicensed by this project.
 

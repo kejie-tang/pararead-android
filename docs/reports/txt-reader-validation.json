@@ -1,0 +1,67 @@
+{
+  "timestamp": "2026-11-03T02:35:33.728Z",
+  "state": "local-unreleased-working-tree",
+  "gradle": {
+    "command": "gradlew.bat --offline --no-daemon --max-workers=2 --console=plain :core:test :app:testDebugUnitTest :app:lintDebug",
+    "log": "C:/Users/57452/AppData/Local/Temp/pi-background-terminal/bg_831fbc2814f724ab.log",
+    "core": {
+      "tests": 91,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1,
+      "passed": 90
+    },
+    "app": {
+      "tests": 18,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 18
+    },
+    "lint": {
+      "errors": 0,
+      "warnings": 53
+    }
+  },
+  "web": {
+    "androidTestsPassed": 67,
+    "upstreamContractsPassed": 16,
+    "totalPassed": 83,
+    "typeScriptPassed": true
+  },
+  "layoutFollowUp": {
+    "timestamp": "2026-11-03T05:50:20.926Z",
+    "scope": "Tablet original-left/translation-right layout only; native Gradle results above are retained from the preceding unchanged native implementation.",
+    "webTestsRerun": true,
+    "typeScriptRerun": true,
+    "browserViewports": ["768x1024", "800x1280", "1280x800", "360x720"],
+    "paragraphAlignment": true,
+    "hiddenOriginalRestoresSingleColumn": true,
+    "phoneKeepsStackedLayout": true
+  },
+  "browser": {
+    "txt": "docs/reports/txt-reader-browser.json",
+    "pdfBackgroundRegression": "docs/reports/txt-pdf-background-browser.json",
+    "scope": "Actual desktop Edge DOM and generated reader assets; simulated Native bridge, storage and translation events. PDF regression uses actual PDF.js and an original 869-byte generated fixture."
+  },
+  "review": {
+    "blockingFindingsClosed": [
+      "Native TXT message allowlist",
+      "Text quoting PDF signature",
+      "TXT/PDF import identity domain collision"
+    ],
+    "finalConclusion": "OK"
+  },
+  "boundaries": {
+    "androidDeviceExecution": false,
+    "emulatorExecution": false,
+    "instrumentationExecution": false,
+    "apkAssembly": false,
+    "realModelInference": false,
+    "modelDownload": false,
+    "publicRelease": false,
+    "databaseSchemaMigration": false,
+    "globalTranslationFingerprintChanged": false
+  },
+  "instructions": "See docs/txt-reader.md. Public alpha.18 does not include these working-tree changes."
+}

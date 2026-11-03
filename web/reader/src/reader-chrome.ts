@@ -5,7 +5,7 @@ import type { SelectionController } from "./upstream/selection";
 /** Full-screen controls follow deliberate reading gestures, never synchronized scrolling. */
 export class ReaderChrome {
   readonly #app: PdfjsApplication;
-  readonly #selection: SelectionController;
+  readonly #selection: SelectionController | null;
   readonly #bars: HTMLElement[];
   readonly #reveal: HTMLButtonElement;
   #fullscreen = false;
@@ -13,7 +13,7 @@ export class ReaderChrome {
   #distance = 0;
   #lastInput = 0;
 
-  constructor(app: PdfjsApplication, panel: TranslationPanel, selection: SelectionController, label: string) {
+  constructor(app: PdfjsApplication, panel: TranslationPanel | null, selection: SelectionController | null, label: string) {
     this.#app = app;
     this.#selection = selection;
     this.#bars = [...document.querySelectorAll<HTMLElement>("#toolbarContainer, .bilingualHeader")];
@@ -39,8 +39,8 @@ export class ReaderChrome {
     });
 
     this.#watch(app.pdfViewer.container);
-    this.#watch(panel.body);
-    selection.onChange(current => { if (current?.pinned) this.show(); });
+    if (panel) this.#watch(panel.body);
+    selection?.onChange(current => { if (current?.pinned) this.show(); });
     app.eventBus.on("annotationeditormodechanged", ({ mode }: { mode: number }) => {
       if (mode > 0) this.show();
     });
@@ -72,7 +72,7 @@ export class ReaderChrome {
 
   #blocked(): boolean {
     const active = document.activeElement;
-    return this.#app.pdfViewer.annotationEditorMode > 0 || this.#selection.current?.pinned === true ||
+    return this.#app.pdfViewer.annotationEditorMode > 0 || this.#selection?.current?.pinned === true ||
       window.getSelection()?.isCollapsed === false || document.body.classList.contains("bilingualResizing") ||
       active?.matches("input, textarea, select, [contenteditable=true]") === true ||
       document.querySelector("dialog[open], #outerContainer.sidebarOpen, #findbar:not(.hidden), #secondaryToolbar:not(.hidden)") !== null;

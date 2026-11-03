@@ -1,0 +1,80 @@
+/* TXT layout only; translation error states remain subdued in android.css. */
+:root { color-scheme: light dark; }
+html, body { margin: 0; height: 100%; overflow: hidden; }
+body { color: var(--reader-ink); background: var(--reader-paper); font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+.textReader { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+.textToolbar { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; padding: 14px 20px; border-bottom: 1px solid var(--reader-line); background: var(--reader-surface); box-shadow: 0 2px 12px rgb(24 36 60 / .035); font-size: .875rem; }
+.textNavigation, .textPreferences { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; min-width: 0; max-width: 100%; }
+.textPreferences { flex: 1 1 520px; gap: 12px 16px; }
+.textPreferences > label { flex-shrink: 0; max-width: 100%; }
+.textToolbar form, .textToolbar label { display: inline-flex; gap: 8px; align-items: center; min-width: 0; margin: 0; }
+.textToolbar label > span { color: var(--reader-muted); font-size: .8125rem; white-space: nowrap; }
+.textToolbar button, .textToolbar input, .textToolbar select, .textShowControls { box-sizing: border-box; min-height: 44px; font: inherit; }
+.textToolbar button, .textShowControls { display: inline-flex; justify-content: center; align-items: center; gap: 7px; padding: 0 14px; border: 1px solid var(--reader-line); border-radius: 12px; background: var(--reader-surface); color: var(--reader-ink); font-weight: 600; white-space: nowrap; cursor: pointer; transition: border-color .15s, box-shadow .15s; }
+.textToolbar button:not(:disabled):hover, .textShowControls:hover { background: var(--reader-soft); border-color: var(--reader-accent); }
+.textToolbar button:not(:disabled):active, .textShowControls:active { background: var(--reader-pressed); }
+.textToolbar button:disabled { color: var(--reader-disabled); background: var(--reader-subtle); border-color: var(--reader-line); cursor: default; }
+.textToolbar .textTranslate { border-color: var(--reader-accent); background: var(--reader-accent); color: var(--reader-on-accent); box-shadow: 0 2px 5px rgb(34 57 120 / .1); }
+.textToolbar .textTranslate:not(:disabled):hover { background: var(--reader-accent-hover); border-color: var(--reader-accent-hover); }
+.textPrevious::before, .textNext::after { content: ""; width: 6px; height: 6px; border: solid currentColor; border-width: 0 1.5px 1.5px 0; }
+.textPrevious::before { transform: rotate(135deg); }
+.textNext::after { transform: rotate(-45deg); }
+.textPageForm { gap: 7px; }
+.textPageForm > span { color: var(--reader-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.textToolbar input[inputmode="numeric"] { width: 3.5rem; padding: 0 7px; border: 1px solid var(--reader-line); border-radius: 10px; background: var(--reader-subtle); color: var(--reader-ink); text-align: center; font-variant-numeric: tabular-nums; }
+.textToolbar input[aria-invalid="true"] { border-color: var(--reader-invalid); outline: 1px solid var(--reader-invalid); }
+.textToolbar select { appearance: none; max-width: min(19rem, 52vw); padding: 0 32px 0 12px; border: 1px solid var(--reader-line); border-radius: 12px; background: var(--reader-subtle) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23818da3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center; color: var(--reader-ink); cursor: pointer; }
+.textToolbar select option { background: var(--reader-surface); color: var(--reader-ink); }
+.textFontControl { min-height: 44px; padding: 0 10px; border: 1px solid var(--reader-line); border-radius: 12px; background: var(--reader-subtle); }
+.textFontControl output { min-width: 2ch; color: var(--reader-ink); font-size: .8125rem; font-weight: 600; text-align: center; font-variant-numeric: tabular-nums; }
+.textToolbar input[type="range"] { appearance: none; width: 88px; height: 44px; min-width: 60px; margin: 0; background: transparent; cursor: pointer; accent-color: var(--reader-accent); }
+.textToolbar input[type="range"]::-webkit-slider-runnable-track { height: 4px; border-radius: 4px; background: var(--reader-track); }
+.textToolbar input[type="range"]::-webkit-slider-thumb { appearance: none; width: 16px; height: 16px; margin-top: -6px; border: 3px solid var(--reader-surface); border-radius: 50%; background: var(--reader-accent); box-shadow: 0 0 0 1px var(--reader-accent); }
+.textToolbar input[type="range"]::-moz-range-track { height: 4px; border-radius: 4px; background: var(--reader-track); }
+.textToolbar input[type="range"]::-moz-range-thumb { width: 11px; height: 11px; border: 3px solid var(--reader-surface); border-radius: 50%; background: var(--reader-accent); box-shadow: 0 0 0 1px var(--reader-accent); }
+.textSourceToggle { min-height: 44px; padding: 0 4px; cursor: pointer; }
+.textToolbar input[type="checkbox"] { appearance: none; position: relative; flex: none; width: 34px; height: 22px; min-height: 22px; margin: 0; border: 1px solid var(--reader-switch-off); border-radius: 12px; background: var(--reader-switch-off); cursor: pointer; }
+.textToolbar input[type="checkbox"]::before { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--reader-surface); box-shadow: 0 1px 2px rgb(0 0 0 / .15); transition: transform .15s; }
+.textToolbar input[type="checkbox"]:checked { background: var(--reader-accent); border-color: var(--reader-accent); }
+.textToolbar input[type="checkbox"]:checked::before { transform: translateX(12px); }
+.textToolbar :is(button, input, select):focus-visible, .textShowControls:focus-visible { outline: 2px solid var(--reader-accent); outline-offset: 3px; }
+.textStatus { flex: none; padding: 8px 24px 0; color: var(--reader-muted); font-size: .75rem; overflow-wrap: anywhere; }
+.textStatus::before { content: ""; display: inline-block; width: 5px; height: 5px; margin-inline-end: 7px; border-radius: 50%; background: var(--reader-muted); vertical-align: 2px; }
+.textContent { flex: 1; min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 24px max(24px, calc((100vw - 48rem) / 2)); line-height: 1.9; overflow-wrap: anywhere; scrollbar-color: var(--reader-track) transparent; }
+.textBlock { margin: 0 0 1em; }
+.textHeading .bilingualTarget { font-size: 1.25em; font-weight: 650; letter-spacing: -.02em; }
+.textContent .bilingualTarget, .textContent .bilingualSource { white-space: pre-wrap; }
+.textContent .bilingualSource { display: block; margin-top: .8em; color: var(--reader-muted); font-size: .9em; }
+.textHideSource .bilingualSource { display: none; }
+@media (min-width: 768px) {
+  .textReader:not(.textHideSource) .textContent { padding-inline: max(28px, calc((100vw - 80rem) / 2)); }
+  .textReader:not(.textHideSource) .textBlock { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 28px; align-items: start; }
+  .textReader:not(.textHideSource) .bilingualSource { grid-column: 1; grid-row: 1; min-width: 0; margin-top: 0; font-size: 1em; }
+  .textReader:not(.textHideSource) .bilingualTarget { grid-column: 2; grid-row: 1; min-width: 0; border-inline-start: 1px solid var(--reader-line); padding-inline-start: 28px; }
+  .textReader:not(.textHideSource) .textHeading .bilingualSource { font-size: 1.25em; font-weight: 650; letter-spacing: -.02em; }
+}
+@media (max-width: 767px) {
+  .textToolbar { padding: 12px; gap: 10px; }
+  .textPreferences { gap: 10px 12px; }
+  .textStatus { padding-inline: 20px; }
+  .textContent { padding: 20px; }
+}
+@media (max-width: 480px) {
+  .textNavigation { gap: 6px; }
+  .textNavigation button { padding-inline: 10px; }
+  .textPageForm label > span { display: none; }
+  .textPageForm { gap: 6px; }
+  .textFontControl { padding-inline: 8px; }
+  .textToolbar input[type="range"] { width: 70px; }
+  .textToolbar select { max-width: min(19rem, 47vw); }
+  .textTranslate { order: -1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .textToolbar button, .textShowControls, .textToolbar input[type="checkbox"]::before { transition: none; }
+}
+@media (forced-colors: active) {
+  .textToolbar input[type="checkbox"], .textToolbar input[type="range"] { appearance: auto; }
+  .textToolbar input[type="checkbox"]::before { display: none; }
+}
+.textShowControls { align-self: flex-end; margin: 8px 12px; }
+.textReader [hidden] { display: none !important; }

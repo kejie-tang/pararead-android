@@ -26,6 +26,7 @@ internal object DocumentThumbnails {
     }
     private fun file(context: Context, id: String) = File(File(context.cacheDir, "document-thumbnails"), "$id-v1.png")
     suspend fun load(context: Context, document: DocumentRecord): Bitmap? = withContext(Dispatchers.IO) {
+        if (document.isText) return@withContext null // TXT uses the library file icon, not PdfRenderer.
         memory.get(document.id)?.let { return@withContext it }
         slots.withPermit {
             memory.get(document.id)?.let { return@withPermit it }

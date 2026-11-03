@@ -1,15 +1,33 @@
 /* Android adaptations, preserving ParaRead's shared DOM geometry. */
 html { color-scheme: light dark; }
+/* Reader controls share the native shell's neutral surfaces and indigo accent. */
+:root {
+  --reader-ink: #202632; --reader-muted: #626e81; --reader-disabled: #929bab;
+  --reader-paper: #ffffff; --reader-surface: #ffffff; --reader-subtle: #f5f7fb;
+  --reader-line: #e1e6ee; --reader-track: #cbd3df; --reader-switch-off: #818da3;
+  --reader-accent: #4668d7; --reader-accent-hover: #3656c0; --reader-on-accent: #ffffff;
+  --reader-soft: #edf1ff; --reader-pressed: #e1e8ff; --reader-invalid: #a74340;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --reader-ink: #e8ecf3; --reader-muted: #adb8cb; --reader-disabled: #8290a6;
+    --reader-paper: #151b25; --reader-surface: #1c2431; --reader-subtle: #222c3b;
+    --reader-line: #354154; --reader-track: #53617a; --reader-switch-off: #667793;
+    --reader-accent: #a9bfff; --reader-accent-hover: #bfd0ff; --reader-on-accent: #17285b;
+    --reader-soft: #293850; --reader-pressed: #354969; --reader-invalid: #ffb4ab;
+  }
+}
 /* A Compose WebView may first be measured at zero height. Avoid percentage-height roots. */
 html, body { height: 100vh; height: 100dvh; }
 .bilingualSplitter { width: 18px; margin-left: -9px; touch-action: none; }
 .bilingualHeaderButton, .bilingualToggle { min-height: 40px; }
 .bilingualSentence { cursor: pointer; }
 .bilingualSentence:focus-visible { outline: 2px solid #4b98cf; }
-/* Failure details replace the translation, including long diagnostic codes. */
-.bilingualSentence[data-status="error"] { color: var(--vscode-errorForeground, #b3261e); overflow-wrap: anywhere; }
-@media (prefers-color-scheme: dark) {
-  .bilingualSentence[data-status="error"] { color: var(--vscode-errorForeground, #ffb4ab); }
+/* Keep inline failures readable but unobtrusive, without upstream's red wavy underline. */
+.bilingualSentence[data-status="error"] {
+  color: var(--vscode-descriptionForeground, GrayText);
+  text-decoration: none;
+  overflow-wrap: anywhere;
 }
 #openFile, #printButton, #downloadButton, #secondaryOpenFile, #secondaryPrint, #secondaryDownload { display: none !important; }
 /* PDF.js breakpoints normally use the whole window; the PDF occupies only one pane. */
@@ -30,6 +48,16 @@ html, body { height: 100vh; height: 100dvh; }
   #pageNumber { width: 32px; }
   #numPages { display: none; }
 }
+/* Cosmetic PDF chrome only: keep PDF.js toolbar dimensions and pane geometry. */
+#toolbarContainer { background: var(--reader-surface); border-bottom: 1px solid var(--reader-line); box-shadow: 0 2px 8px rgb(24 36 60 / .05); }
+#toolbarViewer .toolbarButton, #secondaryToolbar .toolbarButton { border-radius: 8px; }
+#toolbarViewer .toolbarButton:not(:disabled):hover, #secondaryToolbar .toolbarButton:not(:disabled):hover { background-color: var(--reader-soft); }
+#toolbarViewer .toolbarButton.toggled { background-color: var(--reader-pressed); }
+#toolbarViewer .toolbarField, #scaleSelectContainer { border-radius: 8px; border-color: var(--reader-line); background-color: var(--reader-subtle); color: var(--reader-ink); }
+.bilingualHeader { background: var(--reader-surface); border-color: var(--reader-line); }
+.bilingualHeaderButton, .bilingualToggle { border-radius: 10px; }
+.bilingualHeaderButton:hover, .bilingualToggle:hover { background-color: var(--reader-soft); }
+#toolbarViewer :is(button, input, select):focus-visible, .bilingualHeaderButton:focus-visible, .bilingualToggle:focus-visible { outline: 2px solid var(--reader-accent); outline-offset: 2px; }
 .bilingualBody { overscroll-behavior: contain; }
 @media (max-width: 700px) { .bilingualTitle { display: none; } .bilingualHeader { padding: 4px; } .bilingualHeaderTools { gap: 2px; } }
 /* Collapse both headers without changing PDF.js's toolbar sizing variables. */

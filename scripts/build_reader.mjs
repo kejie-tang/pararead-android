@@ -18,6 +18,12 @@ await build({ entryPoints: [`${root}/web/reader/src/entry.ts`], outfile: `${out}
   platform: 'browser', format: 'esm', target: 'es2022', sourcemap: true,
   banner: { js: '/*! ParaRead Android: modified ParaRead 0.6.1, Apache-2.0. Attribution and changes: licenses/project/NOTICE and licenses/pararead/NOTICE. */' },
   plugins: [{ name: 'pdfjs-external', setup(b) { b.onResolve({ filter: /\/viewer\.mjs$/ }, () => ({ path: './pdfjs/web/viewer.mjs', external: true })); } }] });
+// TXT has its own lightweight entry: no PDF.js viewer, canvas or annotation editor.
+await cp(`${root}/web/reader/text.html`, `${out}/text.html`);
+await cp(`${root}/web/reader/text.css`, `${out}/text.css`);
+await build({ entryPoints: [`${root}/web/reader/src/text-entry.ts`], outfile: `${out}/text.mjs`, bundle: true,
+  platform: 'browser', format: 'esm', target: 'es2022', sourcemap: true,
+  banner: { js: '/*! ParaRead Android TXT reader; shared ParaRead modules Apache-2.0. See licenses/project/NOTICE. */' } });
 const config = { url: '', resourceRoot: 'https://appassets.androidplatform.net/', debug: true, targetLanguage: 'zh-CN', translateRange: 'page', selectOnHover: false,
   ...Object.fromEntries(Object.entries({ sandboxBundleSrc: 'build/pdf.sandbox.mjs', cMapUrl: 'web/cmaps/', iccUrl: 'web/iccs/',
     standardFontDataUrl: 'web/standard_fonts/', wasmUrl: 'web/wasm/', imageResourcesPath: 'web/images/' }).map(([k, v]) => [k, `./pdfjs/${v}`])) };

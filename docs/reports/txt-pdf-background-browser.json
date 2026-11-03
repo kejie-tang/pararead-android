@@ -1,0 +1,583 @@
+{
+  "status": "passed",
+  "timestamp": "2026-11-03T07:02:47.680Z",
+  "scope": "Real desktop Edge/Chromium and actual PDF.js; simulated Native bridge, durable storage and translations. NOT an Android Worker or device test; no model inference.",
+  "fixture": {
+    "provenance": "Original two-page PDF generated in memory by this script",
+    "pages": 2,
+    "bytes": 869
+  },
+  "generatedReaderAssets": {
+    "path": "D:\\AgentSpace\\pararead-android-main\\app\\build\\generated\\readerAssets\\reader",
+    "reusedReadOnly": true,
+    "rebuilt": false,
+    "mainSha256": "92ddc353d13ad497a7f975bd9011f13a88171a39bc65831ae808ab94cb3fcaf7"
+  },
+  "channel": "msedge",
+  "node": "v26.13.0",
+  "browserVersion": "156.0.4314.58",
+  "assertions": {
+    "noViewerOrCanvasOrReadingSave": true,
+    "pageSavedBlocksTranslation": true,
+    "jobSavedBlocksNextPageExtraction": true,
+    "durableCursorPersistedBeforeHeldAck": true,
+    "reloadExtractsOnlyPage2": true,
+    "translationCacheSurvivesReloadWithoutInference": true,
+    "bothAckBarriersRequired": true,
+    "completedWithoutFailedPages": true,
+    "loadingTaskDestroyed": true,
+    "viewerModuleNeverRequested": true
+  },
+  "firstPageBarrier": {
+    "run": 1,
+    "cursorAtOpen": 0,
+    "extractedPages": [
+      1
+    ],
+    "documentLoads": [
+      {
+        "range": true,
+        "hasData": false,
+        "disableAutoFetch": true,
+        "disableStream": true
+      }
+    ],
+    "hasViewer": false,
+    "canvasCount": 0,
+    "canvasCreated": 0,
+    "readingSaves": 0,
+    "pageTextPages": [
+      1
+    ],
+    "translationPages": [],
+    "progress": [],
+    "replies": [
+      {
+        "type": "session.open",
+        "requestId": "web-1",
+        "payload": {
+          "length": 869,
+          "token": "background-test",
+          "reading": {},
+          "settings": {
+            "backgroundTranslation": true,
+            "translateRange": "manual",
+            "targetLanguage": "zh-CN"
+          },
+          "debug": false
+        }
+      },
+      {
+        "type": "reader.command",
+        "requestId": "web-2",
+        "payload": {
+          "type": "translateAll",
+          "jobId": 1601,
+          "startPage": 1
+        }
+      },
+      {
+        "type": "page.cached",
+        "requestId": "web-3",
+        "payload": {
+          "page": null
+        }
+      }
+    ],
+    "cacheHits": [],
+    "finished": null,
+    "cursor": 0,
+    "destroyCalls": 0,
+    "fatal": [],
+    "pdfjsVersion": "6.2.108",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0"
+  },
+  "heldCheckpoint": {
+    "run": 1,
+    "cursorAtOpen": 0,
+    "extractedPages": [
+      1
+    ],
+    "documentLoads": [
+      {
+        "range": true,
+        "hasData": false,
+        "disableAutoFetch": true,
+        "disableStream": true
+      }
+    ],
+    "hasViewer": false,
+    "canvasCount": 0,
+    "canvasCreated": 0,
+    "readingSaves": 0,
+    "pageTextPages": [
+      1
+    ],
+    "translationPages": [
+      1
+    ],
+    "progress": [
+      {
+        "type": "translateAllProgress",
+        "jobId": 1601,
+        "done": 1,
+        "total": 2,
+        "failed": false
+      }
+    ],
+    "replies": [
+      {
+        "type": "session.open",
+        "requestId": "web-1",
+        "payload": {
+          "length": 869,
+          "token": "background-test",
+          "reading": {},
+          "settings": {
+            "backgroundTranslation": true,
+            "translateRange": "manual",
+            "targetLanguage": "zh-CN"
+          },
+          "debug": false
+        }
+      },
+      {
+        "type": "reader.command",
+        "requestId": "web-2",
+        "payload": {
+          "type": "translateAll",
+          "jobId": 1601,
+          "startPage": 1
+        }
+      },
+      {
+        "type": "page.cached",
+        "requestId": "web-3",
+        "payload": {
+          "page": null
+        }
+      },
+      {
+        "type": "page.saved",
+        "requestId": "web-4",
+        "payload": {
+          "page": 1
+        }
+      },
+      {
+        "type": "translation.finished",
+        "requestId": "translate-5",
+        "payload": {
+          "failures": [],
+          "cancelled": false
+        }
+      },
+      {
+        "type": "translation.committed",
+        "requestId": "translate-6",
+        "payload": {
+          "sequence": 0,
+          "items": [
+            {
+              "id": "p1-b1-s1",
+              "translation": "[SIMULATED TRANSLATION] First page sentence."
+            }
+          ]
+        }
+      },
+      {
+        "type": "translation.finished",
+        "requestId": "translate-6",
+        "payload": {
+          "failures": [],
+          "cancelled": false
+        }
+      }
+    ],
+    "cacheHits": [],
+    "finished": null,
+    "cursor": 1,
+    "destroyCalls": 0,
+    "fatal": [],
+    "pdfjsVersion": "6.2.108",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0"
+  },
+  "resumedPageBarrier": {
+    "run": 2,
+    "cursorAtOpen": 1,
+    "extractedPages": [
+      2
+    ],
+    "documentLoads": [
+      {
+        "range": true,
+        "hasData": false,
+        "disableAutoFetch": true,
+        "disableStream": true
+      }
+    ],
+    "hasViewer": false,
+    "canvasCount": 0,
+    "canvasCreated": 0,
+    "readingSaves": 0,
+    "pageTextPages": [
+      2
+    ],
+    "translationPages": [],
+    "progress": [],
+    "replies": [
+      {
+        "type": "session.open",
+        "requestId": "web-1",
+        "payload": {
+          "length": 869,
+          "token": "background-test",
+          "reading": {},
+          "settings": {
+            "backgroundTranslation": true,
+            "translateRange": "manual",
+            "targetLanguage": "zh-CN"
+          },
+          "debug": false
+        }
+      },
+      {
+        "type": "reader.command",
+        "requestId": "web-2",
+        "payload": {
+          "type": "translateAll",
+          "jobId": 1601,
+          "startPage": 2
+        }
+      },
+      {
+        "type": "page.cached",
+        "requestId": "web-3",
+        "payload": {
+          "page": null
+        }
+      }
+    ],
+    "cacheHits": [],
+    "finished": null,
+    "cursor": 1,
+    "destroyCalls": 0,
+    "fatal": [],
+    "pdfjsVersion": "6.2.108",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0"
+  },
+  "secondCheckpoint": {
+    "run": 2,
+    "cursorAtOpen": 1,
+    "extractedPages": [
+      2
+    ],
+    "documentLoads": [
+      {
+        "range": true,
+        "hasData": false,
+        "disableAutoFetch": true,
+        "disableStream": true
+      }
+    ],
+    "hasViewer": false,
+    "canvasCount": 0,
+    "canvasCreated": 0,
+    "readingSaves": 0,
+    "pageTextPages": [
+      2
+    ],
+    "translationPages": [
+      2
+    ],
+    "progress": [
+      {
+        "type": "translateAllProgress",
+        "jobId": 1601,
+        "done": 2,
+        "total": 2,
+        "failed": false
+      }
+    ],
+    "replies": [
+      {
+        "type": "session.open",
+        "requestId": "web-1",
+        "payload": {
+          "length": 869,
+          "token": "background-test",
+          "reading": {},
+          "settings": {
+            "backgroundTranslation": true,
+            "translateRange": "manual",
+            "targetLanguage": "zh-CN"
+          },
+          "debug": false
+        }
+      },
+      {
+        "type": "reader.command",
+        "requestId": "web-2",
+        "payload": {
+          "type": "translateAll",
+          "jobId": 1601,
+          "startPage": 2
+        }
+      },
+      {
+        "type": "page.cached",
+        "requestId": "web-3",
+        "payload": {
+          "page": null
+        }
+      },
+      {
+        "type": "translation.committed",
+        "requestId": "translate-5",
+        "payload": {
+          "sequence": 0,
+          "items": [
+            {
+              "id": "p1-b1-s1",
+              "translation": "[SIMULATED TRANSLATION] First page sentence."
+            }
+          ]
+        }
+      },
+      {
+        "type": "translation.finished",
+        "requestId": "translate-5",
+        "payload": {
+          "failures": [],
+          "cancelled": false
+        }
+      },
+      {
+        "type": "page.saved",
+        "requestId": "web-4",
+        "payload": {
+          "page": 2
+        }
+      },
+      {
+        "type": "translation.finished",
+        "requestId": "translate-6",
+        "payload": {
+          "failures": [],
+          "cancelled": false
+        }
+      },
+      {
+        "type": "translation.committed",
+        "requestId": "translate-7",
+        "payload": {
+          "sequence": 0,
+          "items": [
+            {
+              "id": "p2-b1-s1",
+              "translation": "[SIMULATED TRANSLATION] Second page sentence."
+            }
+          ]
+        }
+      },
+      {
+        "type": "translation.finished",
+        "requestId": "translate-7",
+        "payload": {
+          "failures": [],
+          "cancelled": false
+        }
+      }
+    ],
+    "cacheHits": [
+      "p1-b1-s1"
+    ],
+    "finished": null,
+    "cursor": 2,
+    "destroyCalls": 0,
+    "fatal": [],
+    "pdfjsVersion": "6.2.108",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0"
+  },
+  "completed": {
+    "run": 2,
+    "cursorAtOpen": 1,
+    "extractedPages": [
+      2
+    ],
+    "documentLoads": [
+      {
+        "range": true,
+        "hasData": false,
+        "disableAutoFetch": true,
+        "disableStream": true
+      }
+    ],
+    "hasViewer": false,
+    "canvasCount": 0,
+    "canvasCreated": 0,
+    "readingSaves": 0,
+    "pageTextPages": [
+      2
+    ],
+    "translationPages": [
+      2
+    ],
+    "progress": [
+      {
+        "type": "translateAllProgress",
+        "jobId": 1601,
+        "done": 2,
+        "total": 2,
+        "failed": false
+      }
+    ],
+    "replies": [
+      {
+        "type": "session.open",
+        "requestId": "web-1",
+        "payload": {
+          "length": 869,
+          "token": "background-test",
+          "reading": {},
+          "settings": {
+            "backgroundTranslation": true,
+            "translateRange": "manual",
+            "targetLanguage": "zh-CN"
+          },
+          "debug": false
+        }
+      },
+      {
+        "type": "reader.command",
+        "requestId": "web-2",
+        "payload": {
+          "type": "translateAll",
+          "jobId": 1601,
+          "startPage": 2
+        }
+      },
+      {
+        "type": "page.cached",
+        "requestId": "web-3",
+        "payload": {
+          "page": null
+        }
+      },
+      {
+        "type": "translation.committed",
+        "requestId": "translate-5",
+        "payload": {
+          "sequence": 0,
+          "items": [
+            {
+              "id": "p1-b1-s1",
+              "translation": "[SIMULATED TRANSLATION] First page sentence."
+            }
+          ]
+        }
+      },
+      {
+        "type": "translation.finished",
+        "requestId": "translate-5",
+        "payload": {
+          "failures": [],
+          "cancelled": false
+        }
+      },
+      {
+        "type": "page.saved",
+        "requestId": "web-4",
+        "payload": {
+          "page": 2
+        }
+      },
+      {
+        "type": "translation.finished",
+        "requestId": "translate-6",
+        "payload": {
+          "failures": [],
+          "cancelled": false
+        }
+      },
+      {
+        "type": "translation.committed",
+        "requestId": "translate-7",
+        "payload": {
+          "sequence": 0,
+          "items": [
+            {
+              "id": "p2-b1-s1",
+              "translation": "[SIMULATED TRANSLATION] Second page sentence."
+            }
+          ]
+        }
+      },
+      {
+        "type": "translation.finished",
+        "requestId": "translate-7",
+        "payload": {
+          "failures": [],
+          "cancelled": false
+        }
+      },
+      {
+        "type": "job.saved",
+        "requestId": "web-8",
+        "payload": {
+          "status": "RUNNING"
+        }
+      },
+      {
+        "type": "job.saved",
+        "requestId": "web-9",
+        "payload": {
+          "status": "COMPLETED"
+        }
+      }
+    ],
+    "cacheHits": [
+      "p1-b1-s1"
+    ],
+    "finished": {
+      "type": "translateAllDone",
+      "jobId": 1601,
+      "total": 2,
+      "status": "COMPLETED",
+      "durableCursor": 2,
+      "failedPages": []
+    },
+    "cursor": 2,
+    "destroyCalls": 1,
+    "fatal": [],
+    "pdfjsVersion": "6.2.108",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0"
+  },
+  "cacheRestoration": {
+    "sentenceId": "p1-b1-s1",
+    "source": "First page sentence.",
+    "translation": "[SIMULATED TRANSLATION] First page sentence.",
+    "simulated": true
+  },
+  "workerUrls": [
+    "http://127.0.0.1:53698/pdfjs/build/pdf.worker.mjs",
+    "http://127.0.0.1:53698/pdfjs/build/pdf.worker.mjs"
+  ],
+  "rangeRequests": [
+    [
+      0,
+      869
+    ],
+    [
+      0,
+      869
+    ]
+  ],
+  "consoleWarnings": [],
+  "errors": [],
+  "cleanup": {
+    "browserClosed": true,
+    "serverClosed": true,
+    "errors": []
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "timestamp": "2026-11-03T07:33:52.578Z",
+  "state": "local-unreleased-working-tree",
+  "scope": "Visual polish only; existing reading, translation, read-only save barriers and caches retained.",
+  "changes": {
+    "txt": "Grouped rounded buttons, primary action, styled page/chapter fields, font control and original-text switch; shared light/dark palette.",
+    "pdf": "Cosmetic toolbar/button treatments; no PDF.js toolbar sizing changes.",
+    "native": "Rounded 48dp action buttons with primary/secondary hierarchy, selected read-only icon, full-width title and wrapping rows."
+  },
+  "native": {
+    "log": "C:/Users/57452/AppData/Local/Temp/pi-background-terminal/bg_21aed4b45e3c8cca.log",
+    "core": {
+      "tests": 94,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1,
+      "passed": 93
+    },
+    "app": {
+      "tests": 18,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 18
+    },
+    "lint": {
+      "errors": 0,
+      "warnings": 41
+    },
+    "androidTestCompiled": true,
+    "androidTestExecuted": false
+  },
+  "web": {
+    "passed": 120,
+    "typeScriptPassed": true,
+    "log": "D:/AgentSpace/.tools/ui-polish-web.log"
+  },
+  "browser": {
+    "scope": "Actual desktop Edge, generated assets; simulated Native/storage/translation. NOT Android device or model execution.",
+    "controls": {
+      "lightAndDark": true,
+      "widths": [
+        320,
+        360,
+        800,
+        1280
+      ],
+      "touchTargets44px": true,
+      "contrastAtLeast4_5": true,
+      "keyboardFocus": true,
+      "largeUiText": true
+    },
+    "txt": "docs/reports/txt-reader-browser.json",
+    "pdf": "docs/reports/reading-only-pdf-browser.json",
+    "generatedMainMatchesPdfProof": true
+  },
+  "screenshots": {
+    "folder": "output/ui-polish",
+    "scope": "WebView content only, simulated phone/tablet viewports and example translations; native Compose controls not shown.",
+    "files": [
+      "01-phone-light.png",
+      "02-tablet-portrait.png",
+      "03-tablet-landscape.png",
+      "04-tablet-dark.png"
+    ]
+  },
+  "boundaries": {
+    "apkAssembled": false,
+    "published": false,
+    "androidDeviceExecuted": false,
+    "realModelInference": false,
+    "databaseMigration": false,
+    "cacheDeletion": false
+  }
+}

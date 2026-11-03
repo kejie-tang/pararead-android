@@ -13,7 +13,7 @@
     <string name="save_document_name">Save</string>
     <string name="document_operation_failed">Could not save this change. Please try again.</string>
     <string name="delete_document_title">Delete %1$s?</string>
-    <string name="delete_document_text">Removes this PDF’s app copy, reading history and annotation draft. Your original file and shared translation cache are kept.</string>
+    <string name="delete_document_text">Removes this document’s app copy, reading history and annotation draft. Your original file and shared translation cache are kept.</string>
     <string name="close">Close</string>
     <string name="auto_detect">Detect automatically</string>
     <string name="library">Library</string>
@@ -24,9 +24,12 @@
     <string name="ready_locally">Ready for offline use</string>
     <string name="my_library">Your library</string>
     <string name="read_together">Read the original and translation together.</string>
-    <string name="import_pdf">Import PDF</string>
+    <string name="import_pdf">Import PDF / TXT</string>
+    <string name="text_encoding_title">TXT encoding</string>
+    <string name="text_encoding_hint">Automatic detection tries BOM, UTF-8, then GB18030. If text looks wrong, import again with the correct encoding; existing documents are kept.</string>
+    <string name="text_import_confirm">Import</string>
     <string name="read_across_languages">Read across languages</string>
-    <string name="library_intro">Bring a PDF and read it sentence by sentence.\nTry the sample to get started.</string>
+    <string name="library_intro">Bring a PDF or TXT and read it sentence by sentence.\nTry the sample to get started.</string>
     <string name="open_sample">Open sample document</string>
     <string name="model_preparing">Preparing your model</string>
     <string name="model_attention">Model needs attention</string>
@@ -35,11 +38,14 @@
     <string name="cancel_import">Cancel import</string>
     <string name="recent_documents">Recent documents</string>
     <string name="empty_library_title">Your next good read starts here</string>
-    <string name="empty_library_hint">Import a PDF or explore the sample document.</string>
+    <string name="empty_library_hint">Import a PDF or TXT, or explore the sample document.</string>
     <string name="translate_page">This page</string>
     <string name="translate_all">All / Resume</string>
     <string name="cancel">Cancel</string>
     <string name="save_copy">Save a copy</string>
+    <string name="reader_reading_only">Read only</string>
+    <string name="reader_reading_only_disabled">Translation is disabled in read-only mode.</string>
+    <string name="reader_mode_switch_failed">Could not save recent changes. Reading mode was not changed. Please try again.</string>
     <string name="reader_fullscreen">Full screen</string>
     <string name="reader_exit_fullscreen">Exit full screen</string>
     <string name="reader_show_controls">Show reader controls</string>
@@ -143,7 +149,7 @@
     <string name="free_space_hint">Download needs about %1$s free, including reserve</string>
     <string name="license_format">License: %1$s</string>
     <string name="delete_model_title">Delete %1$s?</string>
-    <string name="delete_model_text">Frees %1$s. PDFs, translations and reading progress are retained.</string>
+    <string name="delete_model_text">Frees %1$s. Documents, translations and reading progress are retained.</string>
     <plurals name="document_count"><item quantity="one">%1$d document</item><item quantity="other">%1$d documents</item></plurals>
     <string name="repo_downloads">%1$s\nDownloads: %2$d</string>
     <string name="model_license_format">Model license: %1$s</string>

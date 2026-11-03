@@ -63,6 +63,9 @@ class Settings(context: Context) {
     var readerFullscreen: Boolean
         get() = prefs.getBoolean("readerFullscreen", false)
         set(value) { prefs.edit().putBoolean("readerFullscreen", value).apply() }
+    var readingOnly: Boolean
+        get() = prefs.getBoolean("readingOnly", false)
+        set(value) { prefs.edit().putBoolean("readingOnly", value).apply() }
     var translateRange: String get() = prefs.getString("translateRange", "page")!!; set(v) { prefs.edit().putString("translateRange", v).apply() }
     var apiKey: String
         get() = decryptApiKey(prefs.getString("apiKey", null))

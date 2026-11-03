@@ -40,6 +40,8 @@ import { SelectionController } from "./selection";
 import { SentenceStore } from "./sentence-store";
 import { TranslationClient } from "./translation-client";
 import { ReaderChrome } from "../reader-chrome";
+import { startPdfReadingOnly } from "../pdf-reading-only";
+import { openPdfDocument, openPdfReadingSession } from "../pdf-reading-session";
 
 function isTranslateRange(value: unknown): value is TranslateRange {
   return value === "page" || value === "nearby" || value === "manual";
@@ -124,13 +126,19 @@ async function start() {
     window.paraRead.post("telemetry.event", {name: firstRender ? "first_render_ms" : "page_render_ms", value: performance.now(), page: pageNumber}); firstRender = false;
   });
   const saveBridge = new SaveBridge(app, post);
+  app.eventBus.on("pagechanging", ({pageNumber}: any) => window.paraRead.viewport(pageNumber));
+  const readingOnly = android.settings.readingOnly === true;
+  if (readingOnly) {
+    await startPdfReadingOnly({ app, config, session: android, saveBridge });
+    return;
+  }
   const store = new SentenceStore(app, new ColumnOrderSegmenter());
   const overlay = new HighlightOverlay(app);
-  app.eventBus.on("pagechanging", ({pageNumber}: any) => window.paraRead.viewport(pageNumber));
   const translations = new TranslationClient({
     app,
     store,
     post,
+    readingOnly,
     range: isTranslateRange(config["translateRange"]) ? config["translateRange"] : "page",
     restoreCached: sentences => window.paraRead.cachedTranslations(sentences),
   });
@@ -243,53 +251,30 @@ async function start() {
       translations.reset();
       panel.reset();
       overlay.clear();
-      await app.open({ ...config, url: undefined, length: android.length, range: window.paraRead.makeRangeTransport((globalThis as any).pdfjsLib, android), disableAutoFetch: true, disableStream: true, rangeChunkSize: 262144 });
-      await app.pdfViewer.pagesPromise;
+      await openPdfDocument({ app, config, session: android });
       app.pdfViewer.currentPageNumber = Math.min(currentPageNumber, app.pdfViewer.pagesCount);
       translations.refresh();
     }
   });
 
-  // PDF.js initializes its view asynchronously after loading the pages. Give it the
-  // native bookmark too, so its later initial-view pass cannot reset Room's page.
-  const savedPage = Math.max(1, Number(android.reading?.page) || 1);
-  (app as any).initialBookmark = android.reading?.location || `page=${savedPage}&zoom=${android.reading?.zoom || "auto"}`;
-  (app as any).initialRotation = android.reading?.rotation ?? 0;
-  await app.open({ ...config, url: undefined, length: android.length, range: window.paraRead.makeRangeTransport((globalThis as any).pdfjsLib, android), disableAutoFetch: true, disableStream: true, rangeChunkSize: 262144 });
-  await app.pdfViewer.pagesPromise;
-  await new Promise<void>(resolve => {
-    const initialized = () => { if ((app as any).isInitialViewSet) resolve(); else requestAnimationFrame(initialized); };
-    initialized();
+  await openPdfReadingSession({
+    app, config, session: android,
+    restoreSelection: async () => {
+      if (android.reading?.selectedId) {
+        const pageNumber = Number(android.reading.selectedId.match(/^p(\d+)/)?.[1]);
+        if (pageNumber >= 1 && pageNumber <= app.pdfViewer.pagesCount) {
+          await store.ensure(pageNumber);
+          const sentence = store.get(android.reading.selectedId);
+          if (sentence) selection.pin(sentence, android.reading.selectedSource === "panel" ? "panel" : "pdf");
+        }
+      }
+    },
+    trim: pageNumber => {
+      store.trim(pageNumber, 5);
+      panel.trim(pageNumber, 5);
+      translations.trim(pageNumber, 5);
+    },
   });
-  const [, hash] = config.url.split("#");
-  if (hash !== undefined && hash !== "") {
-    app.pdfLinkService.setHash(decodeURIComponent(hash));
-  }
-  app.pdfViewer.currentPageNumber = Math.min(android.reading?.page ?? 1, app.pdfViewer.pagesCount);
-  if (android.reading?.zoom) (app.pdfViewer as any).currentScaleValue = android.reading.zoom;
-  if (android.reading?.rotation) (app.pdfViewer as any).pagesRotation = android.reading.rotation;
-  if (android.reading?.location) app.pdfLinkService.setHash(android.reading.location);
-  if (android.reading?.selectedId) {
-    const pageNumber = Number(android.reading.selectedId.match(/^p(\d+)/)?.[1]);
-    if (pageNumber >= 1 && pageNumber <= app.pdfViewer.pagesCount) {
-      await store.ensure(pageNumber);
-      const sentence = store.get(android.reading.selectedId);
-      if (sentence) selection.pin(sentence, android.reading.selectedSource === "panel" ? "panel" : "pdf");
-    }
-  }
-  app.eventBus.on("pagechanging", ({pageNumber}: any) => {
-    window.paraRead.post("reading.save", {page: pageNumber});
-    store.trim(pageNumber, 5);
-    panel.trim(pageNumber, 5);
-    translations.trim(pageNumber, 5);
-  });
-  let readingTimer: ReturnType<typeof setTimeout>;
-  app.eventBus.on("updateviewarea", ({location}: any) => {
-    clearTimeout(readingTimer);
-    readingTimer = setTimeout(() => window.paraRead.post("reading.save", {page: location.pageNumber, zoom: String((app.pdfViewer as any).currentScaleValue), rotation: location.rotation, location: location.pdfOpenParams?.replace(/^#/, "")}), 250);
-  });
-  window.paraRead.post("session.opened", {pages: app.pdfViewer.pagesCount});
-  window.paraRead.opened = true;
   translations.refresh();
 }
 

@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { renderSentence } from '../web/reader/src/upstream/panel.ts';
 import { setStrings, t } from '../web/reader/src/upstream/i18n.ts';
 import { TranslationClient } from '../web/reader/src/upstream/translation-client.ts';
@@ -7,6 +8,16 @@ import { TranslationClient } from '../web/reader/src/upstream/translation-client
 const sentence = { id: 'p1-b0-s0', page: 1, blockId: 'p1-b0', text: 'The reader remembers the last page.', rects: [] };
 const span = () => ({ dataset: {}, textContent: '', title: '' });
 const tick = () => new Promise(resolve => setImmediate(resolve));
+
+test('inline errors use secondary text without the upstream red underline', async () => {
+  const css = await readFile(new URL('../web/reader/android.css', import.meta.url), 'utf8');
+  const rules = [...css.matchAll(/\.bilingualSentence\[data-status="error"\]\s*\{([^}]+)\}/g)];
+  assert.equal(rules.length, 1, 'one error style shared by light and dark mode');
+  assert.match(rules[0][1], /color:\s*var\(--vscode-descriptionForeground,\s*GrayText\)/);
+  assert.match(rules[0][1], /text-decoration:\s*none\s*;/);
+  assert.match(rules[0][1], /overflow-wrap:\s*anywhere\s*;/);
+  assert.doesNotMatch(rules[0][1], /errorForeground|opacity|font-size/);
+});
 
 test('a failed sentence shows the localized reason inline instead of its source or draft', () => {
   setStrings({ translationFailed: '翻译失败，点击重试：{0}' });

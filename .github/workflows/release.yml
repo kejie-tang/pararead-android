@@ -55,6 +55,8 @@ jobs:
       - name: Install Vulkan shader compiler
         run: sudo apt-get update && sudo apt-get install -y glslc ninja-build
       - name: Fetch verified sources and check reader
+        env:
+          PLAYWRIGHT_CHANNEL: chromium
         run: |
           npm ci
           python3 scripts/fetch_upstream.py
@@ -65,6 +67,8 @@ jobs:
           npx playwright install --with-deps chromium
           npm run test:reader
           npm run test:background-reader
+          npm run test:text-reader
+          npm run test:reading-only-pdf
       - name: Restore private signing key
         env:
           KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
@@ -82,9 +86,9 @@ jobs:
           PARAREAD_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
           PARAREAD_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
-          ./gradlew --no-daemon :core:test :engine:llama:testDebugUnitTest :app:testDebugUnitTest :app:assembleRelease :app:lintRelease
+          ./gradlew --no-daemon --max-workers=2 :core:test :engine:llama:testDebugUnitTest :app:testDebugUnitTest :app:assembleRelease :app:lintRelease
           mkdir -p artifacts
-          ./gradlew --no-daemon :app:dependencies --configuration releaseRuntimeClasspath > artifacts/release-runtime-dependencies.txt
+          ./gradlew --no-daemon --max-workers=2 :app:dependencies --configuration releaseRuntimeClasspath > artifacts/release-runtime-dependencies.txt
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --print-certs app/build/outputs/apk/release/app-release.apk
           "$ANDROID_HOME/build-tools/36.0.0/zipalign" -c -P 16 4 app/build/outputs/apk/release/app-release.apk
           python3 scripts/prepare_apk.py --variant release --dependencies artifacts/release-runtime-dependencies.txt

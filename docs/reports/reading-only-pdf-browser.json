@@ -1,0 +1,92 @@
+{
+  "status": "passed",
+  "timestamp": "2026-11-03T07:48:49.102Z",
+  "channel": "msedge",
+  "scope": "Actual desktop Edge/Chromium and PDF.js, current source bundle, simulated Native bridge/save/storage. NOT Android/device or model inference.",
+  "fixture": {
+    "provenance": "Original two-page ASCII PDF generated in memory",
+    "pages": 2,
+    "bytes": 887
+  },
+  "generatedAssets": {
+    "reusedWithoutRebuild": true,
+    "sourceBundledInMemory": false,
+    "generatedMainUsed": true
+  },
+  "sourceBundleSha256": "92ddc353d13ad497a7f975bd9011f13a88171a39bc65831ae808ab94cb3fcaf7",
+  "browserVersion": "156.0.4314.58",
+  "modeSwitchFlush": {
+    "immediateLiveSnapshot": true,
+    "locationMatchesLivePageAndZoomOrExplicitlyClears": true,
+    "snapshot": {
+      "page": 1,
+      "zoom": "1.5",
+      "rotation": 180,
+      "location": ""
+    },
+    "readingAcknowledgedBeforeSave": true,
+    "annotationSaveAcknowledgedBeforeSuccess": true,
+    "freezesOnlyUntilReopenOrResume": true,
+    "saveFailureRetainsDocumentAndInput": true,
+    "resumeCanSaveAgain": true,
+    "successEvents": [
+      "web:annotation.changed",
+      "web:page.visible",
+      "web:reading.save",
+      "web:reading.save",
+      "web:telemetry.event",
+      "host:reading.saved",
+      "host:reading.saved",
+      "web:telemetry.event",
+      "web:document.save",
+      "host:save.started",
+      "web:save.chunk",
+      "host:save.accepted",
+      "web:save.end",
+      "host:save.finished",
+      "web:reader.flushed"
+    ],
+    "failureEvents": [
+      "web:annotation.changed",
+      "web:page.visible",
+      "web:reading.save",
+      "host:reading.saved",
+      "web:reading.save",
+      "web:telemetry.event",
+      "host:reading.saved",
+      "web:document.save",
+      "host:save.started",
+      "web:save.chunk",
+      "host:save.accepted",
+      "web:save.end",
+      "host:protocol.error",
+      "web:session.error",
+      "web:reader.flushed",
+      "web:telemetry.event"
+    ]
+  },
+  "originalOnly": true,
+  "noPanelOrToggle": true,
+  "noInferenceCacheSegmentationJobMessages": true,
+  "forbiddenMessages": [],
+  "preservedSelectionHistory": true,
+  "restoredPageZoomRotationLocation": true,
+  "nativeNavigationRotationBookmark": true,
+  "fullscreenRevealAndAnnotationProtection": true,
+  "saveReloadPreservesView": true,
+  "incrementalAnnotationSaveBytes": 900,
+  "normalPdfStillTranslates": true,
+  "readOnlyMessageCounts": {
+    "reader.ready": 1,
+    "page.visible": 4,
+    "telemetry.event": 9,
+    "session.opened": 1,
+    "reading.save": 5,
+    "annotation.changed": 1,
+    "document.save": 2,
+    "save.chunk": 1,
+    "save.end": 1
+  },
+  "rangeRequests": 3,
+  "errors": []
+}

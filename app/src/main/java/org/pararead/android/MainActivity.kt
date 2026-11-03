@@ -64,9 +64,11 @@ class MainActivity : ComponentActivity() {
     private var backgroundWork by mutableStateOf<List<WorkInfo>>(emptyList())
     private var selected by mutableStateOf<DocumentRecord?>(null)
     private var readerFullscreen by mutableStateOf(false)
+    private var readingOnly by mutableStateOf(false)
+    private var modeSwitching by mutableStateOf(false)
     private var readerVersion by mutableIntStateOf(0)
     private var documents by mutableStateOf<List<LibraryDocument>>(emptyList())
-    private var status by mutableStateOf("导入 PDF，或打开示例文档")
+    private var status by mutableStateOf("导入 PDF / TXT，或打开示例文档")
     private var localBackendStatus by mutableStateOf<BackendStatus?>(null)
     private var showSettings by mutableStateOf(false)
     private var uiLanguage by mutableStateOf("system")
@@ -79,6 +81,7 @@ class MainActivity : ComponentActivity() {
         db = ReaderDatabase.open(this); repository = DocumentRepository(this, db.reader()); settings = Settings(this)
         uiLanguage = settings.uiLanguage
         readerFullscreen = settings.readerFullscreen
+        readingOnly = settings.readingOnly
         if (backendRecoveryChecked.compareAndSet(false, true)) settings.recoverInterruptedVulkan()
         lifecycleScope.launch {
             documents = db.reader().library().first()
@@ -120,6 +123,23 @@ class MainActivity : ComponentActivity() {
         foregroundReady = false
         foregroundError = applicationContext.withAppLanguage().getString(R.string.translation_cleanup_failed)
         status = foregroundError!!
+    }
+    private fun switchReadingOnly(enabled: Boolean) {
+        if (modeSwitching || enabled == readingOnly) return
+        val previous = host
+        modeSwitching = true
+        lifecycleScope.launch {
+            try {
+                previous?.flushBeforeModeSwitch()
+                if (host !== previous) return@launch
+                settings.readingOnly = enabled; readingOnly = enabled; reopen()
+            } catch (_: TimeoutCancellationException) {
+                status = applicationContext.withAppLanguage().getString(R.string.reader_mode_switch_failed)
+            } catch (e: CancellationException) { throw e }
+            catch (_: Exception) {
+                status = applicationContext.withAppLanguage().getString(R.string.reader_mode_switch_failed)
+            } finally { modeSwitching = false }
+        }
     }
     private fun reopen() {
         val previous = host; val pending = readerRelease
@@ -203,10 +223,41 @@ class MainActivity : ComponentActivity() {
             val elapsed = (android.os.SystemClock.elapsedRealtime() - activityStarted).toDouble()
             withContext(Dispatchers.IO) { db.reader().performance(PerformanceRecord(documentId = "application", name = "activity_first_frame_ms", value = elapsed)) }
         }
+        var textImportUri by remember { mutableStateOf<Uri?>(null) }
+        var textEncoding by remember { mutableStateOf<String?>(null) }
+        val importPicked: (Uri, String?) -> Unit = { uri, encoding ->
+            runImport {
+                val doc = repository.import(uri, encoding) { bytes -> lifecycleScope.launch { status = "正在导入 ${bytes / 1048576} MiB…" } }
+                reopen(); selected = doc
+            }
+        }
         val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> uri?.let {
             runCatching { contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION) }
-            runImport { val doc = repository.import(it) { bytes -> lifecycleScope.launch { status = "正在导入 ${bytes / 1048576} MiB…" } }; reopen(); selected = doc }
+            lifecycleScope.launch {
+                try {
+                    if (repository.isTextImport(it)) { textEncoding = null; textImportUri = it }
+                    else importPicked(it, null)
+                } catch (e: CancellationException) { throw e }
+                catch (e: Exception) { status = "无法读取文件：${e.message}" }
+            }
         } }
+        textImportUri?.let { uri ->
+            val text = LocalContext.current
+            AlertDialog(onDismissRequest = { textImportUri = null },
+                title = { Text(text.getString(R.string.text_encoding_title)) },
+                text = { Column {
+                    Text(text.getString(R.string.text_encoding_hint))
+                    listOf(null, "UTF-8", "UTF-16LE", "UTF-16BE", "GB18030", "GBK").forEach { encoding ->
+                        TextButton(onClick = { textEncoding = encoding }) {
+                            RadioButton(selected = textEncoding == encoding, onClick = null)
+                            Spacer(Modifier.width(8.dp))
+                            Text(encoding ?: text.getString(R.string.auto_detect))
+                        }
+                    }
+                } },
+                confirmButton = { TextButton(onClick = { textImportUri = null; importPicked(uri, textEncoding) }) { Text(text.getString(R.string.text_import_confirm)) } },
+                dismissButton = { TextButton(onClick = { textImportUri = null }) { Text(text.getString(R.string.cancel)) } })
+        }
         val modelPicker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri -> uri?.let {
             lifecycleScope.launch {
                 try { acquireForeground(); modelViewModel.manager.import(it) }
@@ -274,12 +325,14 @@ class MainActivity : ComponentActivity() {
             if (document != null && !fullscreen) ReaderToolbar(document.name,
                 onPage = { host?.command("translateCurrentPage") }, onAll = { host?.command("translateAll") },
                 onCancel = { host?.command("cancelTranslateAll") }, onExport = { export.launch("${document.name.removeSuffix(".pdf")}-annotated.pdf") },
+                canExport = !document.isText, readingOnly = readingOnly, modeSwitching = modeSwitching,
+                onReadingOnlyChange = ::switchReadingOnly,
                 onFullscreen = { setFullscreen(true) })
-            if (document != null && !fullscreen && settings.provider == "llama") Text(
+            if (document != null && !fullscreen && !readingOnly && settings.provider == "llama") Text(
                 displayStatus(localBackendStatus?.description ?: settings.backendRecoveryNotice.ifEmpty { "请求后端：${settings.inferenceBackend.label}" }),
                 Modifier.fillMaxWidth().padding(20.dp, 3.dp), style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
-            if (document != null && !fullscreen && status.isNotBlank() && status != "导入 PDF，或打开示例文档") Text(displayStatus(status),
+            if (document != null && !fullscreen && status.isNotBlank() && status != "导入 PDF / TXT，或打开示例文档") Text(displayStatus(status),
                 Modifier.fillMaxWidth().padding(20.dp, 5.dp), style = MaterialTheme.typography.bodySmall,
                 color = if (status.contains("失败") || status.contains("无法")) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant)
             if (speedState.visible || speedState.busy || (document != null && !foregroundReady)) {
@@ -287,7 +340,7 @@ class MainActivity : ComponentActivity() {
                     if (document != null && !foregroundReady) R.string.translation_stopping else R.string.reader_paused), color = MaterialTheme.colorScheme.onSurfaceVariant) }
             } else if (document == null) {
                 LibraryScreen(documents, modelState, importing, status,
-                    onImport = { picker.launch(arrayOf("application/pdf")) },
+                    onImport = { picker.launch(arrayOf("application/pdf", "text/plain", "application/octet-stream")) },
                     onSample = { runImport { selected = repository.sample() } },
                     onOpen = { selected = it }, onModels = { showModelLibrary = true }, onCancelImport = { importTask?.cancel() },
                     onRename = { doc, name -> repository.rename(doc, name) },
@@ -335,7 +388,7 @@ class MainActivity : ComponentActivity() {
                     AndroidView(factory = {
                         val runtime = settings.runtimeSnapshot()
                         val config = runtime.config
-                        val provider: TranslationProvider = when (config.provider) {
+                        val provider: TranslationProvider = if (readingOnly) MockTranslationProvider() else when (config.provider) {
                             "mock" -> MockTranslationProvider()
                             "api" -> OpenAICompatibleProvider(runtime.baseUrl, config.model, runtime.apiKey)
                             else -> LlamaCppProvider(runtime.modelPath, runtime.cpuThreads,

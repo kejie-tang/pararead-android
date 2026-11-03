@@ -1,7 +1,8 @@
 /* Android host adapter. ParaRead UI modules remain in ./upstream (Apache-2.0). */
 export {};
 export type Session = { sessionId: string; documentId: string; documentRevision: string; length: number; token: string;
-  viewportEpoch: number; configRevision: number; reading: any; settings: any; debug: boolean };
+  viewportEpoch: number; configRevision: number; reading: any; settings: any; debug: boolean;
+  format?: 'pdf' | 'txt'; title?: string; text?: { pages: number; chapters: { title: string; page: number }[]; chapterCount?: number; encoding: string; indexVersion: number } };
 type Envelope = { version: number; type: string; sessionId: string; documentId: string; documentRevision: string;
   requestId: string; viewportEpoch: number; configRevision: number; payload: any };
 declare global { interface Window { ParaReadNative: { postMessage(s: string): void; onmessage: (e: {data: string}) => void }; paraRead: any } }
@@ -12,6 +13,7 @@ window.addEventListener('resize', fitViewport);
 window.visualViewport?.addEventListener('resize', fitViewport);
 fitViewport();
 let session: Session;
+let readingOnly = false;
 let sequence = 0;
 let panelState: any = {};
 let resolveReady: (s: Session) => void;
@@ -49,6 +51,8 @@ window.ParaReadNative.onmessage = ({ data }) => {
       if (session) return;
       session = { ...m.payload, sessionId: m.sessionId, documentId: m.documentId, documentRevision: m.documentRevision,
         viewportEpoch: m.viewportEpoch, configRevision: m.configRevision };
+      readingOnly = session.settings.backgroundTranslation !== true && session.settings.readingOnly === true;
+      session.settings.readingOnly = readingOnly;
       panelState = session.reading?.panelState ?? {};
       resolveReady(session); return;
     }
@@ -73,19 +77,26 @@ window.ParaReadNative.onmessage = ({ data }) => {
       clearTimeout(waiter.timer); waiters.delete(m.requestId); waiter.resolve(m);
     }
     if (m.type === 'reader.command') {
+      if (m.payload.type === 'flushBeforeModeSwitch') { void flushBeforeModeSwitch(String(m.payload.flushId)); return; }
+      if (m.payload.type === 'resumeAfterModeFlush') { resumeAfterModeFlush(String(m.payload.flushId)); return; }
       if (m.payload.type === 'readerFullscreen') {
         session.settings.readerFullscreen = m.payload.enabled === true;
         if (m.payload.showControlsLabel) session.settings.showControlsLabel = m.payload.showControlsLabel;
       }
-      if (m.payload.type === 'settings') session.settings = { ...session.settings, ...m.payload };
+      if (m.payload.type === 'settings') session.settings = { ...session.settings, ...m.payload, readingOnly };
+      if (readingOnly && ['translateCurrentPage', 'translateAll', 'retryFailed'].includes(m.payload.type)) return;
       if (m.payload.type === 'translateAll') { runningJob = m.payload.jobId; cancelledJobs.delete(m.payload.jobId); }
       if (m.payload.type === 'cancelTranslateAll' && runningJob !== undefined) cancelledJobs.add(runningJob);
       legacy(m.payload);
     }
-    if (m.type === 'document.save') void save();
+    if (m.type === 'document.save') void save().catch(() => {});
   } catch (e) { console.error('Invalid host message', String(e)); }
 };
 async function translate(message: any, cacheOnly = false): Promise<{ id: string; translation: string }[]> {
+  if (readingOnly) {
+    if (!cacheOnly) legacy({ type: 'translationDone', requestId: message.requestId, failures: [], cancelled: true });
+    return [];
+  }
   const failures: any[] = [];
   const cached: { id: string; translation: string }[] = [];
   // Requests are bounded and sequential even when a PDF page contains thousands of sentences.
@@ -138,6 +149,7 @@ window.acquireVsCodeApi = () => ({
   postMessage(m: any) {
     if (m.type === 'translate') void translate(m);
     else if (m.type === 'translateAllProgress' || m.type === 'translateAllDone') {
+      if (readingOnly) return Promise.reject(new Error('READING_ONLY'));
       return request(m.type === 'translateAllProgress' ? 'job.progress' : 'job.finished', m).then(response => {
         if (response.type === 'protocol.error') throw new Error(response.payload.code);
         if (response.type !== 'job.saved') throw new Error('EXPECTED_JOB_SAVED');
@@ -209,32 +221,78 @@ async function pageText(page: { page: number }): Promise<void> {
     }
   }
 }
-let saveActive = false;
+let saveTask: Promise<void> | undefined;
+let savedAnnotation: { document: unknown; hash: string } | undefined;
 let saveQueued = false;
-async function save() {
-  if (saveActive) { saveQueued = true; return; }
-  saveActive = true;
-  try {
-    const app: any = window.PDFViewerApplication;
-    app.pdfViewer._layerProperties?.annotationEditorUIManager?.endCurrentEditing();
-    const annotationHash = app.pdfDocument.annotationStorage.serializable.hash;
-    // Patched PDF.js returns ONLY the incremental suffix. Original bytes never cross the bridge.
-    const data: Uint8Array = app.pdfDocument.annotationStorage.size ? await app.pdfDocument.saveDocument() : new Uint8Array();
-    const started = await request('document.save', { incrementalLength: data.length });
-    if (started.type === 'protocol.error') throw new Error(started.payload.code);
-    const saveId = started.payload.saveId;
-    for (let offset = 0; offset < data.length; offset += 24576) {
-      const chunk = data.subarray(offset, offset + 24576);
-      let binary = ''; for (const byte of chunk) binary += String.fromCharCode(byte);
-      const response = await request('save.chunk', { saveId, offset, data: btoa(binary) });
-      if (response.type === 'protocol.error') throw new Error(response.payload.code);
-    }
-    const result = await request('save.end', { saveId, length: data.length });
-    if (result.type !== 'save.finished') throw new Error(result.payload.code ?? 'SAVE_FAILED');
-    if (annotationHash === app.pdfDocument.annotationStorage.serializable.hash) app.pdfDocument.annotationStorage.resetModified();
-    else post('annotation.changed');
-  } catch (e) { post('session.error', { message: `保存失败: ${String(e)}` }); }
-  finally { saveActive = false; if (saveQueued) { saveQueued = false; void save(); } }
+/** Concurrent callers share the complete save drain, not an early queued return. */
+function save(): Promise<void> {
+  if (saveTask) { saveQueued = true; return saveTask; }
+  const task = Promise.resolve().then(async () => {
+    do { saveQueued = false; await saveOnce(); } while (saveQueued);
+  }).catch(error => { post('session.error', { message: `保存失败: ${String(error)}` }); throw error; })
+    .finally(() => { if (saveTask === task) saveTask = undefined; saveQueued = false; });
+  saveTask = task;
+  return task;
 }
-Object.assign(window, { paraRead: { ready, post, request, viewport, pageCached, pageText, cachedTranslations, makeRangeTransport, save } });
+async function saveOnce(): Promise<void> {
+  const app: any = window.PDFViewerApplication;
+  app.pdfViewer._layerProperties?.annotationEditorUIManager?.endCurrentEditing();
+  const document = app.pdfDocument;
+  const annotationHash = document.annotationStorage.serializable.hash;
+  // Patched PDF.js returns ONLY the incremental suffix. Original bytes never cross the bridge.
+  const data: Uint8Array = document.annotationStorage.size ? await document.saveDocument() : new Uint8Array();
+  const started = await request('document.save', { incrementalLength: data.length });
+  if (started.type === 'protocol.error') throw new Error(started.payload.code);
+  const saveId = started.payload.saveId;
+  for (let offset = 0; offset < data.length; offset += 24576) {
+    const chunk = data.subarray(offset, offset + 24576);
+    let binary = ''; for (const byte of chunk) binary += String.fromCharCode(byte);
+    const response = await request('save.chunk', { saveId, offset, data: btoa(binary) });
+    if (response.type === 'protocol.error') throw new Error(response.payload.code);
+  }
+  const result = await request('save.end', { saveId, length: data.length });
+  if (result.type !== 'save.finished') throw new Error(result.payload.code ?? 'SAVE_FAILED');
+  savedAnnotation = { document, hash: annotationHash };
+  if (annotationHash === document.annotationStorage.serializable.hash) document.annotationStorage.resetModified();
+  else post('annotation.changed');
+}
+type ReadingStateFlusher = () => Record<string, unknown> | Promise<Record<string, unknown>>;
+let readingStateFlusher: ReadingStateFlusher | undefined;
+function setReadingStateFlusher(snapshot?: ReadingStateFlusher) { readingStateFlusher = snapshot; }
+let modeFlush: { id: string; wasInert: boolean } | undefined;
+function resumeAfterModeFlush(id: string) {
+  if (modeFlush?.id !== id) return;
+  document.body.inert = modeFlush.wasInert;
+  modeFlush = undefined;
+}
+/** Save current view and annotation edits durably before native detaches this WebView. */
+async function flushBeforeModeSwitch(id: string): Promise<void> {
+  if (modeFlush) { post('reader.flushed', { flushId: id, success: false, message: 'MODE_FLUSH_BUSY' }); return; }
+  const ticket = { id, wasInert: document.body.inert === true };
+  modeFlush = ticket; document.body.inert = true;
+  try {
+    if (!readingStateFlusher) throw new Error('READING_STATE_NOT_READY');
+    const app: any = session.format === 'txt' ? undefined : window.PDFViewerApplication;
+    app?.pdfViewer?._layerProperties?.annotationEditorUIManager?.endCurrentEditing();
+    const snapshot = await readingStateFlusher();
+    if (modeFlush !== ticket) return;
+    const reading = await request('reading.save', snapshot, 30000);
+    if (reading.type !== 'reading.saved') throw new Error(reading.payload.code ?? 'READING_SAVE_FAILED');
+    if (modeFlush !== ticket) return;
+    // Join any autosave first, then save only edits not already acknowledged. A
+    // redundant draft changes PDF revision/job identity even when its bytes match.
+    if (saveTask) await saveTask;
+    if (modeFlush !== ticket) return;
+    if (app?.pdfDocument?.annotationStorage.size > 0 &&
+      (savedAnnotation?.document !== app.pdfDocument || savedAnnotation?.hash !== app.pdfDocument.annotationStorage.serializable.hash)) await save();
+    if (modeFlush === ticket) post('reader.flushed', { flushId: id, success: true });
+    // On success remain inert until native replaces the old, now fully saved view.
+  } catch (error) {
+    if (modeFlush === ticket) {
+      resumeAfterModeFlush(id);
+      post('reader.flushed', { flushId: id, success: false, message: String(error).slice(0, 512) });
+    }
+  }
+}
+Object.assign(window, { paraRead: { ready, post, request, viewport, pageCached, pageText, cachedTranslations, makeRangeTransport, save, setReadingStateFlusher } });
 post('reader.ready', { versions: [1], reader: '0.6.1-android', pdfjs: '6.2.108' });

@@ -1,0 +1,48 @@
+{
+  "scope": "Actual desktop Edge/Chromium, generated TXT assets and real bridge/client; simulated Android host/storage and translations. No Android device, PDF or model execution.",
+  "status": "passed",
+  "controls": {
+    "lightAndDark": true,
+    "widths": [
+      320,
+      360,
+      800,
+      1280
+    ],
+    "touchTargets44px": true,
+    "contrastAtLeast4_5": true,
+    "keyboardFocus": true,
+    "largeUiText": true
+  },
+  "foreground": {
+    "pagination": true,
+    "chapterJump": true,
+    "invalidPageRejected": true,
+    "fontSize": true,
+    "anchorPreserved": true,
+    "reopen": true,
+    "cacheOnlyRestore": true,
+    "phoneLayout": true,
+    "darkMode": true,
+    "tabletSideBySide": true,
+    "paragraphAlignment": true,
+    "sourceHiddenSingleColumn": true
+  },
+  "background": {
+    "noReadingWrites": true,
+    "noViewer": true,
+    "allPagesSaved": true,
+    "allCheckpointsAcknowledged": true
+  },
+  "readingOnly": {
+    "exactSource": true,
+    "noTranslationOrCacheRequests": true,
+    "noJobWrites": true,
+    "navigationAndFont": true,
+    "hiddenTranslationControls": true,
+    "cacheIntactOnExit": true,
+    "durableModeFlush": true
+  },
+  "timestamp": "2026-11-03T07:48:48.360Z",
+  "browserVersion": "156.0.4314.58"
+}

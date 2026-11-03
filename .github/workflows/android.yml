@@ -37,6 +37,8 @@ jobs:
           python3 scripts/fetch_upstream.py
           python3 scripts/fetch_llama.py
       - name: Reader checks
+        env:
+          PLAYWRIGHT_CHANNEL: chromium
         run: |
           npm test
           npm run check:reader
@@ -44,12 +46,14 @@ jobs:
           npx playwright install --with-deps chromium
           npm run test:reader
           npm run test:background-reader
+          npm run test:text-reader
+          npm run test:reading-only-pdf
       - name: Build ARM64 app and instrumentation APKs and run checks
-        run: ./gradlew --no-daemon :core:test :engine:llama:testDebugUnitTest :app:testDebugUnitTest :app:assembleDebug :app:assembleDebugAndroidTest :app:lintDebug
+        run: ./gradlew --no-daemon --max-workers=2 :core:test :engine:llama:testDebugUnitTest :app:testDebugUnitTest :app:assembleDebug :app:assembleDebugAndroidTest :app:lintDebug
       - name: Verify and package artifacts
         run: |
           mkdir -p artifacts
-          ./gradlew --no-daemon :app:dependencies --configuration debugRuntimeClasspath > artifacts/debug-runtime-dependencies.txt
+          ./gradlew --no-daemon --max-workers=2 :app:dependencies --configuration debugRuntimeClasspath > artifacts/debug-runtime-dependencies.txt
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify app/build/outputs/apk/debug/app-debug.apk
           "$ANDROID_HOME/build-tools/36.0.0/zipalign" -c -P 16 4 app/build/outputs/apk/debug/app-debug.apk
           python3 scripts/prepare_apk.py --dependencies artifacts/debug-runtime-dependencies.txt

@@ -1,0 +1,75 @@
+{
+  "timestamp": "2026-11-03T07:10:55.175Z",
+  "state": "local-unreleased-working-tree",
+  "feature": "PDF/TXT shared persistent read-only option; original text only, no inference/cache restore, cache and checkpoints retained",
+  "native": {
+    "command": "gradlew.bat --offline --no-daemon --max-workers=2 --console=plain :core:test :app:testDebugUnitTest :app:lintDebug :app:compileDebugAndroidTestKotlin",
+    "log": "C:/Users/57452/AppData/Local/Temp/pi-background-terminal/bg_d152534859801ed8.log",
+    "core": {
+      "tests": 94,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1,
+      "passed": 93
+    },
+    "app": {
+      "tests": 18,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "passed": 18
+    },
+    "lint": {
+      "errors": 0,
+      "warnings": 41
+    },
+    "androidTestCompiled": true,
+    "androidTestExecuted": false
+  },
+  "web": {
+    "tests": 118,
+    "passed": 118,
+    "failed": 0,
+    "typeScriptPassed": true,
+    "command": "node --import ./scripts/upstream-loader.mjs --test --test-concurrency=2 test/android-*.test.mjs test/source-contracts.test.mjs",
+    "log": "D:/AgentSpace/.tools/reading-only-web.log"
+  },
+  "browser": {
+    "scope": "Actual desktop Edge and generated reader assets/PDF.js, simulated Native host/storage/save/translation. No Android or real model execution.",
+    "pdf": "docs/reports/reading-only-pdf-browser.json",
+    "txt": "docs/reports/txt-reader-browser.json",
+    "pdfBackgroundRegression": "docs/reports/txt-pdf-background-browser.json",
+    "generatedMainSha256": "92ddc353d13ad497a7f975bd9011f13a88171a39bc65831ae808ab94cb3fcaf7",
+    "generatedTextSha256": "b865a411e0c48684f18f03bd4658ca747f36ae760a55ee6910ca20290d7b3ef9"
+  },
+  "review": {
+    "findingsClosed": [
+      "P1 mode switch must await pending reading-state and annotation saves before detach",
+      "P2 failed matching save transaction must release its staging state for same-host retry"
+    ],
+    "conclusion": "OK"
+  },
+  "durableModeSwitch": {
+    "readingSavedBarrier": true,
+    "annotationSaveFinishedBarrier": true,
+    "concurrentAutosaveDrain": true,
+    "failureKeepsOriginalView": true,
+    "staleAcknowledgementFenced": true,
+    "unchangedAnnotationsDoNotRewriteDraft": true,
+    "failedMatchingSaveCleanup": "Source-reviewed; AndroidTest compiled, not executed"
+  },
+  "boundaries": {
+    "androidDeviceExecuted": false,
+    "emulatorExecuted": false,
+    "realModelInference": false,
+    "modelDownload": false,
+    "apkAssembled": false,
+    "signedApk": false,
+    "commitPushOrPublication": false,
+    "databaseMigration": false,
+    "cacheDeletion": false,
+    "translationFingerprintChanged": false
+  },
+  "guide": "docs/reading-only.md",
+  "publicReleaseBoundary": "Public alpha.18 does not include these working-tree changes."
+}

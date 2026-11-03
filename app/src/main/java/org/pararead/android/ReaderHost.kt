@@ -27,6 +27,7 @@ class ReaderHost(
     private val onFatal: (String) -> Unit = {},
 ) : Closeable {
     val sessionId = UUID.randomUUID().toString()
+    private val readingOnly = !backgroundTranslation && Settings(context).readingOnly
     private var proxy: JavaScriptReplyProxy? = null
     private var ready = false
     private var readerFullscreen = false
@@ -35,6 +36,8 @@ class ReaderHost(
     private var stopping = false
     private var detached = false
     private val opened = CompletableDeferred<Unit>()
+    private var modeFlushId: String? = null
+    private var modeFlush: CompletableDeferred<Unit>? = null
     private val stopMutex = Mutex()
     private val pageMutex = Mutex()
     private var persistedJobJson: String? = null
@@ -50,6 +53,7 @@ class ReaderHost(
     private val jobKey = "whole:${source.document.id}"
     private var wholeJob: WholeDocumentJob? = null
     private var pageCount = 0
+    private var textIndex: TextDocumentIndex? = null
     private var wholeJobStarted = false
     private var autoSave: Job? = null
     private var exportTarget: Uri? = null
@@ -137,7 +141,8 @@ class ReaderHost(
                 val saved = withContext(Dispatchers.IO) { dao.job(jobKey) }
                 persistedJobJson = saved?.json
                 wholeJob = saved?.let { runCatching { WholeDocumentJob.parse(it.json) }.getOrNull() }
-                if (!closed) webView.loadUrl("https://appassets.androidplatform.net/reader/index.html")
+                if (source.document.isText) textIndex = withContext(Dispatchers.IO) { TextDocuments.open(File(source.document.path)) }
+                if (!closed) webView.loadUrl("https://appassets.androidplatform.net/reader/${if (source.document.isText) "text.html" else "index.html"}")
             } catch (e: CancellationException) { throw e }
             catch (e: Exception) { fatal("BOOTSTRAP_FAILED: ${e.message?.take(180)}") }
         }
@@ -158,17 +163,27 @@ class ReaderHost(
         when (m.type) {
             "reader.ready" -> {
                 require(!ready) { "ALREADY_OPEN" }; ready = true
-                send(base("session.open", JSONObject().put("token", source.token).put("length", source.length).put("reading", reading)
-                    .put("debug", BuildConfig.DEBUG).put("settings", JSONObject().put("backgroundTranslation", backgroundTranslation).put("targetLanguage", config.targetLanguage).put("translateRange", if (backgroundTranslation) "manual" else Settings(context).translateRange).put("selectOnHover", false)
-                        .put("readerFullscreen", readerFullscreen).put("showControlsLabel", showControlsLabel))))
+                val payload = JSONObject().put("token", source.token).put("length", source.length).put("reading", reading)
+                    .put("format", if (source.document.isText) "txt" else "pdf").put("title", source.document.name)
+                    .put("debug", BuildConfig.DEBUG).put("settings", JSONObject().put("backgroundTranslation", backgroundTranslation).put("readingOnly", readingOnly)
+                        .put("uiLanguage", context.withAppLanguage().resources.configuration.locales[0].toLanguageTag())
+                        .put("targetLanguage", config.targetLanguage).put("translateRange", if (backgroundTranslation) "manual" else Settings(context).translateRange).put("selectOnHover", false)
+                        .put("readerFullscreen", readerFullscreen).put("showControlsLabel", showControlsLabel))
+                textIndex?.let { index ->
+                    payload.put("text", JSONObject().put("pages", index.pages.size).put("encoding", index.encoding).put("indexVersion", index.version)
+                        .put("chapterCount", index.chapters.size)
+                        .put("chapters", JSONArray().apply { index.chapters.take(100).forEach { put(JSONObject().put("title", it.title).put("page", it.page)) } }))
+                }
+                send(base("session.open", payload))
             }
             "session.opened" -> {
                 pageCount = p.getInt("pages"); require(pageCount > 0)
                 persistReading(JSONObject().put("pageCount", pageCount))
                 if (!backgroundTranslation) withContext(Dispatchers.IO) { dao.opened(source.document.id, System.currentTimeMillis()) }
-                report("${source.document.name} · $pageCount 页 · ${if (config.provider == "mock") "模拟翻译" else config.model}")
+                report(if (readingOnly) context.withAppLanguage().getString(R.string.reader_reading_only)
+                    else "${source.document.name} · $pageCount 页 · ${if (config.provider == "mock") "模拟翻译" else config.model}")
                 metric("open_ms", (SystemClock.elapsedRealtime() - started).toDouble())
-                jobMutex.withLock {
+                if (!readingOnly) jobMutex.withLock {
                     if (wholeJob?.matches(source.revision, config, pageCount) != true) wholeJob = null
                     if (backgroundTranslation) beginWholeJob()
                     else if (wholeJob?.status == WholeJobStatus.RUNNING) {
@@ -180,12 +195,34 @@ class ReaderHost(
                 }
                 opened.complete(Unit)
             }
+            "reader.flushed" -> {
+                val pending = modeFlush
+                if (pending != null && p.optString("flushId") == modeFlushId) {
+                    if (p.getBoolean("success")) pending.complete(Unit)
+                    else pending.completeExceptionally(IllegalStateException(p.optString("message", "MODE_FLUSH_FAILED").take(200)))
+                }
+            }
             "session.error" -> fatal(p.optString("message").take(600))
             "page.visible" -> { epoch = maxOf(epoch, m.viewportEpoch); translationQueue.viewport(epoch) }
             "translation.request" -> translate(m)
             "translation.cacheGet" -> restoreTranslations(m)
             // Cancelling an obsolete translation must not discard another page's pending save.
             "request.cancel" -> translationQueue.cancel(p.getString("requestId"))
+            "text.chapters" -> {
+                val index = requireNotNull(textIndex) { "NOT_A_TEXT_DOCUMENT" }
+                val offset = p.getInt("offset"); val count = p.optInt("count", 100)
+                require(offset in 0..index.chapters.size && count in 1..100) { "INVALID_CHAPTER_RANGE" }
+                send(m.reply("text.chapters", JSONObject().put("total", index.chapters.size).put("chapters", JSONArray().apply {
+                    index.chapters.drop(offset).take(count).forEach { put(JSONObject().put("title", it.title).put("page", it.page)) }
+                })))
+            }
+            "text.page" -> {
+                val index = requireNotNull(textIndex) { "NOT_A_TEXT_DOCUMENT" }
+                val page = p.getInt("page")
+                require(page in 1..index.pages.size) { "INVALID_TEXT_PAGE" }
+                val text = withContext(Dispatchers.IO) { TextDocuments.readPage(File(source.document.path), index, page) }
+                send(m.reply("text.page", JSONObject().put("page", page).put("text", text)))
+            }
             "page.cacheGet" -> {
                 val value = withContext(Dispatchers.IO) { dao.page(source.revision, p.getInt("page")) }
                 val payload = JSONObject().put("page", value?.let { JSONObject(it.json) } ?: JSONObject.NULL)
@@ -198,28 +235,36 @@ class ReaderHost(
                 send(m.reply("reading.saved", JSONObject()))
             }
             "annotation.changed" -> {
+                require(!source.document.isText) { "PDF_ONLY" }
                 report("批注正在保存到本地草稿…")
                 autoSave?.cancel(); autoSave = scope.launch { delay(1200); requestSave(null) }
             }
             "document.save" -> if (p.has("incrementalLength")) {
+                require(!source.document.isText) { "PDF_ONLY" }
                 require(saveId == null) { "SAVE_BUSY" }
-                expectedSaveLength = p.getLong("incrementalLength"); require(expectedSaveLength in 0..16L * 1024 * 1024) { "SAVE_TOO_LARGE" }
-                saveLength = 0; saveId = UUID.randomUUID().toString()
-                exportTemp = File(context.cacheDir, "$saveId.suffix").apply { createNewFile() }
+                val length = p.getLong("incrementalLength"); require(length in 0..16L * 1024 * 1024) { "SAVE_TOO_LARGE" }
+                val id = UUID.randomUUID().toString()
+                val temp = File.createTempFile("save-$id-", ".suffix", context.cacheDir)
+                expectedSaveLength = length; saveLength = 0; exportTemp = temp; saveId = id
                 send(m.reply("save.started", JSONObject().put("saveId", saveId)))
-            } else saveRequested()
+            } else { require(!source.document.isText) { "PDF_ONLY" }; saveRequested() }
             "save.chunk" -> {
-                require(p.getString("saveId") == saveId && p.getLong("offset") == saveLength) { "SAVE_SEQUENCE_ERROR" }
-                val bytes = Base64.decode(p.getString("data"), Base64.DEFAULT)
-                require(bytes.size <= 24576 && saveLength + bytes.size <= expectedSaveLength) { "SAVE_CHUNK_TOO_LARGE" }
-                withContext(Dispatchers.IO) { FileOutputStream(exportTemp!!, true).use { it.write(bytes) } }
-                saveLength += bytes.size
-                send(m.reply("save.progress", JSONObject().put("received", saveLength)))
+                val id = p.getString("saveId")
+                require(id == saveId) { "SAVE_SEQUENCE_ERROR" }
+                try {
+                    require(p.getLong("offset") == saveLength) { "SAVE_SEQUENCE_ERROR" }
+                    val bytes = Base64.decode(p.getString("data"), Base64.DEFAULT)
+                    require(bytes.size <= 24576 && saveLength + bytes.size <= expectedSaveLength) { "SAVE_CHUNK_TOO_LARGE" }
+                    withContext(Dispatchers.IO) { FileOutputStream(exportTemp!!, true).use { it.write(bytes) } }
+                    saveLength += bytes.size
+                    send(m.reply("save.progress", JSONObject().put("received", saveLength)))
+                } catch (e: Exception) { abortSave(id); throw e }
             }
             "save.end" -> finishSave(m)
             "external.open" -> openExternal(p.getString("url"))
             "settings.chooseLanguage" -> chooseLanguage()
             "job.progress", "job.finished" -> {
+                require(!readingOnly) { "READING_ONLY" }
                 jobMutex.withLock {
                     val job = requireNotNull(wholeJob) { "UNKNOWN_JOB" }
                     require(p.getLong("jobId") == job.jobId && p.getInt("total") == job.total) { "STALE_JOB" }
@@ -265,6 +310,7 @@ class ReaderHost(
         if (!reading.optBoolean("translationsSaved")) persistReading(JSONObject().put("translationsSaved", true))
     }
     private suspend fun restoreTranslations(m: Envelope) {
+        require(!readingOnly) { "READING_ONLY" }
         val sentences = sentences(m)
         val keys = sentences.associateWith { contentKey(it.text, config) }
         // Bridge batches are bounded to 40 rows. One query instead of one IO hop per sentence.
@@ -282,6 +328,7 @@ class ReaderHost(
         send(m.reply("translation.finished", JSONObject().put("failures", JSONArray())))
     }
     private suspend fun translate(m: Envelope) {
+        require(!readingOnly) { "READING_ONLY" }
         require(!stopping && !closed) { "SESSION_STOPPING" }
         require(m.requestId !in inflight) { "DUPLICATE_REQUEST" }
         val sentences = sentences(m)
@@ -318,6 +365,7 @@ class ReaderHost(
         }
     }
     private suspend fun persistJob(job: WholeDocumentJob) = withContext(NonCancellable) {
+        check(!readingOnly) { "READING_ONLY" }
         val policy = checkpointCachePolicy(job.nextPage, persistedJobJson)
         val json = job.json().put("owner", sessionId).put("cachePolicy", policy).toString()
         val saved = withContext(Dispatchers.IO) {
@@ -340,6 +388,7 @@ class ReaderHost(
     }
     /** Called under jobMutex, after the reader has installed its message listener. */
     private suspend fun startWholeJob() {
+        check(!readingOnly) { "READING_ONLY" }
         val job = wholeJob ?: return
         wholeJobStarted = true
         send(base("reader.command", JSONObject().put("type", "translateAll").put("jobId", job.jobId).put("startPage", job.nextPage)))
@@ -355,6 +404,7 @@ class ReaderHost(
     private fun hasCurrentCachePolicy() = hasCurrentTranslationCachePolicy(persistedJobJson)
     /** Caller holds jobMutex; background and visible readers share the same durable protocol. */
     private suspend fun beginWholeJob() {
+        check(!readingOnly) { "READING_ONLY" }
         if (wholeJobStarted) { reportJob(); return }
         val previous = wholeJob
         val old = previous?.takeIf { hasCurrentCachePolicy() }
@@ -366,6 +416,10 @@ class ReaderHost(
     }
     fun command(type: String) { scope.launch {
       try {
+        if (readingOnly && type in setOf("translateCurrentPage", "translateAll", "cancelTranslateAll")) {
+            report(context.withAppLanguage().getString(R.string.reader_reading_only_disabled))
+            return@launch
+        }
         if (type == "translateAll" || type == "cancelTranslateAll") jobMutex.withLock {
             if (pageCount == 0) { report("请等待文档打开后再翻译"); return@withLock }
             if (type == "translateAll") {
@@ -382,11 +436,19 @@ class ReaderHost(
       } catch (e: CancellationException) { throw e }
       catch (e: Exception) { report("操作失败，进度未确认保存：${e.message?.take(200)}") }
     } }
-    fun requestSave(target: Uri?) { scope.launch { if (target != null) exportTarget = target; send(base("document.save")) } }
+    fun requestSave(target: Uri?) { if (source.document.isText) return; scope.launch { if (target != null) exportTarget = target; send(base("document.save")) } }
+    private fun abortSave(id: String) {
+        if (saveId != id) return
+        val temp = exportTemp
+        exportTemp = null; saveId = null; saveLength = 0; expectedSaveLength = 0; exportTarget = null
+        temp?.delete()
+    }
     private suspend fun finishSave(m: Envelope) {
-        require(m.payload.getString("saveId") == saveId && m.payload.getLong("length") == saveLength && saveLength == expectedSaveLength) { "INCOMPLETE_SAVE" }
-        val suffix = requireNotNull(exportTemp)
+        val id = m.payload.getString("saveId")
+        require(id == saveId) { "INCOMPLETE_SAVE" }
         try {
+            require(m.payload.getLong("length") == saveLength && saveLength == expectedSaveLength) { "INCOMPLETE_SAVE" }
+            val suffix = requireNotNull(exportTemp)
             withContext(Dispatchers.IO) {
                 FileOutputStream(suffix, true).use { it.fd.sync() }
                 // Always derive the suffix from this session's immutable baseline; repeated saves cannot double append.
@@ -406,7 +468,7 @@ class ReaderHost(
             }
             send(m.reply("save.finished", JSONObject().put("draftPersisted", true).put("exported", exportTarget != null)))
             report(if (exportTarget != null) "批注 PDF 已另存" else "批注草稿已保存，可恢复或另存 PDF")
-        } finally { exportTarget = null; suffix.delete(); exportTemp = null; saveId = null }
+        } finally { abortSave(id) }
     }
     private suspend fun metric(name: String, value: Double) {
         if (value.isFinite()) withContext(Dispatchers.IO) { dao.performance(PerformanceRecord(documentId = source.document.id, name = name, value = value)) }
@@ -415,13 +477,43 @@ class ReaderHost(
         val uri = Uri.parse(url)
         if (uri.scheme in setOf("https", "http", "mailto")) runCatching { context.startActivity(android.content.Intent(android.content.Intent.ACTION_VIEW, uri)) }
     }
+    /** Keep this session attached until Web reading state and annotation saves are acknowledged. */
+    suspend fun flushBeforeModeSwitch() = withContext(Dispatchers.Main.immediate) {
+        if (!ready || pageCount == 0) return@withContext
+        check(!closed && !stopping && !detached) { "SESSION_STOPPING" }
+        check(modeFlush == null) { "MODE_SWITCH_BUSY" }
+        val flushId = UUID.randomUUID().toString()
+        val pending = CompletableDeferred<Unit>()
+        modeFlushId = flushId; modeFlush = pending
+        val hadPendingAutoSave = autoSave?.isActive == true
+        autoSave?.cancel(); autoSave = null
+        try {
+            withTimeout(90_000) {
+                send(base("reader.command", JSONObject().put("type", "flushBeforeModeSwitch").put("flushId", flushId)))
+                pending.await()
+            }
+        } catch (e: Exception) {
+            withContext(NonCancellable) {
+                runCatching { send(base("reader.command", JSONObject().put("type", "resumeAfterModeFlush").put("flushId", flushId))) }
+            }
+            if (hadPendingAutoSave && !source.document.isText && !closed && !stopping && !detached &&
+                (e !is CancellationException || e is TimeoutCancellationException) && autoSave?.isActive != true) {
+                autoSave = scope.launch { delay(1200); requestSave(null) }
+            }
+            throw e
+        } finally {
+            if (modeFlush === pending) { modeFlush = null; modeFlushId = null }
+        }
+    }
     /** Stop bridge replies immediately, before Compose may release/destroy the old view. */
     fun prepareToStop() {
+        modeFlush?.cancel(CancellationException("SESSION_STOPPING"))
         stopping = true; detached = true; translationQueue.cancelAll()
     }
     override fun close() {
         if (closed) return
-        closed = true; translationQueue.cancelAll(); autoSave?.cancel(); pageChunks.clear()
+        closed = true; modeFlush?.cancel(CancellationException("SESSION_STOPPING"))
+        translationQueue.cancelAll(); autoSave?.cancel(); pageChunks.clear()
         exportTemp?.delete()
         try { source.close() } finally { provider.close() }
     }
@@ -437,10 +529,11 @@ class ReaderHost(
             try {
                 withContext(Dispatchers.Main.immediate) {
                     stopping = true
+                    modeFlush?.cancel(CancellationException("SESSION_STOPPING"))
                     translationQueue.cancelAll()
                     try {
                         jobMutex.withLock {
-                            if (status != null) wholeJob?.takeIf { it.status == WholeJobStatus.RUNNING }?.let { persistJob(it.finish(status)) }
+                            if (!readingOnly && status != null) wholeJob?.takeIf { it.status == WholeJobStatus.RUNNING }?.let { persistJob(it.finish(status)) }
                         }
                     } catch (e: Exception) {
                         // A checkpoint/ownership failure is not an unconfirmed native release.
