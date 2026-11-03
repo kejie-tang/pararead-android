@@ -18,7 +18,7 @@ export type TranslationState =
   | { status: "none" }
   | { status: "pending"; draft?: string }
   | { status: "done"; translation: string }
-  | { status: "error"; message: string };
+  | { status: "error"; message: string; translation?: string };
 
 const NONE: TranslationState = { status: "none" };
 
@@ -144,7 +144,12 @@ export class TranslationClient {
       case "translationDone":
         if (this.#requests.has(message.requestId)) {
           for (const { id, message: text } of message.failures) {
-            if (this.#owners.get(id) === message.requestId) this.#set(id, { status: "error", message: text });
+            if (this.#owners.get(id) === message.requestId) {
+              const state = this.state(id);
+              const translation = state.status === "pending" ? state.draft
+                : state.status === "done" || state.status === "error" ? state.translation : undefined;
+              this.#set(id, { status: "error", message: text, ...(translation?.trim() ? { translation } : {}) });
+            }
           }
           const request = this.#requests.get(message.requestId);
           for (const id of request?.ids ?? []) if (this.#owners.get(id) === message.requestId) {

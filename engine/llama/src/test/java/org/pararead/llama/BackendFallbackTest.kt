@@ -18,6 +18,8 @@ class BackendFallbackTest {
         val freed = mutableListOf<Long>()
         var failLoad = false
         var failGenerate = false
+        var generationError: String? = null
+        var loadError: String? = null
         var failCpu = false
         var failBenchmark = false
         var cancelled = false
@@ -27,6 +29,7 @@ class BackendFallbackTest {
         val output = "正确译文"
         override fun load(path: String, threads: Int, fullPrecisionKv: Boolean, rawCompletion: Boolean, vulkan: Boolean): Long {
             loads += vulkan
+            loadError?.let { error(it) }
             if (vulkan && failLoad) error("VULKAN_DEVICE_UNAVAILABLE")
             if (!vulkan && failCpu) error("GGUF_LOAD_FAILED")
             return if (vulkan) 2L else 1L
@@ -36,6 +39,7 @@ class BackendFallbackTest {
             entered.countDown()
             if (blocking) { check(released.await(5, TimeUnit.SECONDS)); error("INFERENCE_CANCELLED") }
             check(callback.onBytes((if (handle == 2L && failGenerate) "错误 GPU 草稿" else output).toByteArray()))
+            generationError?.let { error(it) }
             if (handle == 2L && failGenerate) error("NONFINITE_LOGITS")
             return longArrayOf(4, 3, 10, 30, 2, 20, 1)
         }
@@ -111,6 +115,36 @@ class BackendFallbackTest {
             assertEquals(3L, provider.metrics!!.generatedTokens)
         } finally { provider.closeAndJoin() }
         assertEquals(listOf(2L, 1L), runtime.freed)
+    }
+    @Test fun ordinaryGenerationErrorsNeverRestartOnEitherBackend() = runBlocking {
+        for (backend in InferenceBackend.entries) for (reason in listOf("TRUNCATED_GENERATION", "OUTPUT_TOO_LARGE",
+            "INCOMPLETE_UTF8_TOKEN", "INVALID_NATIVE_TOKEN_METRICS", "TOKEN_DECODE_FAILED", "TRANSLATION_GRAMMAR_INIT_FAILED",
+            "MODEL_TEMPLATE_UNSUPPORTED", "PROMPT_EXCEEDS_CONTEXT_BUDGET", "INFERENCE_CANCELLED", "UNKNOWN_FAILURE")) {
+            val runtime = FakeRuntime().apply { generationError = reason }
+            val provider = LlamaCppProvider("test", requestedBackend = backend, native = runtime)
+            val events = mutableListOf<ProviderEvent>()
+            try {
+                try { provider.generate(prompt).collect { events += it }; fail("Expected $reason") }
+                catch (e: IllegalStateException) { assertEquals(reason, e.message) }
+                assertEquals(listOf(backend == InferenceBackend.VULKAN), runtime.loads)
+                assertEquals(1, runtime.prompts.size)
+                assertFalse(events.any { it is ProviderEvent.Restart || it is ProviderEvent.Complete })
+                assertEquals("", provider.backendStatus.fallbackReason)
+            } finally { provider.closeAndJoin() }
+        }
+    }
+    @Test fun badModelFilesAndUnknownLoadFailuresAreNotCompatibilityRetries() = runBlocking {
+        for (reason in listOf("GGUF_LOAD_FAILED", "CPU_BACKEND_LOAD_FAILED", "UNKNOWN_LOAD_FAILURE")) {
+            val runtime = FakeRuntime().apply { loadError = reason }
+            val provider = LlamaCppProvider("test", requestedBackend = InferenceBackend.VULKAN, native = runtime)
+            try {
+                try { provider.generate(prompt).toList(); fail("Expected $reason") }
+                catch (e: IllegalStateException) { assertEquals(reason, e.message) }
+                assertEquals(listOf(true), runtime.loads)
+                assertTrue(runtime.prompts.isEmpty())
+                assertEquals("", provider.backendStatus.fallbackReason)
+            } finally { provider.closeAndJoin() }
+        }
     }
     @Test fun userCancellationNeverTriggersCpuRetry() = runBlocking {
         val runtime = FakeRuntime().apply { blocking = true }

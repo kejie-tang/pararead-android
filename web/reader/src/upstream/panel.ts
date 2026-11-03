@@ -18,6 +18,7 @@ import type { Block, PageSegmentation, Sentence } from "./segmenter/types";
 import type { SelectionController } from "./selection";
 import type { SentenceStore } from "./sentence-store";
 import type { TranslationClient, TranslationState } from "./translation-client";
+import { appendTranslationError } from "./translation-errors";
 
 const MIN_WIDTH = 240;
 const MIN_VIEWER_WIDTH = 360;
@@ -422,6 +423,13 @@ export function renderSentence(
   state: TranslationState,
   spaced: boolean,
 ): void {
+  // Keep the client's error state retryable, but render retained text like a normal translation.
+  if (state.status === "error" && state.translation?.trim()) {
+    span.dataset["status"] = "done";
+    span.textContent = `${appendTranslationError(state.translation, state.message)}${spaced ? " " : ""}`;
+    span.title = "";
+    return;
+  }
   span.dataset["status"] = state.status;
   const error = state.status === "error" ? t("translationFailed", state.message) : "";
   // Sentences are separated by a space, except in Chinese and Japanese.

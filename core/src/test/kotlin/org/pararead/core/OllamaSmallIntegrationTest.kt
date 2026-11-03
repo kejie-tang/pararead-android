@@ -12,7 +12,7 @@ import kotlin.test.*
  * Caller controls the local server's resource limits; CPU-only testing requires explicit permission.
  */
 class OllamaSmallIntegrationTest {
-    @Test fun realSmallModelRepairsCopiedCacheAndPreservesGoodCache() = runBlocking {
+    @Test fun realSmallModelUsesOneAttemptAndPreservesGoodAndMarkedCaches() = runBlocking {
         val endpoint = System.getenv("PARAREAD_OLLAMA_BASE_URL")
         assumeTrue("Local model test is opt-in", !endpoint.isNullOrBlank())
         val model = System.getenv("PARAREAD_OLLAMA_MODEL") ?: "qwen3:0.6b"
@@ -53,17 +53,18 @@ class OllamaSmallIntegrationTest {
             val first = translate("repair-small-ollama")
             val repaired = assertNotNull(first[bad.id])
             assertNotEquals(bad.text, repaired)
-            assertTrue(repaired.any { it in '\u4e00'..'\u9fff' })
-            assertTrue(repaired.contains("页"), "The short page sentence must not be replaced by generic instructions")
+            assertTrue(TranslationWarnings.body(repaired).isNotBlank())
+            assertTrue(repaired.any { it in '\u4e00'..'\u9fff' } || TranslationWarnings.reasons(repaired).isNotEmpty(),
+                "Imperfect non-Chinese output must retain a visible diagnostic")
             assertTrue(TranslationQuality.accepts(bad.text, repaired, config))
             assertEquals(repaired, values[contentKey(bad.text, config)])
             assertEquals(originalGood, first[good.id])
             val afterRepair = calls.get()
-            assertTrue(afterRepair in 1..3, "Recovery must be bounded")
+            assertEquals(1, afterRepair, "Ordinary failures and imperfect output must not trigger another generation")
             assertEquals(first, translate("reopen-small-ollama"))
             assertEquals(afterRepair, calls.get(), "Good translations must reopen without inference")
             assertEquals(originalGood, values[contentKey(good.text, config)])
-            println("OLLAMA_SMALL_TEST model=$model requests=$afterRepair copiedCacheRepaired=true goodCachePreserved=true reopenInference=0 repaired=$repaired")
+            println("OLLAMA_SMALL_TEST model=$model requests=$afterRepair oneAttempt=true goodCachePreserved=true reopenInference=0 retained=$repaired")
         } finally { workerScope.cancel(); delegate.close() }
     }
 }

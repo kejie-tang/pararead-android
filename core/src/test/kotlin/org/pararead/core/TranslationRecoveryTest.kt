@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
+import okhttp3.mockwebserver.SocketPolicy
 import org.json.JSONObject
 import org.junit.Test
 import kotlin.test.*
@@ -14,10 +15,21 @@ class TranslationRecoveryTest {
     private val sentences = listOf(
         SourceSentence("a", "The model processes 100 pages using 4 GB of memory [12].", "p1"),
         SourceSentence("b", "For ${'$'}E=mc^2${'$'}, retain the equation.", "p1"))
-    // The failed first row from the actual Android Qwen3-0.6B Q4_0 run.
     private val partial = """{"translations":[{"id":"s1","translation":"模型使用了 __PR0__ 页，其中 __PR1__ 页。"},{"id":"s2","translation":"保留 __PR3__ 方程。"}]}"""
+    private val warning = " *****（protected_token_mismatch）"
+    private val imperfect = "模型使用了 100 页，其中 4 GB 页。$warning"
+    private val good = "保留 ${'$'}E=mc^2${'$'} 方程。"
 
-    @Test fun textRecoveryDoesNotRequestJsonFromApiServer() = runBlocking {
+    private class Cache : TranslationCache {
+        val values = mutableMapOf<String, String>()
+        val writes = mutableListOf<String>()
+        override suspend fun get(key: String) = values[key]
+        override suspend fun put(key: String, text: String, translation: String, config: TranslationConfig) {
+            values[key] = translation; writes += key
+        }
+    }
+
+    @Test fun textPromptDoesNotRequestJsonFromApiServer() = runBlocking {
         val server = MockWebServer(); server.start()
         try {
             server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
@@ -29,112 +41,142 @@ class TranslationRecoveryTest {
         } finally { server.shutdown() }
     }
 
-    @Test fun independentlyValidRowsSurviveMissingCitationsAndMissingRows() {
-        val protected = StructuredTranslation.prompt(sentences, TranslationConfig()).second
-        val result = StructuredTranslation.validateEach(partial, sentences, protected)
-        assertEquals(listOf(sentences[1] to "保留 ${'$'}E=mc^2${'$'} 方程。"), result.accepted)
-        assertEquals(listOf(sentences[0] to "PROTECTED_TOKEN_MISMATCH"), result.rejected)
-        assertFails { StructuredTranslation.validate(partial, sentences, protected) }
-        val missing = """{"translations":[{"id":"s2","translation":"保留 __PR3__ 方程。"}]}"""
-        assertEquals(result.accepted, StructuredTranslation.validateEach(missing, sentences, protected).accepted)
-        assertEquals("RESULT_COUNT_MISMATCH", StructuredTranslation.validateEach(missing, sentences, protected).rejected.single().second)
+    @Test fun retryableHttpResponsesDoNotReplayTranslationPosts() = runBlocking {
+        for (code in listOf(408, 503)) {
+            val server = MockWebServer(); server.start()
+            try {
+                server.enqueue(MockResponse().setResponseCode(code).setHeader("Retry-After", "0").setBody("temporary failure"))
+                server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
+                    .setBody("""{"choices":[{"finish_reason":"stop","message":{"content":"不应被第二次调用"}}]}"""))
+                val provider = OpenAICompatibleProvider(server.url("/v1").toString(), "test")
+                val failure = assertFailsWith<IllegalStateException> { provider.generate(ModelPrompt("system", "source")).toList() }
+                assertEquals("HTTP_$code", failure.message)
+                assertEquals(1, server.requestCount)
+            } finally { server.shutdown() }
+        }
     }
 
-    @Test fun ambiguousOrIncompleteEnvelopeCannotSalvageRows() {
+    @Test fun disconnectedTranslationPostIsNotResubmitted() = runBlocking {
+        val server = MockWebServer(); server.start()
+        try {
+            server.enqueue(MockResponse().setSocketPolicy(SocketPolicy.DISCONNECT_AFTER_REQUEST))
+            server.enqueue(MockResponse().setHeader("Content-Type", "application/json")
+                .setBody("""{"choices":[{"finish_reason":"stop","message":{"content":"不应被第二次调用"}}]}"""))
+            val provider = OpenAICompatibleProvider(server.url("/v1").toString(), "test")
+            assertFails { provider.generate(ModelPrompt("system", "source")).toList() }
+            assertEquals(1, server.requestCount)
+        } finally { server.shutdown() }
+    }
+
+    @Test fun missingCitationsBecomePlainWarningsWithoutDiscardingEitherRow() {
         val protected = StructuredTranslation.prompt(sentences, TranslationConfig()).second
-        for (bad in listOf(partial.dropLast(1), partial + " extra", partial.replace("\"s1\"", "\"s2\""), partial.replace("\"s1\"", "\"s3\""))) {
+        val result = StructuredTranslation.validateEach(partial, sentences, protected)
+        assertEquals(listOf(sentences[0] to imperfect, sentences[1] to good), result.accepted)
+        assertTrue(result.rejected.isEmpty())
+        assertEquals(result.accepted, StructuredTranslation.validate(partial, sentences, protected))
+        val missing = """{"translations":[{"id":"s2","translation":"保留 __PR3__ 方程。"}]}"""
+        val other = StructuredTranslation.validateEach(missing, sentences, protected)
+        assertEquals(listOf(sentences[1] to good), other.accepted)
+        assertEquals(listOf(sentences[0] to "RESULT_COUNT_MISMATCH"), other.rejected)
+    }
+
+    @Test fun ambiguousIncompleteAndUnsafeEnvelopesStillFail() {
+        val protected = StructuredTranslation.prompt(sentences, TranslationConfig()).second
+        for (bad in listOf(partial.dropLast(1), partial + " extra", partial.replace("\"s1\"", "\"s2\""),
+            partial.replace("\"s1\"", "\"s3\""), "<think>reason</think>$partial")) {
             assertFails(bad) { StructuredTranslation.validateEach(bad, sentences, protected) }
         }
     }
 
-    @Test fun textRecoveryRetainsGlossaryAndRejectsMissingDuplicateOrRenumberedMarkers() {
+    @Test fun bestEffortRestoresOnlyOwnedMarkersAndNeverInventsMissingContent() {
         val config = TranslationConfig(sourceLanguage = "en", glossary = """{"model":"模型","zh-CN":{"memory":"内存"}}""")
         val (prompt, protected) = StructuredTranslation.textPrompt(sentences[0], config)
-        assertEquals(ModelOutputFormat.TEXT, prompt.outputFormat)
         assertTrue(prompt.system.contains("内存")); assertTrue(prompt.system.contains("模型"))
-        assertTrue(prompt.system.contains("__PR数字__")); assertTrue(prompt.user.contains("__PR2__"))
-        assertEquals("模型使用 4 GB 内存处理 100 页 [12]。", StructuredTranslation.validateText("模型使用 __PR1__ 内存处理 __PR0__ 页 __PR2__。", protected, config))
-        for (bad in listOf("译文 __PR0__ __PR1__", "译文 __PR0__ __PR0__ __PR2__", "译文 __PR00__ __PR1__ __PR2__",
-            "English __PR0__ __PR1__ __PR2__", "<think>推理</think>译文 __PR0__ __PR1__ __PR2__", partial,
-            """{"id":"s1","translation":"模型 __PR0__ __PR1__ __PR2__"}""",
-            """{"translation":"模型 __PR0__ __PR1__ __PR2__""")) {
+        assertEquals("模型使用 4 GB 内存处理 100 页 [12]。",
+            StructuredTranslation.validateText("模型使用 __PR1__ 内存处理 __PR0__ 页 __PR2__。", protected, config))
+        for ((raw, expected) in listOf(
+            "译文 __PR0__ __PR1__" to "译文 100 4 GB",
+            "译文 __PR0__ __PR0__ __PR2__" to "译文 100 100 [12]",
+            "译文 __PR00__ __PR1__ __PR2__" to "译文 __PR00__ 4 GB [12]",
+            "译文 __PR0_ __PR1__ __PR2__" to "译文 __PR0_ 4 GB [12]",
+            "译文完全没有标记" to "译文完全没有标记")) {
+            assertEquals(expected + warning, StructuredTranslation.validateText(raw, protected, config))
+        }
+        val foreign = StructuredTranslation.prompt(sentences, config).second[1]
+        assertEquals("保留 __PR0__ 方程。$warning", foreign.forDisplay("保留 __PR0__ 方程。", sentences[1].text, config))
+        for (bad in listOf("", "   ", "<think>推理</think>译文", partial, "```译文```")) {
             assertFails(bad) { StructuredTranslation.validateText(bad, protected, config) }
         }
-        val (other, _) = StructuredTranslation.textPrompt(sentences[0], config.copy(targetLanguage = "ja"))
-        assertTrue(other.system.contains("into ja")); assertFalse(other.system.contains("Simplified Chinese"))
     }
 
-    @Test fun onlyFailedSentenceIsRetriedAndTextFallbackCanRecoverIt() = runTest {
-        val prompts = mutableListOf<ModelPrompt>(); val values = mutableMapOf<String, String>(); val commits = mutableListOf<String>()
-        val cache = object : TranslationCache {
-            override suspend fun get(key: String) = values[key]
-            override suspend fun put(key: String, text: String, translation: String, config: TranslationConfig) { values[key] = translation }
-        }
-        val provider = object : TranslationProvider {
-            override fun generate(prompt: ModelPrompt) = flow {
-                prompts += prompt
-                emit(ProviderEvent.Complete(when (prompts.size) {
-                    1 -> partial
-                    2 -> """{"translations":[{"id":"s1","translation":"仍缺引用 __PR0__ __PR1__"}]}"""
-                    else -> "模型使用 __PR1__ 内存处理 __PR0__ 页 __PR2__。"
-                }))
-            }
-        }
+    @Test fun imperfectBatchIsGeneratedOnceAndReopenedFromCache() = runTest {
+        val prompts = mutableListOf<ModelPrompt>(); val cache = Cache(); val commits = mutableListOf<Pair<String, String>>()
+        val provider = object : TranslationProvider { override fun generate(prompt: ModelPrompt) = flow {
+            prompts += prompt; emit(ProviderEvent.Complete(partial))
+        } }
+        val config = TranslationConfig(sourceLanguage = "en")
+        val fingerprint = config.fingerprint()
         val queue = TranslationQueue(backgroundScope, cache) { provider }
         suspend fun open(id: String) {
             val done = CompletableDeferred<Unit>()
-            assertTrue(queue.submit(TranslationWork(id, 0, 0, sentences, TranslationConfig(sourceLanguage = "en"),
-                committed = { s, _, key -> assertTrue(key in values); commits += s.id },
+            assertTrue(queue.submit(TranslationWork(id, 0, 0, sentences, config,
+                committed = { source, value, key -> assertEquals(value, cache.values[key]); commits += source.id to value },
                 finished = { failures, cancelled -> assertTrue(failures.isEmpty()); assertFalse(cancelled); done.complete(Unit) })))
             done.await()
         }
         open("first")
-        assertEquals(listOf("b", "a"), commits)
-        assertEquals(3, prompts.size)
-        assertEquals(listOf(ModelOutputFormat.TRANSLATION_JSON, ModelOutputFormat.TRANSLATION_JSON, ModelOutputFormat.TEXT), prompts.map { it.outputFormat })
-        assertTrue(prompts[1].system.contains("Required markers"))
-        for (prompt in prompts.drop(1)) assertFalse(prompt.user.contains("retain the equation"))
-        open("reopen"); assertEquals(3, prompts.size); assertEquals(2, values.size)
+        assertEquals(listOf("a" to imperfect, "b" to good), commits)
+        assertEquals(1, prompts.size)
+        assertEquals(ModelOutputFormat.TRANSLATION_JSON, prompts.single().outputFormat)
+        open("reopen")
+        assertEquals(1, prompts.size); assertEquals(2, cache.writes.size)
+        assertEquals(listOf("a" to imperfect, "b" to good).repeatTwice(), commits)
+        assertEquals(fingerprint, config.fingerprint())
     }
 
-    @Test fun exhaustedRecoveryOnlyFailsItsOwnSentenceAndDoesNotSaveInvalidText() = runTest {
-        var calls = 0; val saved = mutableListOf<String>(); val committed = mutableListOf<String>()
-        val cache = object : TranslationCache {
-            override suspend fun get(key: String): String? = null
-            override suspend fun put(key: String, text: String, translation: String, config: TranslationConfig) { saved += text }
+    private fun <T> List<T>.repeatTwice() = this + this
+
+    @Test fun missingEmptyAndWrongTypeRowsFailOnceWhileGoodNeighbourIsSaved() = runTest {
+        for (value in listOf("null", "17", "\"\"", "\"   \"")) {
+            var calls = 0; val cache = Cache(); val committed = mutableListOf<String>()
+            val provider = object : TranslationProvider { override fun generate(prompt: ModelPrompt) = flow {
+                calls++; emit(ProviderEvent.Complete("""{"translations":[{"id":"s1","translation":$value},{"id":"s2","translation":"保留 __PR3__ 方程。"}]}"""))
+            } }
+            val done = CompletableDeferred<Unit>()
+            TranslationQueue(backgroundScope, cache) { provider }.submit(TranslationWork("failed-$value", 0, 0, sentences, TranslationConfig(),
+                committed = { source, _, _ -> committed += source.id },
+                finished = { failures, cancelled ->
+                    assertFalse(cancelled); assertEquals(listOf("a"), failures.map { it.first }); done.complete(Unit)
+                }))
+            done.await(); assertEquals(1, calls); assertEquals(listOf("b"), committed); assertEquals(1, cache.writes.size)
         }
-        val provider = object : TranslationProvider { override fun generate(prompt: ModelPrompt) = flow {
-            calls++
-            emit(ProviderEvent.Complete(if (calls == 1) partial else if (prompt.outputFormat == ModelOutputFormat.TEXT) "译文 __PR0__ __PR1__" else "{}"))
-        } }
-        val done = CompletableDeferred<Unit>()
-        TranslationQueue(backgroundScope, cache) { provider }.submit(TranslationWork("failed", 0, 0, sentences, TranslationConfig(),
-            committed = { s, _, _ -> committed += s.id },
-            finished = { failures, cancelled ->
-                assertFalse(cancelled); assertEquals(listOf("a"), failures.map { it.first }); done.complete(Unit)
-            }))
-        done.await(); assertEquals(3, calls); assertEquals(listOf("b"), committed); assertEquals(listOf(sentences[1].text), saved)
     }
 
-    @Test fun cancellingPlainRecoverySettlesWithoutCommittingItsDraft() = runTest {
+    @Test fun transportAndMalformedOutputAreNotRetried() = runTest {
+        for (error in listOf("HTTP_429", "TRUNCATED_STREAM_length", "INFERENCE_FAILED", "HOST_TIMEOUT", "OUTPUT_TOO_LARGE", "malformed")) {
+            var calls = 0; val cache = Cache(); val done = CompletableDeferred<Unit>()
+            val provider = object : TranslationProvider { override fun generate(prompt: ModelPrompt) = flow<ProviderEvent> {
+                calls++
+                if (error == "malformed") emit(ProviderEvent.Complete("{")) else error(error)
+            } }
+            TranslationQueue(backgroundScope, cache) { provider }.submit(TranslationWork(error, 0, 0, sentences, TranslationConfig(),
+                committed = { _, _, _ -> fail("No complete translation") },
+                finished = { failures, cancelled -> assertFalse(cancelled); assertEquals(2, failures.size); done.complete(Unit) }))
+            done.await(); assertEquals(1, calls); assertTrue(cache.writes.isEmpty())
+        }
+    }
+
+    @Test fun cancellingFirstGenerationDrainsWithoutCommittingItsDraft() = runTest {
         val begun = CompletableDeferred<Unit>(); val stopped = CompletableDeferred<Unit>(); val done = CompletableDeferred<Unit>()
-        val saved = mutableListOf<String>(); var calls = 0
-        val cache = object : TranslationCache {
-            override suspend fun get(key: String): String? = null
-            override suspend fun put(key: String, text: String, translation: String, config: TranslationConfig) { saved += text }
-        }
+        val cache = Cache(); var calls = 0
         val provider = object : TranslationProvider { override fun generate(prompt: ModelPrompt) = flow {
-            calls++
-            if (prompt.outputFormat == ModelOutputFormat.TEXT) {
-                emit(ProviderEvent.Delta("未校验 __PR0__")); begun.complete(Unit)
-                try { awaitCancellation() } finally { stopped.complete(Unit) }
-            } else emit(ProviderEvent.Complete(if (calls == 1) partial else "{}"))
+            calls++; emit(ProviderEvent.Delta("{\"translations\":[{\"id\":\"s1\",\"translation\":\"未完成译文")); begun.complete(Unit)
+            try { awaitCancellation() } finally { stopped.complete(Unit) }
         } }
         val queue = TranslationQueue(backgroundScope, cache) { provider }
-        queue.submit(TranslationWork("cancel", 0, 0, sentences, TranslationConfig(), committed = { _, _, _ -> },
-            finished = { _, cancelled -> assertTrue(cancelled); done.complete(Unit) },
-            delta = { _, _ -> fail("Unvalidated plaintext must not be shown") }))
+        queue.submit(TranslationWork("cancel", 0, 0, sentences, TranslationConfig(), committed = { _, _, _ -> fail() },
+            finished = { _, cancelled -> assertTrue(cancelled); done.complete(Unit) }))
         begun.await(); queue.cancel("cancel"); done.await(); stopped.await()
-        assertEquals(listOf(sentences[1].text), saved)
+        assertEquals(1, calls); assertTrue(cache.writes.isEmpty())
     }
 }

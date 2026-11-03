@@ -58,7 +58,8 @@ class TranslationTest {
         val translated = "使用 " + protected[0].text
         val result = JSONObject().put("translations", JSONArray().put(JSONObject().put("id", "s1").put("translation", translated))).toString()
         assertTrue(StructuredTranslation.validate(result, s, protected).single().second.contains("10 kg"))
-        assertFails { StructuredTranslation.validate(result.replace("__PR0__", "10"), s, protected) }
+        assertTrue(StructuredTranslation.validate(result.replace("__PR0__", "10"), s, protected).single().second
+            .endsWith(" *****（protected_token_mismatch）"))
         assertFails { StructuredTranslation.validate(result.replace("s1", "s2"), s, protected) }
         assertFails { StructuredTranslation.validate("{\"translations\":[]}", s, protected) }
     }
@@ -86,8 +87,7 @@ class TranslationTest {
     @Test fun invalidOrUnfinishedOutputNeverValidates() {
         val s = listOf(SourceSentence("p1-b0-s0", "Equation $" + "x=2$.", "p1-b0"))
         val (_, protected) = StructuredTranslation.prompt(s, TranslationConfig())
-        for (raw in listOf("{", "{\"translations\":[]}", "[{\"id\":\"s1\",\"translation\":\"\"}]", "<think>reason</think>[]",
-            "[{\"id\":\"s1\",\"translation\":\"__PR0__ __PR0__\"}]")) {
+        for (raw in listOf("{", "{\"translations\":[]}", "[{\"id\":\"s1\",\"translation\":\"\"}]", "<think>reason</think>[]")) {
             assertFails(raw) { StructuredTranslation.validate(raw, s, protected) }
         }
     }
@@ -102,14 +102,14 @@ class TranslationTest {
         assertTrue(fragments.size > 1); assertEquals(original, fragments.joinToString(""))
         assertEquals(1, fragments.count { formula in it })
     }
-    @Test fun retriesAreFiniteAndInvalidDraftsNeverEnterCache() = runTest {
+    @Test fun invalidOutputWithoutUsableTextFailsOnceAndNeverEntersCache() = runTest {
         var calls = 0
         val cache = object : TranslationCache { override suspend fun get(key: String): String? = null; override suspend fun put(key: String, text: String, translation: String, config: TranslationConfig) = fail("Invalid output reached cache") }
-        val provider = object : TranslationProvider { override fun generate(prompt: ModelPrompt) = flow { calls++; emit(ProviderEvent.Delta("{\"translations\":[{\"id\":\"s1\",\"translation\":\"草稿")); emit(ProviderEvent.Complete("{}")) } }
+        val provider = object : TranslationProvider { override fun generate(prompt: ModelPrompt) = flow { calls++; emit(ProviderEvent.Delta("{\"translations\":[{\"id\":\"s1\",\"translation\":\"")); emit(ProviderEvent.Complete("{}")) } }
         val done = CompletableDeferred<Unit>(); var drafts = 0
         TranslationQueue(backgroundScope, cache) { provider }.submit(TranslationWork("bad", 0, 0, listOf(SourceSentence("p1-b0-s0", "One.", "g")), TranslationConfig(),
             committed = { _,_,_ -> fail() }, finished = { failures, cancelled -> assertEquals(1, failures.size); assertFalse(cancelled); done.complete(Unit) }, delta = { _, _ -> drafts++ }))
-        done.await(); assertEquals(3, calls); assertTrue(drafts > 0)
+        done.await(); assertEquals(1, calls); assertEquals(0, drafts)
     }
     @Test fun cacheIdentityIncludesModelLanguageAndGlossary() {
         val c = TranslationConfig()

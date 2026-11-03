@@ -18,16 +18,12 @@ class TranslationQualityTest {
         protected.tokens.forEachIndexed { i, token -> encoded = encoded.replace(token, "__PR${i}__") }
         val raw = JSONObject().put("translations", JSONArray().put(JSONObject().put("id", "s1").put("translation", encoded))).toString()
         val result = StructuredTranslation.validateEach(raw, listOf(sentence), listOf(protected), config)
-        if (accepted) {
-            assertEquals(listOf(sentence to output), result.accepted)
-            assertTrue(result.rejected.isEmpty())
-            assertEquals(output, StructuredTranslation.validateText(encoded, protected, config))
-            assertEquals(output, StructuredTranslation.validate(raw, listOf(sentence), listOf(protected), config).single().second)
-        } else {
-            assertTrue(result.accepted.isEmpty())
-            assertEquals("TRANSLATION_LANGUAGE_OR_SOURCE_COPY", result.rejected.single().second)
-            assertFails { StructuredTranslation.validateText(encoded, protected, config) }
-        }
+        val displayed = if (accepted) output else "$output *****（translation_language_or_source_copy）"
+        assertEquals(listOf(sentence to displayed), result.accepted)
+        assertTrue(result.rejected.isEmpty())
+        assertEquals(displayed, StructuredTranslation.validateText(encoded, protected, config))
+        assertEquals(displayed, StructuredTranslation.validate(raw, listOf(sentence), listOf(protected), config).single().second)
+        assertTrue(TranslationQuality.accepts(source, displayed, config), "Marked output must remain reusable")
     }
 
     @Test fun englishSentenceAndLongPassageCannotBeChineseTranslations() {
@@ -89,8 +85,8 @@ class TranslationQualityTest {
             .put(JSONObject().put("id", "s1").put("translation", english))
             .put(JSONObject().put("id", "s2").put("translation", chinese))).toString()
         val result = StructuredTranslation.validateEach(raw, sentences, protected)
-        assertEquals(listOf(sentences[1] to chinese), result.accepted)
-        assertEquals(listOf(sentences[0] to "TRANSLATION_LANGUAGE_OR_SOURCE_COPY"), result.rejected)
+        assertEquals(listOf(sentences[0] to "$english *****（translation_language_or_source_copy）", sentences[1] to chinese), result.accepted)
+        assertTrue(result.rejected.isEmpty())
     }
 
     @Test fun explicitlyLabelledDemoEchoesRemainSeparateFromRealModelValidation() {
@@ -98,6 +94,20 @@ class TranslationQualityTest {
         assertTrue(TranslationQuality.accepts(english, demo, TranslationConfig(provider = "mock")))
         assertFalse(TranslationQuality.accepts(english, demo, TranslationConfig(provider = "api")))
         assertFalse(TranslationQuality.accepts(english, "", TranslationConfig(provider = "mock")))
+    }
+
+    @Test fun warningSuffixIsDeduplicatedAndCannotMakeAnEmptyCacheUsable() {
+        val both = listOf(TranslationWarnings.PROTECTED, TranslationWarnings.LANGUAGE)
+        val marked = TranslationWarnings.append(english, both)
+        assertEquals("$english *****（protected_token_mismatch, translation_language_or_source_copy）", marked)
+        assertEquals(marked, TranslationWarnings.append(marked, both))
+        assertTrue(TranslationQuality.accepts(english, marked, TranslationConfig()))
+        assertFalse(TranslationQuality.accepts(english, " *****（translation_language_or_source_copy）", TranslationConfig()))
+        assertTrue(TranslationQuality.accepts(english, "$english *****（unknown_code）", TranslationConfig()))
+        assertEquals("译文 *****（http_500, truncated_stream_length）", TranslationWarnings.append("译文", listOf("HTTP_500", "TRUNCATED_STREAM_length", "http_500")))
+        assertFalse(TranslationQuality.accepts(english, "$english *****（not a valid suffix）", TranslationConfig()))
+        assertEquals("甲乙 *****（protected_token_mismatch, translation_language_or_source_copy）",
+            TranslationWarnings.join(listOf("甲 *****（protected_token_mismatch）", "乙 *****（translation_language_or_source_copy）")))
     }
 
     @Test fun blankCacheValuesAndEnglishOutputsForChineseSourcesAreRejected() {

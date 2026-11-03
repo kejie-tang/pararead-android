@@ -1,8 +1,29 @@
 package org.pararead.core
 
-/** Conservative language/copy checks, shared by inference and persistent-cache readers.
- * This is not a semantic or completeness check. Only Chinese targets have a script check;
- * other targets retain the existing nonblank validation rather than guessing their language.
+/** Ordinary text, not markup or an error state. Stored with the translation so reopening
+ * cannot discard an explicitly accepted imperfect result and silently run inference again. */
+object TranslationWarnings {
+    const val PROTECTED = "protected_token_mismatch"
+    const val LANGUAGE = "translation_language_or_source_copy"
+    private val suffix = Regex("(?:^| )\\*{5}（([a-z0-9_.:-]{1,160}(?:, [a-z0-9_.:-]{1,160})*)）$")
+    private fun match(value: String) = suffix.find(value)
+    fun code(reason: String): String = reason.lowercase(java.util.Locale.ROOT)
+        .replace(Regex("[^a-z0-9_.:-]+"), "_").trim('_').take(160).ifEmpty { "translation_failed" }
+    fun errorCode(error: Exception): String = if (error is org.json.JSONException) "invalid_translation_json"
+        else code(error.message ?: error.javaClass.simpleName)
+    fun reasons(value: String): List<String> = match(value)?.groupValues?.get(1)?.split(", ") ?: emptyList()
+    fun body(value: String): String = match(value)?.let { value.substring(0, it.range.first) } ?: value
+    fun append(value: String, additional: List<String>): String {
+        val all = (reasons(value) + additional.map(::code)).distinct()
+        return body(value) + if (all.isEmpty()) "" else " *****（${all.joinToString(", ")}）"
+    }
+    /** Fragment warnings belong at the end of the complete sentence, once per code. */
+    fun join(parts: List<String>): String = append(parts.joinToString("") { body(it) }, parts.flatMap { reasons(it) })
+}
+
+/** Conservative language/copy diagnostics. These are warnings, not a reason to regenerate.
+ * Only Chinese targets have a script check; other targets do not guess the language.
+ * Unmarked historical bad caches still miss, but marked imperfect results are reusable.
  */
 object TranslationQuality {
     private val marker = Regex("__PR[0-9]+__")
@@ -12,6 +33,20 @@ object TranslationQuality {
         "中文", "简体中文", "繁体中文")
 
     fun accepts(source: String, translation: String, config: TranslationConfig): Boolean {
+        val body = TranslationWarnings.body(translation)
+        if (body.isBlank()) return false
+        if (TranslationWarnings.reasons(translation).isNotEmpty()) return true
+        return acceptsUnmarked(source, body, config)
+    }
+
+    fun forDisplay(source: String, translation: String, config: TranslationConfig, warnings: List<String> = emptyList()): String {
+        require(TranslationWarnings.body(translation).isNotBlank()) { "EMPTY_TRANSLATION" }
+        val reasons = warnings + if (acceptsUnmarked(source, TranslationWarnings.body(translation), config)) emptyList()
+            else listOf(TranslationWarnings.LANGUAGE)
+        return TranslationWarnings.append(translation, reasons)
+    }
+
+    private fun acceptsUnmarked(source: String, translation: String, config: TranslationConfig): Boolean {
         if (translation.isBlank()) return false
         // The explicitly labelled demo provider intentionally echoes source prose. Its
         // fingerprint is separate from real models; do not break offline UI smoke tests.
@@ -21,7 +56,8 @@ object TranslationQuality {
         // do not count as English prose (or as evidence of a Chinese translation).
         fun prose(text: String): String = marker.replace(StructuredTranslation.protect(text).text, " ").trim()
         val original = runCatching { prose(source) }.getOrNull() ?: return false
-        val result = runCatching { prose(translation) }.getOrNull() ?: return false
+        // Unknown protected markers already carry their own diagnostic; they are not prose.
+        val result = runCatching { prose(marker.replace(translation, " ")) }.getOrNull() ?: return false
         fun han(text: String) = text.codePoints().filter { Character.UnicodeScript.of(it) == Character.UnicodeScript.HAN }.count()
         val originalHan = han(original)
         val resultHan = han(result)

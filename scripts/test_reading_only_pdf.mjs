@@ -10,7 +10,8 @@ import assert from 'node:assert/strict';
 
 const project = resolve(import.meta.dirname, '..');
 const root = resolve(project, 'app/build/generated/readerAssets/reader');
-const reportPath = resolve(project, 'docs/reports/reading-only-pdf-browser.json');
+const reportDirectory = process.env.PARAREAD_REPORT_DIR ? resolve(process.env.PARAREAD_REPORT_DIR) : resolve(project, 'docs/reports');
+const reportPath = resolve(reportDirectory, 'reading-only-pdf-browser.json');
 const channel = process.env.PLAYWRIGHT_CHANNEL || (process.platform === 'win32' ? 'msedge' : undefined);
 const useGenerated = process.argv.includes('--generated');
 const sourceSentences = ['Original first page sentence.', 'Original second page sentence.'];
@@ -288,7 +289,7 @@ try {
   throw error;
 } finally {
   report.errors = errors;
-  await mkdir(resolve(project, 'docs/reports'), { recursive: true });
+  await mkdir(reportDirectory, { recursive: true });
   await writeFile(reportPath, JSON.stringify(report, null, 2) + '\n');
   await browser?.close();
   await new Promise(resolve => server.close(resolve));

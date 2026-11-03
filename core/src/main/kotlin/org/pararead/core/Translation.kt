@@ -54,6 +54,16 @@ class MockTranslationProvider : TranslationProvider {
 }
 data class ProtectedText(val text: String, val tokens: List<String>, val firstToken: Int = 0) {
     val markers get() = tokens.indices.map { "__PR${it + firstToken}__" }
+    /** Best effort within this sentence only: never invent a missing citation, or map a
+     * foreign/renumbered marker to a different sentence's token. Unknown markers stay visible. */
+    fun forDisplay(value: String, source: String, config: TranslationConfig, errors: List<String> = emptyList()): String {
+        val pattern = Regex("__PR\\d+__")
+        val placeholders = pattern.findAll(value).map { it.value }.toList()
+        val warnings = if (placeholders.sorted() == markers.sorted()) emptyList() else listOf(TranslationWarnings.PROTECTED)
+        val replacements = markers.zip(tokens).toMap()
+        val restored = pattern.replace(value) { replacements[it.value] ?: it.value }
+        return TranslationQuality.forDisplay(source, restored, config, errors + warnings)
+    }
     fun restore(value: String): String {
         val placeholders = Regex("__PR\\d+__").findAll(value).map { it.value }.toList()
         require(placeholders.sorted() == markers.sorted()) { "PROTECTED_TOKEN_MISMATCH" }
@@ -74,17 +84,87 @@ object StructuredTranslation {
         if (current.isNotEmpty()) chunks += current.toString()
         return chunks.map { chunk -> var value = chunk; protected.tokens.forEachIndexed { i, token -> value = value.replace("__PR${i}__", token) }; value }
     }
-    fun drafts(raw: String, sentences: List<SourceSentence>, values: List<ProtectedText>): List<Pair<SourceSentence, String>> {
-        val pattern = Regex("\"id\"\\s*:\\s*\"s([0-9]+)\"\\s*,\\s*\"translation\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)")
-        return pattern.findAll(raw).mapNotNull { match ->
-            val index = match.groupValues[1].toIntOrNull()?.minus(1) ?: return@mapNotNull null
-            if (index !in sentences.indices) return@mapNotNull null
-            runCatching {
-                var text = JSONObject("{\"value\":\"${match.groupValues[2]}\"}").getString("value")
-                values[index].tokens.forEachIndexed { i, token -> text = text.replace("__PR${i + values[index].firstToken}__", token) }
-                sentences[index] to text
-            }.getOrNull()
-        }.toList()
+    fun drafts(raw: String, sentences: List<SourceSentence>, values: List<ProtectedText>): List<Pair<SourceSentence, String>> =
+        salvage(raw, sentences, values, TranslationConfig(provider = "mock"), "draft").accepted
+            .map { (source, text) -> source to TranslationWarnings.body(text) }
+    /** Recover only explicit, unambiguous sentence rows from a failed/truncated envelope.
+     * Never assign another ID's output, JSON scaffolding or reasoning as a translation. */
+    fun salvage(raw: String, sentences: List<SourceSentence>, values: List<ProtectedText>,
+        config: TranslationConfig, reason: String): TranslationValidation {
+        require(sentences.size == values.size)
+        // Scan the whole bounded response: clipping it could hide a later duplicate ID.
+        if (raw.length > 262144) return TranslationValidation(emptyList(), sentences.map { it to reason })
+        val clean = raw.replace(Regex("<think>[\\s\\S]*?</think>"), "")
+            .substringBefore("<think>").substringBefore("</think>").trim()
+            .removePrefix("```json").removePrefix("```").trim()
+        val rows = mutableListOf<Pair<String, String?>>()
+        val prefix = Regex("^\\s*(?:\\{\\s*\"translations\"\\s*:\\s*)?\\[").find(clean)
+        val rootRow = Regex("^\\{\\s*\"id\"\\s*:").containsMatchIn(clean)
+        if (prefix != null || rootRow) {
+            var cursor = prefix?.range?.last?.plus(1) ?: 0
+            while (cursor < clean.length) {
+                while (cursor < clean.length && (clean[cursor].isWhitespace() || clean[cursor] == ',')) cursor++
+                if (cursor >= clean.length || clean[cursor] != '{') break
+                val start = cursor
+                var depth = 0; var quoted = false; var escaped = false
+                do {
+                    val ch = clean[cursor++]
+                    if (quoted) {
+                        if (escaped) escaped = false else if (ch == '\\') escaped = true else if (ch == '\"') quoted = false
+                    } else when (ch) { '\"' -> quoted = true; '{' -> depth++; '}' -> depth-- }
+                } while (cursor < clean.length && (depth > 0 || quoted))
+                val row = clean.substring(start, cursor)
+                if (depth == 0 && !quoted) {
+                    runCatching {
+                        val json = JSONObject(row)
+                        val id = json.getString("id")
+                        rows += id to (json.opt("translation") as? String)
+                    }.onFailure { rows.clear() }
+                    // If a complete row itself is malformed, its identity is not trustworthy.
+                    if (rows.isEmpty()) break
+                } else {
+                    // Count identities even if the last row has no recoverable body yet.
+                    // Nested/extra identities conservatively block an ambiguous partial row.
+                    val jsonString = "\"(?:[^\"\\\\\\u0000-\\u001f]|\\\\(?:[\"\\\\/bfnrt]|u[0-9a-fA-F]{4}))*\""
+                    val ids = Regex("($jsonString)\\s*:\\s*($jsonString)").findAll(row).mapNotNull { field ->
+                        runCatching {
+                            val entry = JSONObject("{${field.groupValues[1]}:${field.groupValues[2]}}")
+                            if (entry.has("id")) entry.getString("id") else null
+                        }.getOrNull()
+                    }.toList()
+                    val partialIndex = rows.size
+                    rows += ids.map { it to null }
+                    // A last row cut inside its string can retain complete JSON escapes only.
+                    val pattern = Regex("^\\{\\s*\"id\"\\s*:\\s*($jsonString)\\s*,\\s*\"translation\"\\s*:\\s*\"((?:[^\"\\\\\\u0000-\\u001f]|\\\\(?:[\"\\\\/bfnrt]|u[0-9a-fA-F]{4}))*)")
+                    pattern.find(row)?.let { match ->
+                        val tail = row.substring(match.range.last + 1).trim()
+                        val id = runCatching { JSONObject("{\"value\":${match.groupValues[1]}}").getString("value") }.getOrNull()
+                        // No later property may change the identity of an unfinished row.
+                        if (ids.size == 1 && id != null && ids.single() == id &&
+                            (tail.isEmpty() || tail == "\"" || Regex("\\\\(?:u[0-9a-fA-F]{0,3})?").matches(tail))) runCatching {
+                            var text = JSONObject("{\"value\":\"${match.groupValues[2]}\"}").getString("value")
+                            if (text.lastOrNull()?.isHighSurrogate() == true) text = text.dropLast(1)
+                            rows[partialIndex] = id to text
+                        }
+                    }
+                    break
+                }
+            }
+        } else if (sentences.size == 1 && clean.isNotBlank() && clean.first() !in "{[" && !clean.startsWith("```")) {
+            // A text-only answer to a single owned sentence is still useful, with its format error.
+            rows += "s1" to clean.removeSuffix("```").trim()
+        }
+        val grouped = rows.groupBy { it.first }
+        val accepted = mutableListOf<Pair<SourceSentence, String>>()
+        val rejected = mutableListOf<Pair<SourceSentence, String>>()
+        sentences.forEachIndexed { i, sentence ->
+            val candidates = grouped["s${i + 1}"]
+            val text = candidates?.singleOrNull()?.second?.trim()
+            if (!text.isNullOrBlank() && TranslationWarnings.body(text).isNotBlank())
+                accepted += sentence to values[i].forDisplay(text, sentence.text, config, listOf(reason))
+            else rejected += sentence to reason
+        }
+        return TranslationValidation(accepted, rejected)
     }
     private val protected = Regex("```[\\s\\S]*?```|`[^`]+`|\\$\\$[\\s\\S]*?\\$\\$|\\$[^$\\n]+\\$|https?://[^\\s<>]+|\\[[0-9][0-9,; \\u2013-]*]|(?<![\\p{L}])[-+]?\\d+(?:[.,]\\d+)*(?:%|\\s?(?:kg|mg|km|cm|mm|ms|Hz|GHz|MHz|MB|GB|K|°C|m/s))?")
     fun protect(text: String, firstToken: Int = 0): ProtectedText {
@@ -116,11 +196,6 @@ object StructuredTranslation {
         glossary.optJSONObject(c.targetLanguage)?.let { lang -> lang.keys().forEach { terms.put(it, lang.getString(it)) } }
         return terms
     }
-    fun repairPrompt(sentence: SourceSentence, c: TranslationConfig): Pair<ModelPrompt, List<ProtectedText>> {
-        val (original, protected) = prompt(listOf(sentence), c)
-        val required = protected.single().markers.joinToString(", ").ifEmpty { "none" }
-        return original.copy(system = original.system + "\nTranslate the entire sentence again. Required markers, each exactly once: $required. Do not copy a previous incomplete answer.") to protected
-    }
     /** One known sentence, so the caller owns its ID and no model-generated JSON is needed. */
     fun textPrompt(sentence: SourceSentence, c: TranslationConfig): Pair<ModelPrompt, ProtectedText> {
         val protected = protect(sentence.text)
@@ -150,9 +225,7 @@ object StructuredTranslation {
         val value = raw.trim()
         require(value.isNotEmpty()) { "EMPTY_TRANSLATION" }
         require(!value.startsWith("```") && !value.startsWith("{") && !value.startsWith("[")) { "UNEXPECTED_TEXT_WRAPPER" }
-        val restored = protected.restore(value)
-        TranslationQuality.requireValid(protected.restore(protected.text), restored, c)
-        return restored
+        return protected.forDisplay(value, protected.restore(protected.text), c)
     }
     fun validate(raw: String, sentences: List<SourceSentence>, protected: List<ProtectedText>, config: TranslationConfig = TranslationConfig()): List<Pair<SourceSentence, String>> {
         val result = validateEach(raw, sentences, protected, config)
@@ -188,9 +261,7 @@ object StructuredTranslation {
                 val value = outputs["s${i + 1}"] ?: error("RESULT_COUNT_MISMATCH")
                 require(value is String) { "INVALID_TRANSLATION_TYPE" }
                 require(value.isNotBlank()) { "EMPTY_TRANSLATION" }
-                val restored = protected[i].restore(value.trim())
-                TranslationQuality.requireValid(s.text, restored, config)
-                accepted += s to restored
+                accepted += s to protected[i].forDisplay(value.trim(), s.text, config)
             } catch (e: Exception) { rejected += s to (e.message ?: "INVALID_TRANSLATION").take(512) }
         }
         return TranslationValidation(accepted, rejected)

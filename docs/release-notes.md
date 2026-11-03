@@ -1,39 +1,35 @@
-# ParaRead Android 0.2.0-alpha.20 — 阅读手势与安全返回 / Reader gestures & safe navigation
+# ParaRead Android 0.2.0-alpha.21 — 保留译文与单次翻译 / Keep translations & single-pass inference
 
 ## 中文
 
-- **PDF 更清爽。** 全屏阅读时，工具栏折叠后不再显示向下箭头；反向滑动或 Tab/Escape 可恢复。保留批注、文本选择及输入时的保护。
-- **PDF/TXT 移除全屏退出浮钮。** 右下角不再显示 ×；安卓返回先退出全屏，再次返回书库。宽屏进入文档后隐藏左侧书库、模型及设置导航，回到书库后恢复。
-- **TXT 左右滑动翻页。** 正文左滑下一内容页、右滑上一页；上下滑动仍为页内阅读。避让两侧安卓返回手势区域，不干扰选中文本、双指操作或输入控件。
-- **横屏双栏可调。** 拖动中央分隔条调整原文/译文比例，支持键盘调节并记忆设置；比例限于 25%–75%，不改变内容页、句子标识、译文缓存或全篇断点。隐藏原文及只阅读保持单栏。
-- **TXT 工具栏可快速收起。** 全屏点击“显示阅读工具栏”后，可直接“收起阅读工具栏”，无需退出全屏。
-- **章节与百分比定位。** 新面板支持向下滚动章节、分批加载和失败重试；百分比滑块/数值先预览，再点击跳转。无章节可按百分比定位，单页文档不提供无效操作。0% 为第一页，100% 为最后一内容页。
-- **返回前确认保存。** 退出文档前等待阅读进度及必要的 PDF 批注保存成功；失败保留当前文档和编辑。保存冻结期间阻止键盘及其他翻页路径，避免丢失刚调整的分栏或阅读位置。
-- 保留 alpha.19 的 TXT 编码导入、固定内容分页、PDF/TXT 只阅读和后台翻译。无数据库迁移或清空、模型引擎/提示词/全局缓存指纹变化，不清除旧文档、合格译文或模型。
+- **任何错误已有可用译文都尽量保留。** 不只 `protected_token_mismatch`：截断、超时、格式错误等也显示已收到且能可靠归属的正文，末尾追加实际错误码，如 `译文…… *****（truncated_stream_length）`、`*****（http_500）` 或 `*****（host_timeout）`。多个原因去重合并。
+- **标注就是普通文字。** PDF/TXT 浅色与深色均与附近译文同色、同字体；不加红色、下划线、粗体或其他强调，星号不作为 Markdown/HTML 解释。
+- **普通错误只生成一次。** 移除批次失败后的逐句修复与纯文本修复循环，关闭 API 的连接故障/408/503 隐式重发。仅明确的 Vulkan 后端兼容问题可安全清除草稿后回退 CPU 一次；普通截断、输出超限、坏模型及未知异常不触发第二轮。
+- **保存并复用带标注的结果。** 重开不因同一警告再次调用模型。长句保留已完成内容、复用分片，并将警告集中到句尾。存储失败仍保留可见正文，但不假确认已经保存；用户仍可主动重试真正的失败。
+- **保留译文，不猜身份。** 保护片段仅还原本句已知标记，不补造缺失数字或引用；未知/重复 ID 不错配，转义 ID 同样检查。推理文本、JSON 外壳及确实没有正文的结果不会冒充译文。取消、GPU 重启、陈旧消息与只阅读安全边界保持。
+- 保留 alpha.20 的 TXT 手势、双栏、章节/百分比跳转、全屏控件与安全返回，以及后台断点、PDF 批注/导出。无数据库迁移或清空、模型/提示词/生成语法/全局缓存指纹变化，不删除旧文档、合格译文或模型。
 
 ## English
 
-- **Cleaner PDF fullscreen:** removes the collapsed-toolbar down-arrow overlay. Reverse scrolling and Tab/Escape restore tools; annotation, selection and input guards remain.
-- **No fullscreen exit X:** use Android Back to leave fullscreen, then Back again to return to the library. The wide library/model/settings sidebar is hidden while a PDF/TXT document is open and restored in the library.
-- **TXT page swipes:** swipe left/right through stable content pages; vertical gestures still scroll within the page. Screen edges remain reserved for Android Back; selections, multiple touches and interactive controls do not turn pages.
-- **Resizable landscape columns:** drag or keyboard-adjust the original/translation split, with a remembered 25%–75% source share. Page identities, translation caches and checkpoints are unchanged. Hidden-source and Read only stay single-column.
-- **Quick TXT toolbar dismissal:** shown fullscreen controls now have a matching Hide reading toolbar action.
-- **Chapters & progress:** a scrollable, lazy-loaded chapter panel with retry, percentage preview and explicit navigation. Books without detected chapters retain progress navigation; single-page books disable meaningless controls. 0% is the first content page and 100% the last.
-- **Save before leaving:** reading-state and necessary PDF annotation acknowledgements precede detach. Failed saves retain the current document and edits; all TXT navigation paths are fenced during save freeze.
-- Retains alpha.19 TXT encoding import, stable pagination, shared Read only and explicit background translation. No database migration/wipe, engine/prompt/global-cache-fingerprint change, or deletion of valid documents/translations/models.
+- **Keep usable output for any error, not just protected-token mismatches.** Retain attributable translated text after truncation, timeout or format errors and append the corresponding code, e.g. `Translation… *****（truncated_stream_length）`, `*****（http_500）` or `*****（host_timeout）`. Multiple reasons are merged without duplication.
+- **Plain text, normal styling:** PDF/TXT light and dark modes use the surrounding translation's color and font, with no red, underline, bold or special emphasis. Stars are not interpreted as Markdown/HTML.
+- **One generation for ordinary errors:** removes batch-to-sentence repair and text-repair loops and disables hidden connection/408/503 API POST retries. Only explicit Vulkan backend compatibility failures may clear the old draft and fall back to CPU once. Truncation, output limits, bad model files and unknown errors do not trigger another generation.
+- **Persist and reuse marked output:** reopening does not regenerate an imperfect saved translation. Long sentences reuse completed fragments and consolidate warnings at the end. Storage failures retain visible text without claiming a successful save; explicit user retry remains available for actual failures.
+- **Keep text without guessing ownership:** restore only the sentence's known protected tokens, never invent missing references/numbers, and reject ambiguous or foreign IDs, including escaped IDs. Reasoning text, JSON scaffolding and empty results are not presented as translations. Cancellation, restart, stale-message and Read only fences remain.
+- Retains alpha.20 TXT gestures, split columns, chapter/progress navigation, fullscreen controls and safe exit, plus background checkpoints and PDF annotations/export. No database migration/wipe or model/prompt/grammar/global-cache-fingerprint change; valid documents, translations and models remain intact.
 
 ## Validation / 验证边界
 
-**128 Android Web tests + 16 upstream/source contracts**, TypeScript and the standalone **2-test chapter/progress suite** passed. Native JVM checks: Core **93 passed / 1 optional real-model test skipped**, App **18 passed**, Engine **9 passed** using a fake runtime. Full ARM64 debug APK and AndroidTest APK builds, Lint **0 errors / 54 warnings**, debug signature, ZIP/ELF **16KiB** alignment, notices and no-model distribution validation passed. Independent review closed both save-boundary findings; no open P0–P2 blocker.
+Version21 local validation passed: **149 Android Web + 16 upstream baseline contracts**, complete TypeScript checks and **2 standalone navigation tests**. Core **110 passed / 1 optional real-model test skipped**, App **18 passed**, Engine **11 passed** with a fake runtime. ARM64 native-enabled debug and AndroidTest APK compilation, Lint **0 errors / 54 warnings**, local debug signature, ZIP/ELF **16KiB**, notices and no-model distribution checks passed.
 
-Actual desktop Edge with generated reader resources covers normal PDF, original-only PDF, headless PDF, TXT touch navigation, split drag/keyboard/reopen, fullscreen toolbar dismissal, 205 chapters, percentage navigation, empty/single-page cases, save-freeze faults, cache retention and background acknowledgement barriers. Layout checks include phone landscape, tablets, 320px width, 200% UI text and light/dark themes. Native/storage/translation/save-fault behavior is simulated. **No Android device/emulator or instrumentation execution, model download or real-model inference was performed for this version.** AndroidTest regressions for immediate Back and failed-exit retention were compiled only. Signed CI remains a separate required gate; see [alpha.20 validation](https://github.com/kejie-tang/pararead-android/blob/main/docs/reports/alpha20.md).
+Actual desktop Edge with generated reader/PDF.js resources covers PDF/TXT normal rendering and cached reopening, three distinct mid-generation failures in light/dark mode, plain-text warnings with identical nearby styling, Read only, background acknowledgement barriers, PDF geometry/annotation saving and existing TXT navigation/save-freeze guards. Native/storage/translation faults are simulated. **No Android device/emulator/instrumentation execution, model download or real-model inference was performed for this version.** AndroidTest APK compilation is not execution. Independent implementation review closed all findings; signed CI, retained-certificate verification and full anonymous downloads remain separate mandatory publication gates. See [alpha.21 validation](https://github.com/kejie-tang/pararead-android/blob/main/docs/reports/alpha21.md) and [warning rules](https://github.com/kejie-tang/pararead-android/blob/main/docs/translation-warnings.md).
 
 ## Install / 安装
 
-Android 9+ / ARM64, **versionCode 20**. Release APKs must retain certificate SHA-256:
+Android 9+ / ARM64, **versionCode 21**. Release APKs must retain certificate SHA-256:
 
 ```text
 e044c8f329f42465866add4d041f29c498009361241610c8ee2de43ae6e87a45
 ```
 
-Same-signed previews support in-place upgrades, retaining private documents, translations, models and reading state. **不要为绕过签名错误卸载旧版 / Do not uninstall to bypass a signature error.** The retained preview certificate identifies as Android Debug; this is not a production-signing claim. Local/CI debug builds may use different keys and are not upgrade substitutes. APK, notices and SHA-256 checksums are attached. No model weights or third-party papers are bundled. Existing alpha.19 and earlier releases remain unchanged.
+Same-signed previews support in-place upgrades, retaining private documents, translations, models and reading state. **不要为绕过签名错误卸载旧版 / Do not uninstall to bypass a signature error.** The retained preview certificate identifies as Android Debug; this is not a production-signing claim. Local/CI debug APKs may use different keys and are not upgrade substitutes. APK, notices and SHA-256 checksums are attached. No model weights or third-party papers are bundled. Existing alpha.20 and all earlier releases remain unchanged.

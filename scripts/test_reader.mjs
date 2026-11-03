@@ -4,6 +4,7 @@ import { createServer } from 'node:http';
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { resolve, extname, sep } from 'node:path';
 import assert from 'node:assert/strict';
+import { assertTranslationWarningStyle } from './translation-warning-assertions.mjs';
 const root = resolve(import.meta.dirname, '../app/build/generated/readerAssets/reader');
 // --source verifies current PDF code/CSS without rebuilding shared generated TXT assets.
 const useSource = process.argv.includes('--source');
@@ -50,6 +51,7 @@ try {
     const session = { version: 1, sessionId: 'test-session', documentId: 'test-document', documentRevision: 'sha256:test', configRevision: 1, viewportEpoch: 0 };
     const send = (m, type, payload) => setTimeout(() => window.ParaReadNative.onmessage({ data: JSON.stringify({ ...session, ...m, type, payload }) }), 0);
     const pendingPrefetch = new Map();
+    const translationFault = new URL(location.href).searchParams.get('translationFault');
     window.ParaReadNative = { postMessage(raw) {
       const m = JSON.parse(raw); window.__nativeMessages.push(m);
       if (m.type === 'reader.ready') send(m, 'session.open', { length, token: 'test', reading: {}, settings: { targetLanguage: 'zh-CN', translateRange: localStorage.getItem('test-range') ?? 'page', selectOnHover: false }, debug: true });
@@ -70,12 +72,18 @@ try {
       }
       if (m.type === 'translation.request') {
         if (m.payload.priority === 2) { pendingPrefetch.set(m.requestId, m); return; }
+        const failures = [];
         m.payload.sentences.forEach((s, sequence) => {
-          const translation = '【模拟译文】' + s.text;
+          if (translationFault && failures.length === 0 && s.text.length > 70) {
+            send(m, 'translation.delta', { sequence, items: [{ id: s.id, translation: '保留的不完美译文' }] });
+            failures.push({ id: s.id, message: translationFault });
+            return;
+          }
+          const translation = '【模拟译文】' + s.text + (s.text.length > 70 && sequence % 2 === 0 ? ' *****（protected_token_mismatch）' : '');
           localStorage.setItem('test-cache:' + s.text, translation);
           send(m, 'translation.committed', { sequence, items: [{ id: s.id, translation }] });
         });
-        send(m, 'translation.finished', { failures: [], cancelled: false });
+        send(m, 'translation.finished', { failures, cancelled: false });
       }
     } };
   }, { length: sample.length });
@@ -84,7 +92,8 @@ try {
   await page.waitForFunction(() => window.__bilingual?.store.readyPages().length > 0, { timeout: 45000 });
   await page.waitForFunction(() => document.querySelector('.bilingualSentence')?.textContent.includes('模拟译文'), { timeout: 15000 });
   await page.waitForFunction(() => window.__bilingual.store.readyPages().find(p=>p.page===1)?.blocks.filter(b=>b.kind==='text').flatMap(b=>b.sentences).every(s=>window.__bilingual.translations.state(s.id).status==='done'), { timeout: 15000 });
-  console.log('Rendered and translated');
+  await assertTranslationWarningStyle(page);
+  console.log('Rendered and translated, including ordinary grayscale warnings');
   const first = await page.evaluate(async () => {
     const b = window.__bilingual; const p = await b.store.ensure(1);
     const s = p.blocks.filter(b => b.kind === 'text').flatMap(b => b.sentences).find(s => s.text.length > 70);
@@ -168,6 +177,7 @@ try {
   await page.waitForFunction(() => document.querySelector('.bilingualSentence')?.textContent.includes('模拟译文'));
   assert.equal(await page.evaluate(() => window.__nativeMessages.filter(m => m.type === 'translation.request').length), 0);
   assert.ok(await page.evaluate(() => window.__nativeMessages.some(m => m.type === 'translation.cacheGet')));
+  await assertTranslationWarningStyle(page);
   // Use real touch input: synchronized/programmatic scrolling must never hide the controls.
   await page.setViewportSize({ width: 1280, height: 800 });
   const cdp = await page.context().newCDPSession(page);
@@ -292,7 +302,21 @@ try {
     ignoresProgrammaticScroll: true, protectsSentenceAndTextSelection: true, protectsAnnotationTools: true,
     normalModeUnchanged: true, exitRestoresControls: true, narrowReverseSwipeRestores: true, pdfHeightGain: chromeAfter.height - chromeBefore.height,
     translationHeightGain: panelAfter.height - panelBefore.height };
-  result = { status: 'passed', currentSourceBundleAndCss: useSource, hoverDisabledClickSelectionWorks: true, jumpedPagesTranslateWithoutSelection: [2, 6], cancelledPrefetchPromotedToCurrentPage: true, manualReopenRestoresWithoutInference: true, fullscreenControls, environment: 'Desktop Chromium, touch emulation; not Android or device', sample: 'Original ParaRead Reading Guide (Apache-2.0), 6 pages', rangeRequests: ranges.length, largestRange: Math.max(...ranges.map(([a, b]) => b - a)), bidirectionalSelection: true, portraitToolbarWithinPane: true, alignmentDeltaPx: alignment, incrementalSave: save, errors };
+  for (const fault of ['TRUNCATED_STREAM_length', 'HTTP_500', 'HOST_TIMEOUT']) {
+    await page.evaluate(() => {
+      for (const key of Object.keys(localStorage)) if (key.startsWith('test-cache:')) localStorage.removeItem(key);
+      localStorage.setItem('test-range', 'page');
+    });
+    await page.goto(`http://127.0.0.1:${port}/?translationFault=${fault}`);
+    await page.waitForFunction(code => [...document.querySelectorAll('.bilingualSentence')].some(el =>
+      el.textContent.includes(`保留的不完美译文 *****（${code}）`)), fault.toLowerCase());
+    await assertTranslationWarningStyle(page, fault.toLowerCase());
+    const state = await page.evaluate(() => [...window.__bilingual.store.readyPages()].flatMap(p => p.blocks.flatMap(b => b.sentences))
+      .map(s => window.__bilingual.translations.state(s.id)).find(state => state.status === 'error'));
+    assert.equal(state.translation, '保留的不完美译文');
+    assert.equal(state.message, fault);
+  }
+  result = { generalErrorRetainsTextInLightAndDark: ['truncated_stream_length', 'http_500', 'host_timeout'], status: 'passed', currentSourceBundleAndCss: useSource, hoverDisabledClickSelectionWorks: true, jumpedPagesTranslateWithoutSelection: [2, 6], cancelledPrefetchPromotedToCurrentPage: true, manualReopenRestoresWithoutInference: true, fullscreenControls, environment: 'Desktop Chromium, touch emulation; not Android or device', sample: 'Original ParaRead Reading Guide (Apache-2.0), 6 pages', rangeRequests: ranges.length, largestRange: Math.max(...ranges.map(([a, b]) => b - a)), bidirectionalSelection: true, portraitToolbarWithinPane: true, alignmentDeltaPx: alignment, incrementalSave: save, errors };
   assert.equal(errors.filter(e => !e.includes('404')).length, 0, errors.join('\n'));
   console.log(JSON.stringify(result, null, 2));
 } catch (e) {
@@ -300,6 +324,7 @@ try {
   result = { status: 'failed', error: String(e), errors, rangeRequests: ranges.length };
   console.error(e.stack); console.error(JSON.stringify(result, null, 2)); process.exitCode = 1;
 } finally {
+  await mkdir(reportDirectory, { recursive: true });
   await writeFile(reportName('android-reader-browser.json'), JSON.stringify(result, null, 2));
   await browser.close(); await new Promise(r => server.close(r));
 }

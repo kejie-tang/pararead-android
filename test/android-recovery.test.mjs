@@ -41,6 +41,18 @@ test('manual reopening restores saved sentences without a translation request', 
   assert.deepEqual(reopened.sent, []);
 });
 
+test('marked imperfect translations reopen as done without inference in manual or automatic modes', async () => {
+  const translation = '已保存的译文 *****（protected_token_mismatch, translation_language_or_source_copy）';
+  for (const range of ['manual', 'page']) {
+    const h = harness({ range, restoreCached: async sentences => sentences.map(s => ({ id: s.id, translation })) });
+    try {
+      h.client.refresh(); await tick();
+      assert.deepEqual(h.client.state('p1-b0-s0'), { status: 'done', translation });
+      assert.deepEqual(h.sent, []);
+    } finally { h.client.reset(); }
+  }
+});
+
 test('automatic mode restores first and translates only missing sentences', async () => {
   let complete;
   const h = harness({ range: 'page', restoreCached: () => new Promise(resolve => { complete = resolve; }) });

@@ -7,7 +7,7 @@ Read papers and technical documents with the original page beside its translatio
 
 [![Android CI](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml/badge.svg?branch=main)](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml) [![Android 9+](https://img.shields.io/badge/Android-9%2B-3DDC84?logo=android&logoColor=white)](#get-started) [![Code: Apache-2.0](https://img.shields.io/badge/Code-Apache--2.0-blue)](LICENSE)
 
-**[Download APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.20)** · [All releases](https://github.com/kejie-tang/pararead-android/releases) · [简体中文](README.zh-CN.md)
+**[Download APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.21)** · [All releases](https://github.com/kejie-tang/pararead-android/releases) · [简体中文](README.zh-CN.md)
 
 A development preview for **Android 9+ / ARM64**, designed for tablets and usable on phones. Native menus support **English and Simplified Chinese**, with a system-language option. Independent, unofficial adaptation of [ParaRead](https://github.com/Chuanyunux/pararead) 0.6.1.
 
@@ -15,16 +15,16 @@ A development preview for **Android 9+ / ARM64**, designed for tablets and usabl
 
 *Reading interaction demo in desktop Chromium with touch emulation. Uses our original sample document and labeled Mock output; this is not a real-model or physical-tablet screenshot.*
 
-### New in alpha.20: reader gestures and safe navigation
+### New in alpha.21: keep imperfect translations, translate once
 
-Swipe left/right to turn TXT content pages; resize and remember the original/translation split in landscape. The new chapter panel has a scrollable, lazy-loaded list and percentage positioning, including books with no chapters. TXT fullscreen tools can be shown and hidden quickly; PDF no longer shows a collapsed-toolbar arrow, and both readers remove the fullscreen exit overlay. The wide library sidebar stays out of the reader. Returning to the library saves reading state and PDF annotations first; failures keep the document open. TXT import, stable pagination and persistent PDF/TXT **Read only** from alpha.19 remain intact. See the [TXT guide](docs/txt-reader.md), [read-only guide](docs/reading-only.md) (Chinese), and [alpha.20 validation](docs/reports/alpha20.md).
+When a usable translation exists, keep it even if validation or generation fails, and append the actual error code as ordinary text: `Translation… *****（protected_token_mismatch）`, `*****（truncated_stream_length）`, or another corresponding code. The note follows nearby text styling in light/dark mode, without red, underlines or special emphasis. Ordinary errors no longer trigger repair generations or hidden HTTP retries; only explicit backend compatibility failures can fall back to CPU. Marked saved results reopen without inference. Empty, ambiguous or reasoning-only output is not invented as a translation. All alpha.20 reader gestures, safe saving and PDF/TXT **Read only** remain. [Warning rules](docs/translation-warnings.md) · [alpha.21 validation](docs/reports/alpha21.md).
 
 ## Made for reading, not copying and pasting
 
 - **Keep the page intact.** See figures, equations and references while reading the translation beside the PDF.
 - **Follow the same sentence.** Tap either side for matching highlights, alignment and linked scrolling.
 - **Read offline.** Download a GGUF once and translate on-device through llama.cpp. No Ollama app or account is required.
-- **Read at your pace.** Translate a selection, a page or the whole document. Validated translations and page checkpoints let you continue later.
+- **Read at your pace.** Translate a selection, a page or the whole document. Saved translations, including marked imperfect results, and page checkpoints let you continue later.
 - **Pretranslate from the library.** Choose **Translate all** in a document’s vertical menu, without opening the reader. Each book shows queued/running/page progress and partial failures, with cancel/resume/retry actions.
 - **Make it yours.** Keep annotations, export an annotated PDF, customize terminology and choose your translation language.
 - **Manage models easily.** Download, switch or delete models; search Hugging Face when you want more choices.
@@ -42,7 +42,7 @@ Actual Android emulator captures. The original book icon is included as an adapt
 
 ## Get started
 
-1. **Install the [preview APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.20).** Requires ARM64, Android 9+ and an up-to-date Android System WebView. The preview signing identity is retained for in-place upgrades; see the [validation and upgrade notes](docs/reports/alpha20.md). Do not uninstall an existing installation just to bypass a signature error; uninstalling deletes private documents, translations and models.
+1. **Install the [preview APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.21).** Requires ARM64, Android 9+ and an up-to-date Android System WebView. The preview signing identity is retained for in-place upgrades; see the [validation and upgrade notes](docs/reports/alpha21.md). Do not uninstall an existing installation just to bypass a signature error; uninstalling deletes private documents, translations and models.
 2. **For translation, choose a model in Models.** Start with 0.6B for quick reading or 1.7B for stronger translations. Downloads are verified before activation; existing models are retained. **Read only** needs no model.
 3. **Import a PDF/TXT or open the sample.** Enable **Read only**, translate **This page**, or use **All / Resume**. TXT offers an encoding choice; PDFs need selectable text, and OCR is not included.
 
@@ -53,14 +53,14 @@ Change native menu language in **Settings → Interface language**. This applies
 - Outside **Read only**, reopening a PDF or TXT automatically restores saved translations, including in **manual** mode, without calling the model or API. Automatic modes translate only cache misses; manual mode leaves them untranslated until you explicitly translate.
 - **Click to select, translate the current page automatically.** Hovering does not select sentences or control translation. New installations default to current-page translation; choose Current page, Nearby pages or Manual in Settings. Page turns promote current-page work ahead of lower-priority whole-book/prefetch inference without a sentence click; safe cancellation still completes before inference changes owners. Existing range preferences are retained.
 - Tap **Full screen** in the reading toolbar to hide app controls, status messages and system bars. In PDF, swiping up to continue reading hides PDF and translation headers; reverse scrolling or Tab/Escape restores them, with no arrow overlay. Controls stay visible during annotation, sentence/text selection and zoom gestures. TXT has matching **Show/Hide reading toolbar** actions. Use **Android Back** to leave fullscreen, then Back again to save and return to the library; no bottom-right exit button is shown. The wide library sidebar is hidden in either reader even outside fullscreen. The fullscreen preference persists, and toggling does not recreate the reader or interrupt translation.
-- Failed sentences show the error and retry hint directly in the translation pane instead of reverting to English source text. Tap to retry; accepted neighbouring translations remain intact. Waiting/cancellation behavior is unchanged, and unvalidated drafts are not saved as successful translations.
+- Errors with usable translated text retain that text and append `*****（actual_error_code）` in its normal style. Safely attributable marked output is saved and reused; if storage fails, the visible text remains but is not falsely acknowledged as saved. Only failures without usable text show the error/retry hint. Explicit retry remains available for failures; ordinary errors do not regenerate automatically. Cancellation and accepted neighbouring translations remain intact.
 - Cached translations are separated by source text and translation configuration (including model, language and glossary). They stay in app storage and are not embedded in exported annotated PDFs.
 
 ### Translate before reading
 
 Use the library document menu → **Translate all**. Jobs run one at a time and preserve page checkpoints without changing reading position or recent-reading order. Opening a document or model/settings UI pauses background jobs so the native model can be released safely. Resume from the same menu; after all pages are processed, **Retry failed translations** scans the good cache and fills remaining failures. A processed document with failed pages is not labelled fully translated.
 
-Whole-book jobs reuse valid saved sentences and fill only missing/invalid results, using bounded batch cache reads. Cancellation feedback and the library's idle, healthy paused-progress row dismiss after about 2.5 seconds, including its bar/spacing. Resume remains in the document menu; saved progress, active jobs, failures and review warnings are retained. [alpha.18 checks](docs/reports/alpha18.md).
+Whole-book jobs reuse saved sentences, including marked imperfect output, and fill only missing results or unmarked invalid old cache entries, using bounded batch cache reads. Marked saved output counts as processed, not as proof of translation accuracy or completeness. Cancellation feedback and the library's idle, healthy paused-progress row dismiss after about 2.5 seconds, including its bar/spacing. Resume remains in the document menu; saved progress, active jobs, failures and review warnings are retained. [alpha.18 checks](docs/reports/alpha18.md).
 
 Android background-service limits may interrupt long jobs; continued execution is not guaranteed on every device. Chinese-target outputs and old cache entries are selectively checked for English copying; formulas, URLs, code and short proper names can stay unchanged. This is not a semantic-accuracy guarantee. [Validation and limits](docs/reports/alpha16.md).
 
@@ -75,7 +75,7 @@ Android background-service limits may interrupt long jobs; continued execution i
 
 The 0.6B file comes from a pinned Unsloth Hugging Face revision; 1.7B uses a pinned Ollama registry layer. Thinking is disabled. Other public, single-file text GGUFs can be found under **Models → More models on Hugging Face**. Current templates cover Qwen2.5, Qwen3, Qwen3.5 and LFM2/2.5. Model licenses are shown separately from the app license. [Exact files and compatibility results](docs/reports/small-model-evaluation.md).
 
-Small models can omit details or mistranslate numerical relations. Format validation and retries help recover malformed output; they do not establish translation accuracy. Check important claims against the source.
+Small models can omit details or mistranslate numerical relations. Validation now annotates imperfect output instead of automatically regenerating it; a saved translation, even without a warning, is not an accuracy guarantee. Check important claims against the source.
 
 ### Performance you can measure
 
@@ -83,7 +83,7 @@ Use **Settings → Offline GGUF → Speed test** for four long-paragraph transla
 
 A user reported **26 token/s for translation and 23 token/s for tg128** on **Dimensity 9400, Qwen3 1.7B Q4_K_M, CPU / 6 threads**, following the CPU optimizations. This is one device report without a raw export, not a cross-device benchmark. [CPU investigation and limits](docs/reports/cpu-threadpool.md).
 
-CPU is the default. Instruction-specific CPU plugins and persistent worker reuse are automatic. Vulkan is experimental, with CPU fallback on failure; it can be slower or cause UI stutter on some devices. [Backend details](docs/vulkan.md).
+CPU is the default. Instruction-specific CPU plugins and persistent worker reuse are automatic. Vulkan is experimental, with CPU fallback only for explicit backend compatibility failures; it can be slower or cause UI stutter on some devices. [Backend details](docs/vulkan.md).
 
 ## Your documents stay under your control
 

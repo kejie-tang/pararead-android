@@ -3,6 +3,9 @@ import {createServer} from 'node:http';
 import {readFile, writeFile, mkdir} from 'node:fs/promises';
 import {resolve, extname, sep} from 'node:path';
 import {chromium} from '@playwright/test';
+import {assertTranslationWarningStyle} from './translation-warning-assertions.mjs';
+
+const reportDirectory = process.env.PARAREAD_REPORT_DIR ? resolve(process.env.PARAREAD_REPORT_DIR) : resolve(import.meta.dirname, '../docs/reports');
 
 const assets = resolve(import.meta.dirname, '../app/build/generated/readerAssets/reader');
 const errors = [], resources = [];
@@ -33,10 +36,11 @@ try {
     const background = new URL(location.href).searchParams.has('background');
     const params = new URL(location.href).searchParams;
     const readingOnly = params.has('readingOnly');
+    const translationFault = params.get('translationFault');
     const bookChapters = params.has('noChapters') ? [] : params.has('manyChapters')
       ? Array.from({length:205},(_,i) => ({title:`测试章节 ${i+1}`,page:Math.min(3,Math.floor(i/70)+1)}))
       : [{title:'第一章 开始',page:1},{title:'第二章 继续',page:2},{title:'Chapter 3 Ending',page:3}];
-    const prefix = 'txt-reader-proof:';
+    const prefix = translationFault ? 'txt-reader-proof:fault:'+translationFault+':' : 'txt-reader-proof:';
     const read = (key, fallback) => JSON.parse(localStorage.getItem(prefix + key) ?? JSON.stringify(fallback));
     const save = (key, value) => localStorage.setItem(prefix + key, JSON.stringify(value));
     const session = {version:1, sessionId:'txt-browser', documentId:'txt-fixture', documentRevision:'txt-v1', configRevision:1, viewportEpoch:0};
@@ -72,9 +76,13 @@ try {
       } else if (m.type === 'translation.request') {
         const cache = read('cache', {});
         state.translations.push(m.payload.sentences.map(s => s.text));
-        const items = m.payload.sentences.map(s => ({id:s.id,translation:'【模拟译文】' + s.text}));
-        m.payload.sentences.forEach((s,i) => { cache[s.text] = items[i].translation; }); save('cache',cache);
-        send(m,'translation.committed',{sequence:0,items}); send(m,'translation.finished',{failures:[]});
+        const failed = translationFault && m.payload.sentences.find(s => s.text.includes('remembers'));
+        const successful = m.payload.sentences.filter(s => s !== failed);
+        const items = successful.map(s => ({id:s.id,translation:'【模拟译文】' + s.text + (s.text.includes('The reader remembers') ? ' *****（protected_token_mismatch）' : '')}));
+        successful.forEach((s,i) => { cache[s.text] = items[i].translation; }); save('cache',cache);
+        if (failed) send(m,'translation.delta',{sequence:0,items:[{id:failed.id,translation:'保留的不完美译文'}]});
+        send(m,'translation.committed',{sequence:failed?1:0,items});
+        send(m,'translation.finished',{failures:failed?[{id:failed.id,message:translationFault}]:[]});
       } else if (m.type === 'reading.save') {
         state.readingWrites++; save('reading',{...read('reading',{}),...m.payload});
         if (state.holdReadingAck) (state.readingAcks ??= []).push(() => send(m,'reading.saved',{}));
@@ -97,6 +105,7 @@ try {
   await page.waitForFunction(() => document.querySelector('input[inputmode="numeric"]').value === '2' && !document.querySelector('[aria-busy="true"]'));
   await page.getByRole('button', {name:'翻译当前页',exact:true}).click();
   await page.waitForFunction(() => document.querySelector('.bilingualSentence')?.textContent.includes('【模拟译文】'));
+  await assertTranslationWarningStyle(page);
   await page.getByRole('button', {name:'章节',exact:true}).click();
   await page.locator('.textNavigationPanelChapter').nth(2).click();
   await page.waitForFunction(() => document.querySelector('input[inputmode="numeric"]').value === '3' && !document.querySelector('[aria-busy="true"]'));
@@ -119,6 +128,8 @@ try {
   await pageInput.fill('2'); await page.getByRole('button', {name:'跳转',exact:true}).click();
   await page.waitForFunction(() => document.querySelector('input[inputmode="numeric"]').value === '2' && document.querySelector('.bilingualSentence')?.textContent.includes('【模拟译文】'));
   assert.equal(await page.evaluate(() => window.__txtProof.translations.length),0,'cached translations restore without inference');
+  await assertTranslationWarningStyle(page);
+  report.translationWarnings = {plainText:true,normalStyleInLightAndDark:true,noUnderline:true,cacheRestoreWithoutInference:true};
   const paragraphRects = () => page.locator('.textBlock').evaluateAll(blocks => blocks.filter(b => b.querySelector('.bilingualSource')).map(b => ({
     source:b.querySelector('.bilingualSource').getBoundingClientRect().toJSON(),
     target:b.querySelector('.bilingualTarget').getBoundingClientRect().toJSON(),
@@ -299,16 +310,31 @@ try {
   await empty.locator('.textNavigationPanelNumber').fill('100');
   await empty.getByRole('dialog').getByRole('button',{name:'跳转',exact:true}).click();
   await empty.waitForFunction(()=>document.querySelector('input[inputmode="numeric"]').value==='3');
-  const shots=resolve(import.meta.dirname,'../output/reader-interactions'); await mkdir(shots,{recursive:true});
+  const shots=process.env.PARAREAD_REPORT_DIR ? reportDirectory : resolve(import.meta.dirname,'../output/reader-interactions'); await mkdir(shots,{recursive:true});
   await page.setViewportSize({width:1280,height:800});
   await page.screenshot({path:resolve(shots,'txt-landscape-resizable.png')});
   await chapters.setViewportSize({width:360,height:800});
   await chapters.getByRole('button',{name:'章节',exact:true}).click();
   await chapters.screenshot({path:resolve(shots,'txt-chapters-progress.png')});
   report.navigationPanel={scrollableChapters:true,lazyBatches:[100,200],noChaptersPercentJump:true};
+  for (const fault of ['TRUNCATED_STREAM_length','HTTP_500','HOST_TIMEOUT']) {
+    await page.evaluate(() => { for (const key of Object.keys(localStorage)) if (key.startsWith('txt-reader-proof:')) localStorage.removeItem(key); });
+    await page.goto(origin+'/?translationFault='+fault);
+    await page.waitForFunction(() => document.querySelector('.bilingualSentence') && !document.querySelector('[aria-busy="true"]'));
+    await page.getByRole('button',{name:'翻译当前页',exact:true}).click();
+    await page.waitForFunction(code => [...document.querySelectorAll('.bilingualSentence')].some(el =>
+      el.textContent.includes(`保留的不完美译文 *****（${code}）`)),fault.toLowerCase()).catch(async error => {
+        console.error('TXT fault diagnostic',await page.evaluate(()=>({proof:window.__txtProof,text:document.body.innerText.slice(-1500)})));
+        throw error;
+      });
+    await assertTranslationWarningStyle(page,fault.toLowerCase());
+    assert.equal(await page.evaluate(()=>window.__txtProof.translations.length),1,'ordinary failures never automatically request another translation');
+  }
+  report.generalErrorRetainsTextInLightAndDark=['truncated_stream_length','http_500','host_timeout'];
   assert.ok(!resources.some(p => p.includes('pdfjs')),'TXT must not load PDF.js');
   assert.deepEqual(errors,[]);
   report.status = 'passed'; report.timestamp = new Date().toISOString(); report.browserVersion = browser.version();
-  await writeFile(resolve(import.meta.dirname,'../docs/reports/txt-reader-browser.json'),JSON.stringify(report,null,2));
+  await mkdir(reportDirectory,{recursive:true});
+  await writeFile(resolve(reportDirectory,'txt-reader-browser.json'),JSON.stringify(report,null,2));
   console.log(JSON.stringify(report,null,2));
 } finally { await browser?.close(); await new Promise(done => server.close(done)); }

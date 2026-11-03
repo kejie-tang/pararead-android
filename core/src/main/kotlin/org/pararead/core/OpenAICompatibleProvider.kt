@@ -13,9 +13,17 @@ import java.util.concurrent.TimeUnit
 
 class OpenAICompatibleProvider(
     private val baseUrl: String, private val model: String, private val apiKey: String = "",
-    private val client: OkHttpClient = OkHttpClient.Builder().callTimeout(120, TimeUnit.SECONDS).readTimeout(60, TimeUnit.SECONDS).build(),
+    client: OkHttpClient = OkHttpClient.Builder().callTimeout(120, TimeUnit.SECONDS).readTimeout(60, TimeUnit.SECONDS).build(),
     private val ollamaThinkingOff: Boolean = isOllamaEndpoint(baseUrl),
 ) : TranslationProvider {
+    private val client = client.newBuilder().retryOnConnectionFailure(false)
+        .addNetworkInterceptor { chain ->
+            val response = chain.proceed(chain.request())
+            // OkHttp also replays 503 + Retry-After: 0 independently of connection retry.
+            // Translation failures finish once; do not silently submit the POST again.
+            if (response.code == 503) response.newBuilder().header("Retry-After", "1").build() else response
+        }.build()
+
     override fun generate(prompt: ModelPrompt) = callbackFlow {
         val body = JSONObject().put("model", model).put("temperature", 0.2).put("max_tokens", 2048).put("stream", true)
             .put("chat_template_kwargs", JSONObject().put("enable_thinking", false))
@@ -71,8 +79,10 @@ class OpenAICompatibleProvider(
                             }
                             val bytes = collected.readByteArray()
                             val choice = JSONObject(String(bytes, Charsets.UTF_8)).getJSONArray("choices").getJSONObject(0)
+                            val text = choice.getJSONObject("message").getString("content")
+                            output.append(text)
+                            if (text.isNotEmpty()) check(trySendBlocking(ProviderEvent.Delta(text)).isSuccess) { "OUTPUT_CHANNEL_CLOSED" }
                             check(choice.getString("finish_reason") == "stop") { "TRUNCATED_RESULT" }
-                            output.append(choice.getJSONObject("message").getString("content"))
                         }
                         check(trySendBlocking(ProviderEvent.Complete(output.toString())).isSuccess) { "OUTPUT_CHANNEL_CLOSED" }
                         close()

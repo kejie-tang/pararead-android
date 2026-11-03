@@ -66,9 +66,15 @@ class LlamaCppProvider(private val path: String, requestedThreads: Int = 0, priv
         endVulkanSession()
         publish(BackendStatus(requestedBackend, fallbackReason = (error.message ?: error.javaClass.simpleName).take(240)))
     }
-    private fun canFallback(error: Exception, cancelled: Boolean): Boolean = useVulkan && !closed.get() && !cancelled &&
-        error !is kotlinx.coroutines.CancellationException && error.message?.contains("CANCELLED") != true &&
-        error.message?.contains("MODEL_TEMPLATE_UNSUPPORTED") != true && error.message?.contains("PROMPT_EXCEEDS_CONTEXT") != true
+    private fun canFallback(error: Exception, cancelled: Boolean): Boolean {
+        if (!useVulkan || closed.get() || cancelled || error is kotlinx.coroutines.CancellationException) return false
+        val reason = error.message ?: return false
+        // A backend problem may switch to CPU once. Ordinary truncation, invalid output,
+        // UTF-8/metrics errors, bad model files and unknown failures must NOT generate again.
+        return reason in setOf("VULKAN_DEVICE_UNAVAILABLE", "VULKAN_NOT_BUILT", "VULKAN_WARMUP_FAILED",
+            "VULKAN_NONFINITE_LOGITS", "VULKAN_DEVICE_LOST", "NONFINITE_LOGITS", "CONTEXT_ALLOCATION_FAILED") ||
+            reason.startsWith("vk::")
+    }
     private val executor = Executors.newSingleThreadExecutor { r -> Thread(r, "pararead-llama") }
     private val handle = AtomicLong()
     private val closed = AtomicBoolean()
