@@ -31,7 +31,7 @@ import java.util.Locale
     BoxWithConstraints(Modifier.fillMaxSize().safeDrawingPadding()) {
         val wide = maxWidth >= 840.dp
         Row(Modifier.fillMaxSize()) {
-            if (wide && !fullscreen) Surface(Modifier.width(if (reading) 88.dp else 220.dp).fillMaxHeight(), color = MaterialTheme.colorScheme.surface) {
+            if (wide && !reading && !fullscreen) Surface(Modifier.width(if (reading) 88.dp else 220.dp).fillMaxHeight(), color = MaterialTheme.colorScheme.surface) {
                 Column(Modifier.fillMaxSize().padding(if (reading) 10.dp else 20.dp, 28.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Row(Modifier.padding(bottom = 34.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = if (reading) Arrangement.Center else Arrangement.spacedBy(12.dp)) {

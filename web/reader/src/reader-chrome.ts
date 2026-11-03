@@ -7,37 +7,15 @@ export class ReaderChrome {
   readonly #app: PdfjsApplication;
   readonly #selection: SelectionController | null;
   readonly #bars: HTMLElement[];
-  readonly #reveal: HTMLButtonElement;
   #fullscreen = false;
   #hidden = false;
   #distance = 0;
   #lastInput = 0;
 
-  constructor(app: PdfjsApplication, panel: TranslationPanel | null, selection: SelectionController | null, label: string) {
+  constructor(app: PdfjsApplication, panel: TranslationPanel | null, selection: SelectionController | null) {
     this.#app = app;
     this.#selection = selection;
     this.#bars = [...document.querySelectorAll<HTMLElement>("#toolbarContainer, .bilingualHeader")];
-    this.#reveal = document.createElement("button");
-    this.#reveal.type = "button";
-    this.#reveal.id = "readerShowControls";
-    this.#reveal.hidden = true;
-    const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    icon.setAttribute("viewBox", "0 0 24 24");
-    icon.setAttribute("aria-hidden", "true");
-    const path = document.createElementNS(icon.namespaceURI, "path");
-    path.setAttribute("d", "m6 9 6 6 6-6");
-    icon.append(path);
-    this.#reveal.append(icon);
-    // The viewer's main container has a desktop minimum width. Anchor to the actual
-    // PDF pane so the button stays reachable on narrow phones and split windows.
-    document.querySelector("#outerContainer")!.append(this.#reveal);
-    this.setLabel(label);
-    this.#reveal.addEventListener("click", () => {
-      this.show();
-      const buttons = this.#bars[0]?.querySelectorAll<HTMLButtonElement>("button") ?? [];
-      [...buttons].find(button => !button.disabled && button.getClientRects().length > 0)?.focus({ preventScroll: true });
-    });
-
     this.#watch(app.pdfViewer.container);
     if (panel) this.#watch(panel.body);
     selection?.onChange(current => { if (current?.pinned) this.show(); });
@@ -51,11 +29,6 @@ export class ReaderChrome {
     // Keyboard navigation can always bring the hidden controls back into the tab order.
     document.addEventListener("keydown", event => { if (event.key === "Tab" || event.key === "Escape") this.show(); });
     window.addEventListener("resize", () => this.show());
-  }
-
-  setLabel(label: string): void {
-    this.#reveal.setAttribute("aria-label", label);
-    this.#reveal.title = label;
   }
 
   setFullscreen(enabled: boolean): void {
@@ -129,6 +102,5 @@ export class ReaderChrome {
     this.#distance = 0;
     document.body.classList.toggle("readerChromeHidden", hidden);
     for (const bar of this.#bars) bar.inert = hidden;
-    this.#reveal.hidden = !hidden;
   }
 }

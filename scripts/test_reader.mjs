@@ -1,13 +1,24 @@
 import { chromium } from '@playwright/test';
+import { build } from 'esbuild';
 import { createServer } from 'node:http';
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { resolve, extname, sep } from 'node:path';
 import assert from 'node:assert/strict';
 const root = resolve(import.meta.dirname, '../app/build/generated/readerAssets/reader');
+// --source verifies current PDF code/CSS without rebuilding shared generated TXT assets.
+const useSource = process.argv.includes('--source');
+const currentBundle = useSource ? await build({ entryPoints: [resolve(import.meta.dirname, '../web/reader/src/entry.ts')],
+  bundle: true, write: false, platform: 'browser', format: 'esm', target: 'es2022',
+  plugins: [{ name: 'pdfjs-external', setup(b) {
+    b.onResolve({ filter: /\/viewer\.mjs$/ }, () => ({ path: './pdfjs/web/viewer.mjs', external: true }));
+  } }] }) : null;
+const reportDirectory = process.env.PARAREAD_REPORT_DIR ? resolve(process.env.PARAREAD_REPORT_DIR) : resolve(import.meta.dirname, '../docs/reports');
+const reportName = name => resolve(reportDirectory, `${useSource ? 'pdf-chrome-' : ''}${name}`);
 const sample = await readFile(`${root}/sample.pdf`);
 const ranges = [];
 const server = createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
+  if (url.pathname === '/favicon.ico') { res.writeHead(204).end(); return; }
   try {
     if (url.pathname.startsWith('/documents/')) {
       const begin = Number(url.searchParams.get('begin')); const end = Number(url.searchParams.get('end'));
@@ -18,7 +29,8 @@ const server = createServer(async (req, res) => {
     if (!file.startsWith(root + sep)) { res.writeHead(403).end(); return; }
     const type = { '.mjs': 'text/javascript', '.css': 'text/css', '.html': 'text/html', '.json': 'application/json', '.wasm': 'application/wasm', '.svg': 'image/svg+xml', '.ftl': 'text/plain' }[extname(file)];
     if (type) res.setHeader('Content-Type', type);
-    res.end(await readFile(file));
+    res.end(useSource && url.pathname === '/main.mjs' ? currentBundle.outputFiles[0].text :
+      useSource && url.pathname === '/android.css' ? await readFile(resolve(import.meta.dirname, '../web/reader/android.css')) : await readFile(file));
   } catch (e) { res.writeHead(404).end(String(e)); }
 });
 await new Promise(r => server.listen(0, '127.0.0.1', r));
@@ -115,8 +127,8 @@ try {
   });
   assert.ok(save.suffixLength > 0 && save.suffixLength < sample.length, JSON.stringify(save));
   assert.ok(JSON.stringify(save.values).includes('ParaRead save test'), JSON.stringify(save));
-  await mkdir(resolve(import.meta.dirname, '../docs/reports'), { recursive: true });
-  await page.screenshot({ path: resolve(import.meta.dirname, '../docs/reports/reader-landscape.png') });
+  await mkdir(reportDirectory, { recursive: true });
+  await page.screenshot({ path: reportName('reader-landscape.png') });
   await page.setViewportSize({ width: 800, height: 1280 });
   console.log('Portrait toolbar bounds', JSON.stringify(await page.evaluate(() => ({
     pane: document.querySelector('#outerContainer').getBoundingClientRect().toJSON(),
@@ -129,7 +141,7 @@ try {
       return box.left >= pane.left - 1 && box.right <= pane.right + 1;
     });
   }, undefined, { timeout: 3000 });
-  await page.screenshot({ path: resolve(import.meta.dirname, '../docs/reports/reader-portrait.png') });
+  await page.screenshot({ path: reportName('reader-portrait.png') });
   // Use a fresh session so resize/selection work above cannot have translated
   // page 2 already. The fake native host deliberately holds prefetch requests.
   await page.evaluate(() => {
@@ -185,6 +197,14 @@ try {
   await page.evaluate(() => { document.querySelector('#viewerContainer').scrollTop = 150; });
   await page.waitForTimeout(200);
   assert.equal(await isHidden(), false, 'Programmatic page movement must not toggle controls');
+  const pdfGeometry = () => page.evaluate(() => {
+    const viewer = window.PDFViewerApplication.pdfViewer;
+    const viewport = viewer.getPageView(0).viewport;
+    return { scale: viewer.currentScale, rotation: viewer.pagesRotation, pageWidth: viewport.width, pageHeight: viewport.height,
+      toolbarHeight: document.querySelector('#toolbarContainer').getBoundingClientRect().height,
+      toolbarVariable: getComputedStyle(document.documentElement).getPropertyValue('--toolbar-height') };
+  });
+  const geometryBefore = await pdfGeometry();
   const chromeBefore = await page.locator('#viewerContainer').boundingBox();
   const panelBefore = await page.locator('.bilingualBody').boundingBox();
   await swipe('#viewerContainer', 1);
@@ -193,16 +213,42 @@ try {
   assert.equal(await page.locator('.bilingualHeader').isVisible(), false);
   const chromeAfter = await page.locator('#viewerContainer').boundingBox();
   const panelAfter = await page.locator('.bilingualBody').boundingBox();
+  assert.deepEqual(await pdfGeometry(), geometryBefore, 'Collapse preserves PDF.js page/scale/rotation and toolbar dimensions');
   assert.ok(chromeAfter.height >= chromeBefore.height + 30);
   assert.ok(panelAfter.height >= panelBefore.height + 30);
-  await page.screenshot({ path: resolve(import.meta.dirname, '../docs/reports/reader-hidden-controls.png') });
+  await page.screenshot({ path: reportName('reader-hidden-controls.png') });
   await swipe('#viewerContainer', -1);
   await page.waitForFunction(() => !document.body.classList.contains('readerChromeHidden'));
   // The translation pane follows the same gesture, without synchronization feedback.
   await swipe('.bilingualBody', 1);
   await page.waitForFunction(() => document.body.classList.contains('readerChromeHidden'));
-  await page.locator('#readerShowControls').click();
-  assert.equal(await isHidden(), false);
+  assert.equal(await page.locator('#readerShowControls').count(), 0, 'Collapsed PDF chrome has no reveal overlay');
+  await swipe('.bilingualBody', -1);
+  await page.waitForFunction(() => !document.body.classList.contains('readerChromeHidden'));
+  // Keyboard-only recovery restores both visibility and the toolbar tab order.
+  for (const key of ['Tab', 'Escape']) {
+    await page.evaluate(() => {
+      document.activeElement?.blur();
+      document.querySelector('#viewerContainer').scrollTop = 150;
+    });
+    await swipe('#viewerContainer', 1);
+    await page.waitForFunction(() => document.body.classList.contains('readerChromeHidden'));
+    assert.equal(await page.locator('#toolbarContainer').evaluate(el => el.inert), true);
+    // Start keyboard reading in the PDF pane, not an arbitrary translated sentence.
+    await page.locator('#viewerContainer').focus();
+    await page.keyboard.press(key);
+    assert.equal(await isHidden(), false, `${key} restores controls`);
+    assert.equal(await page.locator('#toolbarContainer').evaluate(el => el.inert), false);
+    assert.equal(await page.locator('.bilingualHeader').evaluate(el => el.inert), false);
+    if (key === 'Tab') {
+      // Tab preserves the reader's navigation position; it need not jump to the header.
+      for (let i = 0; i < 80 && !await page.locator('#toolbarContainer').evaluate(el => el.contains(document.activeElement)); i++) {
+        await page.keyboard.press('Shift+Tab');
+      }
+      assert.equal(await page.locator('#toolbarContainer').evaluate(el => el.contains(document.activeElement)), true,
+        'Restored toolbar is reachable with keyboard navigation alone');
+    }
+  }
   await page.evaluate(() => {
     const b = window.__bilingual;
     const s = b.store.readyPages()[0].blocks.filter(b => b.role === 'paragraph').flatMap(b => b.sentences)[0];
@@ -229,24 +275,24 @@ try {
   await page.waitForFunction(() => document.body.classList.contains('readerChromeHidden'));
   await setFullscreen(false);
   assert.equal(await isHidden(), false, 'Leaving fullscreen restores both toolbars');
-  assert.equal(await page.locator('#readerShowControls').isVisible(), false);
+  assert.equal(await page.locator('#readerShowControls').count(), 0);
   await page.setViewportSize({ width: 411, height: 900 });
   await setFullscreen(true);
   await page.evaluate(() => { window.__bilingual.selection.clear(); document.querySelector('#viewerContainer').scrollTop = 150; });
   await swipe('#viewerContainer', 1);
   await page.waitForFunction(() => document.body.classList.contains('readerChromeHidden'));
-  const narrowPane = await page.locator('#outerContainer').boundingBox();
-  const narrowButton = await page.locator('#readerShowControls').boundingBox();
-  assert.ok(narrowButton.x >= narrowPane.x && narrowButton.x + narrowButton.width <= narrowPane.x + narrowPane.width,
-    'The reveal button must stay inside the PDF pane on narrow screens');
-  await page.locator('#readerShowControls').click();
-  assert.equal(await isHidden(), false);
+  assert.equal(await page.locator('#readerShowControls').count(), 0);
+  await swipe('#viewerContainer', -1);
+  await page.waitForFunction(() => !document.body.classList.contains('readerChromeHidden'));
+  assert.equal(await page.locator('#toolbarContainer').isVisible(), true);
+  assert.equal(await page.locator('.bilingualHeader').isVisible(), true);
   await setFullscreen(false);
-  const fullscreenControls = { pdfSwipeHides: true, reverseSwipeShows: true, panelSwipeHides: true, revealButton: true,
+  const fullscreenControls = { pdfSwipeHides: true, reverseSwipeShows: true, panelSwipeHides: true, panelReverseSwipeShows: true,
+    noRevealOverlay: true, tabAndEscapeRestoreTabOrder: true, pdfjsGeometryUnchanged: true,
     ignoresProgrammaticScroll: true, protectsSentenceAndTextSelection: true, protectsAnnotationTools: true,
-    normalModeUnchanged: true, exitRestoresControls: true, narrowRevealButtonReachable: true, pdfHeightGain: chromeAfter.height - chromeBefore.height,
+    normalModeUnchanged: true, exitRestoresControls: true, narrowReverseSwipeRestores: true, pdfHeightGain: chromeAfter.height - chromeBefore.height,
     translationHeightGain: panelAfter.height - panelBefore.height };
-  result = { status: 'passed', hoverDisabledClickSelectionWorks: true, jumpedPagesTranslateWithoutSelection: [2, 6], cancelledPrefetchPromotedToCurrentPage: true, manualReopenRestoresWithoutInference: true, fullscreenControls, environment: 'Desktop Chromium, touch emulation; not Android or device', sample: 'Original ParaRead Reading Guide (Apache-2.0), 6 pages', rangeRequests: ranges.length, largestRange: Math.max(...ranges.map(([a, b]) => b - a)), bidirectionalSelection: true, portraitToolbarWithinPane: true, alignmentDeltaPx: alignment, incrementalSave: save, errors };
+  result = { status: 'passed', currentSourceBundleAndCss: useSource, hoverDisabledClickSelectionWorks: true, jumpedPagesTranslateWithoutSelection: [2, 6], cancelledPrefetchPromotedToCurrentPage: true, manualReopenRestoresWithoutInference: true, fullscreenControls, environment: 'Desktop Chromium, touch emulation; not Android or device', sample: 'Original ParaRead Reading Guide (Apache-2.0), 6 pages', rangeRequests: ranges.length, largestRange: Math.max(...ranges.map(([a, b]) => b - a)), bidirectionalSelection: true, portraitToolbarWithinPane: true, alignmentDeltaPx: alignment, incrementalSave: save, errors };
   assert.equal(errors.filter(e => !e.includes('404')).length, 0, errors.join('\n'));
   console.log(JSON.stringify(result, null, 2));
 } catch (e) {
@@ -254,6 +300,6 @@ try {
   result = { status: 'failed', error: String(e), errors, rangeRequests: ranges.length };
   console.error(e.stack); console.error(JSON.stringify(result, null, 2)); process.exitCode = 1;
 } finally {
-  await writeFile(resolve(import.meta.dirname, '../docs/reports/android-reader-browser.json'), JSON.stringify(result, null, 2));
+  await writeFile(reportName('android-reader-browser.json'), JSON.stringify(result, null, 2));
   await browser.close(); await new Promise(r => server.close(r));
 }

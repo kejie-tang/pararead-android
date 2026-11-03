@@ -25,5 +25,7 @@ test('TXT toolbar grouping preserves accessible native controls and existing mod
   assert.match(ts,/control\.setAttribute\("aria-label", text\)/);
   assert.match(ts,/sourceLabel\.hidden = readingOnly/);
   assert.match(ts,/translateButton\.hidden = readingOnly/);
-  assert.match(ts,/this\.#toolbar\.append\(navigation, preferences\)/);
+  assert.match(ts,/this\.#toolbar\.append\(navigation, preferences, this\.#hideControls\)/);
+  assert.match(ts,/this\.#hideControls\.hidden = !enabled/);
+  assert.match(ts,/this\.#chapters\.setAttribute\("aria-haspopup", "dialog"\)/);
 });

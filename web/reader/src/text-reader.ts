@@ -6,6 +6,8 @@ import { renderSentence } from "./upstream/panel";
 import type { PageSegmentation, Sentence } from "./upstream/segmenter/types";
 import { TranslationClient } from "./upstream/translation-client";
 import { TextSentenceStore, type TextBridge } from "./text-store";
+import { TextNavigationPanel } from "./text-navigation";
+import { watchTextSwipes } from "./text-gestures";
 
 export type TextSession = Session & { text?: { pages: number; chapters: { title: string; page: number }[]; chapterCount?: number; encoding: string; indexVersion: number } };
 export interface TextReaderBridge extends TextBridge {
@@ -15,13 +17,15 @@ export interface TextReaderBridge extends TextBridge {
   opened?: boolean;
   setReadingStateFlusher?(snapshot?: () => Record<string, unknown>): void;
 }
-export interface TextReading { page: number; txt: { fontSize: number; showSource: boolean; scrollTop: number } }
+export interface TextReading { page: number; txt: { fontSize: number; showSource: boolean; scrollTop: number; columnRatio?: number } }
 export function restoreTextReading(reading: any, pages: number): TextReading {
   const number = (value: unknown, fallback: number) => typeof value === "number" && Number.isFinite(value) ? value : fallback;
   return { page: Math.max(1, Math.min(pages, Math.trunc(number(reading?.page, 1)))), txt: {
     fontSize: Math.max(12, Math.min(32, number(reading?.txt?.fontSize, 18))),
     showSource: reading?.txt?.showSource !== false,
     scrollTop: Math.max(0, number(reading?.txt?.scrollTop, 0)),
+    ...(typeof reading?.txt?.columnRatio === "number" && Number.isFinite(reading.txt.columnRatio)
+      ? { columnRatio: Math.max(.25, Math.min(.75, reading.txt.columnRatio)) } : {}),
   } };
 }
 export function parseTextPage(value: string, pages: number): number | undefined {
@@ -32,10 +36,10 @@ export function parseTextPage(value: string, pages: number): number | undefined 
 const labels = {
   en: { title: "TXT reader", previous: "Previous", next: "Next", page: "Page", of: "of", jump: "Go", chapters: "Chapters",
     beginning: "No chapters / Start", more: "More chapters…", font: "Font size", source: "Show original", loading: "Loading…", ready: "Ready", invalid: "Invalid page number",
-    translate: "Translate page", controls: "Show controls", translating: "Translating…", done: "Translation finished", cancelled: "Translation cancelled", error: "Error", failed: "Translation failed, click to retry: {0}" },
+    translate: "Translate page", controls: "Show controls", hideControls: "Hide reading toolbar", split: "Original column width", translating: "Translating…", done: "Translation finished", cancelled: "Translation cancelled", error: "Error", failed: "Translation failed, click to retry: {0}" },
   zh: { title: "TXT 阅读器", previous: "上一页", next: "下一页", page: "页码", of: "/", jump: "跳转", chapters: "章节",
     beginning: "无章节 / 开始", more: "更多章节…", font: "字号", source: "显示原文", loading: "加载中…", ready: "就绪", invalid: "页码无效",
-    translate: "翻译当前页", controls: "显示控件", translating: "翻译中…", done: "翻译完成", cancelled: "翻译已取消", error: "错误", failed: "翻译失败，点击重试：{0}" },
+    translate: "翻译当前页", controls: "显示控件", hideControls: "收起阅读工具栏", split: "原文栏宽度", translating: "翻译中…", done: "翻译完成", cancelled: "翻译已取消", error: "错误", failed: "翻译失败，点击重试：{0}" },
 };
 function translateRange(value: unknown): TranslateRange { return value === "page" || value === "nearby" ? value : "manual"; }
 
@@ -131,7 +135,7 @@ export function startTextReader({ session, bridge, post, root = document.body }:
   // Late page turns cannot grow the cache; the whole-job page stays pinned until job.saved.
   store.onPageReady(trim);
   const showPage = async (page: number, scrollTop = 0, initial = false) => {
-    if (closed || page < 1 || page > count || !Number.isInteger(page)) return;
+    if (closed || document.body.inert || page < 1 || page > count || !Number.isInteger(page)) return;
     const version = ++renderVersion;
     state.page = page; state.txt.scrollTop = scrollTop; viewReady = false;
     view?.loading(page);
@@ -195,13 +199,14 @@ export function startTextReader({ session, bridge, post, root = document.body }:
       go: page => { void showPage(page).catch(fail); }, save: scheduleSave,
       translate: () => { void client.translatePage(state.page).catch(fail); },
       retry: sentence => { void client.translateBlockOf(sentence).catch(fail); },
-      moreChapters: () => { void moreChapters().catch(fail); },
+      moreChapters: async () => { try { await moreChapters(); } catch (error) { fail(error); throw error; } },
     }, readingOnly);
     view.addChapters([], chapters.length < chapterTotal);
     view.fullscreen(session.settings.readerFullscreen === true, session.settings.showControlsLabel);
     client.onChange((id, translation) => view?.update(id, translation));
   }
   if (!background) bridge.setReadingStateFlusher?.(() => {
+    view?.prepareToFlush();
     if (view && viewReady) state.txt.scrollTop = view.scrollTop;
     return { page: state.page, txt: { ...state.txt } };
   });
@@ -215,17 +220,23 @@ export function startTextReader({ session, bridge, post, root = document.body }:
 }
 
 type Labels = typeof labels.en;
-type ViewActions = { go(page: number): void; save(): void; translate(): void; retry(sentence: Sentence): void; moreChapters(): void };
+type ViewActions = { go(page: number): void; save(): void; translate(): void; retry(sentence: Sentence): void; moreChapters(): Promise<void> };
 class TextReaderView {
   readonly #container = document.createElement("div");
   readonly #toolbar = document.createElement("header");
   readonly #content = document.createElement("main");
   readonly #status = document.createElement("div");
   readonly #page = document.createElement("input");
-  readonly #chapters = document.createElement("select");
+  readonly #chapters = document.createElement("button");
+  readonly #navigation: TextNavigationPanel;
+  readonly #split = document.createElement("div");
+  readonly #stopSwipes: () => void;
+  readonly #finishResize: () => void;
+  #fullscreen = false;
   readonly #previous: HTMLButtonElement;
   readonly #next: HTMLButtonElement;
   readonly #showControls: HTMLButtonElement;
+  readonly #hideControls: HTMLButtonElement;
   readonly #rows = new Map<string, { element: HTMLElement; sentence: Sentence }>();
   readonly #key: (event: KeyboardEvent) => void;
   readonly strings: Labels;
@@ -265,13 +276,14 @@ class TextReaderView {
       this.#page.removeAttribute("aria-invalid"); actions.go(page);
     };
     form.onsubmit = event => { event.preventDefault(); jump(); };
-    const start = document.createElement("option"); start.value = "1"; start.textContent = strings.beginning;
-    this.#chapters.append(start);
-    this.addChapters(chapters, false);
-    this.#chapters.onchange = () => {
-      if (this.#chapters.value === "more") { this.#selectChapter(state.page); actions.moreChapters(); }
-      else actions.go(Number(this.#chapters.value));
-    };
+    this.#navigation = new TextNavigationPanel(this.#container, {
+      language: document.documentElement.lang.startsWith("zh") ? "zh" : "en", pages: count, chapters,
+      go: page => { if (!document.body.inert) actions.go(page); }, moreChapters: actions.moreChapters,
+    });
+    this.#chapters.type = "button";
+    this.#chapters.textContent = strings.chapters; this.#chapters.setAttribute("aria-label", strings.chapters);
+    this.#chapters.setAttribute("aria-haspopup", "dialog");
+    this.#chapters.onclick = () => this.#navigation.open(state.page);
     const font = document.createElement("input"); font.type = "range"; font.min = "12"; font.max = "32"; font.step = "1"; font.value = String(state.txt.fontSize);
     const fontValue = document.createElement("output"); fontValue.textContent = font.value;
     font.oninput = () => {
@@ -288,38 +300,84 @@ class TextReaderView {
     const translateButton = button(strings.translate, actions.translate); translateButton.className = "textTranslate"; translateButton.hidden = readingOnly;
     const navigation = document.createElement("div"); navigation.className = "textNavigation"; navigation.append(this.#previous, form, this.#next);
     const preferences = document.createElement("div"); preferences.className = "textPreferences";
-    const chaptersLabel = label(strings.chapters, this.#chapters); chaptersLabel.className = "textChapterControl";
+    this.#chapters.className = "textChapterControl";
     const fontLabel = label(strings.font, font); fontLabel.className = "textFontControl"; fontLabel.append(fontValue);
-    preferences.append(chaptersLabel, fontLabel, sourceLabel, translateButton);
-    this.#toolbar.append(navigation, preferences);
-    this.#showControls = button(strings.controls, () => this.fullscreen(false)); this.#showControls.className = "textShowControls"; this.#showControls.hidden = true;
-    this.#container.append(this.#toolbar, this.#showControls, this.#status, this.#content); root.append(this.#container);
+    preferences.append(this.#chapters, fontLabel, sourceLabel, translateButton);
+    this.#hideControls = button(strings.hideControls, () => this.#setControlsVisible(false));
+    this.#hideControls.className = "textHideControls"; this.#hideControls.hidden = true;
+    this.#toolbar.append(navigation, preferences, this.#hideControls);
+    this.#showControls = button(strings.controls, () => this.#setControlsVisible(true)); this.#showControls.className = "textShowControls"; this.#showControls.hidden = true;
+    const area = document.createElement("div"); area.className = "textReadingArea";
+    this.#split.className = "textSplitHandle"; this.#split.tabIndex = 0;
+    this.#split.setAttribute("role", "separator"); this.#split.setAttribute("aria-orientation", "vertical");
+    this.#split.setAttribute("aria-label", strings.split); this.#split.setAttribute("aria-valuemin", "25"); this.#split.setAttribute("aria-valuemax", "75");
+    const setRatio = (ratio: number, save = true) => {
+      if (document.body.inert) return;
+      ratio = Math.max(.25, Math.min(.75, ratio));
+      this.#preserveAnchor(() => this.#container.style.setProperty("--text-source-share", String(ratio)));
+      this.#split.setAttribute("aria-valuenow", String(Math.round(ratio * 100)));
+      this.#split.setAttribute("aria-valuetext", `${Math.round(ratio * 100)}%`);
+      if (save) { state.txt.columnRatio = ratio; actions.save(); }
+    };
+    let dragId: number | undefined;
+    this.#finishResize = () => {
+      if (dragId !== undefined && this.#split.hasPointerCapture(dragId)) this.#split.releasePointerCapture(dragId);
+      dragId = undefined; this.#container.classList.toggle("textResizing", false);
+    };
+    const drag = (event: PointerEvent) => {
+      if (dragId !== event.pointerId || document.body.inert) return;
+      const rect = this.#content.getBoundingClientRect(), style = getComputedStyle(this.#content);
+      const left = parseFloat(style.paddingLeft), right = parseFloat(style.paddingRight), width = rect.width - left - right - 28;
+      if (width > 0) setRatio((event.clientX - rect.left - left - 14) / width);
+    };
+    this.#split.addEventListener("pointerdown", event => {
+      if (event.button !== 0 || !event.isPrimary || document.body.inert) return;
+      event.preventDefault(); dragId = event.pointerId; this.#split.setPointerCapture(event.pointerId);
+      this.#container.classList.toggle("textResizing", true); drag(event);
+    });
+    this.#split.addEventListener("pointermove", drag);
+    this.#split.addEventListener("pointerup", this.#finishResize);
+    this.#split.addEventListener("pointercancel", this.#finishResize);
+    this.#split.addEventListener("lostpointercapture", () => { dragId = undefined; this.#container.classList.toggle("textResizing", false); });
+    this.#split.addEventListener("keydown", event => {
+      const ratio = state.txt.columnRatio ?? .5;
+      if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+      event.preventDefault(); event.stopPropagation();
+      setRatio(event.key === "Home" ? .25 : event.key === "End" ? .75 : ratio + (event.key === "ArrowLeft" ? -.05 : .05));
+    });
+    area.append(this.#content, this.#split);
+    this.#container.append(this.#toolbar, this.#showControls, this.#status, area); root.append(this.#container);
+    setRatio(state.txt.columnRatio ?? .5, false);
+    this.#stopSwipes = watchTextSwipes(this.#content, direction => actions.go(state.page + direction));
     this.#content.addEventListener("scroll", actions.save, { passive: true });
     this.#key = event => {
       const target = event.target as HTMLElement | null;
-      if (event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey ||
-        target?.closest("input, select, textarea, button, [contenteditable]")) return;
+      if (document.body.inert || event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey ||
+        target?.closest("input, select, textarea, button, dialog, [contenteditable], [role=separator]")) return;
+      if (event.key === "Escape" && this.#fullscreen) { this.#setControlsVisible(false); return; }
       if (event.key === "ArrowLeft" || event.key === "ArrowRight") { event.preventDefault(); actions.go(state.page + (event.key === "ArrowLeft" ? -1 : 1)); }
     };
     window.addEventListener("keydown", this.#key);
   }
   addChapters(chapters: { title: string; page: number }[], more: boolean): void {
-    this.#chapters.querySelector('option[value="more"]')?.remove();
-    for (const chapter of chapters) {
-      if (!Number.isInteger(chapter.page) || chapter.page < 1 || chapter.page > this.count) continue;
-      const option = document.createElement("option"); option.value = String(chapter.page); option.textContent = chapter.title; this.#chapters.append(option);
-    }
-    if (more) {
-      const option = document.createElement("option"); option.value = "more"; option.textContent = this.strings.more; this.#chapters.append(option);
-    }
+    this.#navigation.addChapters(chapters, more);
   }
   get scrollTop(): number { return this.#content.scrollTop; }
   set scrollTop(value: number) { this.#content.scrollTop = value; }
   status(text: string): void { this.#status.textContent = text; }
   fullscreen(enabled: boolean, controlsLabel?: string): void {
-    this.#toolbar.hidden = enabled; this.#showControls.hidden = !enabled;
+    if (this.#fullscreen !== enabled) {
+      this.#fullscreen = enabled; this.#setControlsVisible(!enabled);
+    }
+    this.#hideControls.hidden = !enabled;
     this.#showControls.textContent = controlsLabel || this.strings.controls;
   }
+  #setControlsVisible(visible: boolean): void {
+    this.#toolbar.hidden = !visible && this.#fullscreen;
+    this.#showControls.hidden = visible || !this.#fullscreen;
+    if (!visible) this.#navigation.close();
+  }
+  prepareToFlush(): void { this.#navigation.close(); this.#finishResize(); }
   loading(page: number): void {
     this.#rows.clear(); this.#content.replaceChildren(); this.#content.setAttribute("aria-busy", "true");
     this.#page.value = String(page); this.#previous.disabled = page <= 1; this.#next.disabled = page >= this.count;
@@ -328,7 +386,10 @@ class TextReaderView {
   #selectChapter(page: number): void {
     let chapterPage = 1;
     for (const chapter of this.chapters) if (chapter.page <= page && chapter.page > chapterPage) chapterPage = chapter.page;
-    this.#chapters.value = String(chapterPage);
+    this.#navigation.setPage(page);
+    const chapter = this.chapters.findLast(chapter => chapter.page === chapterPage);
+    this.#chapters.textContent = chapter?.title || this.strings.chapters;
+    this.#chapters.title = chapter?.title || this.strings.chapters;
   }
   render(page: PageSegmentation, client: TranslationClient): void {
     this.#content.replaceChildren(); this.#rows.clear(); this.#content.removeAttribute("aria-busy");
@@ -370,5 +431,8 @@ class TextReaderView {
     if (anchor) this.scrollTop += anchor.getBoundingClientRect().top - top - offset;
     else this.scrollTop = oldHeight ? oldTop * this.#content.scrollHeight / oldHeight : oldTop;
   }
-  dispose(): void { window.removeEventListener("keydown", this.#key); this.#container.remove(); }
+  dispose(): void {
+    window.removeEventListener("keydown", this.#key); this.#stopSwipes(); this.#finishResize();
+    this.#navigation.dispose(); this.#container.remove();
+  }
 }

@@ -26,7 +26,15 @@
     "darkMode": true,
     "tabletSideBySide": true,
     "paragraphAlignment": true,
-    "sourceHiddenSingleColumn": true
+    "sourceHiddenSingleColumn": true,
+    "swipeNavigation": true,
+    "edgeAndVerticalGestureExclusions": true,
+    "splitDragAndKeyboard": true,
+    "splitReopen": true,
+    "phoneLandscapeSideBySide": true,
+    "fullscreenShowAndHide": true,
+    "percentagePreviewAndJump": true,
+    "durableFreezeNavigationGuard": true
   },
   "background": {
     "noReadingWrites": true,
@@ -43,6 +51,14 @@
     "cacheIntactOnExit": true,
     "durableModeFlush": true
   },
-  "timestamp": "2026-11-03T07:48:48.360Z",
+  "navigationPanel": {
+    "scrollableChapters": true,
+    "lazyBatches": [
+      100,
+      200
+    ],
+    "noChaptersPercentJump": true
+  },
+  "timestamp": "2026-11-03T13:33:57.071Z",
   "browserVersion": "156.0.4314.58"
 }

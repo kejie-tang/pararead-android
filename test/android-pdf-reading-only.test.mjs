@@ -36,7 +36,6 @@ export function setStrings() {}
 export class ReaderChrome {
   constructor(app, panel, selection) { count(panel === null && selection === null ? 'originalChrome' : 'bilingualChrome'); }
   setFullscreen(enabled) { count('fullscreen:' + enabled); }
-  setLabel(label) { count('label:' + label); }
 }
 export class SaveBridge {
   constructor() { count('SaveBridge'); }
@@ -107,7 +106,6 @@ test('main.ts original-only entry never constructs translation, selection or seg
   assert.ok(h.calls.includes('saveHandle:getData'));
   await h.deliver({ type: 'readerFullscreen', enabled: false, showControlsLabel: 'Show controls' });
   assert.ok(h.calls.includes('fullscreen:false'));
-  assert.ok(h.calls.includes('label:Show controls'));
   // Real PDF.js rotation/scale setters update visible-page ownership during layout.
   // Restoring navigation before these setters loses the non-default page on reload.
   for (const key of ['currentScaleValue', 'pagesRotation']) {

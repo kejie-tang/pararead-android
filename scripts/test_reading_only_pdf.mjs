@@ -58,7 +58,8 @@ const server = createServer(async (req, res) => {
     if (!file.startsWith(root + sep)) { res.writeHead(403).end(); return; }
     const type = { '.mjs': 'text/javascript', '.css': 'text/css', '.html': 'text/html', '.json': 'application/json', '.wasm': 'application/wasm', '.svg': 'image/svg+xml', '.ftl': 'text/plain' }[extname(file)];
     if (type) res.setHeader('Content-Type', type);
-    res.end(url.pathname === '/main.mjs' ? source.outputFiles[0].text : await readFile(file));
+    res.end(url.pathname === '/main.mjs' ? source.outputFiles[0].text :
+      !useGenerated && url.pathname === '/android.css' ? await readFile(`${project}/web/reader/android.css`) : await readFile(file));
   } catch (error) { res.writeHead(404).end(String(error)); }
 });
 await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
@@ -130,8 +131,29 @@ try {
   await page.locator('#viewerContainer').hover(); await page.mouse.wheel(0, 100);
   await page.waitForFunction(() => document.body.classList.contains('readerChromeHidden'));
   assert.equal(await page.locator('#toolbarContainer').isVisible(), false);
-  await page.locator('#readerShowControls').click();
+  assert.equal(await page.locator('#readerShowControls').count(), 0, 'No downward-arrow overlay after collapse');
+  await page.mouse.wheel(0, -100);
+  await page.waitForFunction(() => !document.body.classList.contains('readerChromeHidden'));
   assert.equal(await page.locator('#toolbarContainer').isVisible(), true);
+  for (const key of ['Tab', 'Escape']) {
+    await page.evaluate(() => {
+      document.activeElement?.blur();
+      document.querySelector('#viewerContainer').scrollTop = 100;
+    });
+    await page.locator('#viewerContainer').hover(); await page.mouse.wheel(0, 100);
+    await page.waitForFunction(() => document.body.classList.contains('readerChromeHidden'));
+    assert.equal(await page.locator('#toolbarContainer').evaluate(el => el.inert), true);
+    await page.keyboard.press(key);
+    assert.equal(await page.locator('#toolbarContainer').isVisible(), true, `${key} restores PDF controls`);
+    assert.equal(await page.locator('#toolbarContainer').evaluate(el => el.inert), false);
+    if (key === 'Tab') {
+      for (let i = 0; i < 80 && !await page.locator('#toolbarContainer').evaluate(el => el.contains(document.activeElement)); i++) {
+        await page.keyboard.press('Shift+Tab');
+      }
+      assert.equal(await page.locator('#toolbarContainer').evaluate(el => el.contains(document.activeElement)), true,
+        'Restored toolbar remains reachable by keyboard');
+    }
+  }
   await page.locator('#editorFreeTextButton').click();
   await page.waitForFunction(() => PDFViewerApplication.pdfViewer.annotationEditorMode > 0);
   await page.locator('#viewerContainer').hover(); await page.mouse.wheel(0, 100);
@@ -257,7 +279,7 @@ try {
   assert.deepEqual(errors.filter(e => !e.includes('404')), []);
   Object.assign(report, { status: 'passed', originalOnly: true, noPanelOrToggle: true,
     noInferenceCacheSegmentationJobMessages: true, forbiddenMessages, preservedSelectionHistory: true,
-    restoredPageZoomRotationLocation: true, nativeNavigationRotationBookmark: true, fullscreenRevealAndAnnotationProtection: true,
+    restoredPageZoomRotationLocation: true, nativeNavigationRotationBookmark: true, fullscreenGestureAndKeyboardRecoveryWithoutOverlay: true, annotationProtection: true,
     saveReloadPreservesView: true, incrementalAnnotationSaveBytes: saved.suffixLength, normalPdfStillTranslates: true,
     readOnlyMessageCounts: Object.fromEntries([...new Set(messages.map(m => m.type))].map(type => [type, messages.filter(m => m.type === type).length])), rangeRequests });
   console.log(JSON.stringify(report, null, 2));

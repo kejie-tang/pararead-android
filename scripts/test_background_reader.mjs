@@ -1,12 +1,14 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { createServer } from 'node:http';
-import { readFile, writeFile } from 'node:fs/promises';
-import { extname, resolve, sep } from 'node:path';
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { dirname, extname, resolve, sep } from 'node:path';
 import { chromium } from '@playwright/test';
 
 const assets = resolve(import.meta.dirname, '../app/build/generated/readerAssets/reader');
-const reportPath = resolve(import.meta.dirname, '../docs/reports/alpha16-background-browser.json');
+const reportPath = process.env.PARAREAD_REPORT_DIR
+  ? resolve(process.env.PARAREAD_REPORT_DIR, 'background-reader-browser.json')
+  : resolve(import.meta.dirname, '../docs/reports/alpha16-background-browser.json');
 const channel = process.env.PLAYWRIGHT_CHANNEL || 'msedge';
 
 // Original, in-memory ASCII fixture: two pages, one sentence each, no downloads.
@@ -258,6 +260,7 @@ try {
   } catch (error) { cleanupErrors.push(`server: ${String(error)}`); }
   report.cleanup = { browserClosed: !browser?.isConnected(), serverClosed: !server.listening, errors: cleanupErrors };
   if (cleanupErrors.length) { report.status = 'failed'; process.exitCode = 1; }
+  await mkdir(dirname(reportPath), { recursive:true });
   await writeFile(reportPath, JSON.stringify(report, null, 2) + '\n');
   console.log(JSON.stringify({ status: report.status, report: reportPath, fixtureBytes: pdf.length,
     browserVersion: report.browserVersion, assertions: report.assertions, error: report.error, cleanup: report.cleanup }, null, 2));

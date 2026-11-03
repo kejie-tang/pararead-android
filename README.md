@@ -7,7 +7,7 @@ Read papers and technical documents with the original page beside its translatio
 
 [![Android CI](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml/badge.svg?branch=main)](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml) [![Android 9+](https://img.shields.io/badge/Android-9%2B-3DDC84?logo=android&logoColor=white)](#get-started) [![Code: Apache-2.0](https://img.shields.io/badge/Code-Apache--2.0-blue)](LICENSE)
 
-**[Download APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.19)** · [All releases](https://github.com/kejie-tang/pararead-android/releases) · [简体中文](README.zh-CN.md)
+**[Download APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.20)** · [All releases](https://github.com/kejie-tang/pararead-android/releases) · [简体中文](README.zh-CN.md)
 
 A development preview for **Android 9+ / ARM64**, designed for tablets and usable on phones. Native menus support **English and Simplified Chinese**, with a system-language option. Independent, unofficial adaptation of [ParaRead](https://github.com/Chuanyunux/pararead) 0.6.1.
 
@@ -15,9 +15,9 @@ A development preview for **Android 9+ / ARM64**, designed for tablets and usabl
 
 *Reading interaction demo in desktop Chromium with touch emulation. Uses our original sample document and labeled Mock output; this is not a real-model or physical-tablet screenshot.*
 
-### New in alpha.19: TXT and Read only
+### New in alpha.20: reader gestures and safe navigation
 
-Import TXT with automatic or explicit encoding, content pagination, chapters and adjustable fonts. Tablets show original text on the left and paragraph-aligned translation on the right; phones use a stacked layout. PDF and TXT share a persistent **Read only** option: originals only, without translation or model loading, while retaining caches and reading progress. Rounded controls and unified light/dark styling make the reader easier to use. See the [TXT guide](docs/txt-reader.md), [read-only guide](docs/reading-only.md) (Chinese), and [alpha.19 validation](docs/reports/alpha19.md).
+Swipe left/right to turn TXT content pages; resize and remember the original/translation split in landscape. The new chapter panel has a scrollable, lazy-loaded list and percentage positioning, including books with no chapters. TXT fullscreen tools can be shown and hidden quickly; PDF no longer shows a collapsed-toolbar arrow, and both readers remove the fullscreen exit overlay. The wide library sidebar stays out of the reader. Returning to the library saves reading state and PDF annotations first; failures keep the document open. TXT import, stable pagination and persistent PDF/TXT **Read only** from alpha.19 remain intact. See the [TXT guide](docs/txt-reader.md), [read-only guide](docs/reading-only.md) (Chinese), and [alpha.20 validation](docs/reports/alpha20.md).
 
 ## Made for reading, not copying and pasting
 
@@ -42,7 +42,7 @@ Actual Android emulator captures. The original book icon is included as an adapt
 
 ## Get started
 
-1. **Install the [preview APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.19).** Requires ARM64, Android 9+ and an up-to-date Android System WebView. The preview signing identity is retained for in-place upgrades; see the [validation and upgrade notes](docs/reports/alpha19.md). Do not uninstall an existing installation just to bypass a signature error; uninstalling deletes private documents, translations and models.
+1. **Install the [preview APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.20).** Requires ARM64, Android 9+ and an up-to-date Android System WebView. The preview signing identity is retained for in-place upgrades; see the [validation and upgrade notes](docs/reports/alpha20.md). Do not uninstall an existing installation just to bypass a signature error; uninstalling deletes private documents, translations and models.
 2. **For translation, choose a model in Models.** Start with 0.6B for quick reading or 1.7B for stronger translations. Downloads are verified before activation; existing models are retained. **Read only** needs no model.
 3. **Import a PDF/TXT or open the sample.** Enable **Read only**, translate **This page**, or use **All / Resume**. TXT offers an encoding choice; PDFs need selectable text, and OCR is not included.
 
@@ -52,7 +52,7 @@ Change native menu language in **Settings → Interface language**. This applies
 
 - Outside **Read only**, reopening a PDF or TXT automatically restores saved translations, including in **manual** mode, without calling the model or API. Automatic modes translate only cache misses; manual mode leaves them untranslated until you explicitly translate.
 - **Click to select, translate the current page automatically.** Hovering does not select sentences or control translation. New installations default to current-page translation; choose Current page, Nearby pages or Manual in Settings. Page turns promote current-page work ahead of lower-priority whole-book/prefetch inference without a sentence click; safe cancellation still completes before inference changes owners. Existing range preferences are retained.
-- Tap **Full screen** in the reading toolbar to hide the app navigation, toolbar, status messages and system bars. In alpha.13, swiping up to continue reading hides both PDF and translation headers; swiping down or tapping the small arrow restores them. Controls stay visible during annotation, sentence/text selection, and zoom gestures. Normal reading keeps its toolbar. Use the bottom-right exit button or Android Back to leave full screen; Back again returns to the library. The preference persists, and toggling does not recreate the reader or interrupt translation.
+- Tap **Full screen** in the reading toolbar to hide app controls, status messages and system bars. In PDF, swiping up to continue reading hides PDF and translation headers; reverse scrolling or Tab/Escape restores them, with no arrow overlay. Controls stay visible during annotation, sentence/text selection and zoom gestures. TXT has matching **Show/Hide reading toolbar** actions. Use **Android Back** to leave fullscreen, then Back again to save and return to the library; no bottom-right exit button is shown. The wide library sidebar is hidden in either reader even outside fullscreen. The fullscreen preference persists, and toggling does not recreate the reader or interrupt translation.
 - Failed sentences show the error and retry hint directly in the translation pane instead of reverting to English source text. Tap to retry; accepted neighbouring translations remain intact. Waiting/cancellation behavior is unchanged, and unvalidated drafts are not saved as successful translations.
 - Cached translations are separated by source text and translation configuration (including model, language and glossary). They stay in app storage and are not embedded in exported annotated PDFs.
 

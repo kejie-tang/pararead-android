@@ -7,8 +7,6 @@ import android.os.Debug
 import androidx.activity.compose.BackHandler
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -123,6 +121,26 @@ class MainActivity : ComponentActivity() {
         foregroundReady = false
         foregroundError = applicationContext.withAppLanguage().getString(R.string.translation_cleanup_failed)
         status = foregroundError!!
+    }
+    private fun leaveReader() {
+        if (modeSwitching) return
+        val document = selected ?: return
+        val previous = host
+        modeSwitching = true
+        lifecycleScope.launch {
+            try {
+                previous?.flushBeforeModeSwitch()
+                if (host !== previous || selected !== document) return@launch
+                reopen(); selected = null
+            } catch (_: TimeoutCancellationException) {
+                if (host === previous && selected === document)
+                    status = applicationContext.withAppLanguage().getString(R.string.reader_exit_save_failed)
+            } catch (e: CancellationException) { throw e }
+            catch (_: Exception) {
+                if (host === previous && selected === document)
+                    status = applicationContext.withAppLanguage().getString(R.string.reader_exit_save_failed)
+            } finally { modeSwitching = false }
+        }
     }
     private fun switchReadingOnly(enabled: Boolean) {
         if (modeSwitching || enabled == readingOnly) return
@@ -304,7 +322,7 @@ class MainActivity : ComponentActivity() {
         val fullscreen = selected != null && readerFullscreen
         val setFullscreen: (Boolean) -> Unit = { readerFullscreen = it; settings.readerFullscreen = it }
         BackHandler(enabled = selected != null && !showSettings && !showModelLibrary && !showModelCatalog && !speedState.visible) {
-            if (fullscreen) setFullscreen(false) else { reopen(); selected = null }
+            if (fullscreen) setFullscreen(false) else leaveReader()
         }
         DisposableEffect(fullscreen) {
             val controller = WindowCompat.getInsetsController(window, window.decorView)
@@ -318,8 +336,7 @@ class MainActivity : ComponentActivity() {
                 controller.show(WindowInsetsCompat.Type.systemBars())
             }
         }
-        Box(Modifier.fillMaxSize()) {
-        AppShell(selected != null, modelState, onHome = { reopen(); selected = null },
+        AppShell(selected != null, modelState, onHome = ::leaveReader,
             onModels = { showModelLibrary = true }, onSettings = { showSettings = true }, fullscreen = fullscreen) {
             val document = selected
             if (document != null && !fullscreen) ReaderToolbar(document.name,
@@ -404,15 +421,6 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxWidth().weight(1f), onRelease = { it.destroy() })
                 }
             }
-        }
-        if (fullscreen) {
-            val exitFullscreen = LocalContext.current.getString(R.string.reader_exit_fullscreen)
-            SmallFloatingActionButton(onClick = { setFullscreen(false) },
-                modifier = Modifier.align(Alignment.BottomEnd).safeDrawingPadding().padding(12.dp)
-                    .testTag("reader-exit-fullscreen").semantics { contentDescription = exitFullscreen }) {
-                AppIcon(AppGlyph.Close)
-            }
-        }
         }
         if ((showSettings || showModelLibrary || showModelCatalog) && !foregroundReady) AlertDialog(
             onDismissRequest = { showSettings = false; showModelLibrary = false; showModelCatalog = false },

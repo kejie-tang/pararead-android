@@ -1,0 +1,109 @@
+/* Standalone TXT navigation; load after the shared --reader-* color tokens. */
+.textNavigationPanel {
+  box-sizing: border-box;
+  inline-size: min(38rem, calc(100vw - 24px));
+  max-inline-size: calc(100vw - 24px);
+  max-block-size: calc(100vh - 24px);
+  max-block-size: calc(100dvh - 24px);
+  margin: auto;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--reader-line);
+  border-radius: 24px;
+  background: var(--reader-surface);
+  color: var(--reader-ink);
+  box-shadow: 0 24px 80px rgb(0 0 0 / .24);
+  font: 1rem/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+  overflow-wrap: anywhere;
+  color-scheme: light dark;
+}
+.textNavigationPanel[open] { display: flex; flex-direction: column; }
+.textNavigationPanel::backdrop { background: rgb(8 14 28 / .52); }
+.textNavigationPanel *, .textNavigationPanel *::before, .textNavigationPanel *::after { box-sizing: border-box; }
+.textNavigationPanel [hidden] { display: none !important; }
+.textNavigationPanelHeader {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px;
+  border-block-end: 1px solid var(--reader-line);
+}
+.textNavigationPanelTitle { flex: 1 1 10rem; min-inline-size: 0; margin: 0; font-size: 1.25em; font-weight: 700; letter-spacing: -.02em; }
+.textNavigationPanelBody { min-block-size: 0; padding: 20px; overflow: auto; overscroll-behavior: contain; }
+.textNavigationPanelSubtitle { margin: 0 0 12px; font-size: 1em; font-weight: 650; }
+.textNavigationPanelHint, .textNavigationPanelStatus { margin: 8px 0; color: var(--reader-muted); font-size: .875em; }
+.textNavigationPanelList {
+  max-block-size: min(34vh, 22rem);
+  min-inline-size: 0;
+  margin: 0;
+  padding: 4px;
+  overflow: auto;
+  list-style: none;
+  border: 1px solid var(--reader-line);
+  border-radius: 16px;
+  background: var(--reader-subtle);
+  overscroll-behavior: contain;
+  scrollbar-color: var(--reader-track) transparent;
+  scrollbar-gutter: stable;
+}
+.textNavigationPanelList li + li { margin-block-start: 4px; }
+.textNavigationPanel :is(button, input) { min-block-size: 44px; max-inline-size: 100%; font: inherit; }
+.textNavigationPanel button {
+  padding: 10px 16px;
+  border: 1px solid var(--reader-line);
+  border-radius: 12px;
+  background: var(--reader-surface);
+  color: var(--reader-ink);
+  white-space: normal;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+.textNavigationPanel .textNavigationPanelChapter {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px 12px;
+  inline-size: 100%;
+  border-color: transparent;
+  background: transparent;
+  text-align: start;
+}
+.textNavigationPanelChapterPage { max-inline-size: 9ch; color: var(--reader-muted); font-size: .8125em; font-variant-numeric: tabular-nums; }
+.textNavigationPanel .textNavigationPanelChapter[aria-current] { border-color: var(--reader-accent); background: var(--reader-soft); font-weight: 650; }
+.textNavigationPanel .textNavigationPanelLoad { inline-size: 100%; margin-block-start: 12px; }
+.textNavigationPanelProgress { margin-block-start: 20px; padding-block-start: 20px; border-block-start: 1px solid var(--reader-line); }
+.textNavigationPanelLabel, .textNavigationPanelNumberLabel { color: var(--reader-muted); font-size: .875em; }
+.textNavigationPanelRange { display: block; inline-size: 100%; margin: 4px 0 12px; accent-color: var(--reader-accent); cursor: pointer; }
+.textNavigationPanelControls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.textNavigationPanelNumberLabel { flex: 1 1 8rem; }
+.textNavigationPanelNumber {
+  inline-size: 6.5rem;
+  min-inline-size: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--reader-line);
+  border-radius: 12px;
+  background: var(--reader-subtle);
+  color: var(--reader-ink);
+  font-variant-numeric: tabular-nums;
+}
+.textNavigationPanel .textNavigationPanelGo { background: var(--reader-accent); border-color: var(--reader-accent); color: var(--reader-on-accent); font-weight: 650; }
+.textNavigationPanelPreview { display: block; margin-block-start: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.textNavigationPanelError { margin: 8px 0 0; color: var(--reader-invalid); font-size: .875em; }
+.textNavigationPanelError:empty, .textNavigationPanelStatus:empty { display: none; }
+.textNavigationPanelNumber[aria-invalid="true"] { border-color: var(--reader-invalid); }
+.textNavigationPanel button:not(:disabled):hover { border-color: var(--reader-accent); background: var(--reader-soft); color: var(--reader-ink); }
+.textNavigationPanel .textNavigationPanelGo:not(:disabled):hover { background: var(--reader-accent-hover); color: var(--reader-on-accent); }
+.textNavigationPanel button:not(:disabled):active { background: var(--reader-pressed); color: var(--reader-ink); }
+.textNavigationPanel :is(button, input, ol):focus-visible { outline: 2px solid var(--reader-accent); outline-offset: 2px; }
+.textNavigationPanel :is(button, input):disabled { color: var(--reader-disabled); cursor: default; }
+.textNavigationPanel button:disabled { border-color: var(--reader-line); background: var(--reader-subtle); }
+@media (max-width: 480px) {
+  .textNavigationPanel { border-radius: 20px; }
+  .textNavigationPanelHeader, .textNavigationPanelBody { padding: 16px; }
+}
+@media (forced-colors: active) {
+  .textNavigationPanel .textNavigationPanelChapter[aria-current] { outline: 2px solid Highlight; outline-offset: -3px; }
+}

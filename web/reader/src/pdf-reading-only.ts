@@ -7,14 +7,13 @@ import type { SaveBridge } from "./upstream/save-bridge";
 /** Immutable for this host session; changing mode requires a native reopen. */
 export async function startPdfReadingOnly(options: PdfReadingSessionOptions & { saveBridge: SaveBridge }): Promise<void> {
   const { app, session, saveBridge } = options;
-  const chrome = new ReaderChrome(app, null, null, session.settings.showControlsLabel ?? "Show reader controls");
+  const chrome = new ReaderChrome(app, null, null);
   chrome.setFullscreen(session.settings.readerFullscreen === true);
   window.addEventListener("message", async (event: MessageEvent<HostToWebview>) => {
     if (event.origin !== window.origin) return;
     const message = event.data;
     if (message.type === "readerFullscreen") {
       chrome.setFullscreen(message.enabled);
-      if (message.showControlsLabel) chrome.setLabel(message.showControlsLabel);
       return;
     }
     if (await saveBridge.handle(message)) return;

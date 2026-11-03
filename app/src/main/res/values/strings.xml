@@ -46,8 +46,8 @@
     <string name="reader_reading_only">Read only</string>
     <string name="reader_reading_only_disabled">Translation is disabled in read-only mode.</string>
     <string name="reader_mode_switch_failed">Could not save recent changes. Reading mode was not changed. Please try again.</string>
+    <string name="reader_exit_save_failed">Could not save recent changes. The document remains open. Please try again.</string>
     <string name="reader_fullscreen">Full screen</string>
-    <string name="reader_exit_fullscreen">Exit full screen</string>
     <string name="reader_show_controls">Show reader controls</string>
     <string name="local_gguf">Local GGUF</string>
     <string name="no_model">No model selected</string>

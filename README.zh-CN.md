@@ -7,7 +7,7 @@
 
 [![Android CI](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml/badge.svg?branch=main)](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml) [![Android 9+](https://img.shields.io/badge/Android-9%2B-3DDC84?logo=android&logoColor=white)](#开始使用) [![代码：Apache-2.0](https://img.shields.io/badge/Code-Apache--2.0-blue)](LICENSE)
 
-**[下载 APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.19)** · [全部版本](https://github.com/kejie-tang/pararead-android/releases) · [English](README.md)
+**[下载 APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.20)** · [全部版本](https://github.com/kejie-tang/pararead-android/releases) · [English](README.md)
 
 面向 **Android 9+ / ARM64** 的开发预览版，为平板设计，也可在手机使用。原生菜单支持**简体中文、English 和跟随系统**。基于 [ParaRead](https://github.com/Chuanyunux/pararead) 0.6.1 的独立、非官方适配。
 
@@ -15,9 +15,9 @@
 
 *阅读交互演示：桌面 Chromium 触摸模拟、自编示例文档和明确标注的 Mock 输出；不是实际模型译文或实体平板截图。*
 
-### alpha.19 新增：TXT 与只阅读
+### alpha.20 新增：阅读手势与安全返回
 
-支持 TXT 导入、自动或指定编码、内容分页、章节跳转及字号调整；平板按段落对齐，左原文、右译文，手机使用上下布局。PDF/TXT 共用可记忆的 **只阅读** 选项，不触发翻译或加载模型，保留既有译文缓存和阅读进度。同步优化圆角按钮、控件分组及浅深色主题。[TXT 使用与编码](docs/txt-reader.md) · [只阅读指南](docs/reading-only.md) · [alpha.19 验证](docs/reports/alpha19.md)。
+TXT 支持左右滑动翻页、横屏拖动调整并记忆双栏比例；章节面板可滚动、分批加载，并支持百分比定位，无章节也能使用。TXT 全屏工具栏可快速显示/收起，PDF 移除折叠菜单下箭头，两种格式均移除全屏退出浮钮；宽屏阅读时隐藏书库侧栏。返回书库前先保存进度及 PDF 批注，保存失败保留当前文档。alpha.19 的 TXT 导入、稳定内容分页和 PDF/TXT **只阅读** 均保留。[TXT 使用与编码](docs/txt-reader.md) · [只阅读指南](docs/reading-only.md) · [alpha.20 验证](docs/reports/alpha20.md)。
 
 ## 把时间花在阅读上
 
@@ -42,7 +42,7 @@
 
 ## 开始使用
 
-1. **安装[预览版 APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.19)。** 需要 ARM64、Android 9+ 和较新的 Android System WebView。预览版沿用原签名以便覆盖升级；详见[验证与升级说明](docs/reports/alpha19.md)。不要为绕过签名错误直接卸载旧版，卸载会删除私有文档、译文缓存和模型。
+1. **安装[预览版 APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.20)。** 需要 ARM64、Android 9+ 和较新的 Android System WebView。预览版沿用原签名以便覆盖升级；详见[验证与升级说明](docs/reports/alpha20.md)。不要为绕过签名错误直接卸载旧版，卸载会删除私有文档、译文缓存和模型。
 2. **需要翻译时，在“模型管理”选择模型。** 0.6B 适合轻量快读，1.7B 偏重译文质量。下载校验通过后自动启用，其他模型会保留；**只阅读**无需模型。
 3. **导入 PDF/TXT，或打开示例文档。** 可开启“只阅读”、翻译“本页”或使用“全篇 / 继续”。TXT 可指定编码；PDF 需要可选中文字，暂不提供 OCR。
 
@@ -52,7 +52,7 @@
 
 - 已完成并校验通过的译文自动保存在本地，未开启“只阅读”时，退出 PDF/TXT 后重新打开会恢复显示，**手动翻译模式也能恢复，不会为了恢复而调用模型或 API**。自动模式只补译缺失句子；手动模式需点击句子或“本页 / 全篇”才翻译缺失内容。
 - **单击选中，当前页自动翻译。** 悬停不会选中句子，也不会控制是否自动翻译。首次使用默认自动翻译当前页；在**设置 → 自动翻译范围**可选择当前页、邻页或手动。跳页时当前页自动提优先级，可抢占低优先级的全篇及邻页预取推理，无须先点击句子；切换前仍等待旧推理安全释放资源；已保存的范围选择仍保留。
-- 点击阅读工具栏的**全屏**，隐藏左侧导航、顶部应用栏、状态信息和系统栏，alpha.13 中，上滑继续阅读时会收起 PDF 工具栏和译文顶部栏，下滑或点击小箭头恢复；批注、句子或文字选择及双指缩放时保持菜单显示。普通阅读模式保留工具栏。右下角按钮或 Android 返回键退出全屏，再按返回键回到书库。全屏偏好会保存，下次打开 PDF 时沿用；切换不会重建阅读器或中断翻译。
+- 点击阅读工具栏的**全屏**，隐藏应用工具栏、状态信息和系统栏。PDF 上滑继续阅读时收起 PDF 工具栏和译文顶部栏，反向滑动或 Tab/Escape 恢复，不再显示小箭头；批注、句子或文字选择及双指缩放时保持菜单显示。TXT 可直接**显示/收起阅读工具栏**。使用 **Android 返回键**退出全屏，再次返回会先保存并回到书库，不再显示右下角退出按钮。宽屏书库侧栏在普通阅读和全屏时均隐藏。全屏偏好会保存，切换不会重建阅读器或中断翻译。
 - 翻译失败时，译文位置直接显示错误原因及重试提示，不再回退成英文原句；点击可重试，不影响相邻的正常译文。等待与取消行为不变，未经校验的草稿仍不会作为成功译文保存。提示文字及第三方错误码可能保留原语言。
 - 缓存按原文、模型、语言及术语表等配置区分。更换配置后不会套用旧配置的译文；译文保存在 App 数据中，不会自动写入导出的批注 PDF。
 

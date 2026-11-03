@@ -194,7 +194,7 @@ async function start() {
     }
   });
   const sync = new ScrollSync({ app, store, panel, selection });
-  const chrome = new ReaderChrome(app, panel, selection, android.settings.showControlsLabel ?? "Show reader controls");
+  const chrome = new ReaderChrome(app, panel, selection);
   chrome.setFullscreen(android.settings.readerFullscreen === true);
   const connector = new Connector(app, panel, selection);
   window.paraRead.evict = () => {
@@ -228,7 +228,6 @@ async function start() {
     const message = event.data;
     if (message.type === "readerFullscreen") {
       chrome.setFullscreen(message.enabled);
-      if (message.showControlsLabel) chrome.setLabel(message.showControlsLabel);
       return;
     }
     if (message.type === "settings") {

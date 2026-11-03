@@ -11,15 +11,27 @@ const bundle = build({ entryPoints: [fileURLToPath(new URL('../web/reader/src/te
 
 // Deliberately small DOM mock: these are Web protocol/UI tests, not Android device tests.
 class Element {
-  constructor(tag) { this.tagName = tag.toUpperCase(); this.children = []; this.style = {}; this.dataset = {}; this.attrs = {}; this.value = ''; this.scrollTop = 0; this.scrollHeight = 2000; this.hidden = false; this.listeners = new Map(); this.classes = new Set(); this.classList = { toggle: (name, on) => on ? this.classes.add(name) : this.classes.delete(name) }; }
-  append(...children) { for (const child of children) { child.parent = this; this.children.push(child); } }
+  constructor(tag) { this.tagName = tag.toUpperCase(); this.children = []; this.style = { setProperty(name, value) { this[name] = value; } }; this.htmlFor = { value: '' }; this.dataset = {}; this.attrs = {}; this.value = ''; this.scrollTop = 0; this.scrollHeight = 2000; this.hidden = false; this.listeners = new Map(); this.classes = new Set(); this.classList = { toggle: (name, on) => on ? this.classes.add(name) : this.classes.delete(name), contains: name => this.classes.has(name) }; }
+  append(...children) { for (const child of children) { if (child.tagName === '#FRAGMENT') { this.append(...child.children); continue; } child.parent = this; this.children.push(child); } }
+  get valueAsNumber() { return this.value.trim() === '' ? NaN : Number(this.value); }
+  hasAttribute(key) { return key in this.attrs; }
+  contains(child) { return child === this || this.children.some(node => node.contains(child)); }
+  showModal() { this.open = true; }
+  close() { this.open = false; }
+  focus() {}
   replaceChildren(...children) { this.children = []; this.append(...children); this.scrollTop = 0; }
   setAttribute(key, value) { this.attrs[key] = value; }
   removeAttribute(key) { delete this.attrs[key]; }
   addEventListener(type, listener) { this.listeners.set(type, listener); }
+  removeEventListener(type, listener) { if (this.listeners.get(type) === listener) this.listeners.delete(type); }
   remove() { if (this.parent) this.parent.children = this.parent.children.filter(child => child !== this); }
   querySelector(selector) { return this.children.find(child => selector === 'option[value="more"]' && child.value === 'more'); }
-  closest() { return ['INPUT', 'SELECT', 'TEXTAREA', 'BUTTON'].includes(this.tagName) ? this : null; }
+  closest(selector) {
+    if (selector.includes('dialog') && this.tagName === 'DIALOG') return this;
+    if (selector.includes('[role=separator]') && this.attrs.role === 'separator') return this;
+    if (['INPUT', 'SELECT', 'TEXTAREA', 'BUTTON'].includes(this.tagName)) return this;
+    return this.parent?.closest(selector) ?? null;
+  }
   getBoundingClientRect() { return { top: 0, bottom: 50 }; }
   set innerHTML(_) { assert.fail('TXT must never interpret source as HTML'); }
 }
@@ -28,8 +40,11 @@ async function harness({ background = false, readingOnly = false, reading = {}, 
   textForPage = page => `Page ${page}.\n\n<script>not markup</script>\n`, onSend } = {}) {
   const sent = [], listeners = new Map(), timers = new Map(); let timer = 0, deliver;
   const origin = 'https://appassets.androidplatform.net';
-  const document = { documentElement: { style: {}, lang: language }, body: new Element('body'), createElement: tag => new Element(tag), title: '' };
-  const window = { origin, innerHeight: 800,
+  const document = { documentElement: { style: {}, lang: language }, body: new Element('body'),
+    createElement: tag => { const el = new Element(tag); el.ownerDocument = document; return el; },
+    createDocumentFragment: () => new Element('#fragment'), title: '' };
+  document.body.ownerDocument = document;
+  const window = { origin, innerHeight: 800, innerWidth: 800, getSelection: () => ({ isCollapsed: true }),
     addEventListener(type, listener) { if (!listeners.has(type)) listeners.set(type, new Set()); listeners.get(type).add(listener); },
     removeEventListener(type, listener) { listeners.get(type)?.delete(listener); },
     postMessage(data) { queueMicrotask(() => { for (const listener of listeners.get('message') ?? []) listener({ origin, data }); }); },
@@ -49,7 +64,7 @@ async function harness({ background = false, readingOnly = false, reading = {}, 
     } },
   };
   Object.defineProperty(window, 'PDFViewerApplication', { get() { assert.fail('TXT must not touch PDF.js'); } });
-  const context = vm.createContext({ window, document, location: { origin }, TextEncoder, Uint8Array, Map, Set, console,
+  const context = vm.createContext({ window, document, location: { origin }, TextEncoder, Uint8Array, Map, Set, console, Element, AbortController,
     setTimeout(fn) { timers.set(++timer, fn); return timer; }, clearTimeout(id) { timers.delete(id); },
     acquireVsCodeApi: () => window.acquireVsCodeApi(),
   });
@@ -86,13 +101,13 @@ test('text-reader restores manual mode cache without automatic translation and s
   assert.match(h.element(el => el.className === 'bilingualSource' && el.textContent.includes('<script>')).textContent, /<script>not markup<\/script>/);
   assert.equal(h.element(el => el.className === 'textReader').classes.has('textHideSource'), true);
   const input = h.element(el => el.inputMode === 'numeric'); input.value = 'bad';
-  h.element(el => el.tagName === 'FORM').onsubmit({ preventDefault() {} });
+  h.element(el => el.className === 'textPageForm').onsubmit({ preventDefault() {} });
   assert.equal(input.attrs['aria-invalid'], 'true');
   assert.match(h.element(el => el.className === 'textStatus').textContent, /Invalid/);
-  input.value = '3'; h.element(el => el.tagName === 'FORM').onsubmit({ preventDefault() {} }); await h.settle();
+  input.value = '3'; h.element(el => el.className === 'textPageForm').onsubmit({ preventDefault() {} }); await h.settle();
   assert.equal(content.scrollTop, 0); assert.equal(h.sent.filter(m => m.type === 'reading.save').at(-1).payload.page, 3);
   assert.equal(h.element(el => el.textContent === 'Next').disabled, true);
-  const font = h.element(el => el.type === 'range'); font.value = '30'; content.scrollTop = 100; font.oninput();
+  const font = h.element(el => el.attrs['aria-label'] === 'Font size'); font.value = '30'; content.scrollTop = 100; font.oninput();
   assert.equal(input.value, '3'); assert.equal(content.style.fontSize, '30px'); assert.equal(content.scrollTop, 100);
   const before = h.sent.filter(m => m.type === 'text.page').length;
   for (const listener of h.listeners.get('keydown')) listener({ key: 'ArrowLeft', target: input });
@@ -100,9 +115,13 @@ test('text-reader restores manual mode cache without automatic translation and s
   for (const listener of h.listeners.get('keydown')) listener({ key: 'ArrowLeft', target: content, preventDefault() {} });
   await h.settle(); assert.equal(input.value, '2');
   h.command({ type: 'readerFullscreen', enabled: true }); await h.settle();
-  assert.equal(h.element(el => el.tagName === 'HEADER').hidden, true);
+  assert.equal(h.element(el => el.className === 'textToolbar').hidden, true);
   h.element(el => el.className === 'textShowControls').onclick();
-  assert.equal(h.element(el => el.tagName === 'HEADER').hidden, false);
+  assert.equal(h.element(el => el.className === 'textToolbar').hidden, false);
+  h.element(el => el.className === 'textHideControls').onclick();
+  assert.equal(h.element(el => el.className === 'textToolbar').hidden, true);
+  assert.equal(h.element(el => el.className === 'textShowControls').hidden, false);
+  h.command({ type: 'readerFullscreen', enabled: false }); await h.settle();
   h.command({ type: 'translateCurrentPage' }); await h.settle();
   assert.equal(h.sent.filter(m => m.type === 'translation.request').at(-1).payload.priority, 0);
   h.command({ type: 'settings', translateRange: 'nearby' }); await h.settle();
@@ -110,6 +129,60 @@ test('text-reader restores manual mode cache without automatic translation and s
   h.hide(); const saved = h.sent.filter(m => m.type === 'reading.save').at(-1).payload;
   assert.equal(saved.page, 2); assert.equal(saved.txt.fontSize, 30);
   assert.equal(h.listeners.get('message').size, 0);
+});
+
+test('TXT swipes turn one stable content page and ignore vertical, edge, selection and multi-touch gestures', async () => {
+  const h = await harness();
+  const content = h.element(el => el.className === 'textContent');
+  const swipe = async (x, y, endX, endY, multi = false) => {
+    content.listeners.get('touchstart')({ target: content, touches: [{ clientX: x, clientY: y }] });
+    content.listeners.get('touchmove')({ touches: [{ clientX: endX, clientY: endY }, ...(multi ? [{ clientX: 400, clientY: 30 }] : [])], cancelable: true, preventDefault() {} });
+    content.listeners.get('touchend')({ touches: [], changedTouches: [{ clientX: endX, clientY: endY }] });
+    await h.settle();
+  };
+  const input = h.element(el => el.inputMode === 'numeric');
+  await swipe(300, 200, 160, 205); assert.equal(input.value, '2');
+  await swipe(300, 200, 430, 205); assert.equal(input.value, '1');
+  for (const args of [[300, 200, 310, 350], [12, 200, 140, 201], [790, 200, 500, 201], [300, 200, 160, 205, true]]) {
+    await swipe(...args); assert.equal(input.value, '1');
+  }
+  h.window.getSelection = () => ({ isCollapsed: false });
+  await swipe(300, 200, 160, 201); assert.equal(input.value, '1');
+  h.hide(); assert.equal(content.listeners.has('touchstart'), false);
+});
+
+test('TXT split ratio is bounded, keyboard-adjustable and saved without changing page identity', async () => {
+  assert.equal(restoreTextReading({ txt: { columnRatio: 99 } }, 3).txt.columnRatio, .75);
+  assert.equal(restoreTextReading({ txt: { columnRatio: -.4 } }, 3).txt.columnRatio, .25);
+  assert.equal(restoreTextReading({ txt: { columnRatio: NaN } }, 3).txt.columnRatio, undefined);
+  const h = await harness({ reading: { page: 2, txt: { columnRatio: .6 } } });
+  const split = h.element(el => el.attrs.role === 'separator');
+  const reader = h.element(el => el.className === 'textReader');
+  assert.equal(reader.style['--text-source-share'], '0.6');
+  const pageRequests = h.sent.filter(m => m.type === 'text.page').length;
+  for (const key of ['ArrowLeft', 'End']) split.listeners.get('keydown')({ key, preventDefault() {}, stopPropagation() {} });
+  assert.equal(split.attrs['aria-valuenow'], '75');
+  h.hide();
+  const saved = h.sent.filter(m => m.type === 'reading.save').at(-1).payload;
+  assert.equal(saved.page, 2); assert.equal(saved.txt.columnRatio, .75);
+  assert.equal(h.sent.filter(m => m.type === 'text.page').length, pageRequests);
+});
+
+test('TXT progress previews before commit and mode flush closes its modal before save freeze', async () => {
+  const h = await harness({ pages: 101 });
+  h.element(el => el.className === 'textChapterControl').onclick();
+  const dialog = h.element(el => el.tagName === 'DIALOG');
+  const progress = h.element(el => el.className === 'textNavigationPanelNumber');
+  progress.value = '50'; progress.listeners.get('input')();
+  assert.equal(h.element(el => el.inputMode === 'numeric').value, '1', 'preview does not navigate');
+  h.element(el => el.className === 'textNavigationPanelProgress').listeners.get('submit')({ preventDefault() {} });
+  await h.settle(); assert.equal(h.element(el => el.inputMode === 'numeric').value, '51');
+  assert.equal(dialog.open, false);
+  h.element(el => el.className === 'textChapterControl').onclick();
+  h.command({ type: 'flushBeforeModeSwitch', flushId: 'txt-modal-flush' }); await h.settle();
+  assert.equal(dialog.open, false); assert.equal(h.document.body.inert, true);
+  assert.equal(h.sent.find(m => m.type === 'reader.flushed').payload.success, true);
+  h.hide();
 });
 
 test('text-reader ignores stale page loads after rapid navigation and retains the intended restore anchor on early exit', async () => {
@@ -160,7 +233,7 @@ test('text-reader read-only displays only original text and preserves controls/p
   h.command({ type: 'settings', readingOnly: false, translateRange: 'nearby' });
   h.element(el => el.textContent === 'Next').onclick(); await h.settle();
   assert.equal(h.element(el => el.inputMode === 'numeric').value, '3');
-  const font = h.element(el => el.type === 'range'); font.value = '28'; font.oninput();
+  const font = h.element(el => el.attrs['aria-label'] === 'Font size'); font.value = '28'; font.oninput();
   assert.equal(content.style.fontSize, '28px');
   h.hide();
   assert.equal(h.sent.some(m => ['translation.request', 'translation.cacheGet', 'job.progress', 'job.finished'].includes(m.type)), false);
@@ -171,7 +244,7 @@ test('text-reader read-only displays only original text and preserves controls/p
 test('text-reader mode flush saves unthrottled font and scroll before acknowledging safe replacement', async () => {
   const h = await harness({ readingOnly: true });
   const content = h.element(el => el.tagName === 'MAIN');
-  const font = h.element(el => el.type === 'range'); font.value = '29'; font.oninput();
+  const font = h.element(el => el.attrs['aria-label'] === 'Font size'); font.value = '29'; font.oninput();
   content.scrollTop = 333; content.listeners.get('scroll')();
   assert.equal(h.sent.some(m => m.type === 'reading.save'), false, 'ordinary throttle has not fired yet');
   h.command({ type: 'flushBeforeModeSwitch', flushId: 'txt-mode' }); await h.settle();
@@ -181,6 +254,29 @@ test('text-reader mode flush saves unthrottled font and scroll before acknowledg
   assert.equal(flushed.payload.success, true); assert.equal(flushed.payload.flushId, 'txt-mode');
   assert.equal(h.document.body.inert, true);
   h.command({ type: 'resumeAfterModeFlush', flushId: 'txt-mode' }); assert.equal(h.document.body.inert, false);
+  h.hide();
+});
+
+test('TXT save freeze blocks global keyboard and direct page actions until matching resume', async () => {
+  let pending;
+  const h = await harness({ reading: { page: 2 }, onSend(message) {
+    if (message.type === 'reading.save') { pending = message; return false; }
+  } });
+  h.element(el => el.className === 'textChapterControl').onclick();
+  h.command({ type: 'flushBeforeModeSwitch', flushId: 'freeze-navigation' }); await h.settle();
+  assert.equal(h.document.body.inert, true);
+  assert.equal(h.element(el => el.tagName === 'DIALOG').open, false);
+  assert.equal(pending.payload.page, 2);
+  const before = h.sent.length;
+  for (const listener of h.listeners.get('keydown')) listener({ key: 'ArrowRight', target: h.document.body, preventDefault() {} });
+  h.element(el => el.className === 'textNext').onclick();
+  await h.settle(); assert.equal(h.sent.length, before, 'no viewport/save/page request after captured snapshot');
+  assert.equal(h.element(el => el.inputMode === 'numeric').value, '2');
+  h.deliver('reading.saved', {}, pending.requestId); await h.settle();
+  assert.equal(h.sent.find(m => m.type === 'reader.flushed').payload.success, true);
+  h.command({ type: 'resumeAfterModeFlush', flushId: 'freeze-navigation' }); await h.settle();
+  for (const listener of h.listeners.get('keydown')) listener({ key: 'ArrowRight', target: h.document.body, preventDefault() {} });
+  await h.settle(); assert.equal(h.element(el => el.inputMode === 'numeric').value, '3');
   h.hide();
 });
 
@@ -235,12 +331,15 @@ test('text-reader localizes controls and lazily loads further chapter batches wi
       deliver('text.chapters', { chapters: next, total: 205 }, m.requestId);
     }
   } });
-  const select = h.element(el => el.tagName === 'SELECT');
-  assert.equal(select.children[0].textContent, '无章节 / 开始');
-  for (let i = 0; i < 2; i++) { select.value = 'more'; select.onchange(); await h.settle(); }
-  assert.deepEqual(offsets, [100, 200]); assert.equal(select.children.length, 206);
-  assert.equal(select.children.some(el => el.value === 'more'), false);
-  select.value = '2'; select.onchange(); await h.settle();
+  h.element(el => el.className === 'textChapterControl').onclick();
+  const dialog = h.element(el => el.tagName === 'DIALOG'); assert.equal(dialog.open, true);
+  const load = h.element(el => el.className === 'textNavigationPanelLoad');
+  for (let i = 0; i < 2; i++) { load.listeners.get('click')(); await h.settle(); }
+  assert.deepEqual(offsets, [100, 200]);
+  const list = h.element(el => el.className === 'textNavigationPanelList');
+  assert.equal(list.children.length, 205); assert.equal(load.hidden, true);
+  list.listeners.get('click')({ target: list.children[101].children[0] }); await h.settle();
+  assert.equal(dialog.open, false);
   assert.equal(h.sent.filter(m => m.type === 'reading.save').at(-1).payload.txt.scrollTop, 0);
   assert.ok(h.element(el => el.textContent === '上一页')); h.hide();
 });
@@ -289,8 +388,8 @@ test('text-reader headless cancellation and persistence failure never advance an
 
 test('TXT tablet layout places original left and translation right without affecting hidden-source or narrow layout', async () => {
   const css = await readFile(new URL('../web/reader/text.css', import.meta.url), 'utf8');
-  assert.match(css, /@media\s*\(min-width:\s*768px\)/);
-  assert.match(css, /\.textReader:not\(\.textHideSource\) \.textBlock\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
+  assert.match(css, /@media\s*\(min-width:\s*768px\),\s*\(orientation:\s*landscape\)/);
+  assert.match(css, /\.textReader:not\(\.textHideSource\) \.textBlock\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*calc\([^}]*var\(--text-source-share\)/);
   assert.match(css, /\.textReader:not\(\.textHideSource\) \.bilingualSource\s*\{[^}]*grid-column:\s*1;[^}]*grid-row:\s*1;[^}]*margin-top:\s*0/);
   assert.match(css, /\.textReader:not\(\.textHideSource\) \.bilingualTarget\s*\{[^}]*grid-column:\s*2;[^}]*grid-row:\s*1/);
 });

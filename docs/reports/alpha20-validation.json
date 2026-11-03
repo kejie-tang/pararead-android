@@ -1,0 +1,297 @@
+{
+  "version": "0.2.0-alpha.20",
+  "versionCode": 20,
+  "baseCommit": "591a8d2a7c5080f93900ccc591869c835ff53fb1",
+  "timestamp": "2026-11-03T13:37:27.902Z",
+  "scope": "Local prerelease validation; remote CI/signing and anonymous artifact verification remain mandatory publication gates.",
+  "jvm": {
+    "core": {
+      "tests": 94,
+      "passed": 93,
+      "skipped": 1,
+      "failures": 0,
+      "errors": 0
+    },
+    "app": {
+      "tests": 18,
+      "passed": 18,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 0
+    },
+    "engine": {
+      "tests": 9,
+      "passed": 9,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 0,
+      "runtime": "fake"
+    }
+  },
+  "web": {
+    "typeScript": "passed",
+    "hostContractsPassed": 128,
+    "upstreamContractsPassed": 16,
+    "totalPassed": 144,
+    "standaloneNavigationTestsPassed": 2,
+    "browserScope": "Actual desktop Edge with generated assets/PDF.js and touch dispatch; simulated Native/storage/translations/save faults. Not Android WebView, device or real-model evidence.",
+    "normalPdf": {
+      "status": "passed",
+      "currentSourceBundleAndCss": false,
+      "hoverDisabledClickSelectionWorks": true,
+      "jumpedPagesTranslateWithoutSelection": [
+        2,
+        6
+      ],
+      "cancelledPrefetchPromotedToCurrentPage": true,
+      "manualReopenRestoresWithoutInference": true,
+      "fullscreenControls": {
+        "pdfSwipeHides": true,
+        "reverseSwipeShows": true,
+        "panelSwipeHides": true,
+        "panelReverseSwipeShows": true,
+        "noRevealOverlay": true,
+        "tabAndEscapeRestoreTabOrder": true,
+        "pdfjsGeometryUnchanged": true,
+        "ignoresProgrammaticScroll": true,
+        "protectsSentenceAndTextSelection": true,
+        "protectsAnnotationTools": true,
+        "normalModeUnchanged": true,
+        "exitRestoresControls": true,
+        "narrowReverseSwipeRestores": true,
+        "pdfHeightGain": 32,
+        "translationHeightGain": 33
+      },
+      "environment": "Desktop Chromium, touch emulation; not Android or device",
+      "sample": "Original ParaRead Reading Guide (Apache-2.0), 6 pages",
+      "rangeRequests": 3,
+      "largestRange": 15143,
+      "bidirectionalSelection": true,
+      "portraitToolbarWithinPane": true,
+      "alignmentDeltaPx": 0.3058619281047186,
+      "incrementalSave": {
+        "suffixLength": 1013,
+        "pages": 6,
+        "values": [
+          "ParaRead save test"
+        ]
+      },
+      "errors": []
+    },
+    "backgroundPdf": {
+      "status": "passed",
+      "fixture": {
+        "provenance": "Original two-page PDF generated in memory by this script",
+        "pages": 2,
+        "bytes": 869
+      },
+      "assertions": {
+        "noViewerOrCanvasOrReadingSave": true,
+        "pageSavedBlocksTranslation": true,
+        "jobSavedBlocksNextPageExtraction": true,
+        "durableCursorPersistedBeforeHeldAck": true,
+        "reloadExtractsOnlyPage2": true,
+        "translationCacheSurvivesReloadWithoutInference": true,
+        "bothAckBarriersRequired": true,
+        "completedWithoutFailedPages": true,
+        "loadingTaskDestroyed": true,
+        "viewerModuleNeverRequested": true
+      },
+      "cleanup": {
+        "browserClosed": true,
+        "serverClosed": true,
+        "errors": []
+      }
+    },
+    "txt": {
+      "scope": "Actual desktop Edge/Chromium, generated TXT assets and real bridge/client; simulated Android host/storage and translations. No Android device, PDF or model execution.",
+      "status": "passed",
+      "controls": {
+        "lightAndDark": true,
+        "widths": [
+          320,
+          360,
+          800,
+          1280
+        ],
+        "touchTargets44px": true,
+        "contrastAtLeast4_5": true,
+        "keyboardFocus": true,
+        "largeUiText": true
+      },
+      "foreground": {
+        "pagination": true,
+        "chapterJump": true,
+        "invalidPageRejected": true,
+        "fontSize": true,
+        "anchorPreserved": true,
+        "reopen": true,
+        "cacheOnlyRestore": true,
+        "phoneLayout": true,
+        "darkMode": true,
+        "tabletSideBySide": true,
+        "paragraphAlignment": true,
+        "sourceHiddenSingleColumn": true,
+        "swipeNavigation": true,
+        "edgeAndVerticalGestureExclusions": true,
+        "splitDragAndKeyboard": true,
+        "splitReopen": true,
+        "phoneLandscapeSideBySide": true,
+        "fullscreenShowAndHide": true,
+        "percentagePreviewAndJump": true,
+        "durableFreezeNavigationGuard": true
+      },
+      "background": {
+        "noReadingWrites": true,
+        "noViewer": true,
+        "allPagesSaved": true,
+        "allCheckpointsAcknowledged": true
+      },
+      "readingOnly": {
+        "exactSource": true,
+        "noTranslationOrCacheRequests": true,
+        "noJobWrites": true,
+        "navigationAndFont": true,
+        "hiddenTranslationControls": true,
+        "cacheIntactOnExit": true,
+        "durableModeFlush": true
+      },
+      "navigationPanel": {
+        "scrollableChapters": true,
+        "lazyBatches": [
+          100,
+          200
+        ],
+        "noChaptersPercentJump": true
+      },
+      "timestamp": "2026-11-03T13:33:57.071Z",
+      "browserVersion": "156.0.4314.58"
+    },
+    "pdfReadingOnly": {
+      "status": "passed",
+      "timestamp": "2026-11-03T13:34:11.138Z",
+      "channel": "msedge",
+      "scope": "Actual desktop Edge/Chromium and PDF.js, current source bundle, simulated Native bridge/save/storage. NOT Android/device or model inference.",
+      "fixture": {
+        "provenance": "Original two-page ASCII PDF generated in memory",
+        "pages": 2,
+        "bytes": 887
+      },
+      "generatedAssets": {
+        "reusedWithoutRebuild": true,
+        "sourceBundledInMemory": false,
+        "generatedMainUsed": true
+      },
+      "sourceBundleSha256": "6ede105f08eb51ea4f8ab12e9344da43dbc3b63eac51d15e9beacec1f807b3fd",
+      "browserVersion": "156.0.4314.58",
+      "modeSwitchFlush": {
+        "immediateLiveSnapshot": true,
+        "locationMatchesLivePageAndZoomOrExplicitlyClears": true,
+        "snapshot": {
+          "page": 1,
+          "zoom": "1.5",
+          "rotation": 180,
+          "location": ""
+        },
+        "readingAcknowledgedBeforeSave": true,
+        "annotationSaveAcknowledgedBeforeSuccess": true,
+        "freezesOnlyUntilReopenOrResume": true,
+        "saveFailureRetainsDocumentAndInput": true,
+        "resumeCanSaveAgain": true,
+        "successEvents": [
+          "web:annotation.changed",
+          "web:page.visible",
+          "web:reading.save",
+          "web:reading.save",
+          "web:telemetry.event",
+          "host:reading.saved",
+          "host:reading.saved",
+          "web:telemetry.event",
+          "web:document.save",
+          "host:save.started",
+          "web:save.chunk",
+          "host:save.accepted",
+          "web:save.end",
+          "host:save.finished",
+          "web:reader.flushed"
+        ],
+        "failureEvents": [
+          "web:annotation.changed",
+          "web:page.visible",
+          "web:reading.save",
+          "web:reading.save",
+          "web:telemetry.event",
+          "host:reading.saved",
+          "host:reading.saved",
+          "web:document.save",
+          "host:save.started",
+          "web:save.chunk",
+          "host:save.accepted",
+          "web:save.end",
+          "host:protocol.error",
+          "web:session.error",
+          "web:reader.flushed",
+          "web:telemetry.event"
+        ]
+      },
+      "originalOnly": true,
+      "noPanelOrToggle": true,
+      "noInferenceCacheSegmentationJobMessages": true,
+      "forbiddenMessages": [],
+      "preservedSelectionHistory": true,
+      "restoredPageZoomRotationLocation": true,
+      "nativeNavigationRotationBookmark": true,
+      "fullscreenGestureAndKeyboardRecoveryWithoutOverlay": true,
+      "annotationProtection": true,
+      "saveReloadPreservesView": true,
+      "incrementalAnnotationSaveBytes": 900,
+      "normalPdfStillTranslates": true,
+      "readOnlyMessageCounts": {
+        "reader.ready": 1,
+        "page.visible": 4,
+        "telemetry.event": 9,
+        "session.opened": 1,
+        "reading.save": 5,
+        "annotation.changed": 1,
+        "document.save": 2,
+        "save.chunk": 1,
+        "save.end": 1
+      },
+      "rangeRequests": 3,
+      "errors": []
+    },
+    "generatedReaderSha256": {
+      "main.mjs": "6ede105f08eb51ea4f8ab12e9344da43dbc3b63eac51d15e9beacec1f807b3fd",
+      "text.mjs": "2ce6d836a2ae674cdde7b86702413510a537392c7eb97afcce7dfdcc5ed25887",
+      "text.html": "93bf5945afa99d30cd65a627b0f99c111af6746fbfb0ba30ac228543504c5b10",
+      "text.css": "c5c7b8015c25e62f8270043c07252ecbe542162af8d63e427a9480c9644b3085",
+      "text-navigation.css": "cb7f7bfa38da203a369aaaab15bc0dbf18af94ad2ade3b5bbfa60f5140dea556",
+      "android.css": "1a7c7b8eca4ded65f0f39291391656023ffb70a2f4be4044f27705f4d509131a"
+    }
+  },
+  "android": {
+    "nativeEnabledDebugApkCompilation": "passed",
+    "instrumentationApkCompilation": "passed",
+    "instrumentationExecution": false,
+    "physicalDeviceExecution": false,
+    "emulatorExecutionForThisVersion": false,
+    "lint": {
+      "errors": 0,
+      "warnings": 54
+    },
+    "localDebugSignatureVerification": "passed",
+    "zipAndElf16KiBAlignment": "passed",
+    "distributionChecks": "passed",
+    "buildWorkers": 2
+  },
+  "review": {
+    "result": "No issues found / OK with notes",
+    "implementationSaveBoundaryFindingsClosed": 2,
+    "openP0ToP2": 0
+  },
+  "modelInferencePerformed": false,
+  "modelDownloadsPerformed": false,
+  "cacheFingerprintChanged": false,
+  "databaseEntitiesChanged": false,
+  "publishedCertificateSha256Required": "e044c8f329f42465866add4d041f29c498009361241610c8ee2de43ae6e87a45"
+}

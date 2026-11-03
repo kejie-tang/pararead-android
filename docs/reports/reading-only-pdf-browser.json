@@ -1,6 +1,6 @@
 {
   "status": "passed",
-  "timestamp": "2026-11-03T07:48:49.102Z",
+  "timestamp": "2026-11-03T13:34:11.138Z",
   "channel": "msedge",
   "scope": "Actual desktop Edge/Chromium and PDF.js, current source bundle, simulated Native bridge/save/storage. NOT Android/device or model inference.",
   "fixture": {
@@ -13,7 +13,7 @@
     "sourceBundledInMemory": false,
     "generatedMainUsed": true
   },
-  "sourceBundleSha256": "92ddc353d13ad497a7f975bd9011f13a88171a39bc65831ae808ab94cb3fcaf7",
+  "sourceBundleSha256": "6ede105f08eb51ea4f8ab12e9344da43dbc3b63eac51d15e9beacec1f807b3fd",
   "browserVersion": "156.0.4314.58",
   "modeSwitchFlush": {
     "immediateLiveSnapshot": true,
@@ -50,9 +50,9 @@
       "web:annotation.changed",
       "web:page.visible",
       "web:reading.save",
-      "host:reading.saved",
       "web:reading.save",
       "web:telemetry.event",
+      "host:reading.saved",
       "host:reading.saved",
       "web:document.save",
       "host:save.started",
@@ -72,7 +72,8 @@
   "preservedSelectionHistory": true,
   "restoredPageZoomRotationLocation": true,
   "nativeNavigationRotationBookmark": true,
-  "fullscreenRevealAndAnnotationProtection": true,
+  "fullscreenGestureAndKeyboardRecoveryWithoutOverlay": true,
+  "annotationProtection": true,
   "saveReloadPreservesView": true,
   "incrementalAnnotationSaveBytes": 900,
   "normalPdfStillTranslates": true,

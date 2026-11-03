@@ -5,8 +5,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ActivityScenario
@@ -52,6 +55,10 @@ class ReaderRecoveryUiTest {
         }
         fail("Reader condition timed out: $js")
     }
+    private fun waitForLibrary() {
+        compose.waitUntil(15000) { compose.onAllNodesWithTag("library-list").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithText("Your library").assertIsDisplayed()
+    }
     private fun sample() = Intent(context, MainActivity::class.java)
         .putExtra("sample", true).putExtra("mock", true)
         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
@@ -94,6 +101,108 @@ class ReaderRecoveryUiTest {
         } finally {
             settings.provider = provider; settings.translateRange = range
             settings.readerFullscreen = fullscreen; settings.uiLanguage = language
+        }
+    }
+
+    @Test fun txtSplitRatioSurvivesImmediateBack() = withManualReader { settings ->
+        val db = ReaderDatabase.open(context)
+        val file = java.io.File(context.filesDir, "documents/reader-exit-${System.nanoTime()}.txt")
+        val oldMode = settings.readingOnly
+        var document: DocumentRecord? = null
+        try {
+            settings.readingOnly = false
+            file.parentFile!!.mkdirs()
+            file.writeText("Chapter 1\n\nA new column ratio must survive immediately leaving the reader.\n")
+            val index = org.pararead.core.TextDocuments.open(file)
+            val fixture = DocumentRecord(file.nameWithoutExtension, "test:reader-exit", file.name,
+                file.path, "test:${file.name}:txt-v${index.version}", file.length())
+            document = fixture
+            runBlocking {
+                db.reader().document(fixture)
+                db.reader().reading(ReadingRecord(fixture.id, """{"page":1,"txt":{"columnRatio":0.5,"showSource":true}}"""))
+            }
+            ActivityScenario.launch<MainActivity>(Intent(context, MainActivity::class.java)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)).use { scenario ->
+                compose.onNodeWithTag("continue-reading").performClick()
+                waitFor(scenario, "window.paraRead?.opened && document.querySelector('.textSplitHandle')")
+                val backRequested = CountDownLatch(1)
+                scenario.onActivity { activity ->
+                    find(activity.window.decorView)!!.evaluateJavascript("""
+                        // Hold the debounce: only the native flush may persist this new ratio.
+                        window.__exitSetTimeout = window.setTimeout;
+                        window.setTimeout = (fn, delay, ...args) => window.__exitSetTimeout(fn, delay === 250 ? 60000 : delay, ...args);
+                        document.querySelector('.textSplitHandle').dispatchEvent(new KeyboardEvent('keydown',{key:'End',bubbles:true}));
+                    """.trimIndent()) {
+                        // No waitForIdle, sleep or 250ms debounce between changing the ratio and Back.
+                        activity.onBackPressedDispatcher.onBackPressed()
+                        backRequested.countDown()
+                    }
+                }
+                assertTrue(backRequested.await(8, TimeUnit.SECONDS))
+                waitForLibrary()
+                val saved = runBlocking { db.reader().reading(fixture.id) }
+                assertNotNull(saved)
+                assertEquals(0.75, JSONObject(saved!!.json).getJSONObject("txt").getDouble("columnRatio"), 0.001)
+                compose.onNodeWithTag("continue-reading").performClick()
+                waitFor(scenario, "window.paraRead?.opened && document.querySelector('.textSplitHandle')?.getAttribute('aria-valuenow') === '75'")
+                scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
+                waitForLibrary()
+            }
+        } finally {
+            settings.readingOnly = oldMode
+            try { document?.let { runBlocking { DocumentRepository(context, db.reader()).delete(it) } } }
+            finally { file.delete(); java.io.File(file.path + ".index.json").delete(); db.close() }
+        }
+    }
+
+    @Test fun failedExitFlushKeepsReaderAttachedAndAllowsRetry() = withManualReader { settings ->
+        ActivityScenario.launch<MainActivity>(sample()).use { scenario ->
+            waitFor(scenario, "window.paraRead?.opened")
+            val hostField = MainActivity::class.java.getDeclaredField("host").apply { isAccessible = true }
+            val selectedField = MainActivity::class.java.getDeclaredField("selected\$delegate").apply { isAccessible = true }
+            var originalHost: Any? = null; var originalDocument: Any? = null; var originalView: WebView? = null
+            scenario.onActivity {
+                originalHost = hostField.get(it)
+                originalDocument = (selectedField.get(it) as androidx.compose.runtime.State<*>).value
+                originalView = find(it.window.decorView)
+            }
+            val oldMode = settings.readingOnly
+            evaluate(scenario, """
+                window.__exitFlushCount=0;
+                window.__exitFlushOriginal=window.ParaReadNative.onmessage;
+                window.ParaReadNative.onmessage=e=>{
+                  const m=JSON.parse(e.data);
+                  if(m.type==='reader.command'&&m.payload.type==='flushBeforeModeSwitch'){
+                    window.__exitFlushCount++;window.__heldExitFlush=m.payload.flushId;return;
+                  }
+                  if(m.type==='reader.command'&&m.payload.type==='resumeAfterModeFlush'){
+                    window.__resumedExitFlush=m.payload.flushId;
+                  }
+                  window.__exitFlushOriginal(e);
+                };
+            """.trimIndent())
+            scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
+            waitFor(scenario, "window.__heldExitFlush")
+            compose.onNodeWithTag("reader-reading-only").assertIsNotEnabled()
+            scenario.onActivity { it.onBackPressedDispatcher.onBackPressed(); it.onBackPressedDispatcher.onBackPressed() }
+            assertEquals("1", evaluate(scenario, "window.__exitFlushCount"))
+            assertEquals(oldMode, settings.readingOnly)
+            evaluate(scenario, "window.paraRead.post('reader.flushed',{flushId:window.__heldExitFlush,success:false,message:'SAVE_FAILED'})")
+            waitFor(scenario, "window.__resumedExitFlush===window.__heldExitFlush")
+            compose.onNodeWithText("Could not save recent changes. The document remains open. Please try again.").assertIsDisplayed()
+            compose.onNodeWithTag("reader-reading-only").assertIsEnabled()
+            scenario.onActivity {
+                assertSame(originalHost, hostField.get(it))
+                assertSame(originalDocument, (selectedField.get(it) as androidx.compose.runtime.State<*>).value)
+                assertSame(originalView, find(it.window.decorView))
+                for (name in listOf("detached", "closed")) {
+                    val field = ReaderHost::class.java.getDeclaredField(name).apply { isAccessible = true }
+                    assertFalse("Failed exit must not set $name", field.getBoolean(originalHost))
+                }
+            }
+            evaluate(scenario, "window.ParaReadNative.onmessage=window.__exitFlushOriginal")
+            scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
+            waitForLibrary()
         }
     }
 
@@ -146,11 +255,17 @@ class ReaderRecoveryUiTest {
                 beforeWidth = original!!.width; beforeHeight = original!!.height
                 wide = it.resources.configuration.screenWidthDp >= 840
             }
+            if (wide) {
+                compose.onNodeWithText("Library").assertDoesNotExist()
+                compose.onNodeWithText("Models").assertDoesNotExist()
+                compose.onNodeWithText("Settings").assertDoesNotExist()
+            }
             compose.onNodeWithText("Full screen").performClick()
-            compose.onNodeWithTag("reader-exit-fullscreen").assertIsDisplayed()
+            compose.onNodeWithTag("reader-exit-fullscreen").assertDoesNotExist()
             compose.onNodeWithText("Full screen").assertDoesNotExist()
             compose.onNodeWithText("Settings").assertDoesNotExist()
-            compose.waitUntil(10000) { original!!.height > beforeHeight + 50 && (!wide || original!!.width > beforeWidth + 50) }
+            // The wide rail is already hidden before fullscreen; only toolbar/bars free space.
+            compose.waitUntil(10000) { original!!.height > beforeHeight + 50 && original!!.width >= beforeWidth }
             compose.waitUntil(10000) {
                 var hidden = false
                 scenario.onActivity { hidden = androidx.core.view.ViewCompat.getRootWindowInsets(it.window.decorView)
@@ -176,16 +291,29 @@ class ReaderRecoveryUiTest {
                     bitmap.recycle()
                 }
             }
-            compose.onNodeWithTag("reader-exit-fullscreen").performClick()
+            scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
             compose.onNodeWithText("Full screen").assertIsDisplayed()
+            scenario.onActivity { assertSame("First Back keeps the reader attached", original, find(it.window.decorView)) }
             assertFalse(settings.readerFullscreen)
             compose.onNodeWithText("Full screen").performClick()
             scenario.recreate()
-            compose.onNodeWithTag("reader-exit-fullscreen").assertIsDisplayed()
+            compose.onNodeWithTag("reader-exit-fullscreen").assertDoesNotExist()
             waitFor(scenario, "window.paraRead?.opened")
             scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
             compose.onNodeWithText("Full screen").assertIsDisplayed()
             assertFalse(settings.readerFullscreen)
+            if (wide) {
+                compose.onNodeWithText("Library").assertDoesNotExist()
+                compose.onNodeWithText("Models").assertDoesNotExist()
+                compose.onNodeWithText("Settings").assertDoesNotExist()
+            }
+            scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
+            waitForLibrary()
+            if (wide) {
+                compose.onNodeWithText("Library").assertIsDisplayed()
+                compose.onNodeWithText("Models").assertIsDisplayed()
+                compose.onNodeWithText("Settings").assertIsDisplayed()
+            }
         }
     }
 
@@ -211,7 +339,7 @@ class ReaderRecoveryUiTest {
                 assertTrue(saved.contains("模拟译文"))
                 val afterTranslation = requests()
                 scenario.onActivity { it.onBackPressedDispatcher.onBackPressed() }
-                compose.onNodeWithText("Your library").assertIsDisplayed()
+                waitForLibrary()
                 compose.onNodeWithTag("continue-reading").performClick()
                 waitFor(scenario, complete)
                 assertEquals(saved, evaluate(scenario, rows))
@@ -240,7 +368,7 @@ class ReaderRecoveryUiTest {
             assertTrue(after.getInt("pdf") > before.getInt("pdf") + 20)
             assertTrue(after.getInt("panel") > before.getInt("panel") + 20)
             assertEquals("false", evaluate(scenario, "document.querySelector('#readerShowControls').hidden"))
-            compose.onNodeWithTag("reader-exit-fullscreen").assertIsDisplayed()
+            compose.onNodeWithTag("reader-exit-fullscreen").assertDoesNotExist()
             if (InstrumentationRegistry.getArguments().getString("captureReaderValidation") == "true") {
                 java.io.File(context.filesDir, "reader-hidden-controls-bounds.json").writeText(JSONObject().put("before", before).put("after", after).toString(2))
                 InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot().let { bitmap ->

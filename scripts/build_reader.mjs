@@ -21,6 +21,7 @@ await build({ entryPoints: [`${root}/web/reader/src/entry.ts`], outfile: `${out}
 // TXT has its own lightweight entry: no PDF.js viewer, canvas or annotation editor.
 await cp(`${root}/web/reader/text.html`, `${out}/text.html`);
 await cp(`${root}/web/reader/text.css`, `${out}/text.css`);
+await cp(`${root}/web/reader/text-navigation.css`, `${out}/text-navigation.css`);
 await build({ entryPoints: [`${root}/web/reader/src/text-entry.ts`], outfile: `${out}/text.mjs`, bundle: true,
   platform: 'browser', format: 'esm', target: 'es2022', sourcemap: true,
   banner: { js: '/*! ParaRead Android TXT reader; shared ParaRead modules Apache-2.0. See licenses/project/NOTICE. */' } });

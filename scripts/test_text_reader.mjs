@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {createServer} from 'node:http';
-import {readFile, writeFile} from 'node:fs/promises';
+import {readFile, writeFile, mkdir} from 'node:fs/promises';
 import {resolve, extname, sep} from 'node:path';
 import {chromium} from '@playwright/test';
 
@@ -28,15 +28,19 @@ try {
   await new Promise((done, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', done); });
   const origin = `http://127.0.0.1:${server.address().port}`;
   browser = await chromium.launch({channel: process.env.PLAYWRIGHT_CHANNEL || (process.platform === 'win32' ? 'msedge' : undefined), headless: true});
-  const context = await browser.newContext({viewport: {width: 700, height: 650}});
+  const context = await browser.newContext({viewport: {width: 700, height: 650}, hasTouch:true});
   await context.addInitScript(({fixture}) => {
     const background = new URL(location.href).searchParams.has('background');
-    const readingOnly = new URL(location.href).searchParams.has('readingOnly');
+    const params = new URL(location.href).searchParams;
+    const readingOnly = params.has('readingOnly');
+    const bookChapters = params.has('noChapters') ? [] : params.has('manyChapters')
+      ? Array.from({length:205},(_,i) => ({title:`测试章节 ${i+1}`,page:Math.min(3,Math.floor(i/70)+1)}))
+      : [{title:'第一章 开始',page:1},{title:'第二章 继续',page:2},{title:'Chapter 3 Ending',page:3}];
     const prefix = 'txt-reader-proof:';
     const read = (key, fallback) => JSON.parse(localStorage.getItem(prefix + key) ?? JSON.stringify(fallback));
     const save = (key, value) => localStorage.setItem(prefix + key, JSON.stringify(value));
     const session = {version:1, sessionId:'txt-browser', documentId:'txt-fixture', documentRevision:'txt-v1', configRevision:1, viewportEpoch:0};
-    const state = window.__txtProof = {messages:[], pages:[], savedPages:[], translations:[], checkpoints:[], readingWrites:0, finished:null, flushes:[]};
+    const state = window.__txtProof = {messages:[], pages:[], savedPages:[], translations:[], checkpoints:[], readingWrites:0, finished:null, flushes:[], chapterBatches:[]};
     const chunks = new Map();
     const send = (message, type, payload) => setTimeout(() => window.ParaReadNative.onmessage({data:JSON.stringify({...message, ...session, type, payload})}), 0);
     const command = (type, payload = {}) => send({requestId:'command-' + Math.random()}, 'reader.command', {type, ...payload});
@@ -44,9 +48,13 @@ try {
     window.ParaReadNative = {postMessage(raw) {
       const m = JSON.parse(raw); state.messages.push(m.type);
       if (m.type === 'reader.ready') send(m, 'session.open', {token:'txt-test', length:1, format:'txt',
-        text:{pages:fixture.length, chapters:[{title:'第一章 开始',page:1},{title:'第二章 继续',page:2},{title:'Chapter 3 Ending',page:3}], chapterCount:3, encoding:'UTF-8', indexVersion:1},
+        text:{pages:fixture.length, chapters:bookChapters.slice(0,100), chapterCount:bookChapters.length, encoding:'UTF-8', indexVersion:1},
         reading:read('reading', {}), settings:{uiLanguage:'zh-CN',translateRange:'manual',readingOnly,backgroundTranslation:background}});
       else if (m.type === 'session.opened' && background) command('translateAll', {jobId:11,startPage:1});
+      else if (m.type === 'text.chapters') {
+        state.chapterBatches.push(m.payload.offset);
+        send(m,'text.chapters',{chapters:bookChapters.slice(m.payload.offset,m.payload.offset+m.payload.count),total:bookChapters.length});
+      }
       else if (m.type === 'text.page') {
         state.pages.push(m.payload.page);
         send(m, 'text.page', {page:m.payload.page,text:fixture[m.payload.page-1]});
@@ -67,7 +75,11 @@ try {
         const items = m.payload.sentences.map(s => ({id:s.id,translation:'【模拟译文】' + s.text}));
         m.payload.sentences.forEach((s,i) => { cache[s.text] = items[i].translation; }); save('cache',cache);
         send(m,'translation.committed',{sequence:0,items}); send(m,'translation.finished',{failures:[]});
-      } else if (m.type === 'reading.save') { state.readingWrites++; save('reading',{...read('reading',{}),...m.payload}); send(m,'reading.saved',{}); }
+      } else if (m.type === 'reading.save') {
+        state.readingWrites++; save('reading',{...read('reading',{}),...m.payload});
+        if (state.holdReadingAck) (state.readingAcks ??= []).push(() => send(m,'reading.saved',{}));
+        else send(m,'reading.saved',{});
+      }
       else if (m.type === 'reader.flushed') state.flushes.push(m.payload);
       else if (m.type === 'job.progress' || m.type === 'job.finished') {
         state.checkpoints.push(m.payload); if (m.type === 'job.finished') state.finished = m.payload;
@@ -85,7 +97,8 @@ try {
   await page.waitForFunction(() => document.querySelector('input[inputmode="numeric"]').value === '2' && !document.querySelector('[aria-busy="true"]'));
   await page.getByRole('button', {name:'翻译当前页',exact:true}).click();
   await page.waitForFunction(() => document.querySelector('.bilingualSentence')?.textContent.includes('【模拟译文】'));
-  await page.getByLabel('章节', {exact:true}).selectOption('3');
+  await page.getByRole('button', {name:'章节',exact:true}).click();
+  await page.locator('.textNavigationPanelChapter').nth(2).click();
   await page.waitForFunction(() => document.querySelector('input[inputmode="numeric"]').value === '3' && !document.querySelector('[aria-busy="true"]'));
   assert.equal(await page.getByRole('button', {name:'下一页',exact:true}).isDisabled(), true);
   const pageInput = page.getByRole('textbox', {name:'页码',exact:true});
@@ -110,7 +123,7 @@ try {
     source:b.querySelector('.bilingualSource').getBoundingClientRect().toJSON(),
     target:b.querySelector('.bilingualTarget').getBoundingClientRect().toJSON(),
   })));
-  for (const viewport of [{width:768,height:1024},{width:800,height:1280},{width:1280,height:800}]) {
+  for (const viewport of [{width:640,height:360},{width:768,height:1024},{width:800,height:1280},{width:1280,height:800}]) {
     await page.setViewportSize(viewport);
     const pairs = await paragraphRects(); assert.ok(pairs.length > 1);
     for (const {source,target} of pairs) {
@@ -120,9 +133,23 @@ try {
     }
     assert.ok(await page.locator('.textContent').evaluate(e => e.scrollWidth <= e.clientWidth), 'tablet content must not overflow');
   }
+  const split = page.getByRole('separator', {name:'原文栏宽度',exact:true});
+  await split.focus(); await page.keyboard.press('ArrowRight');
+  assert.equal(await split.getAttribute('aria-valuenow'), '55');
+  const handle = await split.boundingBox();
+  await page.mouse.move(handle.x + handle.width/2,handle.y+handle.height/2);
+  await page.mouse.down(); await page.mouse.move(handle.x+handle.width/2+100,handle.y+handle.height/2,{steps:5}); await page.mouse.up();
+  const ratio = await page.evaluate(() => Number(document.querySelector('.textReader').style.getPropertyValue('--text-source-share')));
+  assert.ok(ratio > .6 && ratio <= .75, 'drag widens the original column');
+  assert.ok((await paragraphRects())[0].source.width > (await paragraphRects())[0].target.width);
+  await page.waitForFunction(ratio => JSON.parse(localStorage.getItem('txt-reader-proof:reading')).txt.columnRatio === ratio, ratio);
+  await page.reload();
+  await page.waitForFunction(() => document.querySelector('.bilingualSentence') && !document.querySelector('[aria-busy="true"]'));
+  assert.equal(await page.evaluate(() => Number(document.querySelector('.textReader').style.getPropertyValue('--text-source-share'))),ratio,'reopening retains split preference');
   const pairedWidth = (await paragraphRects())[0].target.width;
   const showSource = page.getByRole('checkbox', {name:'显示原文',exact:true});
   await showSource.uncheck();
+  assert.equal(await split.isVisible(), false, 'single-column mode has no separator');
   assert.equal(await page.locator('.bilingualSource').first().isVisible(), false);
   assert.ok((await page.locator('.bilingualTarget').first().boundingBox()).width > pairedWidth, 'hiding original restores single column');
   await showSource.check();
@@ -163,7 +190,52 @@ try {
   await page.getByRole('button',{name:'跳转',exact:true}).focus();
   assert.equal(await page.getByRole('button',{name:'跳转',exact:true}).evaluate(e => getComputedStyle(e).outlineStyle), 'solid', 'keyboard focus remains visible');
   report.controls = {lightAndDark:true,widths:[320,360,800,1280],touchTargets44px:true,contrastAtLeast4_5:true,keyboardFocus:true,largeUiText:true};
-  report.foreground = {pagination:true,chapterJump:true,invalidPageRejected:true,fontSize:true,anchorPreserved:true,reopen:true,cacheOnlyRestore:true,phoneLayout:true,darkMode:true,tabletSideBySide:true,paragraphAlignment:true,sourceHiddenSingleColumn:true};
+  await page.evaluate(() => window.__txtProof.command('readerFullscreen',{enabled:true,showControlsLabel:'显示阅读工具栏'}));
+  await page.getByRole('button',{name:'显示阅读工具栏',exact:true}).click();
+  await page.getByRole('button',{name:'收起阅读工具栏',exact:true}).click();
+  assert.equal(await page.locator('.textToolbar').isVisible(),false);
+  await page.getByRole('button',{name:'显示阅读工具栏',exact:true}).click();
+  await page.evaluate(() => window.__txtProof.command('readerFullscreen',{enabled:false}));
+  await pageInput.fill('1'); await page.getByRole('button',{name:'跳转',exact:true}).click();
+  await page.waitForFunction(() => document.querySelector('input[inputmode="numeric"]').value === '1' && !document.querySelector('[aria-busy="true"]'));
+  const cdp = await context.newCDPSession(page);
+  const swipe = async (dx,dy=0,edge=false) => {
+    const rect=await page.locator('.textContent').boundingBox();
+    const x=edge?10:rect.x+rect.width/2,y=rect.y+Math.min(80,rect.height/2);
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y}]});
+    for(let step=1;step<=5;step++) await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x:x+dx*step/5,y:y+dy*step/5}]});
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+  };
+  await swipe(-100,3);
+  await page.waitForFunction(() => document.querySelector('input[inputmode="numeric"]').value === '2' && !document.querySelector('[aria-busy="true"]'));
+  await swipe(100,3);
+  await page.waitForFunction(() => document.querySelector('input[inputmode="numeric"]').value === '1' && !document.querySelector('[aria-busy="true"]'));
+  await swipe(100,0,true);
+  assert.equal(await pageInput.inputValue(),'1','edge swipe belongs to Android Back');
+  await swipe(3,-70);
+  assert.equal(await pageInput.inputValue(),'1','vertical reading does not turn pages');
+  await cdp.detach();
+  await page.getByRole('button',{name:'章节',exact:true}).click();
+  const dialog=page.getByRole('dialog');
+  await dialog.locator('.textNavigationPanelNumber').fill('50');
+  assert.equal(await pageInput.inputValue(),'1','percentage adjustment only previews');
+  await dialog.getByRole('button',{name:'跳转',exact:true}).click();
+  await page.waitForFunction(() => document.querySelector('input[inputmode="numeric"]').value === '2' && !document.querySelector('[aria-busy="true"]'));
+  await page.getByRole('button',{name:'章节',exact:true}).click();
+  await page.evaluate(() => { window.__txtProof.holdReadingAck=true; window.__txtProof.command('flushBeforeModeSwitch',{flushId:'txt-navigation-freeze'}); });
+  await page.waitForFunction(() => document.body.inert && !document.querySelector('dialog').open);
+  const frozenRequests=await page.evaluate(()=>window.__txtProof.pages.length);
+  await page.keyboard.press('ArrowRight');
+  await page.evaluate(()=>document.querySelector('.textNext').click());
+  assert.equal(await page.evaluate(()=>window.__txtProof.pages.length),frozenRequests,'save freeze fences keyboard and synthetic direct actions');
+  assert.equal(await pageInput.inputValue(),'2');
+  await page.evaluate(()=>{window.__txtProof.holdReadingAck=false;for(const ack of window.__txtProof.readingAcks ?? []) ack();});
+  await page.waitForFunction(()=>window.__txtProof.flushes.some(f=>f.flushId==='txt-navigation-freeze'&&f.success));
+  await page.evaluate(()=>window.__txtProof.command('resumeAfterModeFlush',{flushId:'txt-navigation-freeze'}));
+  await page.waitForFunction(()=>!document.body.inert);
+  await page.getByRole('button',{name:'下一页',exact:true}).click();
+  await page.waitForFunction(()=>document.querySelector('input[inputmode="numeric"]').value==='3'&&!document.querySelector('[aria-busy="true"]'));
+  report.foreground = {pagination:true,chapterJump:true,invalidPageRejected:true,fontSize:true,anchorPreserved:true,reopen:true,cacheOnlyRestore:true,phoneLayout:true,darkMode:true,tabletSideBySide:true,paragraphAlignment:true,sourceHiddenSingleColumn:true,swipeNavigation:true,edgeAndVerticalGestureExclusions:true,splitDragAndKeyboard:true,splitReopen:true,phoneLandscapeSideBySide:true,fullscreenShowAndHide:true,percentagePreviewAndJump:true,durableFreezeNavigationGuard:true};
   const bg = await context.newPage(); bg.setDefaultTimeout(15000); bg.on('pageerror', e => errors.push(String(e)));
   await bg.goto(origin + '/?background=1');
   await bg.waitForFunction(() => window.__txtProof.finished?.status === 'COMPLETED' && window.paraRead.opened === false);
@@ -176,7 +248,8 @@ try {
   await ro.setViewportSize({width:800,height:1280});
   await ro.goto(origin + '/?readingOnly=1');
   await ro.waitForFunction(() => document.querySelectorAll('.bilingualTarget').length > 0 && !document.querySelector('[aria-busy="true"]'));
-  await ro.getByLabel('章节', {exact:true}).selectOption('1');
+  await ro.getByRole('button',{name:'章节',exact:true}).click();
+  await ro.locator('.textNavigationPanelChapter').nth(0).click();
   await ro.waitForFunction(() => document.querySelector('input[inputmode="numeric"]').value === '1' && !document.querySelector('[aria-busy="true"]'));
   assert.equal(await ro.locator('.bilingualTarget').allTextContents().then(parts => parts.join('')), fixture[0], 'read-only preserves exact source text');
   assert.equal(await ro.locator('.bilingualSource, .bilingualSentence').count(), 0, 'read-only must not duplicate original or add translation click targets');
@@ -190,10 +263,11 @@ try {
   assert.equal(await ro.locator('.bilingualTarget').allTextContents().then(parts => parts.join('')), fixture[1]);
   const roProof = await ro.evaluate(() => window.__txtProof.messages);
   assert.ok(!roProof.some(type => ['translation.request','translation.cacheGet','job.progress','job.finished'].includes(type)), 'read-only has zero translation/cache/job messages');
-  await ro.getByLabel('章节', {exact:true}).selectOption('1');
+  await ro.getByRole('button',{name:'章节',exact:true}).click();
+  await ro.locator('.textNavigationPanelChapter').nth(0).click();
   await ro.waitForFunction(() => document.querySelector('input[inputmode="numeric"]').value === '1' && !document.querySelector('[aria-busy="true"]'));
   await ro.evaluate(() => {
-    const font = document.querySelector('input[type="range"]'); font.value = '29'; font.dispatchEvent(new Event('input'));
+    const font = document.querySelector('.textFontControl input'); font.value = '29'; font.dispatchEvent(new Event('input'));
     const content = document.querySelector('.textContent'); content.scrollTop = 240; content.dispatchEvent(new Event('scroll'));
     window.__txtProof.command('flushBeforeModeSwitch', {flushId:'txt-browser-flush'});
   });
@@ -205,6 +279,33 @@ try {
   await ro.waitForFunction(() => document.querySelector('.bilingualSentence')?.textContent.includes('【模拟译文】'));
   assert.equal(await ro.evaluate(() => window.__txtProof.translations.length), 0, 'leaving read-only reuses intact cached translations');
   report.readingOnly = {exactSource:true,noTranslationOrCacheRequests:true,noJobWrites:true,navigationAndFont:true,hiddenTranslationControls:true,cacheIntactOnExit:true,durableModeFlush:true};
+  const chapters = await context.newPage(); chapters.on('pageerror',e=>errors.push(String(e)));
+  await chapters.goto(origin+'/?manyChapters=1');
+  await chapters.getByRole('button',{name:'章节',exact:true}).click();
+  const list=chapters.locator('.textNavigationPanelList');
+  assert.equal(await list.locator('li').count(),100);
+  assert.ok(await list.evaluate(e=>e.scrollHeight>e.clientHeight),'chapters are vertically scrollable');
+  for(const count of [200,205]) {
+    await list.evaluate(e=>{e.scrollTop=e.scrollHeight;e.dispatchEvent(new Event('scroll'));});
+    await chapters.waitForFunction(count=>document.querySelectorAll('.textNavigationPanelList li').length===count,count);
+  }
+  assert.deepEqual(await chapters.evaluate(()=>window.__txtProof.chapterBatches),[100,200]);
+  await chapters.locator('.textNavigationPanelChapter').last().click();
+  await chapters.waitForFunction(()=>document.querySelector('input[inputmode="numeric"]').value==='3');
+  const empty=await context.newPage(); empty.on('pageerror',e=>errors.push(String(e)));
+  await empty.goto(origin+'/?noChapters=1');
+  await empty.getByRole('button',{name:'章节',exact:true}).click();
+  assert.ok(await empty.getByText('暂无章节，仍可通过下方百分比跳转阅读位置。',{exact:true}).isVisible());
+  await empty.locator('.textNavigationPanelNumber').fill('100');
+  await empty.getByRole('dialog').getByRole('button',{name:'跳转',exact:true}).click();
+  await empty.waitForFunction(()=>document.querySelector('input[inputmode="numeric"]').value==='3');
+  const shots=resolve(import.meta.dirname,'../output/reader-interactions'); await mkdir(shots,{recursive:true});
+  await page.setViewportSize({width:1280,height:800});
+  await page.screenshot({path:resolve(shots,'txt-landscape-resizable.png')});
+  await chapters.setViewportSize({width:360,height:800});
+  await chapters.getByRole('button',{name:'章节',exact:true}).click();
+  await chapters.screenshot({path:resolve(shots,'txt-chapters-progress.png')});
+  report.navigationPanel={scrollableChapters:true,lazyBatches:[100,200],noChaptersPercentJump:true};
   assert.ok(!resources.some(p => p.includes('pdfjs')),'TXT must not load PDF.js');
   assert.deepEqual(errors,[]);
   report.status = 'passed'; report.timestamp = new Date().toISOString(); report.browserVersion = browser.version();
