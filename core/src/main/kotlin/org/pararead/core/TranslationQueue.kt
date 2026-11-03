@@ -17,6 +17,16 @@ data class TranslationWork(val id: String, val epoch: Int, val priority: Int, va
 /** One inference owner. Selection/current-page work preempts lower priorities; whole-book work enters one page at a time. */
 class TranslationQueue(private val scope: CoroutineScope, private val cache: TranslationCache, private val provider: () -> TranslationProvider) {
     private class Preempted : CancellationException("SELECTION_PREEMPTED")
+    private data class Cached(val key: String, val translation: String)
+    private suspend fun lookupCached(text: String, config: TranslationConfig): Cached? {
+        for (candidate in translationCacheKeys(text, config)) {
+            currentCoroutineContext().ensureActive()
+            val value = cache.get(candidate.key)
+            currentCoroutineContext().ensureActive()
+            reuseCachedTranslation(value, candidate)?.let { return Cached(candidate.key, it) }
+        }
+        return null
+    }
     private data class Entry(val work: TranslationWork, val order: Long)
     private val queue = PriorityQueue<Entry>(compareBy<Entry> { it.work.priority }.thenBy { it.order })
     private val wake = Channel<Unit>(Channel.CONFLATED)
@@ -67,10 +77,9 @@ class TranslationQueue(private val scope: CoroutineScope, private val cache: Tra
             val missing = mutableListOf<SourceSentence>()
             for (s in w.sentences) {
                 currentCoroutineContext().ensureActive()
-                val key = contentKey(s.text, w.config)
-                val cached = cache.get(key)
-                if (cached == null || !TranslationQuality.accepts(s.text, cached, w.config)) missing += s
-                else w.committed(s, cached, key)
+                val cached = lookupCached(s.text, w.config)
+                if (cached == null) missing += s
+                else w.committed(s, cached.translation, cached.key)
             }
             val batches = mutableListOf<List<SourceSentence>>()
             var pending = mutableListOf<SourceSentence>(); var chars = 0
@@ -83,8 +92,8 @@ class TranslationQueue(private val scope: CoroutineScope, private val cache: Tra
             if (pending.isNotEmpty()) batches += pending
             for (batch in batches) {
                 currentCoroutineContext().ensureActive()
-                // One generation per batch/fragment. Quality diagnostics are ordinary text
-                // warnings; failed streams retain attributable text without a repair loop.
+                // One generation per batch/fragment, with original source text and no quality gate.
+                // Failed streams retain attributable text and runtime diagnostics without a repair loop.
                 // Backend compatibility fallback remains owned by the provider, not this queue.
                 val validated = try { infer(batch, w) }
                 catch (cancel: CancellationException) { throw cancel }
@@ -125,12 +134,12 @@ class TranslationQueue(private val scope: CoroutineScope, private val cache: Tra
         if (batch.size == 1 && batch[0].text.length > 1200) {
             val original = batch[0]
             val parts = StructuredTranslation.fragments(original.text)
-            require(parts.size > 1) { "PROTECTED_SPAN_EXCEEDS_CONTEXT_BUDGET" }
+            require(parts.size > 1) { "CONTEXT_FRAGMENTATION_FAILED" }
             val translated = mutableListOf<String>()
             try { for (part in parts) {
                 val key = contentKey(part, w.config)
-                val cached = cache.get(key)?.takeIf { TranslationQuality.accepts(part, it, w.config) }
-                val value = cached ?: infer(listOf(original.copy(text = part)), w.copy(delta = { _, text ->
+                val cached = lookupCached(part, w.config)
+                val value = cached?.translation ?: infer(listOf(original.copy(text = part)), w.copy(delta = { _, text ->
                         w.delta(original, translated.joinToString("") { TranslationWarnings.body(it) } + text)
                     })).let { result ->
                     require(result.rejected.isEmpty()) { result.rejected.first().second }

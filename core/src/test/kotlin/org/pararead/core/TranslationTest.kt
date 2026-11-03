@@ -33,74 +33,116 @@ class TranslationTest {
         assertEquals(listOf("正确译文"), stored)
         assertEquals(listOf("错误草稿", "", "正确译文"), drafts)
     }
-    @Test fun batchPlaceholdersCannotReferToAnotherSentence() {
+    @Test fun batchInputsKeepOriginalTextAndDraftsBelongOnlyToTheirIds() {
         val sentences = listOf(SourceSentence("first", "Use 4 GB [12].", "g"), SourceSentence("second", "Preserve `cache.get(key)`.", "g"))
-        val (prompt, values) = StructuredTranslation.prompt(sentences, TranslationConfig())
-        assertTrue(prompt.user.contains("__PR2__"))
-        assertEquals("保留 `cache.get(key)`。", values[1].restore("保留 __PR2__。"))
-        assertFails { values[1].restore("保留 __PR0__。") }
-        val draft = StructuredTranslation.drafts("{\"id\":\"s2\",\"translation\":\"保留 __PR2__。", sentences, values)
-        assertEquals("保留 `cache.get(key)`。", draft.single().second)
+        val (prompt, inputs) = StructuredTranslation.prompt(sentences, TranslationConfig())
+        val rows = JSONObject(prompt.user.substringBefore("\n/no_think")).getJSONArray("sentences")
+        assertEquals(sentences.map { it.text }, inputs.map { it.text })
+        sentences.forEachIndexed { i, sentence ->
+            assertEquals("s${i + 1}", rows.getJSONObject(i).getString("id"))
+            assertEquals(sentence.text, rows.getJSONObject(i).getString("text"))
+        }
+        assertFalse(prompt.user.contains("__PR"))
+        val draft = StructuredTranslation.drafts("{\"id\":\"s2\",\"translation\":\"保留 `cache.get(key)`。", sentences, inputs)
+        assertEquals(listOf(sentences[1] to "保留 `cache.get(key)`。"), draft)
+        val recovered = StructuredTranslation.salvage("{\"id\":\"s2\",\"translation\":\"保留代码。", sentences, inputs,
+            TranslationConfig(), "TRUNCATED_STREAM_length")
+        assertEquals(listOf(sentences[1] to "保留代码。（truncated_stream_length）"), recovered.accepted)
+        assertEquals(listOf(sentences[0] to "TRUNCATED_STREAM_length"), recovered.rejected)
+        for (unsafe in listOf("{\"id\":\"s3\",\"translation\":\"未知归属", "{\"translations\":[",
+            "<think>推理尚未结束", "{\"translation\":\"没有 ID\"}",
+            "[{\"id\":\"s1\",\"translation\":\"甲\"},{\"id\":\"s1\",\"translation\":\"乙\"}]")) {
+            assertTrue(StructuredTranslation.drafts(unsafe, sentences, inputs).isEmpty(), unsafe)
+        }
     }
     @Test fun trailingOutputCannotHideBehindAValidJsonPrefix() {
         val s = listOf(SourceSentence("p1-b1-s1", "One.", "p1-b1"))
-        val (_, protected) = StructuredTranslation.prompt(s, TranslationConfig())
+        val (_, inputs) = StructuredTranslation.prompt(s, TranslationConfig())
         val valid = "{\"translations\":[{\"id\":\"s1\",\"translation\":\"一。\"}]}"
-        assertEquals("一。", StructuredTranslation.validate(valid + "\n ", s, protected).single().second)
+        assertEquals("一。", StructuredTranslation.validate(valid + "\n ", s, inputs).single().second)
         for (tail in listOf("{}", "\n{\"glossary\":{}}", " trailing prose", "[]")) {
-            assertFails { StructuredTranslation.validate(valid + tail, s, protected) }
+            assertFails { StructuredTranslation.validate(valid + tail, s, inputs) }
         }
     }
-    @Test fun exactIdsAndProtectedTokens() {
+    @Test fun exactIdsAreRequiredButNumbersAndReferencesAreNotValidated() {
         val s = listOf(SourceSentence("p1-b0-s0", "Use 10 kg and $" + "x+y$ [12] https://a.example/x", "p1-b0"))
-        val (prompt, protected) = StructuredTranslation.prompt(s, TranslationConfig())
-        assertTrue(prompt.user.contains("__PR0__"))
-        val translated = "使用 " + protected[0].text
-        val result = JSONObject().put("translations", JSONArray().put(JSONObject().put("id", "s1").put("translation", translated))).toString()
-        assertTrue(StructuredTranslation.validate(result, s, protected).single().second.contains("10 kg"))
-        assertTrue(StructuredTranslation.validate(result.replace("__PR0__", "10"), s, protected).single().second
-            .endsWith(" *****（protected_token_mismatch）"))
-        assertFails { StructuredTranslation.validate(result.replace("s1", "s2"), s, protected) }
-        assertFails { StructuredTranslation.validate("{\"translations\":[]}", s, protected) }
-    }
-    @Test fun asciiMarkerProtocolRejectsMutationsAndReservedInput() {
-        val protected = StructuredTranslation.protect("Use 4 GB [12].")
-        assertEquals("Use __PR0__ __PR1__.", protected.text)
-        assertEquals("使用 4 GB [12]。", protected.restore("使用 __PR0__ __PR1__。"))
-        for (bad in listOf("使用 __PR0_ __PR1__。", "使用 __PR0__ __PR0__。", "使用 ⟦P0⟧ ⟦P1⟧。")) {
-            assertFails { protected.restore(bad) }
+        val (prompt, inputs) = StructuredTranslation.prompt(s, TranslationConfig())
+        assertEquals(s.single().text, inputs.single().text)
+        assertEquals(s.single().text, JSONObject(prompt.user.substringBefore("\n/no_think"))
+            .getJSONArray("sentences").getJSONObject(0).getString("text"))
+        for (translated in listOf("使用 10 kg 和 ${'$'}x+y${'$'} [12] https://a.example/x", "使用 9 kg。", "无关译文。")) {
+            val result = JSONObject().put("translations", JSONArray().put(JSONObject().put("id", "s1").put("translation", translated))).toString()
+            assertEquals(translated, StructuredTranslation.validate(result, s, inputs).single().second)
+            assertFails { StructuredTranslation.validate(result.replace("s1", "s2"), s, inputs) }
         }
-        assertFails { StructuredTranslation.protect("A literal __PR0__ is reserved.") }
-        val (prompt, _) = StructuredTranslation.prompt(listOf(SourceSentence("a", "Use 4 GB.", "g")), TranslationConfig())
-        assertFalse(prompt.system.contains("\"translation\":\"...\""))
-        assertTrue(prompt.user.contains("__PR0__"))
-        assertTrue(prompt.system.contains("下划线"))
-        val english = StructuredTranslation.prompt(listOf(SourceSentence("a", "测试 4 GB。", "g")), TranslationConfig(targetLanguage = "en")).first
-        assertTrue(english.system.contains("__PRnumber__"))
-        assertTrue(english.system.contains("to en"))
+        assertFails { StructuredTranslation.validate("{\"translations\":[]}", s, inputs) }
+    }
+    @Test fun promptsUseOriginalTextAndOnlyTranslationFormatInstructions() {
+        val source = "  Use 4 GB [12], ${'$'}x+y${'$'}, https://a.example/x and `cache.get(key)`.\n```python\nprint(42)\n```\n中文😀 e\u0301  "
+        val sentence = SourceSentence("a", source, "g")
+        for (target in listOf("zh-CN", "en")) {
+            val config = TranslationConfig(sourceLanguage = "en", targetLanguage = target)
+            val (batchPrompt, inputs) = StructuredTranslation.prompt(listOf(sentence), config)
+            val (textPrompt, input) = StructuredTranslation.textPrompt(sentence, config)
+            assertEquals(source, inputs.single().text)
+            assertEquals(source, input.text)
+            assertEquals(source, JSONObject(batchPrompt.user.substringBefore("\n/no_think"))
+                .getJSONArray("sentences").getJSONObject(0).getString("text"))
+            assertEquals(source + "\n/no_think", textPrompt.user)
+            assertEquals(1, batchPrompt.expectedResults)
+            assertEquals(ModelOutputFormat.TRANSLATION_JSON, batchPrompt.outputFormat)
+            assertEquals(ModelOutputFormat.TEXT, textPrompt.outputFormat)
+            for (prompt in listOf(batchPrompt, textPrompt)) {
+                assertFalse(prompt.system.contains("\"translation\":\"...\""))
+                for (removed in listOf("__PR", "protected_token_mismatch", "下划线", "negation", "contrast", "否定", "转折", "不要总结")) {
+                    assertFalse(prompt.system.contains(removed, ignoreCase = true), removed)
+                }
+            }
+            if (target == "en") {
+                assertTrue(batchPrompt.system.contains("to en"))
+                assertTrue(textPrompt.system.contains("to en"))
+            }
+        }
+    }
+    @Test fun literalPlaceholderLikeTextIsOrdinarySourceAndOutput() {
+        val sentence = SourceSentence("literal", "A literal __PR0__ is ordinary text.", "g")
+        val config = TranslationConfig()
+        val (prompt, input) = StructuredTranslation.textPrompt(sentence, config)
+        assertEquals(sentence.text, input.text)
+        assertEquals(sentence.text + "\n/no_think", prompt.user)
+        assertEquals("原样 __PR0__。", StructuredTranslation.validateText("原样 __PR0__。", input, config))
     }
     @Test fun duplicateIdsCannotOverwrite() {
         val s = listOf(SourceSentence("p1-b0-s0", "One.", "g"), SourceSentence("p1-b0-s1", "Two.", "g"))
-        val (_, protected) = StructuredTranslation.prompt(s, TranslationConfig())
-        assertFails { StructuredTranslation.validate("[{\"id\":\"s1\",\"translation\":\"一\"},{\"id\":\"s1\",\"translation\":\"二\"}]", s, protected) }
+        val (_, inputs) = StructuredTranslation.prompt(s, TranslationConfig())
+        assertFails { StructuredTranslation.validate("[{\"id\":\"s1\",\"translation\":\"一\"},{\"id\":\"s1\",\"translation\":\"二\"}]", s, inputs) }
     }
     @Test fun invalidOrUnfinishedOutputNeverValidates() {
         val s = listOf(SourceSentence("p1-b0-s0", "Equation $" + "x=2$.", "p1-b0"))
-        val (_, protected) = StructuredTranslation.prompt(s, TranslationConfig())
+        val (_, inputs) = StructuredTranslation.prompt(s, TranslationConfig())
         for (raw in listOf("{", "{\"translations\":[]}", "[{\"id\":\"s1\",\"translation\":\"\"}]", "<think>reason</think>[]")) {
-            assertFails(raw) { StructuredTranslation.validate(raw, s, protected) }
+            assertFails(raw) { StructuredTranslation.validate(raw, s, inputs) }
         }
     }
-    @Test fun draftsAreDecodedAndFragmentsRetainOriginalProtectedSpans() {
+    @Test fun draftsDecodeJsonEscapesWithoutChangingModelText() {
         val s = listOf(SourceSentence("p1-b0-s0", "Read 10 kg.", "g"))
-        val (_, protected) = StructuredTranslation.prompt(s, TranslationConfig())
-        val draft = StructuredTranslation.drafts("{\"translations\":[{\"id\":\"s1\",\"translation\":\"译文 __PR0__ \\\"quoted\\\"", s, protected)
-        assertEquals("译文 10 kg \"quoted\"", draft.single().second)
-        val formula = "$" + "x+y=42$"
-        val original = "a".repeat(1198) + formula + " trailing text".repeat(150)
-        val fragments = StructuredTranslation.fragments(original)
-        assertTrue(fragments.size > 1); assertEquals(original, fragments.joinToString(""))
-        assertEquals(1, fragments.count { formula in it })
+        val (_, inputs) = StructuredTranslation.prompt(s, TranslationConfig())
+        val draft = StructuredTranslation.drafts("{\"translations\":[{\"id\":\"s1\",\"translation\":\"译文 9 kg \\\"quoted\\\"", s, inputs)
+        assertEquals(listOf(s.single() to "译文 9 kg \"quoted\""), draft)
+    }
+    @Test fun fragmentsRetainOriginalTextAndNeverSplitUnicodeSurrogatePairs() {
+        val original = "a".repeat(1199) + "😀" + "${'$'}x+y=42${'$'} [12]\r\n中文 e\u0301 `code` ".repeat(150)
+        for (limit in listOf(2, 17, 1200)) {
+            val fragments = StructuredTranslation.fragments(original, limit)
+            assertTrue(fragments.size > 1)
+            assertEquals(original, fragments.joinToString(""))
+            fragments.forEach { part ->
+                assertTrue(part.isNotEmpty())
+                assertTrue(part.length <= limit)
+                assertFalse(part.first().isLowSurrogate())
+                assertFalse(part.last().isHighSurrogate())
+            }
+        }
     }
     @Test fun invalidOutputWithoutUsableTextFailsOnceAndNeverEntersCache() = runTest {
         var calls = 0
@@ -117,6 +159,30 @@ class TranslationTest {
         assertNotEquals(contentKey("x", c), contentKey("x", c.copy(modelHash = "different")))
         assertNotEquals(contentKey("x", c), contentKey("x", c.copy(sourceLanguage = "en")))
         assertEquals(contentKey("x", c.copy(glossary = "{\"b\":\"B\",\"a\":\"A\"}")), contentKey("x", c.copy(glossary = "{\"a\":\"A\",\"b\":\"B\"}")))
+    }
+    @Test fun cacheCandidatesPreferCurrentFingerprintAndOnlyFallBackToSameConfigSixSix() {
+        val config = TranslationConfig()
+        val fingerprintParts = config.fingerprint().split('\u0000')
+        assertTrue("prompt=7" in fingerprintParts)
+        assertTrue("validator=7" in fingerprintParts)
+        val legacyFingerprint = fingerprintParts.joinToString("\u0000") {
+            when (it) { "prompt=7" -> "prompt=6"; "validator=7" -> "validator=6"; else -> it }
+        }
+        val candidates = translationCacheKeys("x", config)
+        assertEquals(2, candidates.size)
+        assertEquals(contentKey("x", config), candidates[0].key)
+        assertFalse(candidates[0].legacy)
+        assertEquals(sha256("x\u0000$legacyFingerprint"), candidates[1].key)
+        assertTrue(candidates[1].legacy)
+        assertEquals(translationCacheKeys("café   A", config), translationCacheKeys("cafe\u0301 A", config))
+        assertEquals(translationCacheKeys("x", config.copy(glossary = "{\"b\":\"B\",\"a\":\"A\"}")),
+            translationCacheKeys("x", config.copy(glossary = "{\"a\":\"A\",\"b\":\"B\"}")))
+        val keys = candidates.map { it.key }.toSet()
+        for (other in listOf(config.copy(provider = "api"), config.copy(model = "other-model"),
+            config.copy(modelHash = "other-hash"), config.copy(sourceLanguage = "en"),
+            config.copy(targetLanguage = "ja"), config.copy(glossary = "{\"x\":\"译\"}"))) {
+            assertTrue(translationCacheKeys("x", other).none { it.key in keys })
+        }
     }
     @Test fun protocolRejectsBadVersionAndUtf8Limit() {
         val message = Envelope("reader.ready", "s", "d", "r", "q", 0, 0, JSONObject())

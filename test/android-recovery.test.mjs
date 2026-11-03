@@ -42,7 +42,7 @@ test('manual reopening restores saved sentences without a translation request', 
 });
 
 test('marked imperfect translations reopen as done without inference in manual or automatic modes', async () => {
-  const translation = '已保存的译文 *****（protected_token_mismatch, translation_language_or_source_copy）';
+  const translation = '已保存的译文（http_500, inference_failed）';
   for (const range of ['manual', 'page']) {
     const h = harness({ range, restoreCached: async sentences => sentences.map(s => ({ id: s.id, translation })) });
     try {
@@ -178,8 +178,11 @@ test('cache bridge batches restoration, validates sessions and never posts trans
   const host = await readFile(new URL('../app/src/main/java/org/pararead/android/ReaderHost.kt', import.meta.url), 'utf8');
   assert.match(host, /"translation\.cacheGet" -> restoreTranslations\(m\)/);
   const restore = host.slice(host.indexOf('private suspend fun restoreTranslations'), host.indexOf('private suspend fun translate('));
-  assert.match(restore, /dao\.translations\(keys\.values\.distinct\(\)\)/, 'one bounded batch query, not per-sentence IO');
-  assert.match(restore, /TranslationQuality\.accepts/, 'bad English copies must still be rejected');
+  assert.match(restore, /dao\.translations\(keys\.values\.flatten\(\)\.map \{ it\.key \}\.distinct\(\)\)/, 'one bounded batch query for current and known legacy keys');
+  assert.match(restore, /translationCacheKeys\(it\.text, config\)/, 'the same configuration determines both policy keys');
+  assert.match(restore, /firstNotNullOfOrNull/, 'current policy cache wins over a legacy match');
+  assert.match(restore, /reuseCachedTranslation/, 'restoration shares the non-semantic compatibility gate with the queue');
+  assert.doesNotMatch(restore, /TranslationQuality\.accepts|\.translation\(|dao\.translation\(/, 'no linguistic rejection or migration write');
   assert.doesNotMatch(restore, /translationQueue|provider\./, 'restoration must not call inference');
   const built = await build({ entryPoints: [fileURLToPath(new URL('../web/reader/src/bridge.ts', import.meta.url))],
     bundle: true, format: 'iife', write: false });

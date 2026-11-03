@@ -31,8 +31,14 @@ class SpeedTestTest {
         val varied = result.copy(samples = result.samples.mapIndexed { i, s -> s.copy(firstResponseMs = 1.0, totalMs = 100.0 + listOf(999, 30, 10, 20)[i]) })
         assertEquals(120.0, varied.warmMedian { it.totalMs })
     }
+    @Test fun nonChineseOutputIsStillACompatibleMeasurement() = runBlocking {
+        val provider = Provider("{\"translations\":[{\"id\":\"s1\",\"translation\":\"English only\"}]}")
+        val result = SpeedTest.run(provider)
+        assertEquals(4, provider.calls)
+        assertEquals(List(4) { "English only" }, result.samples.map { it.translation })
+    }
     @Test fun invalidTranslationsAndMissingNativeMetricsNeverBecomeResults() = runBlocking {
-        for (provider in listOf(Provider("{\"translations\":[]}"), Provider(measured = false), Provider("{\"translations\":[{\"id\":\"s1\",\"translation\":\"English only\"}]}"))) {
+        for (provider in listOf(Provider("{\"translations\":[]}"), Provider(measured = false))) {
             val error = runCatching { SpeedTest.run(provider) }.exceptionOrNull()
             assertNotNull(error)
             assertTrue(error is IllegalStateException || error is IllegalArgumentException)

@@ -108,7 +108,9 @@ class BackgroundTranslationsTest {
         assertEquals("Cancelling before revalidation cannot certify old pages", 0, checkpointCachePolicy(old.nextPage, old.json().toString()))
         assertEquals(TRANSLATION_CACHE_POLICY, checkpointCachePolicy(1, old.json().toString()))
         assertEquals(TRANSLATION_CACHE_POLICY, checkpointCachePolicy(2, current))
-        assertTrue(TranslationConfig().fingerprint().contains("validator=6"))
+        val config = TranslationConfig()
+        assertTrue(config.fingerprint().contains("validator=7"))
+        assertEquals(listOf(false, true), org.pararead.core.translationCacheKeys("Saved sentence.", config).map { it.legacy })
     }
 
     @Test fun snapshotRequiresAnEffectiveSupportedTarget() {

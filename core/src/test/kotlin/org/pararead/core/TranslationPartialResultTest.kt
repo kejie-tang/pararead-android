@@ -35,7 +35,7 @@ class TranslationPartialResultTest {
                 val done = CompletableDeferred<Unit>()
                 queue.submit(TranslationWork("$reason-$n", 0, 0, listOf(source), config,
                     committed = { _, value, key ->
-                        assertEquals("已收到的部分译文 *****（${reason.lowercase()}）", value)
+                        assertEquals("已收到的部分译文（${reason.lowercase()}）", value)
                         assertEquals(value, cache.values[key])
                     }, finished = { failures, cancelled -> assertTrue(failures.isEmpty()); assertFalse(cancelled); done.complete(Unit) }))
                 done.await()
@@ -50,7 +50,7 @@ class TranslationPartialResultTest {
             "$prefix\"}]} extra" to "TRAILING_OUTPUT",
             prefix to "TRUNCATED_GENERATION")) {
             val recovered = salvage(raw, reason)
-            assertEquals(listOf(source to "已收到的部分译文 *****（${reason.lowercase()}）"), recovered.accepted)
+            assertEquals(listOf(source to "已收到的部分译文（${reason.lowercase()}）"), recovered.accepted)
             assertTrue(recovered.rejected.isEmpty())
         }
     }
@@ -58,10 +58,10 @@ class TranslationPartialResultTest {
     @Test fun onlyCompleteEscapesAreDecodedAndUnfinishedSurrogatesAreDropped() {
         for (tail in listOf("\\", "\\u4e", "\\uD83D")) {
             val value = salvage(prefix + tail, "TRUNCATED_GENERATION").accepted.single().second
-            assertEquals("已收到的部分译文 *****（truncated_generation）", value)
+            assertEquals("已收到的部分译文（truncated_generation）", value)
         }
         val quoted = """{"translations":[{"id":"s1","translation":"译文包含 \"引号\" 与 \\ 路径"""
-        assertEquals("译文包含 \"引号\" 与 \\ 路径 *****（truncated_generation）",
+        assertEquals("译文包含 \"引号\" 与 \\ 路径（truncated_generation）",
             salvage(quoted, "TRUNCATED_GENERATION").accepted.single().second)
     }
 
@@ -69,11 +69,11 @@ class TranslationPartialResultTest {
         val sources = listOf(source, source.copy(id = "b"))
         val duplicate = """{"translations":[{"id":"s1","translation":"冲突一"},{"id":"s1","translation":"冲突二"},{"id":"s2","translation":"可归属的邻句"}]}"""
         val result = salvage(duplicate, "DUPLICATE_ID", sources)
-        assertEquals(listOf(sources[1] to "可归属的邻句 *****（duplicate_id）"), result.accepted)
+        assertEquals(listOf(sources[1] to "可归属的邻句（duplicate_id）"), result.accepted)
         assertEquals(listOf(source to "DUPLICATE_ID"), result.rejected)
         val unknown = """{"translations":[{"id":"s99","translation":"不可归属"},{"id":"s1","translation":"本句译文"}]}"""
         val other = salvage(unknown, "UNKNOWN_ID", sources)
-        assertEquals(listOf(source to "本句译文 *****（unknown_id）"), other.accepted)
+        assertEquals(listOf(source to "本句译文（unknown_id）"), other.accepted)
         assertEquals(listOf(sources[1] to "UNKNOWN_ID"), other.rejected)
         for (bad in listOf(
             """{"translations":[{"metadata":{"id":"s1","translation":"不是译文行"}}]}""",
@@ -97,7 +97,7 @@ class TranslationPartialResultTest {
 
     @Test fun escapedPartialIdentityUsesTheSameJsonDecodingAsACompleteRow() {
         val raw = """{"translations":[{"id":"s\u0031","translation":"可归属的译文"""
-        assertEquals(listOf(source to "可归属的译文 *****（truncated_generation）"),
+        assertEquals(listOf(source to "可归属的译文（truncated_generation）"),
             salvage(raw, "TRUNCATED_GENERATION").accepted)
     }
 
@@ -139,18 +139,18 @@ class TranslationPartialResultTest {
             committed = { _, _, _ -> fail("No durable acknowledgement") }, delta = { _, text -> drafts += text },
             finished = { failures, cancelled -> assertFalse(cancelled); assertEquals(listOf("a" to "CACHE_WRITE_FAILED"), failures); done.complete(Unit) }))
         done.await(); assertEquals(1, calls); assertEquals(2, writes)
-        assertEquals(listOf("已收到的部分译文 *****（cache_write_failed）"), drafts)
+        assertEquals(listOf("已收到的部分译文（cache_write_failed）"), drafts)
     }
 
     @Test fun reasoningAndJsonScaffoldingAreNeverUsedAsTranslationBodies() {
         val thought = """<think>{"translations":[{"id":"s1","translation":"秘密推理"}]}</think>"""
         val real = """{"translations":[{"id":"s1","translation":"真正译文"}]}"""
-        assertEquals("真正译文 *****（thinking_output）", salvage(thought + real, "THINKING_OUTPUT").accepted.single().second)
+        assertEquals("真正译文（thinking_output）", salvage(thought + real, "THINKING_OUTPUT").accepted.single().second)
         for (bad in listOf(thought, "<think>推理尚未结束", "{", "{}", "[]", "   ",
-            """{"translations":[{"id":"s1","translation":"*****（http_500）"}]}""")) {
+            """{"translations":[{"id":"s1","translation":"（http_500）"}]}""")) {
             assertTrue(salvage(bad, "INVALID_TRANSLATION_JSON").accepted.isEmpty(), bad)
         }
-        assertEquals("无 JSON 包装的译文 *****（invalid_translation_json）",
+        assertEquals("无 JSON 包装的译文（invalid_translation_json）",
             salvage("无 JSON 包装的译文", "INVALID_TRANSLATION_JSON").accepted.single().second)
         assertTrue(salvage("不可分配的多句文本", "INVALID_TRANSLATION_JSON", listOf(source, source.copy(id = "b"))).accepted.isEmpty())
     }
@@ -164,7 +164,7 @@ class TranslationPartialResultTest {
                 emit(ProviderEvent.Complete("{}"))
             } }
             TranslationQueue(backgroundScope, cache) { provider }.submit(TranslationWork("restart-$restart", 0, 0, listOf(source), config,
-                committed = { _, text, _ -> assertFalse(restart); assertEquals("已收到的部分译文 *****（invalid_translation_json）", text) },
+                committed = { _, text, _ -> assertFalse(restart); assertEquals("已收到的部分译文（invalid_translation_json）", text) },
                 finished = { failures, cancelled -> assertFalse(cancelled); assertEquals(restart, failures.isNotEmpty()); done.complete(Unit) }))
             done.await(); assertEquals(1, calls); assertEquals(if (restart) 0 else 1, cache.values.size)
         }
@@ -205,7 +205,7 @@ class TranslationPartialResultTest {
                 val provider = OpenAICompatibleProvider(server.url("/v1").toString(), "test")
                 TranslationQueue(scope, cache) { provider }.submit(TranslationWork("http", 0, 0, listOf(source), config,
                     committed = { _, value, _ ->
-                        assertEquals("已收到的部分译文 *****（${if (streaming) "truncated_stream_length" else "truncated_result"}）", value)
+                        assertEquals("已收到的部分译文（${if (streaming) "truncated_stream_length" else "truncated_result"}）", value)
                     }, finished = { failures, cancelled -> assertFalse(cancelled); assertTrue(failures.isEmpty()); done.complete(Unit) }))
                 withTimeout(5000) { done.await() }
                 assertEquals(1, server.requestCount); assertEquals(1, cache.values.size)

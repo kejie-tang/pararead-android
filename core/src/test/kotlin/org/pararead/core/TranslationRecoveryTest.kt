@@ -15,9 +15,8 @@ class TranslationRecoveryTest {
     private val sentences = listOf(
         SourceSentence("a", "The model processes 100 pages using 4 GB of memory [12].", "p1"),
         SourceSentence("b", "For ${'$'}E=mc^2${'$'}, retain the equation.", "p1"))
-    private val partial = """{"translations":[{"id":"s1","translation":"模型使用了 __PR0__ 页，其中 __PR1__ 页。"},{"id":"s2","translation":"保留 __PR3__ 方程。"}]}"""
-    private val warning = " *****（protected_token_mismatch）"
-    private val imperfect = "模型使用了 100 页，其中 4 GB 页。$warning"
+    private val partial = """{"translations":[{"id":"s1","translation":"模型使用了 99 页，占用 2 GB 内存。"},{"id":"s2","translation":"保留 ${'$'}E=mc^2${'$'} 方程。"}]}"""
+    private val imperfect = "模型使用了 99 页，占用 2 GB 内存。"
     private val good = "保留 ${'$'}E=mc^2${'$'} 方程。"
 
     private class Cache : TranslationCache {
@@ -68,48 +67,45 @@ class TranslationRecoveryTest {
         } finally { server.shutdown() }
     }
 
-    @Test fun missingCitationsBecomePlainWarningsWithoutDiscardingEitherRow() {
-        val protected = StructuredTranslation.prompt(sentences, TranslationConfig()).second
-        val result = StructuredTranslation.validateEach(partial, sentences, protected)
+    @Test fun missingCitationsAndWrongNumbersDoNotWarnOrDiscardEitherRow() {
+        val inputs = StructuredTranslation.prompt(sentences, TranslationConfig()).second
+        val result = StructuredTranslation.validateEach(partial, sentences, inputs)
         assertEquals(listOf(sentences[0] to imperfect, sentences[1] to good), result.accepted)
         assertTrue(result.rejected.isEmpty())
-        assertEquals(result.accepted, StructuredTranslation.validate(partial, sentences, protected))
-        val missing = """{"translations":[{"id":"s2","translation":"保留 __PR3__ 方程。"}]}"""
-        val other = StructuredTranslation.validateEach(missing, sentences, protected)
+        assertEquals(result.accepted, StructuredTranslation.validate(partial, sentences, inputs))
+        val missing = """{"translations":[{"id":"s2","translation":"$good"}]}"""
+        val other = StructuredTranslation.validateEach(missing, sentences, inputs)
         assertEquals(listOf(sentences[1] to good), other.accepted)
         assertEquals(listOf(sentences[0] to "RESULT_COUNT_MISMATCH"), other.rejected)
     }
 
     @Test fun ambiguousIncompleteAndUnsafeEnvelopesStillFail() {
-        val protected = StructuredTranslation.prompt(sentences, TranslationConfig()).second
+        val inputs = StructuredTranslation.prompt(sentences, TranslationConfig()).second
         for (bad in listOf(partial.dropLast(1), partial + " extra", partial.replace("\"s1\"", "\"s2\""),
             partial.replace("\"s1\"", "\"s3\""), "<think>reason</think>$partial")) {
-            assertFails(bad) { StructuredTranslation.validateEach(bad, sentences, protected) }
+            assertFails(bad) { StructuredTranslation.validateEach(bad, sentences, inputs) }
         }
     }
 
-    @Test fun bestEffortRestoresOnlyOwnedMarkersAndNeverInventsMissingContent() {
+    @Test fun textValidationKeepsModelTextWithoutRestorationOrSemanticChecks() {
         val config = TranslationConfig(sourceLanguage = "en", glossary = """{"model":"模型","zh-CN":{"memory":"内存"}}""")
-        val (prompt, protected) = StructuredTranslation.textPrompt(sentences[0], config)
+        val (prompt, input) = StructuredTranslation.textPrompt(sentences[0], config)
         assertTrue(prompt.system.contains("内存")); assertTrue(prompt.system.contains("模型"))
-        assertEquals("模型使用 4 GB 内存处理 100 页 [12]。",
-            StructuredTranslation.validateText("模型使用 __PR1__ 内存处理 __PR0__ 页 __PR2__。", protected, config))
-        for ((raw, expected) in listOf(
-            "译文 __PR0__ __PR1__" to "译文 100 4 GB",
-            "译文 __PR0__ __PR0__ __PR2__" to "译文 100 100 [12]",
-            "译文 __PR00__ __PR1__ __PR2__" to "译文 __PR00__ 4 GB [12]",
-            "译文 __PR0_ __PR1__ __PR2__" to "译文 __PR0_ 4 GB [12]",
-            "译文完全没有标记" to "译文完全没有标记")) {
-            assertEquals(expected + warning, StructuredTranslation.validateText(raw, protected, config))
+        assertEquals(sentences[0].text, input.text)
+        assertTrue(prompt.user.contains(sentences[0].text))
+        assertFalse(prompt.system.contains("__PR"))
+        assertEquals(ModelOutputFormat.TEXT, prompt.outputFormat)
+        for (raw in listOf("模型使用 4 GB 内存处理 100 页 [12]。", imperfect,
+            "译文没有数字或引用。", "Unrelated English output.", sentences[0].text)) {
+            assertEquals(raw, StructuredTranslation.validateText(raw, input, config))
+            assertEquals(raw, input.forDisplay(raw, sentences[0].text, config))
         }
-        val foreign = StructuredTranslation.prompt(sentences, config).second[1]
-        assertEquals("保留 __PR0__ 方程。$warning", foreign.forDisplay("保留 __PR0__ 方程。", sentences[1].text, config))
-        for (bad in listOf("", "   ", "<think>推理</think>译文", partial, "```译文```")) {
-            assertFails(bad) { StructuredTranslation.validateText(bad, protected, config) }
+        for (bad in listOf("", "   ", "<think>推理</think>译文", "译文</think>", partial, "[]", "```译文```")) {
+            assertFails(bad) { StructuredTranslation.validateText(bad, input, config) }
         }
     }
 
-    @Test fun imperfectBatchIsGeneratedOnceAndReopenedFromCache() = runTest {
+    @Test fun wrongNumbersAndMissingCitationsAreGeneratedOnceWithoutWarningsAndReopenedFromCache() = runTest {
         val prompts = mutableListOf<ModelPrompt>(); val cache = Cache(); val commits = mutableListOf<Pair<String, String>>()
         val provider = object : TranslationProvider { override fun generate(prompt: ModelPrompt) = flow {
             prompts += prompt; emit(ProviderEvent.Complete(partial))
@@ -140,7 +136,7 @@ class TranslationRecoveryTest {
         for (value in listOf("null", "17", "\"\"", "\"   \"")) {
             var calls = 0; val cache = Cache(); val committed = mutableListOf<String>()
             val provider = object : TranslationProvider { override fun generate(prompt: ModelPrompt) = flow {
-                calls++; emit(ProviderEvent.Complete("""{"translations":[{"id":"s1","translation":$value},{"id":"s2","translation":"保留 __PR3__ 方程。"}]}"""))
+                calls++; emit(ProviderEvent.Complete("""{"translations":[{"id":"s1","translation":$value},{"id":"s2","translation":"$good"}]}"""))
             } }
             val done = CompletableDeferred<Unit>()
             TranslationQueue(backgroundScope, cache) { provider }.submit(TranslationWork("failed-$value", 0, 0, sentences, TranslationConfig(),

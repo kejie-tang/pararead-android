@@ -76,7 +76,6 @@ object SpeedTest {
                 val end = System.nanoTime()
                 check(first > start) { "NO_STREAMED_RESPONSE" }
                 val translation = StructuredTranslation.validate(checkNotNull(complete) { "INCOMPLETE_RESULT" }, sentences, protected).single().second
-                check(translation.any { it in '\u4e00'..'\u9fff' }) { "EXPECTED_CHINESE_TRANSLATION" }
                 SpeedSample((first - start) / 1e6, (end - start) / 1e6,
                     checkNotNull(provider.metrics) { "MISSING_NATIVE_TOKEN_METRICS" }, translation)
             }

@@ -1,35 +1,35 @@
-# ParaRead Android 0.2.0-alpha.21 — 保留译文与单次翻译 / Keep translations & single-pass inference
+# ParaRead Android 0.2.0-alpha.22 — 原文直译与兼容性优先 / Original text & compatibility first
 
 ## 中文
 
-- **任何错误已有可用译文都尽量保留。** 不只 `protected_token_mismatch`：截断、超时、格式错误等也显示已收到且能可靠归属的正文，末尾追加实际错误码，如 `译文…… *****（truncated_stream_length）`、`*****（http_500）` 或 `*****（host_timeout）`。多个原因去重合并。
-- **标注就是普通文字。** PDF/TXT 浅色与深色均与附近译文同色、同字体；不加红色、下划线、粗体或其他强调，星号不作为 Markdown/HTML 解释。
-- **普通错误只生成一次。** 移除批次失败后的逐句修复与纯文本修复循环，关闭 API 的连接故障/408/503 隐式重发。仅明确的 Vulkan 后端兼容问题可安全清除草稿后回退 CPU 一次；普通截断、输出超限、坏模型及未知异常不触发第二轮。
-- **保存并复用带标注的结果。** 重开不因同一警告再次调用模型。长句保留已完成内容、复用分片，并将警告集中到句尾。存储失败仍保留可见正文，但不假确认已经保存；用户仍可主动重试真正的失败。
-- **保留译文，不猜身份。** 保护片段仅还原本句已知标记，不补造缺失数字或引用；未知/重复 ID 不错配，转义 ID 同样检查。推理文本、JSON 外壳及确实没有正文的结果不会冒充译文。取消、GPU 重启、陈旧消息与只阅读安全边界保持。
-- 保留 alpha.20 的 TXT 手势、双栏、章节/百分比跳转、全屏控件与安全返回，以及后台断点、PDF 批注/导出。无数据库迁移或清空、模型/提示词/生成语法/全局缓存指纹变化，不删除旧文档、合格译文或模型。
+- **原文直接进入模型。** 不再用 `__PR…__` 替换数字、公式、引用、URL 或代码，不做标记还原，也不拒绝原文中的字面标记。长句仅按上下文预算连续分片，拼接与原文完全一致且不拆 Unicode 代理对。
+- **不干预译文质量。** 删除保护内容、逐字复制标记、禁止总结、否定/转折等额外训令；默认提示词只保留翻译任务、目标语言及必要输出协议，非空的用户术语表仍可使用。不再检查译文语言、原文复制、数字或引用，不生成 `protected_token_mismatch` / `translation_language_or_source_copy`，也不因译得不准自动修复重译。测速与兼容测试同样不再以“必须有中文”判断成功。
+- **只保留运行与协议边界。** 仍检查非空正文、大小限制、唯一且已知的句子 ID、JSON/字符串格式及推理内容隔离。JSON 译文中的字面 `<think>` 标签不会被误删；外部推理包装与无归属内容不冒充译文。保留取消、抢占、排空、单推理所有者与安全保存。
+- **错误尾缀没有星号。** 截断、HTTP、超时等运行失败已有可安全归属的正文时保留正文，普通显示为 `译文（实际错误码）`；PDF/TXT 浅深色均不额外标红、加下划线或强调。普通失败只生成一次，不隐式重发 HTTP；只有明确的后端兼容故障允许清除旧 GPU 草稿后回退 CPU。
+- **兼容旧缓存，不清库。** 新提示词/校验器为 `7/7`，优先当前键，只读回退同模型、模型哈希、语言和术语表的已知 `6/6` 旧键。隐藏旧质量码、去掉旧占位星号，保留真实运行错误与正文；不回写/晋升旧记录，不猜补残缺旧标记。已有缓存不会自动变成新提示词的译文。旧全篇任务游标仍要求精确配置指纹，不静默改配置重跑。
+- 保留既有 PDF/TXT 手势、全屏、只阅读、批注/导出、后台断点与保存确认。没有数据库迁移、缓存清空、模型下载或模型模板/native grammar 更改。alpha.21 及更早发布保持不变。
 
 ## English
 
-- **Keep usable output for any error, not just protected-token mismatches.** Retain attributable translated text after truncation, timeout or format errors and append the corresponding code, e.g. `Translation… *****（truncated_stream_length）`, `*****（http_500）` or `*****（host_timeout）`. Multiple reasons are merged without duplication.
-- **Plain text, normal styling:** PDF/TXT light and dark modes use the surrounding translation's color and font, with no red, underline, bold or special emphasis. Stars are not interpreted as Markdown/HTML.
-- **One generation for ordinary errors:** removes batch-to-sentence repair and text-repair loops and disables hidden connection/408/503 API POST retries. Only explicit Vulkan backend compatibility failures may clear the old draft and fall back to CPU once. Truncation, output limits, bad model files and unknown errors do not trigger another generation.
-- **Persist and reuse marked output:** reopening does not regenerate an imperfect saved translation. Long sentences reuse completed fragments and consolidate warnings at the end. Storage failures retain visible text without claiming a successful save; explicit user retry remains available for actual failures.
-- **Keep text without guessing ownership:** restore only the sentence's known protected tokens, never invent missing references/numbers, and reject ambiguous or foreign IDs, including escaped IDs. Reasoning text, JSON scaffolding and empty results are not presented as translations. Cancellation, restart, stale-message and Read only fences remain.
-- Retains alpha.20 TXT gestures, split columns, chapter/progress navigation, fullscreen controls and safe exit, plus background checkpoints and PDF annotations/export. No database migration/wipe or model/prompt/grammar/global-cache-fingerprint change; valid documents, translations and models remain intact.
+- **Translate original text directly.** No `__PR…__` substitution or restoration for numbers, equations, references, URLs or code; literal marker-like source text is allowed. Context-sized fragments preserve the exact source when rejoined and never split surrogate pairs.
+- **No translation-quality policing.** Removes marker-copying and content-preservation/no-summary/negation/contrast instructions. Default prompts retain only the translation task, target language and required output protocol; explicitly configured nonempty glossaries remain available. No language, source-copy, number or citation judgement, no protected-token/language quality warnings and no repair generation for inaccurate output. Speed/compatibility checks no longer require Chinese characters.
+- **Keep runtime/protocol boundaries.** Nonempty bodies, size limits, unique known sentence IDs, JSON/string types and reasoning isolation still apply. Literal think tags inside JSON translation strings are preserved; external reasoning and unowned content are not used as translations. Cancellation, preemption, draining, single inference ownership and acknowledged saving remain.
+- **No literal placeholder stars.** Runtime failures with attributable text keep it as ordinary `Translation（actual_error_code）`, with no special red, underline or emphasis in PDF/TXT light/dark mode. Ordinary failures generate once without hidden HTTP replay; only explicit backend compatibility failures may clear GPU drafts and fall back to CPU.
+- **Read-only legacy cache compatibility.** New prompt/validator `7/7` keys take priority, with a bounded same-configuration `6/6` fallback. Hide old quality codes/stars while retaining text and actual runtime errors. No rewriting/promotion, cache wipe, database migration or guessed restoration. Reused old translations do not automatically become new-prompt results. Whole-document cursors still require an exact configuration fingerprint.
+- Retains existing PDF/TXT interaction, fullscreen, Read only, annotations/export, background checkpoints and save acknowledgements. No model download or model-template/native-grammar change. Alpha.21 and earlier releases are unchanged.
 
 ## Validation / 验证边界
 
-Version21 local validation passed: **149 Android Web + 16 upstream baseline contracts**, complete TypeScript checks and **2 standalone navigation tests**. Core **110 passed / 1 optional real-model test skipped**, App **18 passed**, Engine **11 passed** with a fake runtime. ARM64 native-enabled debug and AndroidTest APK compilation, Lint **0 errors / 54 warnings**, local debug signature, ZIP/ELF **16KiB**, notices and no-model distribution checks passed.
+The version22 validation gates require a full forced local rerun: Core **126 passed / 1 optional model test skipped**, App **18 passed**, Engine **11 fake-runtime tests**; **150 Android Web + 16 historical upstream contracts**, TypeScript and **2 navigation tests**. ARM64 native Debug and AndroidTest APK compilation, Lint **0 errors / 54 warnings**, local debug signing, ZIP/ELF **16KiB**, notices and no-model distribution checks are included. The final version-bound record is [alpha.22 validation](https://github.com/kejie-tang/pararead-android/blob/main/docs/reports/alpha22.md).
 
-Actual desktop Edge with generated reader/PDF.js resources covers PDF/TXT normal rendering and cached reopening, three distinct mid-generation failures in light/dark mode, plain-text warnings with identical nearby styling, Read only, background acknowledgement barriers, PDF geometry/annotation saving and existing TXT navigation/save-freeze guards. Native/storage/translation faults are simulated. **No Android device/emulator/instrumentation execution, model download or real-model inference was performed for this version.** AndroidTest APK compilation is not execution. Independent implementation review closed all findings; signed CI, retained-certificate verification and full anonymous downloads remain separate mandatory publication gates. See [alpha.21 validation](https://github.com/kejie-tang/pararead-android/blob/main/docs/reports/alpha21.md) and [warning rules](https://github.com/kejie-tang/pararead-android/blob/main/docs/translation-warnings.md).
+Generated-resource desktop Edge covers normal PDF/TXT, Read only and background acknowledgement barriers, ordinary runtime-error styling and existing navigation/save/annotation guards. Native/storage/translations/faults are simulated. **No Android device/emulator/instrumentation execution, model download or real-model inference is claimed.** Compiling model/instrumentation tests is not executing them. Independent release review, exact-source remote CI, retained-certificate signing and complete anonymous downloads are separate mandatory publication gates.
 
 ## Install / 安装
 
-Android 9+ / ARM64, **versionCode 21**. Release APKs must retain certificate SHA-256:
+Android 9+ / ARM64, **versionCode 22**. Release APKs retain preview certificate SHA-256:
 
 ```text
 e044c8f329f42465866add4d041f29c498009361241610c8ee2de43ae6e87a45
 ```
 
-Same-signed previews support in-place upgrades, retaining private documents, translations, models and reading state. **不要为绕过签名错误卸载旧版 / Do not uninstall to bypass a signature error.** The retained preview certificate identifies as Android Debug; this is not a production-signing claim. Local/CI debug APKs may use different keys and are not upgrade substitutes. APK, notices and SHA-256 checksums are attached. No model weights or third-party papers are bundled. Existing alpha.20 and all earlier releases remain unchanged.
+Same-signed previews support in-place upgrades without deleting private documents, translations, models or reading state. **不要为绕过签名错误卸载旧版 / Do not uninstall to bypass a signature error.** The retained certificate identifies as Android Debug; this is not a production-signing claim. Local/CI debug APKs are not public-upgrade substitutes. APK, notices and checksums are attached; no model weights or third-party papers are bundled.

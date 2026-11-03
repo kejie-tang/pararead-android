@@ -78,7 +78,7 @@ try {
         state.translations.push(m.payload.sentences.map(s => s.text));
         const failed = translationFault && m.payload.sentences.find(s => s.text.includes('remembers'));
         const successful = m.payload.sentences.filter(s => s !== failed);
-        const items = successful.map(s => ({id:s.id,translation:'【模拟译文】' + s.text + (s.text.includes('The reader remembers') ? ' *****（protected_token_mismatch）' : '')}));
+        const items = successful.map(s => ({id:s.id,translation:'【模拟译文】' + s.text + (s.text.includes('The reader remembers') ? '（http_500）' : '')}));
         successful.forEach((s,i) => { cache[s.text] = items[i].translation; }); save('cache',cache);
         if (failed) send(m,'translation.delta',{sequence:0,items:[{id:failed.id,translation:'保留的不完美译文'}]});
         send(m,'translation.committed',{sequence:failed?1:0,items});
@@ -323,7 +323,7 @@ try {
     await page.waitForFunction(() => document.querySelector('.bilingualSentence') && !document.querySelector('[aria-busy="true"]'));
     await page.getByRole('button',{name:'翻译当前页',exact:true}).click();
     await page.waitForFunction(code => [...document.querySelectorAll('.bilingualSentence')].some(el =>
-      el.textContent.includes(`保留的不完美译文 *****（${code}）`)),fault.toLowerCase()).catch(async error => {
+      el.textContent.includes(`保留的不完美译文（${code}）`)),fault.toLowerCase()).catch(async error => {
         console.error('TXT fault diagnostic',await page.evaluate(()=>({proof:window.__txtProof,text:document.body.innerText.slice(-1500)})));
         throw error;
       });

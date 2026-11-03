@@ -79,7 +79,7 @@ try {
             failures.push({ id: s.id, message: translationFault });
             return;
           }
-          const translation = '【模拟译文】' + s.text + (s.text.length > 70 && sequence % 2 === 0 ? ' *****（protected_token_mismatch）' : '');
+          const translation = '【模拟译文】' + s.text + (s.text.length > 70 && sequence % 2 === 0 ? '（http_500）' : '');
           localStorage.setItem('test-cache:' + s.text, translation);
           send(m, 'translation.committed', { sequence, items: [{ id: s.id, translation }] });
         });
@@ -309,7 +309,7 @@ try {
     });
     await page.goto(`http://127.0.0.1:${port}/?translationFault=${fault}`);
     await page.waitForFunction(code => [...document.querySelectorAll('.bilingualSentence')].some(el =>
-      el.textContent.includes(`保留的不完美译文 *****（${code}）`)), fault.toLowerCase());
+      el.textContent.includes(`保留的不完美译文（${code}）`)), fault.toLowerCase());
     await assertTranslationWarningStyle(page, fault.toLowerCase());
     const state = await page.evaluate(() => [...window.__bilingual.store.readyPages()].flatMap(p => p.blocks.flatMap(b => b.sentences))
       .map(s => window.__bilingual.translations.state(s.id)).find(state => state.status === 'error'));

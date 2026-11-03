@@ -7,7 +7,7 @@ Read papers and technical documents with the original page beside its translatio
 
 [![Android CI](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml/badge.svg?branch=main)](https://github.com/kejie-tang/pararead-android/actions/workflows/android.yml) [![Android 9+](https://img.shields.io/badge/Android-9%2B-3DDC84?logo=android&logoColor=white)](#get-started) [![Code: Apache-2.0](https://img.shields.io/badge/Code-Apache--2.0-blue)](LICENSE)
 
-**[Download APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.21)** · [All releases](https://github.com/kejie-tang/pararead-android/releases) · [简体中文](README.zh-CN.md)
+**[Download APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.22)** · [All releases](https://github.com/kejie-tang/pararead-android/releases) · [简体中文](README.zh-CN.md)
 
 A development preview for **Android 9+ / ARM64**, designed for tablets and usable on phones. Native menus support **English and Simplified Chinese**, with a system-language option. Independent, unofficial adaptation of [ParaRead](https://github.com/Chuanyunux/pararead) 0.6.1.
 
@@ -15,9 +15,9 @@ A development preview for **Android 9+ / ARM64**, designed for tablets and usabl
 
 *Reading interaction demo in desktop Chromium with touch emulation. Uses our original sample document and labeled Mock output; this is not a real-model or physical-tablet screenshot.*
 
-### New in alpha.21: keep imperfect translations, translate once
+### New in alpha.22: original text, no quality policing
 
-When a usable translation exists, keep it even if validation or generation fails, and append the actual error code as ordinary text: `Translation… *****（protected_token_mismatch）`, `*****（truncated_stream_length）`, or another corresponding code. The note follows nearby text styling in light/dark mode, without red, underlines or special emphasis. Ordinary errors no longer trigger repair generations or hidden HTTP retries; only explicit backend compatibility failures can fall back to CPU. Marked saved results reopen without inference. Empty, ambiguous or reasoning-only output is not invented as a translation. All alpha.20 reader gestures, safe saving and PDF/TXT **Read only** remain. [Warning rules](docs/translation-warnings.md) · [alpha.21 validation](docs/reports/alpha21.md).
+Send original text directly, without `__PR…__` substitutions or preservation/quality instructions. Translation language, source copying, numbers and citations are not judged; imperfect output does not generate quality warnings or repair requests. Only necessary runtime/protocol checks and explicit backend compatibility fallback remain. Runtime failures retain usable text with ordinary `Translation（error_code）` annotations, without placeholder stars, red, underlines or emphasis. Compatible old caches are reused read-only, with old quality labels hidden. This does not automatically improve an existing cached translation. [Current rules](docs/translation-warnings.md) · [alpha.22 validation](docs/reports/alpha22.md).
 
 ## Made for reading, not copying and pasting
 
@@ -42,7 +42,7 @@ Actual Android emulator captures. The original book icon is included as an adapt
 
 ## Get started
 
-1. **Install the [preview APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.21).** Requires ARM64, Android 9+ and an up-to-date Android System WebView. The preview signing identity is retained for in-place upgrades; see the [validation and upgrade notes](docs/reports/alpha21.md). Do not uninstall an existing installation just to bypass a signature error; uninstalling deletes private documents, translations and models.
+1. **Install the [preview APK](https://github.com/kejie-tang/pararead-android/releases/tag/v0.2.0-alpha.22).** Requires ARM64, Android 9+ and an up-to-date Android System WebView. The preview signing identity is retained for in-place upgrades; see the [validation and upgrade notes](docs/reports/alpha22.md). Do not uninstall an existing installation just to bypass a signature error; uninstalling deletes private documents, translations and models.
 2. **For translation, choose a model in Models.** Start with 0.6B for quick reading or 1.7B for stronger translations. Downloads are verified before activation; existing models are retained. **Read only** needs no model.
 3. **Import a PDF/TXT or open the sample.** Enable **Read only**, translate **This page**, or use **All / Resume**. TXT offers an encoding choice; PDFs need selectable text, and OCR is not included.
 
@@ -53,16 +53,16 @@ Change native menu language in **Settings → Interface language**. This applies
 - Outside **Read only**, reopening a PDF or TXT automatically restores saved translations, including in **manual** mode, without calling the model or API. Automatic modes translate only cache misses; manual mode leaves them untranslated until you explicitly translate.
 - **Click to select, translate the current page automatically.** Hovering does not select sentences or control translation. New installations default to current-page translation; choose Current page, Nearby pages or Manual in Settings. Page turns promote current-page work ahead of lower-priority whole-book/prefetch inference without a sentence click; safe cancellation still completes before inference changes owners. Existing range preferences are retained.
 - Tap **Full screen** in the reading toolbar to hide app controls, status messages and system bars. In PDF, swiping up to continue reading hides PDF and translation headers; reverse scrolling or Tab/Escape restores them, with no arrow overlay. Controls stay visible during annotation, sentence/text selection and zoom gestures. TXT has matching **Show/Hide reading toolbar** actions. Use **Android Back** to leave fullscreen, then Back again to save and return to the library; no bottom-right exit button is shown. The wide library sidebar is hidden in either reader even outside fullscreen. The fullscreen preference persists, and toggling does not recreate the reader or interrupt translation.
-- Errors with usable translated text retain that text and append `*****（actual_error_code）` in its normal style. Safely attributable marked output is saved and reused; if storage fails, the visible text remains but is not falsely acknowledged as saved. Only failures without usable text show the error/retry hint. Explicit retry remains available for failures; ordinary errors do not regenerate automatically. Cancellation and accepted neighbouring translations remain intact.
+- Runtime errors with usable translated text retain that text and append `（actual_error_code）` in its normal style; linguistic accuracy does not produce an error annotation. Safely attributable marked output is saved and reused; if storage fails, the visible text remains but is not falsely acknowledged as saved. Only failures without usable text show the error/retry hint. Explicit retry remains available for failures; ordinary errors do not regenerate automatically. Cancellation and accepted neighbouring translations remain intact.
 - Cached translations are separated by source text and translation configuration (including model, language and glossary). They stay in app storage and are not embedded in exported annotated PDFs.
 
 ### Translate before reading
 
 Use the library document menu → **Translate all**. Jobs run one at a time and preserve page checkpoints without changing reading position or recent-reading order. Opening a document or model/settings UI pauses background jobs so the native model can be released safely. Resume from the same menu; after all pages are processed, **Retry failed translations** scans the good cache and fills remaining failures. A processed document with failed pages is not labelled fully translated.
 
-Whole-book jobs reuse saved sentences, including marked imperfect output, and fill only missing results or unmarked invalid old cache entries, using bounded batch cache reads. Marked saved output counts as processed, not as proof of translation accuracy or completeness. Cancellation feedback and the library's idle, healthy paused-progress row dismiss after about 2.5 seconds, including its bar/spacing. Resume remains in the document menu; saved progress, active jobs, failures and review warnings are retained. [alpha.18 checks](docs/reports/alpha18.md).
+Whole-book jobs reuse saved sentences, including imperfect output, and fill only missing or unusable-format results, using bounded batch cache reads. Marked saved output counts as processed, not as proof of translation accuracy or completeness. Cancellation feedback and the library's idle, healthy paused-progress row dismiss after about 2.5 seconds, including its bar/spacing. Resume remains in the document menu; saved progress, active jobs, failures and review warnings are retained. [alpha.18 checks](docs/reports/alpha18.md).
 
-Android background-service limits may interrupt long jobs; continued execution is not guaranteed on every device. Chinese-target outputs and old cache entries are selectively checked for English copying; formulas, URLs, code and short proper names can stay unchanged. This is not a semantic-accuracy guarantee. [Validation and limits](docs/reports/alpha16.md).
+Android background-service limits may interrupt long jobs; continued execution is not guaranteed on every device. There is no language, source-copy, number or citation quality gate. New prompt/validator 7/7 keys prefer current results and allow read-only same-configuration 6/6 fallback; unresolved legacy placeholders are not guessed. Old whole-book cursors still require an exact configuration fingerprint. Translation accuracy is not guaranteed. [Validation and limits](docs/reports/alpha22.md).
 
 ### Pick your model
 
@@ -75,7 +75,7 @@ Android background-service limits may interrupt long jobs; continued execution i
 
 The 0.6B file comes from a pinned Unsloth Hugging Face revision; 1.7B uses a pinned Ollama registry layer. Thinking is disabled. Other public, single-file text GGUFs can be found under **Models → More models on Hugging Face**. Current templates cover Qwen2.5, Qwen3, Qwen3.5 and LFM2/2.5. Model licenses are shown separately from the app license. [Exact files and compatibility results](docs/reports/small-model-evaluation.md).
 
-Small models can omit details or mistranslate numerical relations. Validation now annotates imperfect output instead of automatically regenerating it; a saved translation, even without a warning, is not an accuracy guarantee. Check important claims against the source.
+Small models can omit details or mistranslate numerical relations. The app does not judge translation quality; only runtime failures with attributable output retain that text with an error code, without automatic repair generations. A saved translation is not an accuracy guarantee. Check important claims against the source.
 
 ### Performance you can measure
 

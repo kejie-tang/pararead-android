@@ -18,7 +18,7 @@ import type { Block, PageSegmentation, Sentence } from "./segmenter/types";
 import type { SelectionController } from "./selection";
 import type { SentenceStore } from "./sentence-store";
 import type { TranslationClient, TranslationState } from "./translation-client";
-import { appendTranslationError } from "./translation-errors";
+import { appendTranslationError, normalizeTranslationWarnings } from "./translation-errors";
 
 const MIN_WIDTH = 240;
 const MIN_VIEWER_WIDTH = 360;
@@ -435,7 +435,7 @@ export function renderSentence(
   // Sentences are separated by a space, except in Chinese and Japanese.
   // Errors belong in the translated text, not just a hover tooltip on the English source.
   span.textContent = state.status === "error" ? withSpace(error)
-    : state.status === "done" ? `${state.translation}${spaced ? " " : ""}`
+    : state.status === "done" ? `${normalizeTranslationWarnings(state.translation)}${spaced ? " " : ""}`
     : state.status === "pending" && state.draft ? `${state.draft} ▍` : withSpace(sentence.text);
   span.title = error;
 }

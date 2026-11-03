@@ -1,12 +1,12 @@
 import assert from 'node:assert/strict';
 
 // Tests generated PDF/TXT assets, never a separately styled warning mock.
-export async function assertTranslationWarningStyle(page, code = 'protected_token_mismatch') {
+export async function assertTranslationWarningStyle(page, code = 'http_500') {
   for (const colorScheme of ['light', 'dark']) {
     await page.emulateMedia({ colorScheme });
     const result = await page.locator('.bilingualSentence[data-status="done"]').evaluateAll((elements, code) => {
-      const warning = elements.find(el => el.textContent.includes(`*****（${code}）`));
-      const normal = warning && elements.find(el => !el.textContent.includes('*****（') &&
+      const warning = elements.find(el => el.textContent.includes(`（${code}）`));
+      const normal = warning && elements.find(el => !/（[a-z0-9_.:-]+(?:, [a-z0-9_.:-]+)*）$/.test(el.textContent.trimEnd()) &&
         getComputedStyle(el).fontWeight === getComputedStyle(warning).fontWeight);
       if (!warning || !normal) return {missing:true,count:elements.length,text:elements.map(el => el.textContent).join('\n').slice(0,800)};
       const style = el => {
@@ -17,8 +17,9 @@ export async function assertTranslationWarningStyle(page, code = 'protected_toke
         warning: style(warning), normal: style(normal) };
     }, code);
     assert.ok(!result.missing, `${colorScheme}: both warned and ordinary translated sentences exist: ${JSON.stringify(result)}`);
-    assert.ok(result.text.trimEnd().endsWith(`*****（${code}）`));
-    assert.equal(result.children, 0, 'stars and parentheses stay text, not HTML/Markdown');
+    assert.ok(result.text.trimEnd().endsWith(`（${code}）`));
+    assert.ok(!result.text.includes('*****'), 'placeholder stars are not part of a warning');
+    assert.equal(result.children, 0, 'parentheses stay ordinary text, not HTML/Markdown');
     assert.equal(result.title, '', 'accepted warning is not an error tooltip');
     assert.deepEqual(result.warning, result.normal, `${colorScheme}: warning has exactly the neighbouring translation style`);
     assert.equal(result.warning.decoration, 'none', 'no underline, wavy or otherwise');

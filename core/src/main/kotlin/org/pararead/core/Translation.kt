@@ -16,11 +16,25 @@ data class TranslationConfig(
     val batchSize: Int = 4, val maxChars: Int = 3000,
 ) {
     // Preserve native cache keys written before the default display name became the Ollama tag.
-    fun fingerprint() = listOf(provider, if (provider == "llama" && model == "qwen3:1.7b") "Qwen3-1.7B" else model, modelHash, sourceLanguage, targetLanguage, canonicalGlossary(glossary),
-        "prompt=6", "validator=6", "recovery=sentence-text-v1", "template=model-chat-v2", "nativeGrammar=exact-translation-json-v3").joinToString("\u0000")
+    fun fingerprint() = fingerprint(7, 7)
+    internal fun legacyFingerprint() = fingerprint(6, 6)
+    private fun fingerprint(prompt: Int, validator: Int) = listOf(provider, if (provider == "llama" && model == "qwen3:1.7b") "Qwen3-1.7B" else model, modelHash, sourceLanguage, targetLanguage, canonicalGlossary(glossary),
+        "prompt=$prompt", "validator=$validator", "recovery=sentence-text-v1", "template=model-chat-v2", "nativeGrammar=exact-translation-json-v3").joinToString("\u0000")
 }
 fun sha256(text: String): String = MessageDigest.getInstance("SHA-256").digest(text.toByteArray()).joinToString("") { "%02x".format(it) }
-fun contentKey(text: String, config: TranslationConfig): String = sha256(Normalizer.normalize(text, Normalizer.Form.NFC).replace(Regex("\\s+"), " ").trim() + "\u0000" + config.fingerprint())
+fun contentKey(text: String, config: TranslationConfig): String = contentKey(text, config.fingerprint())
+private fun contentKey(text: String, fingerprint: String): String = sha256(Normalizer.normalize(text, Normalizer.Form.NFC).replace(Regex("\\s+"), " ").trim() + "\u0000" + fingerprint)
+data class TranslationCacheKey(val key: String, val legacy: Boolean)
+/** Only the known previous policy, with identical model/languages/glossary, may be reused. */
+fun translationCacheKeys(text: String, config: TranslationConfig): List<TranslationCacheKey> = listOf(
+    TranslationCacheKey(contentKey(text, config), false),
+    TranslationCacheKey(contentKey(text, config.legacyFingerprint()), true))
+/** Display compatibility only: never guess an old unresolved placeholder or rewrite its record. */
+fun reuseCachedTranslation(value: String?, candidate: TranslationCacheKey): String? {
+    if (value == null || TranslationWarnings.body(value).isBlank()) return null
+    if (candidate.legacy && Regex("__PR[0-9]+").containsMatchIn(value)) return null
+    return TranslationWarnings.append(value, emptyList())
+}
 fun canonicalGlossary(raw: String): String {
     fun canonical(j: JSONObject): String = j.keys().asSequence().toList().sorted().joinToString(",", "{", "}") {
         val v = j.get(it)
@@ -52,50 +66,46 @@ class MockTranslationProvider : TranslationProvider {
         emit(ProviderEvent.Complete(JSONObject().put("translations", result).toString()))
     }
 }
-data class ProtectedText(val text: String, val tokens: List<String>, val firstToken: Int = 0) {
-    val markers get() = tokens.indices.map { "__PR${it + firstToken}__" }
-    /** Best effort within this sentence only: never invent a missing citation, or map a
-     * foreign/renumbered marker to a different sentence's token. Unknown markers stay visible. */
-    fun forDisplay(value: String, source: String, config: TranslationConfig, errors: List<String> = emptyList()): String {
-        val pattern = Regex("__PR\\d+__")
-        val placeholders = pattern.findAll(value).map { it.value }.toList()
-        val warnings = if (placeholders.sorted() == markers.sorted()) emptyList() else listOf(TranslationWarnings.PROTECTED)
-        val replacements = markers.zip(tokens).toMap()
-        val restored = pattern.replace(value) { replacements[it.value] ?: it.value }
-        return TranslationQuality.forDisplay(source, restored, config, errors + warnings)
-    }
-    fun restore(value: String): String {
-        val placeholders = Regex("__PR\\d+__").findAll(value).map { it.value }.toList()
-        require(placeholders.sorted() == markers.sorted()) { "PROTECTED_TOKEN_MISMATCH" }
-        var restored = value
-        tokens.forEachIndexed { i, t -> restored = restored.replace("__PR${i + firstToken}__", t) }
-        return restored
-    }
+/** Original source text, never replaced with translation placeholders. */
+data class TranslationInput(val text: String) {
+    fun forDisplay(value: String, source: String, config: TranslationConfig, errors: List<String> = emptyList()): String =
+        TranslationQuality.forDisplay(source, value, config, errors)
 }
 data class TranslationValidation(val accepted: List<Pair<SourceSentence, String>>, val rejected: List<Pair<SourceSentence, String>>)
 object StructuredTranslation {
+    /** Bound context size without altering source bytes or splitting a surrogate pair. */
     fun fragments(text: String, limit: Int = 1200): List<String> {
-        val protected = protect(text)
-        val chunks = mutableListOf<String>(); val current = StringBuilder()
-        for (unit in Regex("__PR[0-9]+__|.", RegexOption.DOT_MATCHES_ALL).findAll(protected.text)) {
-            if (current.isNotEmpty() && current.length + unit.value.length > limit) { chunks += current.toString(); current.setLength(0) }
-            current.append(unit.value)
+        require(limit >= 2)
+        val chunks = mutableListOf<String>()
+        var start = 0
+        while (start < text.length) {
+            var end = minOf(start + limit, text.length)
+            if (end < text.length) {
+                if (text[end - 1].isHighSurrogate() && text[end].isLowSurrogate()) end--
+                val boundary = (end - 1 downTo start + (end - start) / 2)
+                    .firstOrNull { text[it].isWhitespace() || text[it] in ".!?。！？;；\n" }
+                if (boundary != null) end = boundary + 1
+            }
+            chunks += text.substring(start, end)
+            start = end
         }
-        if (current.isNotEmpty()) chunks += current.toString()
-        return chunks.map { chunk -> var value = chunk; protected.tokens.forEachIndexed { i, token -> value = value.replace("__PR${i}__", token) }; value }
+        return chunks
     }
-    fun drafts(raw: String, sentences: List<SourceSentence>, values: List<ProtectedText>): List<Pair<SourceSentence, String>> =
+    fun drafts(raw: String, sentences: List<SourceSentence>, values: List<TranslationInput>): List<Pair<SourceSentence, String>> =
         salvage(raw, sentences, values, TranslationConfig(provider = "mock"), "draft").accepted
             .map { (source, text) -> source to TranslationWarnings.body(text) }
     /** Recover only explicit, unambiguous sentence rows from a failed/truncated envelope.
      * Never assign another ID's output, JSON scaffolding or reasoning as a translation. */
-    fun salvage(raw: String, sentences: List<SourceSentence>, values: List<ProtectedText>,
+    fun salvage(raw: String, sentences: List<SourceSentence>, values: List<TranslationInput>,
         config: TranslationConfig, reason: String): TranslationValidation {
         require(sentences.size == values.size)
         // Scan the whole bounded response: clipping it could hide a later duplicate ID.
         if (raw.length > 262144) return TranslationValidation(emptyList(), sentences.map { it to reason })
-        val clean = raw.replace(Regex("<think>[\\s\\S]*?</think>"), "")
-            .substringBefore("<think>").substringBefore("</think>").trim()
+        val thinking = ThinkingOutput.structured(raw)
+        val start = raw.trimStart().removePrefix("```json").removePrefix("```").trimStart()
+        val plainLiteral = sentences.size == 1 && start.firstOrNull() !in listOf('{', '[') &&
+            !ThinkingOutput.textHasUntrustedTags(raw, sentences.single().text)
+        val clean = (if (plainLiteral) raw else thinking.text).trim()
             .removePrefix("```json").removePrefix("```").trim()
         val rows = mutableListOf<Pair<String, String?>>()
         val prefix = Regex("^\\s*(?:\\{\\s*\"translations\"\\s*:\\s*)?\\[").find(clean)
@@ -150,7 +160,9 @@ object StructuredTranslation {
                     break
                 }
             }
-        } else if (sentences.size == 1 && clean.isNotBlank() && clean.first() !in "{[" && !clean.startsWith("```")) {
+        } else if (sentences.size == 1 && clean.isNotBlank() && clean.first() !in "{[" && !clean.startsWith("```") &&
+            !ThinkingOutput.textHasUntrustedTags(clean, sentences.single().text) &&
+            (plainLiteral || !thinking.hadThinking || !Regex("</?think>").containsMatchIn(sentences.single().text))) {
             // A text-only answer to a single owned sentence is still useful, with its format error.
             rows += "s1" to clean.removeSuffix("```").trim()
         }
@@ -166,27 +178,17 @@ object StructuredTranslation {
         }
         return TranslationValidation(accepted, rejected)
     }
-    private val protected = Regex("```[\\s\\S]*?```|`[^`]+`|\\$\\$[\\s\\S]*?\\$\\$|\\$[^$\\n]+\\$|https?://[^\\s<>]+|\\[[0-9][0-9,; \\u2013-]*]|(?<![\\p{L}])[-+]?\\d+(?:[.,]\\d+)*(?:%|\\s?(?:kg|mg|km|cm|mm|ms|Hz|GHz|MHz|MB|GB|K|°C|m/s))?")
-    fun protect(text: String, firstToken: Int = 0): ProtectedText {
-        require(!text.contains(Regex("__PR\\d+__"))) { "RESERVED_TOKEN_IN_SOURCE" }
-        val tokens = mutableListOf<String>()
-        return ProtectedText(protected.replace(text) { m -> "__PR${firstToken + tokens.size}__".also { tokens += m.value } }, tokens, firstToken)
-    }
-    fun prompt(sentences: List<SourceSentence>, c: TranslationConfig): Pair<ModelPrompt, List<ProtectedText>> {
-        var nextToken = 0
-        val values = sentences.map { protect(it.text, nextToken).also { nextToken += it.tokens.size } }
+    fun prompt(sentences: List<SourceSentence>, c: TranslationConfig): Pair<ModelPrompt, List<TranslationInput>> {
+        val values = sentences.map { TranslationInput(it.text) }
         val rows = JSONArray()
-        values.forEachIndexed { i, p -> rows.put(JSONObject().put("id", "s${i + 1}").put("text", p.text)) }
+        values.forEachIndexed { i, value -> rows.put(JSONObject().put("id", "s${i + 1}").put("text", value.text)) }
         val terms = glossary(c)
         val system = if (c.targetLanguage.lowercase() in setOf("zh-cn", "zh-hans", "zh", "简体中文"))
-            "将每个 text 的全文翻译为简体中文，包括所有句子。保留原意、否定和转折，不要总结。" +
-            "只输出一个 JSON 对象，包含 translations 数组。每个数组元素包含 id 和 translation 两个字段；id 照抄输入，translation 填写实际译文。" +
-            (if (values.any { it.tokens.isNotEmpty() }) "所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。" else "") +
-            "术语表：$terms"
-        else "Translate every complete text from ${c.sourceLanguage} to ${c.targetLanguage}, including every sentence. Do not summarize. " +
-            "Return only a JSON object containing a translations array. Each entry must have id and translation fields; keep each input id and fill translation with the actual translated text. " +
-            (if (values.any { it.tokens.isNotEmpty() }) "Copy every __PRnumber__ marker from EACH input sentence exactly once, including both pairs of underscores. " else "") +
-            "Preserve terms, code, equations, references, negation and contrasts. No reasoning. Glossary: $terms"
+            "将每个 text 翻译为简体中文。只输出一个 JSON 对象，包含 translations 数组；每项包含输入的 id 和译文 translation。" +
+            (if (terms.length() > 0) "术语表：$terms" else "")
+        else "Translate each text from ${c.sourceLanguage} to ${c.targetLanguage}. " +
+            "Return a JSON object containing a translations array; each entry has the input id and its translation. " +
+            (if (terms.length() > 0) "Glossary: $terms" else "")
         return ModelPrompt(system, JSONObject().put("sentences", rows).toString() + "\n/no_think", sentences.size) to values
     }
     private fun glossary(c: TranslationConfig): JSONObject {
@@ -196,47 +198,34 @@ object StructuredTranslation {
         glossary.optJSONObject(c.targetLanguage)?.let { lang -> lang.keys().forEach { terms.put(it, lang.getString(it)) } }
         return terms
     }
-    /** One known sentence, so the caller owns its ID and no model-generated JSON is needed. */
-    fun textPrompt(sentence: SourceSentence, c: TranslationConfig): Pair<ModelPrompt, ProtectedText> {
-        val protected = protect(sentence.text)
-        fun language(code: String): String = when (code.lowercase()) {
-            "en" -> "English"
-            "zh-cn", "zh-hans", "zh", "简体中文" -> "Chinese"
-            else -> code
-        }
-        val source = if (c.sourceLanguage == "auto") "the original language" else language(c.sourceLanguage)
-        val target = language(c.targetLanguage)
-        val required = protected.markers.joinToString(", ")
-        val system = if (target == "Chinese")
-            "将下文完整翻译为简体中文，只输出译文正文，不要 JSON、解释或代码围栏。保留所有句子的原意、否定和转折。" +
-            (if (required.isNotEmpty()) "所有 __PR数字__ 标记必须逐字复制，不得增删或改写，包括两侧下划线。" else "") +
-            "术语表：${glossary(c)}"
-        else "Translate the complete text from $source into $target. Preserve every sentence, negation and contrast. " +
-            "Output only the translated text, without JSON, commentary or a surrounding code fence. " +
-            (if (target == "Chinese") "Use Simplified Chinese. " else "") +
-            (if (required.isNotEmpty()) "Copy these markers exactly once each, including underscores: $required. " else "") +
-            "Glossary: ${glossary(c)}"
-        val user = protected.text + "\n/no_think"
-        return ModelPrompt(system, user, outputFormat = ModelOutputFormat.TEXT) to protected
+    /** One known sentence: raw text input and text-only output, without a placeholder protocol. */
+    fun textPrompt(sentence: SourceSentence, c: TranslationConfig): Pair<ModelPrompt, TranslationInput> {
+        val input = TranslationInput(sentence.text)
+        val terms = glossary(c)
+        val system = if (c.targetLanguage.lowercase() in setOf("zh-cn", "zh-hans", "zh", "简体中文"))
+            "将下文翻译为简体中文，只输出译文。" + (if (terms.length() > 0) "术语表：$terms" else "")
+        else "Translate from ${c.sourceLanguage} to ${c.targetLanguage}. Output only the translated text." +
+            (if (terms.length() > 0) " Glossary: $terms" else "")
+        return ModelPrompt(system, input.text + "\n/no_think", outputFormat = ModelOutputFormat.TEXT) to input
     }
-    fun validateText(raw: String, protected: ProtectedText, c: TranslationConfig): String {
+    fun validateText(raw: String, protected: TranslationInput, c: TranslationConfig): String {
         require(raw.toByteArray().size <= 262144) { "OUTPUT_TOO_LARGE" }
-        require(!raw.contains("<think>") && !raw.contains("</think>")) { "THINKING_OUTPUT" }
+        require(!ThinkingOutput.textHasUntrustedTags(raw, protected.text)) { "THINKING_OUTPUT" }
         val value = raw.trim()
         require(value.isNotEmpty()) { "EMPTY_TRANSLATION" }
         require(!value.startsWith("```") && !value.startsWith("{") && !value.startsWith("[")) { "UNEXPECTED_TEXT_WRAPPER" }
-        return protected.forDisplay(value, protected.restore(protected.text), c)
+        return protected.forDisplay(value, protected.text, c)
     }
-    fun validate(raw: String, sentences: List<SourceSentence>, protected: List<ProtectedText>, config: TranslationConfig = TranslationConfig()): List<Pair<SourceSentence, String>> {
+    fun validate(raw: String, sentences: List<SourceSentence>, protected: List<TranslationInput>, config: TranslationConfig = TranslationConfig()): List<Pair<SourceSentence, String>> {
         val result = validateEach(raw, sentences, protected, config)
         require(result.rejected.isEmpty()) { result.rejected.first().second }
         return result.accepted
     }
     /** Only complete JSON with unique, known IDs may contribute independently validated rows. */
-    fun validateEach(raw: String, sentences: List<SourceSentence>, protected: List<ProtectedText>, config: TranslationConfig = TranslationConfig()): TranslationValidation {
+    fun validateEach(raw: String, sentences: List<SourceSentence>, protected: List<TranslationInput>, config: TranslationConfig = TranslationConfig()): TranslationValidation {
         require(sentences.size == protected.size)
         require(raw.toByteArray().size <= 262144) { "OUTPUT_TOO_LARGE" }
-        require(!raw.contains("<think>") && !raw.contains("</think>")) { "THINKING_OUTPUT" }
+        require(!ThinkingOutput.structured(raw).hadThinking) { "THINKING_OUTPUT" }
         val clean = raw.trim().removePrefix("```json").removePrefix("```").removeSuffix("```").trim()
         val parser = JSONTokener(clean)
         val root = parser.nextValue()

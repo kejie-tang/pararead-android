@@ -22,7 +22,7 @@ test('inline errors use secondary text without the upstream red underline', asyn
 test('a failed sentence without retained text still shows the localized reason inline', () => {
   setStrings({ translationFailed: '翻译失败，点击重试：{0}' });
   try {
-    for (const message of ['PROTECTED_TOKEN_MISMATCH', 'TRUNCATED_STREAM_length', 'TRANSLATION_LANGUAGE_OR_SOURCE_COPY', 'HOST_TIMEOUT']) {
+    for (const message of ['HTTP_500', 'TRUNCATED_STREAM_length', 'INFERENCE_FAILED', 'HOST_TIMEOUT']) {
       const element = span();
       renderSentence(element, sentence, { status: 'pending', draft: '读者记得最后一页' }, false);
       assert.match(element.textContent, /读者记得最后一页/);
@@ -56,7 +56,7 @@ test('imperfect translations keep the exact warning as ordinary done text in bot
   for (const spaced of [false, true]) {
     const element = span();
     Object.defineProperty(element, 'innerHTML', { set() { assert.fail('warning must be plain text, never markup'); } });
-    const translation = '读者记得最后一页。 *****（protected_token_mismatch）';
+    const translation = '读者记得最后一页。（http_500）';
     renderSentence(element, sentence, { status: 'done', translation }, spaced);
     assert.equal(element.dataset.status, 'done');
     assert.equal(element.textContent, translation + (spaced ? ' ' : ''));
@@ -64,12 +64,47 @@ test('imperfect translations keep the exact warning as ordinary done text in bot
   }
 });
 
+test('legacy cached warnings display without placeholder stars in PDF and TXT without altering stored state', async () => {
+  for (const spaced of [false, true]) {
+    for (const [translation, expected] of [
+      ['译文 *****（http_500）', '译文（http_500）'],
+      ['译文（http_500）', '译文（http_500）'],
+      ['旧译文 *****（protected_token_mismatch）', '旧译文'],
+      ['Old translation（translation_language_or_source_copy）', 'Old translation'],
+      ['旧译文 *****（protected_token_mismatch, http_500, translation_language_or_source_copy）', '旧译文（http_500）'],
+      ['译文 *****（http_500）（host_timeout, http_500）', '译文（http_500, host_timeout）'],
+      ['正文 *** 与 *****（http_500） 不是尾缀', '正文 *** 与 *****（http_500） 不是尾缀'],
+    ]) {
+      const element = span();
+      Object.defineProperty(element, 'innerHTML', { set() { assert.fail('warning must stay ordinary text'); } });
+      renderSentence(element, sentence, { status: 'done', translation }, spaced);
+      assert.equal(element.textContent, expected + (spaced ? ' ' : ''));
+      assert.equal(element.dataset.status, 'done');
+      assert.equal(element.title, '');
+    }
+  }
+  const h = harness();
+  try {
+    h.client.refresh(); await tick();
+    const request = h.sent.find(m => m.type === 'translate');
+    const translation = '已缓存译文 *****（http_500）';
+    h.client.handle({ type: 'translations', requestId: request.requestId, items: [
+      { id: sentence.id, translation }, { id: h.neighbour.id, translation: '正常邻句' },
+    ] });
+    h.client.handle({ type: 'translationDone', requestId: request.requestId, failures: [] });
+    h.client.refresh(); await tick();
+    assert.deepEqual(h.client.state(sentence.id), { status: 'done', translation });
+    assert.equal(h.elements.get(sentence.id).textContent, '已缓存译文（http_500）');
+    assert.equal(h.sent.filter(m => m.type === 'translate').length, 1);
+  } finally { h.client.reset(); }
+});
+
 test('a warning commit settles successfully without becoming an error or generating another request', async () => {
   const h = harness();
   try {
     h.client.refresh(); await tick();
     const request = h.sent.find(m => m.type === 'translate');
-    const translation = '读者记得最后一页。 *****（protected_token_mismatch）';
+    const translation = '读者记得最后一页。（http_500）';
     h.client.handle({ type: 'translations', requestId: request.requestId, items: [{ id: sentence.id, translation }] });
     h.client.handle({ type: 'translationDone', requestId: request.requestId, failures: [] });
     await tick();
@@ -111,9 +146,9 @@ test('draft failure becomes visible and retry success replaces it without changi
     h.client.handle({ type: 'translationDraft', requestId: request.requestId, items: [{ id: sentence.id, translation: '读者记得' }] });
     assert.equal(h.elements.get(sentence.id).textContent, '读者记得 ▍');
     h.client.handle({ type: 'translations', requestId: request.requestId, items: [{ id: h.neighbour.id, translation: '已保存的译文仍然可用。' }] });
-    h.client.handle({ type: 'translationDone', requestId: request.requestId, failures: [{ id: sentence.id, message: 'PROTECTED_TOKEN_MISMATCH' }] });
-    assert.equal(h.elements.get(sentence.id).textContent, '读者记得 *****（protected_token_mismatch）');
-    assert.deepEqual(h.client.state(sentence.id), { status: 'error', message: 'PROTECTED_TOKEN_MISMATCH', translation: '读者记得' });
+    h.client.handle({ type: 'translationDone', requestId: request.requestId, failures: [{ id: sentence.id, message: 'HTTP_500' }] });
+    assert.equal(h.elements.get(sentence.id).textContent, '读者记得（http_500）');
+    assert.deepEqual(h.client.state(sentence.id), { status: 'error', message: 'HTTP_500', translation: '读者记得' });
     assert.equal(h.elements.get(sentence.id).dataset.status, 'done');
     assert.equal(h.elements.get(sentence.id).title, '');
     assert.equal(h.elements.get(h.neighbour.id).textContent, '已保存的译文仍然可用。');
@@ -139,7 +174,7 @@ for (const message of ['TRUNCATED_STREAM_length', 'HTTP_500', 'HOST_TIMEOUT']) {
     renderSentence(element, sentence, { status: 'error', message: 'OLD_ERROR' }, spaced);
     const translation = '<img src=x onerror=alert(1)> 不完美译文';
     renderSentence(element, sentence, { status: 'error', message, translation }, spaced);
-    assert.equal(element.textContent, `${translation} *****（${message.toLowerCase()}）${spaced ? ' ' : ''}`);
+    assert.equal(element.textContent, `${translation}（${message.toLowerCase()}）${spaced ? ' ' : ''}`);
     assert.equal(element.dataset.status, 'done', 'use normal translation styling, not error color or underline');
     assert.equal(element.title, '');
   });
@@ -154,7 +189,7 @@ for (const message of ['TRUNCATED_STREAM_length', 'HTTP_500', 'HOST_TIMEOUT']) {
       h.client.handle({ type: 'translations', requestId: request.requestId, items: [{ id: h.neighbour.id, translation: '正常邻句' }] });
       h.client.handle({ type: 'translationDone', requestId: request.requestId, failures: [{ id: sentence.id, message }] });
       assert.deepEqual(h.client.state(sentence.id), { status: 'error', message, translation });
-      assert.equal(h.elements.get(sentence.id).textContent, `${translation} *****（${message.toLowerCase()}）`);
+      assert.equal(h.elements.get(sentence.id).textContent, `${translation}（${message.toLowerCase()}）`);
       assert.equal(h.elements.get(sentence.id).dataset.status, 'done');
       assert.equal(h.elements.get(sentence.id).title, '');
       assert.deepEqual(h.client.state(h.neighbour.id), { status: 'done', translation: '正常邻句' });
@@ -166,16 +201,21 @@ for (const message of ['TRUNCATED_STREAM_length', 'HTTP_500', 'HOST_TIMEOUT']) {
 
 test('panel normalizes arbitrary error codes and merges only trailing warning suffixes', () => {
   const cases = [
-    ['译文', ' __HTTP 500 / Read.Timeout:EOF-1__ ', '译文 *****（http_500_read.timeout:eof-1）'],
-    ['译文', 'İ HOST_TIMEOUT', '译文 *****（i_host_timeout）'],
-    ['译文', '错误 ! __', '译文 *****（translation_failed）'],
-    ['译文', 'A'.repeat(170), `译文 *****（${'a'.repeat(160)}）`],
-    ['译文 *****（http_500, custom.code:retry-1）', 'HTTP_500', '译文 *****（http_500, custom.code:retry-1）'],
-    ['译文 *****（truncated_stream_length） *****（http_500, truncated_stream_length）', 'HOST_TIMEOUT',
-      '译文 *****（truncated_stream_length, http_500, host_timeout）'],
-    ['译文 *****（host_timeout）', 'HOST_TIMEOUT', '译文 *****（host_timeout）'],
-    ['译文 *****（HTTP_500）  ', 'HOST_TIMEOUT', '译文 *****（http_500, host_timeout）'],
-    ['正文 *****（http_500） 不是尾缀', 'HOST_TIMEOUT', '正文 *****（http_500） 不是尾缀 *****（host_timeout）'],
+    ['译文', ' __HTTP 500 / Read.Timeout:EOF-1__ ', '译文（http_500_read.timeout:eof-1）'],
+    ['译文', 'İ HOST_TIMEOUT', '译文（i_host_timeout）'],
+    ['译文', '错误 ! __', '译文（translation_failed）'],
+    ['译文', 'A'.repeat(170), `译文（${'a'.repeat(160)}）`],
+    ['译文（http_500, custom.code:retry-1）', 'HTTP_500', '译文（http_500, custom.code:retry-1）'],
+    ['译文（truncated_stream_length）（http_500, truncated_stream_length）', 'HOST_TIMEOUT',
+      '译文（truncated_stream_length, http_500, host_timeout）'],
+    ['译文（host_timeout）', 'HOST_TIMEOUT', '译文（host_timeout）'],
+    ['译文（HTTP_500）  ', 'HOST_TIMEOUT', '译文（http_500, host_timeout）'],
+    ['译文 *****（http_500）', 'HOST_TIMEOUT', '译文（http_500, host_timeout）'],
+    ['旧译文 *****（protected_token_mismatch, translation_language_or_source_copy）', 'HOST_TIMEOUT', '旧译文（host_timeout）'],
+    ['旧译文（protected_token_mismatch, http_500）', 'HOST_TIMEOUT', '旧译文（http_500, host_timeout）'],
+    ['译文 *****（http_500）（host_timeout）', 'HOST_TIMEOUT', '译文（http_500, host_timeout）'],
+    ['正文 *** 与 *****（http_500） 不是尾缀', 'HOST_TIMEOUT', '正文 *** 与 *****（http_500） 不是尾缀（host_timeout）'],
+    ['正文（http_500） 不是尾缀', 'HOST_TIMEOUT', '正文（http_500） 不是尾缀（host_timeout）'],
   ];
   for (const [translation, message, expected] of cases) {
     const element = span();
@@ -245,7 +285,7 @@ test('stale owner, unknown request and settled messages cannot replace the curre
       h.client.handle({ type: 'translationDone', requestId, failures: [{ id: sentence.id, message: 'HTTP_500' }] });
     }
     assert.deepEqual(h.client.state(sentence.id), { status: 'error', message: 'HOST_TIMEOUT', translation: '当前草稿' });
-    assert.equal(h.elements.get(sentence.id).textContent, '当前草稿 *****（host_timeout）');
+    assert.equal(h.elements.get(sentence.id).textContent, '当前草稿（host_timeout）');
   } finally { h.client.reset(); }
 });
 
